@@ -36,13 +36,9 @@ add_definitions(-DWIN32_LEAN_AND_MEAN)
 
 include_directories(.)
 include_directories(src)
-#include_directories(./include/spdlog)
-
-#[[file(GLOB_RECURSE spdlogFiles "include/spdlog/*.h")
-
-set(includeFiles "${spdlogFiles}")]]
-
-include_directories(${includeFiles})
+include_directories(include/minhook/include)
+include_directories(Includes/libhat)
+include_directories(Includes/libhat/libhat)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
 
@@ -67,8 +63,12 @@ endfunction()
 
 add_library(Solstice SHARED ${sourceFiles} ${resourceFiles})
 
-set_property(TARGET Solstice spdlog PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+add_subdirectory(include/minhook)
+add_subdirectory(include/libhat)
 
-target_link_libraries(Solstice PRIVATE spdlog)
+target_link_libraries(Solstice PRIVATE spdlog minhook libhat)
+
+set_property(TARGET Solstice minhook spdlog libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+
 
 

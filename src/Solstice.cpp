@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ostream>
 #include <thread>
+#include <SDK/SigManager.hpp>
 #include <Utils/Logger.hpp>
 #include <spdlog/spdlog.h>
 
@@ -29,6 +30,10 @@ void Solstice::init(HMODULE hModule)
     console->warn("This is a warning message.");
     console->error("This is an error message.");
     console->critical("This is a critical message.");
+
+    console->info("initializing sigmanager...");
+    SigManager::initialize();
+    console->info("sigmanager initialized!");
 
 
     // Wait for the user to press END
