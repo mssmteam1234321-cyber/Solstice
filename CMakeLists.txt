@@ -26,6 +26,22 @@ endif ()
 add_link_options($<$<CONFIG:Debug>:/INCREMENTAL>)
 add_compile_options($<$<CONFIG:Debug>:/Zi>)
 
+# Release options
+add_compile_options($<$<CONFIG:Release>:/O2>) # optimize for speed
+add_compile_options($<$<CONFIG:Release>:/Oi>) # enable intrinsic functions
+add_compile_options($<$<CONFIG:Release>:/GL>) # enable link-time code generation
+add_compile_options($<$<CONFIG:Release>:/Gy>) # separate functions for linker
+add_compile_options($<$<CONFIG:Release>:/Gw>) # optimize global data
+add_compile_options($<$<CONFIG:Release>:/GS>) # buffer security check
+add_compile_options($<$<CONFIG:Release>:/Gm->) # disable minimal rebuild
+add_compile_options($<$<CONFIG:Release>:/GF>) # enable string pooling
+add_compile_options($<$<CONFIG:Release>:/fp:fast>) # optimize floating point
+add_compile_options($<$<CONFIG:Release>:/GR->) # disable RTTI
+add_compile_options($<$<CONFIG:Release>:/Gd>) # use __cdecl for all functions
+add_compile_options($<$<CONFIG:Release>:/MT>) # use static multithreaded runtime
+add_compile_options($<$<CONFIG:Release>:/Ob2>) # inline any suitable function
+
+
 
 #add_compile_options($<$<CONFIG:Release>:/O2;/Oi;/GL;/Gy;/Gw;/GS;/Gm-;/GF;/fp:fast;/GR-;/Gd;/MT;/Ob2>)
 
@@ -66,7 +82,7 @@ add_library(Solstice SHARED ${sourceFiles} ${resourceFiles})
 add_subdirectory(include/minhook)
 add_subdirectory(include/libhat)
 
-target_link_libraries(Solstice PRIVATE spdlog minhook libhat)
+target_link_libraries(Solstice PRIVATE spdlog minhook libhat dbghelp.lib winmm.lib)
 
 set_property(TARGET Solstice minhook spdlog libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 

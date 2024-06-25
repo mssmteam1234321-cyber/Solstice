@@ -9,7 +9,6 @@
 bool __stdcall DllMain(const HMODULE hModule, const DWORD fdwReason, [[maybe_unused]] LPVOID lpReserved) {
     if(fdwReason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(hModule);
-        Logger::initialize();
         CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(Solstice::init), hModule, 0, nullptr);
     }
     return true;  // Successful DLL_PROCESS_ATTACH

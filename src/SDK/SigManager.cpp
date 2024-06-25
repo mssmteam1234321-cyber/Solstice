@@ -10,10 +10,8 @@
 
 #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
 
-hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string& name)
+hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string& name, int offset)
 {
-    if(!Logger::initialized) Logger::initialize(); // Necessary because this can be called before the init thread is created :3
-
     if (mSigScanCount == 0)
     {
         // (milliseconds)
@@ -27,7 +25,8 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
         return {};
     }
 
-    mSigs[name] = reinterpret_cast<uintptr_t>(result.get());
+    if (offset == 0) mSigs[name] = reinterpret_cast<uintptr_t>(result.get());
+    else mSigs[name] = reinterpret_cast<uintptr_t>(result.rel(offset));
 
     return result;
 }
@@ -43,15 +42,15 @@ void SigManager::initialize()
     uint64_t end = NOW;
 
     for (const auto& sig : mSigs) {
+        //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
         if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
     }
 
     for (const auto& sig : mSigs) {
         if (sig.second == 0) Solstice::console->critical("failed to find {}", sig.first);
-    }
-    Solstice::console->info("MainView_instance @ 0x{:X}", MainView_instance);
 
-    Solstice::console->info("SigManager initialized in {}ms", end - mSigScanStart);
+    }
+    Solstice::console->info("sigmanager initialized in {}ms, {} total sigs scanned", end - mSigScanStart, mSigScanCount);
 }
 
 
