@@ -22,7 +22,7 @@ MinecraftGame* MinecraftGame::getInstance()
 
 ClientInstance* MinecraftGame::getPrimaryClientInstance()
 {
-    auto helpme = hat::member_at<std::map<unsigned char, std::shared_ptr<class ClientInstance>>, MinecraftGame>(this, 0xA08);
+    auto helpme = hat::member_at<std::map<unsigned char, std::shared_ptr<class ClientInstance>>, MinecraftGame>(this, OffsetProvider::MinecraftGame_mClientInstances);
 
     for (auto& clientInstance : helpme)
     {
