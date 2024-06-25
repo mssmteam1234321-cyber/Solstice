@@ -38,7 +38,9 @@ Options* ClientInstance::getOptions()
 
 std::string ClientInstance::getScreenName()
 {
-    return MemUtils::CallVFunc<std::string>(OffsetProvider::ClientInstance_getScreenName, this);
+    std::string name = "no_screen";
+    name = MemUtils::CallVFunc<std::string&, std::string&>(OffsetProvider::ClientInstance_getScreenName, this, name);
+    return name;
 }
 
 void ClientInstance::setDisableInput(bool disable)

@@ -18,8 +18,10 @@ add_compile_definitions(JM_XORSTR_DISABLE_AVX_INTRINSICS)
 add_compile_definitions(ENTT_SPARSE_PAGE=2048)
 add_compile_definitions(ENTT_PACKED_PAGE=128)
 
+set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 if (${IS_DEBUG_BUILD})
-    add_compile_definitions(_DEBUG)
+    add_compile_definitions(__DEBUG__)
 endif ()
 
 # Debug options
@@ -40,6 +42,9 @@ add_compile_options($<$<CONFIG:Release>:/GR->) # disable RTTI
 add_compile_options($<$<CONFIG:Release>:/Gd>) # use __cdecl for all functions
 add_compile_options($<$<CONFIG:Release>:/MT>) # use static multithreaded runtime
 add_compile_options($<$<CONFIG:Release>:/Ob2>) # inline any suitable function
+add_compile_options($<$<CONFIG:Release>:/Ot>) # favor fast code
+add_compile_options($<$<CONFIG:Release>:/Oy->) # omit frame pointers
+
 
 
 

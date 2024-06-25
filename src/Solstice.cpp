@@ -34,7 +34,11 @@ void Solstice::init(HMODULE hModule)
     //console->set_pattern(CC(255, 135, 0) + "[%H:%M:%S.%e]" + ANSI_COLOR_RESET + " [%n] [%^%l%$%$%#%$] %v");
     console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$%$%#%$] %v");
     console->set_level(spdlog::level::trace);
-    console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!");
+    console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
+#ifdef __DEBUG__
+        + CC(255, 0, 0) + " [Debug] " + ANSI_COLOR_RESET
+#endif
+);
 
     console->info("initializing offsetprovider...");
     OffsetProvider::initialize();
@@ -51,6 +55,8 @@ void Solstice::init(HMODULE hModule)
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->mcGame));
 
     ClientInstance::get()->mcGame->playUi("beacon.activate", 1, 1.0f);
+
+    console->info("Current screen name: {}", ClientInstance::get()->getScreenName());
 
     console->info("Press END to eject dll.");
 
