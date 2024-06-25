@@ -19,11 +19,16 @@
 
 #define DEFINE(name, str) const hat::signature_view name = hat::compile_signature<str>()
 
-// defines a uintptr_t member with the signature's result address
-#define DEFINE_MEMBER_SIG(name, str) static inline uint64_t name = reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name).get());
+#define DEFINE_MEMBER_SIG(name, str) \
+static inline uintptr_t name; \
+static void name##_initializer() { name = reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name).get()); } \
+static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
 
 class SigManager {
     static hat::scan_result scanSig(hat::signature_view sig, const std::string& name);
+    static inline std::vector<std::future<void>> futures;
+    static inline int mSigScanCount;
+    static inline uint64_t mSigScanStart;
 public:
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 

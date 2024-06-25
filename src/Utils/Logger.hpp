@@ -7,8 +7,10 @@
 
 class Logger {
 public:
+    static inline bool initialized;
     static void initialize();
     static void deinitialize();
+
     static std::string getAnsiColor(float r, float g, float b);
     static std::string getAnsiColor(int r, int g, int b);
 

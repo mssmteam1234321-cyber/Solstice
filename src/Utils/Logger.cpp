@@ -11,6 +11,7 @@
 
 void Logger::initialize()
 {
+    if (initialized) return;
     AllocConsole();
 
     SetConsoleTitle("Solstice Console");
@@ -24,6 +25,7 @@ void Logger::initialize()
     GetConsoleMode(hOut, &dwMode);
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
+    initialized = true;
 }
 
 void Logger::deinitialize()

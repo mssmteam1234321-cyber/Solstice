@@ -18,8 +18,6 @@ void Solstice::init(HMODULE hModule)
     mModule = hModule;
     mInitialized = true;
 
-    Logger::initialize();
-
     console = spdlog::stdout_color_mt("solstice", spdlog::color_mode::always);
     console->set_level(spdlog::level::trace);
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!");
