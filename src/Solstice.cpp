@@ -20,8 +20,18 @@
 #include <spdlog/spdlog.h>
 #include <Utils/ChatUtils.hpp>
 #include <Utils/ProcUtils.hpp>
+#include <magic_enum.hpp>
+
+#include <nes/event_dispatcher.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
+
+enum class TestEnum
+{
+    Test1,
+    Test2,
+    Test3
+};
 
 void Solstice::init(HMODULE hModule)
 {
@@ -57,13 +67,11 @@ void Solstice::init(HMODULE hModule)
 
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
+    console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
+
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
-
-    console->info("Current screen name: {}", ClientInstance::get()->getScreenName());
-
-    console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
 
     console->info("Press END to eject dll.");
 

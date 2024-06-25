@@ -10,6 +10,19 @@ CPMAddPackage(
         VERSION 1.9.2
 )
 
+#MagicEnum
+CPMAddPackage(
+        NAME magic_enum
+        GITHUB_REPOSITORY Neargye/magic_enum
+        VERSION 0.9.5
+)
+
+CPMAddPackage(
+        NAME nuvola_event_system
+        GITHUB_REPOSITORY DisabledMallis/NuvolaEventSystem
+        VERSION 1.1.0
+)
+
 set(CMAKE_CXX_STANDARD 26)
 
 add_compile_definitions(NOMINMAX)
@@ -55,11 +68,18 @@ add_compile_definitions(SOLSTICE_VERSION="${SOLSTICE_VERSION}")
 
 add_definitions(-DWIN32_LEAN_AND_MEAN)
 
+# to be able to include entt files like <entt/entt.hpp> you need to add the following:
+# 1. add the entt include directory to the include_directories
+
+
+
 include_directories(.)
 include_directories(src)
+include_directories(include)
 include_directories(include/minhook/include)
-include_directories(Includes/libhat)
-include_directories(Includes/libhat/libhat)
+include_directories(include/libhat)
+include_directories(include/entt)
+include_directories(include/libhat/libhat)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
 
@@ -87,9 +107,9 @@ add_library(Solstice SHARED ${sourceFiles} ${resourceFiles})
 add_subdirectory(include/minhook)
 add_subdirectory(include/libhat)
 
-target_link_libraries(Solstice PRIVATE spdlog minhook libhat dbghelp.lib winmm.lib)
+target_link_libraries(Solstice PRIVATE spdlog minhook nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum)
 
-set_property(TARGET Solstice minhook spdlog libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+set_property(TARGET Solstice minhook spdlog nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
 
