@@ -6,9 +6,11 @@
 #include <map>
 #include <memory>
 #include <libhat/Access.hpp>
+#include <SDK/OffsetProvider.hpp>
+#include <Utils/MemUtils.hpp>
 
-#include "BedrockPlatformUWP.hpp"
-#include "MainView.hpp"
+#include "UWP/BedrockPlatformUWP.hpp"
+#include "UWP/MainView.hpp"
 
 MinecraftGame* MinecraftGame::getInstance()
 {
@@ -28,4 +30,10 @@ ClientInstance* MinecraftGame::getPrimaryClientInstance()
     }
 
     return nullptr;
+}
+
+void MinecraftGame::playUi(const std::string& soundName, float volume, float pitch)
+{
+    int index = OffsetProvider::MinecraftGame_playUi;
+    MemUtils::CallVFunc<void, const std::string&, float, float>(index, this, soundName, volume, pitch);
 }

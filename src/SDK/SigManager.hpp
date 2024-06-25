@@ -36,8 +36,8 @@ class SigManager {
 public:
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
-    // only here for testing scan speed lol
-    /*DEFINE_SIG(Reach, "F3 0F ? ? ? ? ? ? 44 0F ? ? 76 ? C6 44 24 64");
+    /*// only here for testing scan speed lol
+    DEFINE_SIG(Reach, "F3 0F ? ? ? ? ? ? 44 0F ? ? 76 ? C6 44 24 64");
     DEFINE_REF_SIG(MobEquipmentPacket_MobEquipmentPacket, "E8 ? ? ? ? 90 48 8B ? E8 ? ? ? ? 45 33 ? 4C 8D ? ? ? ? ? 48 8B ? 48 8B ? E8 ? ? ? ? 45 8D", 1); // MobEquipmentPacket::MobEquipmentPacket
     DEFINE_SIG(SplashTextRenderer_render, "48 8B ? 55 53 56 57 41 ? 41 ? 41 ? 41 ? 48 8D ? ? ? ? ? 48 81 EC ? ? ? ? 0F 29 ? ? 0F 29 ? ? 44 0F ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 4D 8B ? 4D 8B ? 48 89"); // SplashTextRenderer::render
     DEFINE_REF_SIG(MinecraftPackets_createPacket, "E8 ? ? ? ? 90 48 83 BD ? ? 00 00 ? 0F 84 ? ? ? ? ff", 1); // MinecraftPackets::createPacket. alternative sig:
@@ -91,7 +91,7 @@ public:
     DEFINE_REF_SIG(ItemStack_fromDescriptor, "E8 ? ? ? ? 90 F6 86 ? ? ? ? ?", 1);
     DEFINE_SIG(RakPeer_sendImmediate, "40 ? 56 57 41 ? 41 ? 41 ? 41 ? 48 81 EC ? ? ? ? 48 8D ? ? ? 48 89 ? ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 48 8B");
     DEFINE_REF_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", 1); // ActorCollision::setOnGround
-    DEFINE_REF_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", 1); // ActorCollision::isOnGround*/
+    DEFINE_REF_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", 1); // ActorCollision::isOnGround#1#*/
 
     DEFINE_REF_SIG(MainView_instance, "48 8B 05 ? ? ? ? C6 40 ? ? 0F 95 C0", 3);
 

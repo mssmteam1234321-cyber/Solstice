@@ -19,7 +19,9 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
     }
     mSigScanCount++;
 
-    auto result = hat::find_pattern(sig);
+    hat::process::module_t minecraft = hat::process::get_module("Minecraft.Windows.exe");
+    auto result = hat::find_pattern(sig, ".text", minecraft);
+
     if (!result.has_result()) {
         mSigs[name] = 0;
         return {};
@@ -39,18 +41,16 @@ void SigManager::initialize()
     }
     futures.clear(); // Clear the futures vector once initialization is complete
 
-    uint64_t end = NOW;
-
     for (const auto& sig : mSigs) {
         //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
-        if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
+        if (sig.second != 0) Solstice::console->info("[signatures] found {} @ 0x{:X}", sig.first, sig.second);
     }
 
     for (const auto& sig : mSigs) {
-        if (sig.second == 0) Solstice::console->critical("failed to find {}", sig.first);
+        if (sig.second == 0) Solstice::console->critical("[signatures] failed to find {}", sig.first);
 
     }
-    Solstice::console->info("sigmanager initialized in {}ms, {} total sigs scanned", end - mSigScanStart, mSigScanCount);
+    Solstice::console->info("[signatures] initialized in {}ms, {} total sigs scanned", NOW - mSigScanStart, mSigScanCount);
 }
 
 

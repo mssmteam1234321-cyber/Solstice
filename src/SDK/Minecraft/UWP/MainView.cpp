@@ -4,9 +4,11 @@
 
 #include "MainView.hpp"
 
+#include <SDK/OffsetProvider.hpp>
+
 class BedrockPlatformUWP* MainView::getBedrockPlatform()
 {
-    return hat::member_at<BedrockPlatformUWP*>(this, 0x118);
+    return hat::member_at<BedrockPlatformUWP*>(this, OffsetProvider::MainView_bedrockPlatform);
 }
 
 MainView* MainView::getInstance()

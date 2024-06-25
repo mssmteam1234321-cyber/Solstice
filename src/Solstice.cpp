@@ -7,10 +7,11 @@
 #include <iostream>
 #include <ostream>
 #include <thread>
+#include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
-#include <SDK/Minecraft/BedrockPlatformUWP.hpp>
+#include <SDK/Minecraft/UWP/BedrockPlatformUWP.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-#include <SDK/Minecraft/MainView.hpp>
+#include <SDK/Minecraft/UWP/MainView.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
 #include <Utils/Logger.hpp>
 #include <spdlog/spdlog.h>
@@ -20,7 +21,9 @@
 
 void Solstice::init(HMODULE hModule)
 {
-    while (ProcUtils::getModuleCount() < 130) Sleep(1); // Not doing this could cause crashes if you inject too soon
+    // Not doing this could cause crashes if you inject too soon
+    // Honestly, I don't think this helps much but it's not a bad idea to have it here
+    while (ProcUtils::getModuleCount() < 130) Sleep(1);
 
     mModule = hModule;
     mInitialized = true;
@@ -33,16 +36,21 @@ void Solstice::init(HMODULE hModule)
     console->set_level(spdlog::level::trace);
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!");
 
+    console->info("initializing offsetprovider...");
+    OffsetProvider::initialize();
+
     console->info("initializing sigmanager...");
     SigManager::initialize();
 
     if (!ClientInstance::get())
     {
-        console->warn("Waiting for ClientInstance...");
         while (!ClientInstance::get()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
+    console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->mcGame));
+
+    ClientInstance::get()->mcGame->playUi("beacon.activate", 1, 1.0f);
 
     console->info("Press END to eject dll.");
 
@@ -52,10 +60,9 @@ void Solstice::init(HMODULE hModule)
     // Shutdown
     console->warn("Shutting down...");
 
+    ClientInstance::get()->mcGame->playUi("beacon.deactivate", 1, 1.0f);
     mInitialized = false;
-
     Logger::deinitialize();
-
     FreeLibraryAndExitThread(mModule, 0);
 }
 
