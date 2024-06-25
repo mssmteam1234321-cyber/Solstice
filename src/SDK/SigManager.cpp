@@ -7,6 +7,7 @@
 #include <iostream>
 #include <Solstice.hpp>
 #include <Utils/Logger.hpp>
+#include <Utils/MemUtils.hpp>
 
 #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
 
@@ -43,7 +44,7 @@ void SigManager::initialize()
 
     for (const auto& sig : mSigs) {
         //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
-        if (sig.second != 0) Solstice::console->info("[signatures] found {} @ 0x{:X}", sig.first, sig.second);
+        if (sig.second != 0) Solstice::console->info("[signatures] found {} @ {}", sig.first, MemUtils::getMbMemoryString(sig.second));
     }
 
     for (const auto& sig : mSigs) {

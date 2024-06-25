@@ -11,10 +11,14 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/UWP/BedrockPlatformUWP.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <SDK/Minecraft/UWP/MainView.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
+#include <SDK/Minecraft/MinecraftSim.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/Logger.hpp>
 #include <spdlog/spdlog.h>
+#include <Utils/ChatUtils.hpp>
 #include <Utils/ProcUtils.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
@@ -52,11 +56,14 @@ void Solstice::init(HMODULE hModule)
     }
 
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
-    console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->mcGame));
+    console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
 
-    ClientInstance::get()->mcGame->playUi("beacon.activate", 1, 1.0f);
+    ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
+    ChatUtils::displayClientMessage("Initialized!");
 
     console->info("Current screen name: {}", ClientInstance::get()->getScreenName());
+
+    console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
 
     console->info("Press END to eject dll.");
 
@@ -66,7 +73,8 @@ void Solstice::init(HMODULE hModule)
     // Shutdown
     console->warn("Shutting down...");
 
-    ClientInstance::get()->mcGame->playUi("beacon.deactivate", 1, 1.0f);
+    ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
+    ChatUtils::displayClientMessage("§cEjected!");
     mInitialized = false;
     Logger::deinitialize();
     FreeLibraryAndExitThread(mModule, 0);

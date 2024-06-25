@@ -8,37 +8,12 @@ enum class OffsetType {
     FieldOffset,
 };
 
-#define DEFINE_SIG(name, str) \
-static inline uintptr_t name; \
-static void name##_initializer() { name = reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name).get()); } \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
+// Don't forget to define access modifiers for the fields
 
-// define index field: gets the result of
-/*#define DEFINE_INDEX_FIELD(name, str, index_offset) \
-static inline int name; \
-static void name##_initializer() { name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name, index_offset).get()) + index_offset) / 8; } \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());*/
-// If the offset_type is OffetType::Index, then the offset is divided by 8
-// Else, the offset is added to the result
-#define DEFINE_INDEX_FIELD(name, str, index_offset, offset_type) \
-static inline int name; \
-static void name##_initializer() { \
-    auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
-    if (!result.has_result()) { \
-        name = 0; \
-        return; \
-    } \
-    if (offset_type == OffsetType::Index) { \
-        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
-    } else { \
-        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
-    } \
-} \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
-
-// Same as above but you can pick the type of the field
 #define DEFINE_INDEX_FIELD_TYPED(type, name, str, index_offset, offset_type) \
+public: \
 static inline type name; \
+private: \
 static void name##_initializer() { \
     auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
     if (!result.has_result()) { \
@@ -51,9 +26,30 @@ static void name##_initializer() { \
         name = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
     } \
 } \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
+private: \
+static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+public:
 
 
+#define DEFINE_INDEX_FIELD(name, str, index_offset, offset_type) \
+public: \
+static inline int name; \
+private: \
+static void name##_initializer() { \
+    auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
+    if (!result.has_result()) { \
+        name = 0; \
+        return; \
+    } \
+    if (offset_type == OffsetType::Index) { \
+        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
+    } else { \
+        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
+    } \
+} \
+private: \
+static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+public:
 
 #include <future>
 #include <libhat/Scanner.hpp>
@@ -73,10 +69,20 @@ public:
     DEFINE_INDEX_FIELD(ClientInstance_getMouseGrabbed, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? 48 85 ? 0F 84 ? ? ? ? 8B 50 ? 48 8B ? ? 89 94 ? ? ? ? ? 48 8D", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(ClientInstance_setDisableInput, "48 8B ? ? ? ? ? 48 8B ? FF 15 ? ? ? ? 84 DB 74", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(ClientInstance_grabMouse, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 CC CC CC 48 8D", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(ClientInstance_mMinecraftSim, "48 8B ? ? ? ? ? E8 ? ? ? ? 88 87 ? ? ? ? 48 8B ? ? ? ? ? 48 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(ClientInstance_mLevelRenderer, "48 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? ? ? ? 48 05 ? ? ? ? C3", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(ClientInstance_mPacketSender, "48 8B ? ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 8B ? ? ? ? ? 48 8B ? 48 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(ClientInstance_mGuiData, "48 8B ? ? ? ? ? 48 8B ? 48 85 ? 74 ? 33 C9 48 89 ? 48 89 ? ? 48 8B ? ? 48 85 ? 74 ? F0 FF ? ? 48 8B ? ? 48 8B ? ? 48 8B ? ? 48 89 ? 48 89 ? ? 48 85 ? 74 ? E8 ? ? ? ? 48 8B ? 48 85 ? 74 ? 48 83 38 ? 74 ? 48 8B ? 48 83 C4 ? 5B C3 E8 ? ? ? ? CC CC CC CC CC CC CC CC CC CC CC CC 48 8B ? ? ? ? ? C3 CC CC CC CC CC CC CC CC 48 89 ? ? ? 57", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftGame_playUi, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 83 C4 ? C3 40", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(MinecraftGame_mClientInstances, "48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? 80 78 19 ? 75 ? 48 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MainView_bedrockPlatform, "? 8B ? ? ? ? ? 48 8B ? ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftSim_mGameSim, "48 8B ? ? ? ? ? 8B 5A ? C1 EB", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftSim_mRenderSim, "49 8B ? ? ? ? ? 44 8B ? ? 44 89 ? ? ? 41 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Minecraft_mGameSession, "49 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? 0F 57", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(GameSession_mEventCallback, "48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? 48 83 C4 ? 5B 48 FF ? ? ? ? ? 48 83 C4 ? 5B C3 CC CC 48 89", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BedrockPlatformUWP_mcGame, "48 8B ? ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B ? 48 8B", 3, OffsetType::FieldOffset);
+
+
 
     static void initialize();
 };

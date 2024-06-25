@@ -8,10 +8,16 @@
 
 class ClientInstance {
 public:
-    CLASS_FIELD(class MinecraftGame*, mcGame, 0xC8);
+    //CLASS_FIELD(class MinecraftGame*, mcGame, 0xC8);
 
     static ClientInstance* get();
 
+    class MinecraftSim* getMinecraftSim();
+    class LevelRenderer* getLevelRenderer();
+    class PacketSender* getPacketSender();
+    class GuiData* getGuiData();
+
+    class MinecraftGame* getMinecraftGame();
     class Actor* getLocalPlayer();
     class BlockSource* getBlockSource();
     class Options* getOptions();

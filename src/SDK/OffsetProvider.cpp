@@ -5,6 +5,7 @@
 #include "OffsetProvider.hpp"
 
 #include <Solstice.hpp>
+#include <Utils/MemUtils.hpp>
 
 #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
 
@@ -43,7 +44,7 @@ void OffsetProvider::initialize()
     {
         if (sig.second != 0)
         {
-            Solstice::console->info("[offsets] found {} @ 0x{:X}", sig.first, sig.second);
+            Solstice::console->info("[offsets] found {} @ {}", sig.first, MemUtils::getMbMemoryString(sig.second));
         }
     }
 

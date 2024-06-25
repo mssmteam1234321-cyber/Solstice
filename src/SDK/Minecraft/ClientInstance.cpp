@@ -4,6 +4,7 @@
 
 #include "ClientInstance.hpp"
 
+#include <libhat/Access.hpp>
 #include <SDK/OffsetProvider.hpp>
 
 #include "MinecraftGame.hpp"
@@ -21,49 +22,74 @@ ClientInstance* ClientInstance::get()
     return instance;
 }
 
+MinecraftSim* ClientInstance::getMinecraftSim()
+{
+    return hat::member_at<MinecraftSim*>(this, OffsetProvider::ClientInstance_mMinecraftSim);
+}
+
+LevelRenderer* ClientInstance::getLevelRenderer()
+{
+    return hat::member_at<LevelRenderer*>(this, OffsetProvider::ClientInstance_mLevelRenderer);
+}
+
+PacketSender* ClientInstance::getPacketSender()
+{
+    return hat::member_at<PacketSender*>(this, OffsetProvider::ClientInstance_mPacketSender);
+}
+
+GuiData* ClientInstance::getGuiData()
+{
+    return hat::member_at<GuiData*>(this, OffsetProvider::ClientInstance_mGuiData);
+}
+
+MinecraftGame* ClientInstance::getMinecraftGame()
+{
+    return MinecraftGame::getInstance();
+}
+
 Actor* ClientInstance::getLocalPlayer()
 {
-    return MemUtils::CallVFunc<Actor*>(OffsetProvider::ClientInstance_getLocalPlayer, this);
+    return MemUtils::callVirtualFunc<Actor*>(OffsetProvider::ClientInstance_getLocalPlayer, this);
 }
 
 BlockSource* ClientInstance::getBlockSource()
 {
-    return MemUtils::CallVFunc<BlockSource*>(OffsetProvider::ClientInstance_getBlockSource, this);
+    return MemUtils::callVirtualFunc<BlockSource*>(OffsetProvider::ClientInstance_getBlockSource, this);
 }
 
 Options* ClientInstance::getOptions()
 {
-    return MemUtils::CallVFunc<Options*>(OffsetProvider::ClientInstance_getOptions, this);
+    return MemUtils::callVirtualFunc<Options*>(OffsetProvider::ClientInstance_getOptions, this);
 }
 
 std::string ClientInstance::getScreenName()
 {
     std::string name = "no_screen";
-    name = MemUtils::CallVFunc<std::string&, std::string&>(OffsetProvider::ClientInstance_getScreenName, this, name);
+    name = MemUtils::callVirtualFunc<std::string&, std::string&>(OffsetProvider::ClientInstance_getScreenName, this, name);
     return name;
 }
 
 void ClientInstance::setDisableInput(bool disable)
 {
-    MemUtils::CallVFunc<void>(OffsetProvider::ClientInstance_setDisableInput, this, disable);
+    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_setDisableInput, this, disable);
 }
 
 void ClientInstance::getMouseGrabbed()
 {
-    MemUtils::CallVFunc<void>(OffsetProvider::ClientInstance_getMouseGrabbed, this);
+    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_getMouseGrabbed, this);
 }
 
 void ClientInstance::grabMouse()
 {
-    MemUtils::CallVFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
+    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
 }
 
 void ClientInstance::releaseMouse()
 {
-    MemUtils::CallVFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
+    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
 }
 
 void ClientInstance::playUi(const std::string& soundName, float volume, float pitch)
 {   // this is exactly what the game does
-    mcGame->playUi(soundName, volume, pitch);
+    getMinecraftGame()->playUi(soundName, volume, pitch);
 }

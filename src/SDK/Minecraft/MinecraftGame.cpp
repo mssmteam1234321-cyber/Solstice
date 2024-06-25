@@ -35,5 +35,5 @@ ClientInstance* MinecraftGame::getPrimaryClientInstance()
 void MinecraftGame::playUi(const std::string& soundName, float volume, float pitch)
 {
     int index = OffsetProvider::MinecraftGame_playUi;
-    MemUtils::CallVFunc<void, const std::string&, float, float>(index, this, soundName, volume, pitch);
+    MemUtils::callVirtualFunc<void, const std::string&, float, float>(index, this, soundName, volume, pitch);
 }

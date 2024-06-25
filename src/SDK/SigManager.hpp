@@ -17,6 +17,12 @@
     return hat::signature_view{sig};                                \
 })();*/
 
+enum class SigType {
+    Sig,
+    RefSig
+};
+
+/*
 #define DEFINE_SIG(name, str) \
 static inline uintptr_t name; \
 static void name##_initializer() { name = reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name).get()); } \
@@ -25,7 +31,26 @@ static inline std::future<void> name##_future = (futures.push_back(std::async(st
 #define DEFINE_REF_SIG(name, str, offset) \
 static inline uintptr_t name; \
 static void name##_initializer() { name = reinterpret_cast<uintptr_t>(scanSig(hat::compile_signature<str>(), #name, offset).rel(static_cast<int>(offset))); } \
+static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());*/
+
+// example: DEFINE_SIG(Reach, "F3 0F ? ? ? ? ? ? 44 0F ? ? 76 ? C6 44 24 64", SigType::Sig, 0)
+#define DEFINE_SIG(name, str, sig_type, offset) \
+static inline uintptr_t name; \
+static void name##_initializer() { \
+    auto result = scanSig(hat::compile_signature<str>(), #name, offset); \
+    if (!result.has_result()) { \
+        name = 0; \
+        return; \
+    } \
+    if (sig_type == SigType::Sig) { \
+        name = reinterpret_cast<uintptr_t>(result.get()); \
+    } else { \
+        name = reinterpret_cast<uintptr_t>(result.rel(offset)); \
+    } \
+} \
 static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
+
+
 
 class SigManager {
     static hat::scan_result scanSig(hat::signature_view sig, const std::string& name, int offset = 0);
@@ -92,8 +117,8 @@ public:
     DEFINE_SIG(RakPeer_sendImmediate, "40 ? 56 57 41 ? 41 ? 41 ? 41 ? 48 81 EC ? ? ? ? 48 8D ? ? ? 48 89 ? ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 48 8B");
     DEFINE_REF_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", 1); // ActorCollision::setOnGround
     DEFINE_REF_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", 1); // ActorCollision::isOnGround*/
-
-    DEFINE_REF_SIG(MainView_instance, "48 8B 05 ? ? ? ? C6 40 ? ? 0F 95 C0", 3);
+    DEFINE_SIG(MainView_instance, "48 8B 05 ? ? ? ? C6 40 ? ? 0F 95 C0", SigType::RefSig, 3);
+    DEFINE_SIG(GuiData_displayClientMessage, "40 ? 53 56 57 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 41 0F", SigType::Sig, 0);
 
     static void initialize();
 };
