@@ -57,7 +57,6 @@ void OffsetProvider::initialize()
     }
 
     Solstice::console->info("[offsets] initialized in {}ms, {} total sigs scanned", end - mSigScanStart, mSigScanCount);
-
-
+    mIsInitialized = true;
 }
 

@@ -23,7 +23,7 @@ public:
     class Options* getOptions();
     std::string getScreenName();
     void setDisableInput(bool disable);
-    void getMouseGrabbed();
+    bool getMouseGrabbed();
     void grabMouse();
     void releaseMouse();
     void playUi(const std::string& soundName, float volume, float pitch);

@@ -15,7 +15,6 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
 {
     if (mSigScanCount == 0)
     {
-        // (milliseconds)
         mSigScanStart = NOW;
     }
     mSigScanCount++;
@@ -52,6 +51,7 @@ void SigManager::initialize()
 
     }
     Solstice::console->info("[signatures] initialized in {}ms, {} total sigs scanned", NOW - mSigScanStart, mSigScanCount);
+    mIsInitialized = true;
 }
 
 

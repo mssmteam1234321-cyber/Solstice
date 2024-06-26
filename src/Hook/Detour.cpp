@@ -4,6 +4,7 @@
 
 #include "Detour.hpp"
 
+#include <magic_enum.hpp>
 #include <MinHook.h>
 #include <string>
 
@@ -26,7 +27,7 @@ Detour::Detour(const std::string& name, void* addr, void* detour)
 
     const MH_STATUS result = MH_CreateHook(mFunc, detour, &mOriginalFunc);
 
-    spdlog::info("Created detour for {} at: {}, Status: {}", name, result);
+    spdlog::info("Created detour for {} at: {}, Status: {}", name, addr, magic_enum::enum_name(result));
 }
 
 void Detour::Enable() const

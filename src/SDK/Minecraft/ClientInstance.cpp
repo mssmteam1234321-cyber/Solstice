@@ -74,9 +74,9 @@ void ClientInstance::setDisableInput(bool disable)
     MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_setDisableInput, this, disable);
 }
 
-void ClientInstance::getMouseGrabbed()
+bool ClientInstance::getMouseGrabbed()
 {
-    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_getMouseGrabbed, this);
+    return MemUtils::callVirtualFunc<bool>(OffsetProvider::ClientInstance_getMouseGrabbed, this);
 }
 
 void ClientInstance::grabMouse()

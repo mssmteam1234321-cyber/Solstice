@@ -35,7 +35,9 @@ static inline std::future<void> name##_future = (futures.push_back(std::async(st
 
 // example: DEFINE_SIG(Reach, "F3 0F ? ? ? ? ? ? 44 0F ? ? 76 ? C6 44 24 64", SigType::Sig, 0)
 #define DEFINE_SIG(name, str, sig_type, offset) \
+public: \
 static inline uintptr_t name; \
+private: \
 static void name##_initializer() { \
     auto result = scanSig(hat::compile_signature<str>(), #name, offset); \
     if (!result.has_result()) { \
@@ -48,7 +50,8 @@ static void name##_initializer() { \
         name = reinterpret_cast<uintptr_t>(result.rel(offset)); \
     } \
 } \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>());
+static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+public:
 
 
 
@@ -59,6 +62,7 @@ class SigManager {
     static inline int mSigScanCount;
     static inline uint64_t mSigScanStart;
 public:
+    static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
     // only here for testing scan speed lol
@@ -119,6 +123,7 @@ public:
     DEFINE_REF_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", 1); // ActorCollision::isOnGround*/
     DEFINE_SIG(MainView_instance, "48 8B 05 ? ? ? ? C6 40 ? ? 0F 95 C0", SigType::RefSig, 3);
     DEFINE_SIG(GuiData_displayClientMessage, "40 ? 53 56 57 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 41 0F", SigType::Sig, 0);
+    DEFINE_SIG(Keyboard_feed, "E8 ? ? ? ? 33 D2 0F B6", SigType::RefSig, 1);
 
     static void initialize();
 };

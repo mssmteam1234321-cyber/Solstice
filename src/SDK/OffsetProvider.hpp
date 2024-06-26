@@ -61,7 +61,9 @@ class OffsetProvider {
     static inline int mSigScanCount;
     static inline uint64_t mSigScanStart;
 public:
+    static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
+
     DEFINE_INDEX_FIELD(ClientInstance_getLocalPlayer, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? 48 85 ? 0F 84 ? ? ? ? 8B 50 ? 48 8B ? ? 89 94 ? ? ? ? ? 48 8D ? ? ? ? ? ? E8", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(ClientInstance_getBlockSource, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 8B ? FF 15 ? ? ? ? 3C ? 75 ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 3C", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(ClientInstance_getOptions, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 8B ? FF 15 ? ? ? ? 3C ? 75 ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 3C", 3, OffsetType::Index);
@@ -78,7 +80,7 @@ public:
     DEFINE_INDEX_FIELD(MainView_bedrockPlatform, "? 8B ? ? ? ? ? 48 8B ? ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftSim_mGameSim, "48 8B ? ? ? ? ? 8B 5A ? C1 EB", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftSim_mRenderSim, "49 8B ? ? ? ? ? 44 8B ? ? 44 89 ? ? ? 41 8B", 3, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(Minecraft_mGameSession, "49 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? 0F 57", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftSim_mGameSession, "49 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? 0F 57", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(GameSession_mEventCallback, "48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? 48 83 C4 ? 5B 48 FF ? ? ? ? ? 48 83 C4 ? 5B C3 CC CC 48 89", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BedrockPlatformUWP_mcGame, "48 8B ? ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B ? 48 8B", 3, OffsetType::FieldOffset);
 

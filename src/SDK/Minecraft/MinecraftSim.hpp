@@ -20,5 +20,6 @@ public:
     Simulation* getRenderSim();
     void setSimTimer(float timer);
     void setSimSpeed(float speed);
+    class GameSession* getGameSession();
 };
 

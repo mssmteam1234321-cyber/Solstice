@@ -28,3 +28,8 @@ void MinecraftSim::setSimSpeed(float speed)
     getGameSim()->mTimerMultiplier = speed;
     getRenderSim()->mTimerMultiplier = speed;
 }
+
+GameSession* MinecraftSim::getGameSession()
+{
+    return hat::member_at<GameSession*>(this, OffsetProvider::MinecraftSim_mGameSession);
+}
