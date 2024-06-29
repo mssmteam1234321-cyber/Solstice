@@ -10,7 +10,6 @@ CPMAddPackage(
         VERSION 1.9.2
 )
 
-#MagicEnum
 CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
@@ -21,6 +20,12 @@ CPMAddPackage(
         NAME nuvola_event_system
         GITHUB_REPOSITORY DisabledMallis/NuvolaEventSystem
         VERSION 1.1.0
+)
+
+CPMAddPackage( # The version tag doesn't start with a 'v' for this package
+        NAME glm
+        GITHUB_REPOSITORY g-truc/glm
+        GIT_TAG 1.0.1
 )
 
 set(CMAKE_CXX_STANDARD 26)
@@ -107,9 +112,9 @@ add_library(Solstice SHARED ${sourceFiles} ${resourceFiles})
 add_subdirectory(include/minhook)
 add_subdirectory(include/libhat)
 
-target_link_libraries(Solstice PRIVATE spdlog minhook nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum)
+target_link_libraries(Solstice PRIVATE spdlog glm minhook nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum)
 
-set_property(TARGET Solstice minhook spdlog nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+set_property(TARGET Solstice minhook spdlog glm nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
 

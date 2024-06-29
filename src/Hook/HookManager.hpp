@@ -20,34 +20,32 @@ public:
 
 };
 
-// Automatically adds a hook and calls the init function
+// Automatically adds a hook after waiting for SigManager::mIsInitialized and OffsetProvider::mIsInitialized to be true
 #define REGISTER_HOOK(HookType) \
     namespace { \
         struct HookType##Register { \
             HookType##Register() { \
                 auto hook = std::make_unique<HookType>(); \
-                hook->mLocalPlayerDependent = true; \
+                hook->mLocalPlayerDependent = false; \
                 std::future<void> future = std::async(std::launch::async, [hook = hook.get()]() { \
-                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized && !Solstice::mRequestEject) { \
+                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
+                        if (Solstice::mRequestEject) return; \
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    } \
-                    while (!ClientInstance::get() && !Solstice::mRequestEject) { \
+                    }           \
+                    while (!ClientInstance::get()) {      \
+                        if (Solstice::mRequestEject) return; \
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    } \
+                    }           \
                     if (Solstice::mRequestEject) return; \
-                    hook->init(); \
-                }); \
-                HookManager::mFutures2.push_back(std::move(future)); \
-                HookManager::mHooks.push_back(std::move(hook)); \
-            } \
-        }; \
-        static HookType##Register global_##HookType##Register; \
+                    hook->init();   \
+                });             \
+                HookManager::mFutures.push_back(std::move(future));                               \
+                HookManager::mHooks.push_back(std::move(hook));                                   \
+            }                   \
+        } HookType##RegisterInstance;                     \
     }
-
-
 // Automatically adds a hook and creates a std::future to call the init function when the local player is valid
 // to get LP, you can to ClientInstance::get()->getLocalPlayer() (make sure you wait for ClientInstance to be valid first)
-
 #define REGISTER_LP_HOOK(HookType) \
     namespace { \
         struct HookType##Register { \
@@ -55,21 +53,20 @@ public:
                 auto hook = std::make_unique<HookType>(); \
                 hook->mLocalPlayerDependent = true; \
                 std::future<void> future = std::async(std::launch::async, [hook = hook.get()]() { \
-                    while (!SigManager::mIsInitialized && !Solstice::mRequestEject || !OffsetProvider::mIsInitialized && !Solstice::mRequestEject) { \
+                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
+                        if (Solstice::mRequestEject) return; \
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    } \
-                    while (!ClientInstance::get()->getLocalPlayer()) { \
+                    }              \
+                    while (!ClientInstance::get() || !ClientInstance::get()->getLocalPlayer()) {      \
+                        if (Solstice::mRequestEject) return; \
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    } \
+                    }           \
                     if (Solstice::mRequestEject) return; \
-                    hook->init(); \
-                }); \
-                HookManager::mFutures2.push_back(std::move(future)); \
-                HookManager::mHooks.push_back(std::move(hook)); \
-            } \
-        }; \
-        static HookType##Register global_##HookType##Register; \
+                    hook->init();   \
+                });             \
+                HookManager::mFutures2.push_back(std::move(future));                               \
+                HookManager::mHooks.push_back(std::move(hook));                                   \
+            }                   \
+        } HookType##RegisterInstance;                     \
     }
-
-
 

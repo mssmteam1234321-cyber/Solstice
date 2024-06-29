@@ -8,8 +8,6 @@ enum class OffsetType {
     FieldOffset,
 };
 
-// Don't forget to define access modifiers for the fields
-
 #define DEFINE_INDEX_FIELD_TYPED(type, name, str, index_offset, offset_type) \
 public: \
 static inline type name; \
@@ -78,6 +76,7 @@ public:
     DEFINE_INDEX_FIELD(MinecraftGame_playUi, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 83 C4 ? C3 40", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(MinecraftGame_mClientInstances, "48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? 80 78 19 ? 75 ? 48 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MainView_bedrockPlatform, "? 8B ? ? ? ? ? 48 8B ? ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Actor_baseTick, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 45 84", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(MinecraftSim_mGameSim, "48 8B ? ? ? ? ? 8B 5A ? C1 EB", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftSim_mRenderSim, "49 8B ? ? ? ? ? 44 8B ? ? 44 89 ? ? ? 41 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftSim_mGameSession, "49 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? 0F 57", 3, OffsetType::FieldOffset);

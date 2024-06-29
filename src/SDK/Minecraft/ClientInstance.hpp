@@ -14,7 +14,7 @@ public:
 
     class MinecraftSim* getMinecraftSim();
     class LevelRenderer* getLevelRenderer();
-    class PacketSender* getPacketSender();
+    class LoopbackPacketSender* getPacketSender();
     class GuiData* getGuiData();
 
     class MinecraftGame* getMinecraftGame();

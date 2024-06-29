@@ -40,3 +40,8 @@ const std::string MemUtils::getMbMemoryString(uintptr_t addr)
 
     return "unknown";
 }
+
+uintptr_t MemUtils::GetVTableFunction(void *_this, int index) {
+    uintptr_t *vtable = *reinterpret_cast<uintptr_t **>(_this);
+    return vtable[index];
+}

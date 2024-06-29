@@ -32,9 +32,9 @@ LevelRenderer* ClientInstance::getLevelRenderer()
     return hat::member_at<LevelRenderer*>(this, OffsetProvider::ClientInstance_mLevelRenderer);
 }
 
-PacketSender* ClientInstance::getPacketSender()
+LoopbackPacketSender* ClientInstance::getPacketSender()
 {
-    return hat::member_at<PacketSender*>(this, OffsetProvider::ClientInstance_mPacketSender);
+    return hat::member_at<LoopbackPacketSender*>(this, OffsetProvider::ClientInstance_mPacketSender);
 }
 
 GuiData* ClientInstance::getGuiData()

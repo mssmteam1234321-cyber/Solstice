@@ -27,48 +27,52 @@ Detour::Detour(const std::string& name, void* addr, void* detour)
 
     const MH_STATUS result = MH_CreateHook(mFunc, detour, &mOriginalFunc);
 
-    spdlog::info("Created detour for {} at: {}, Status: {}", name, addr, magic_enum::enum_name(result));
+    if (result == MH_STATUS::MH_OK) {
+        spdlog::info("Created detour for {} at {}", name, addr);
+    } else {
+        spdlog::critical("Failed to create detour for {} at {}, error: {}", name, addr, magic_enum::enum_name(result));
+    }
 }
 
-void Detour::Enable() const
+void Detour::enable() const
 {
     const MH_STATUS status = MH_EnableHook(mFunc);
     switch (status)
     {
     case MH_OK:
-        spdlog::info("Enabled hook for {}", mName);
+        spdlog::info("Enabled detour for {}", mName);
         break;
     default:
-        spdlog::critical("Failed to enable hook for {}", mName);
+        spdlog::critical("Failed to enable detour for {}", mName);
         break;
     }
 }
 
-void Detour::Restore() const
+void Detour::restore() const
 {
     if (!mFunc)
     {
-        spdlog::critical("Failed to restore hook for {} [mFunc == nullptr]", mName);
+        spdlog::critical("Failed to restore detour for {} [mFunc == nullptr]", mName);
         return;
     }
     MH_STATUS status = MH_DisableHook(mFunc);
     switch (status)
     {
     case MH_OK:
-        spdlog::info("Restored hook for {}", mName);
+        spdlog::info("Restored detour for {}", mName);
         break;
     default:
-        spdlog::critical("Failed to restore hook for {}", mName);
+        spdlog::critical("Failed to restore detour for {}", mName);
         break;
     }
     status = MH_RemoveHook(mFunc);
     switch (status)
     {
     case MH_OK:
-        spdlog::info("Removed hook for {}", mName);
+        spdlog::info("Removed detour for {}", mName);
         break;
     default:
-        spdlog::critical("Failed to remove hook for {}", mName);
+        spdlog::critical("Failed to remove detour for {}", mName);
         break;
     }
 }

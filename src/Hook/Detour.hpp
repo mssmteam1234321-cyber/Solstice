@@ -17,12 +17,12 @@ public:
     ~Detour();
     Detour(const std::string& name, void* addr, void* detour);
 
-    void Enable() const;
-    void Restore() const;
+    void enable() const;
+    void restore() const; // provided just in case, you should NOT use this
 
-    template <typename TRet, typename... TArgs>
-    inline auto* GetFastcall() {
-        using Fn = TRet(__fastcall*)(TArgs...);
-        return reinterpret_cast<Fn>(mOriginalFunc);
+    template <typename T>
+    inline auto* getOriginal() {
+        return reinterpret_cast<T>(mOriginalFunc);
     }
+
 };

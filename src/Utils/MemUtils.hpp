@@ -53,6 +53,8 @@ public:
 
 
     static const std::string getMbMemoryString(uintptr_t addr);
+
+    static uintptr_t GetVTableFunction(void *_this, int index);
 };
 
 

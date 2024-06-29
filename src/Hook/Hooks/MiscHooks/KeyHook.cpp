@@ -5,25 +5,33 @@
 #include "KeyHook.hpp"
 
 #include <Solstice.hpp>
+#include <Utils/ActorUtils.hpp>
+#include <Utils/ChatUtils.hpp>
 
 std::unique_ptr<Detour> KeyHook::mDetour = nullptr;
 
 void KeyHook::onKey(uint32_t key, bool isDown)
 {
-    auto oFunc = mDetour->GetFastcall<void, uint32_t, bool>();
+    auto oFunc = mDetour->getOriginal<decltype(&onKey)>();
     oFunc(key, isDown);
-
-    Solstice::console->info("KeyHook: key: {0}, isDown: {1}", key, isDown);
 
     if (key == VK_END)
     {
         if (ClientInstance::get()->getScreenName() != "chat_screen") Solstice::mRequestEject = true;
     }
+
+    if (key == VK_HOME) {
+        auto actors = ActorUtils::getActorList(false);
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+
+        ChatUtils::displayClientMessage("actor count: " + std::to_string(actors.size()));
+    }
 }
 
 void KeyHook::init()
 {
-    mName = "KeyHook";
+    mName = "Keyboard::feed";
     mDetour = std::make_unique<Detour>("Keyboard::feed", reinterpret_cast<void*>(SigManager::Keyboard_feed), &KeyHook::onKey);
-    mDetour->Enable();
+    mDetour->enable();
 }
