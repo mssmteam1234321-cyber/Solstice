@@ -22,4 +22,4 @@ public:
     void init() override;
 };
 
-REGISTER_HOOK(KeyHook);
+namespace { struct KeyHookRegister { KeyHookRegister() { static bool is_registered = false; if (!is_registered) { is_registered = true; auto hook = std::make_unique<KeyHook>(); hook->mLocalPlayerDependent = false; HookManager::mFutures.push_back(std::async(std::launch::async, [hook = hook.get()]() { while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) { if (Solstice::mRequestEject) return; std::this_thread::sleep_for(std::chrono::milliseconds(1)); } while (!ClientInstance::get()) { if (Solstice::mRequestEject) return; std::this_thread::sleep_for(std::chrono::milliseconds(1)); } if (Solstice::mRequestEject) return; hook->init(); })); HookManager::mHooks.push_back(std::move(hook)); } } } KeyHookRegisterInstance; };

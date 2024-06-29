@@ -9,23 +9,29 @@
 #include <glm/gtc/random.hpp>
 #include "PacketSendHook.hpp"
 
+#include <Features/FeatureManager.hpp>
+#include <Features/Command/CommandManager.hpp>
+
 std::unique_ptr<Detour> PacketSendHook::mDetour = nullptr;
 
 void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
     // Call the original function
     auto original = mDetour->getOriginal<decltype(&onPacketSend)>();
-    if (packet->getId() == PacketID::Text) {
+
+    if (packet->getId() == PacketID::Text)
+    {
         auto textPacket = reinterpret_cast<TextPacket*>(packet);
-        Solstice::console->info("PacketSendHook::onPacketSend: {}", textPacket->mMessage);
+        if (gFeatureManager && gFeatureManager->mCommandManager)
+        {
+            bool cancel = false;
+            gFeatureManager->mCommandManager->handleCommand(textPacket->mMessage, &cancel);
+            if (cancel)
+            {
+                return nullptr;
+            }
+        }
     }
 
-    if (packet->getId() == PacketID::PlayerAuthInput) {
-        auto paip = reinterpret_cast<PlayerAuthInputPacket*>(packet);
-        paip->mPos += glm::vec3{ 0.f, 0.1f, 0.f };
-        paip->mMove = glm::vec2{ 0.f, 1.f };
-        paip->mInputData |= AuthInputAction::START_GLIDING;
-        paip->mInputData &= ~AuthInputAction::STOP_GLIDING;
-    }
     return original(_this, packet);
 }
 

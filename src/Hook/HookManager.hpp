@@ -25,48 +25,59 @@ public:
     namespace { \
         struct HookType##Register { \
             HookType##Register() { \
-                auto hook = std::make_unique<HookType>(); \
-                hook->mLocalPlayerDependent = false; \
-                std::future<void> future = std::async(std::launch::async, [hook = hook.get()]() { \
-                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
+                static bool is_registered = false; \
+                if (!is_registered) { \
+                    is_registered = true; \
+                    auto hook = std::make_unique<HookType>(); \
+                    hook->mLocalPlayerDependent = false; \
+                    HookManager::mFutures.push_back(std::async(std::launch::async, [hook = hook.get()]() { \
+                        while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
+                            if (Solstice::mRequestEject) return; \
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                        }           \
+                        while (!ClientInstance::get()) {      \
+                            if (Solstice::mRequestEject) return; \
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                        }           \
                         if (Solstice::mRequestEject) return; \
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    }           \
-                    while (!ClientInstance::get()) {      \
-                        if (Solstice::mRequestEject) return; \
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    }           \
-                    if (Solstice::mRequestEject) return; \
-                    hook->init();   \
-                });             \
-                HookManager::mFutures.push_back(std::move(future));                               \
-                HookManager::mHooks.push_back(std::move(hook));                                   \
+                        hook->init();   \
+                    }));           \
+                    HookManager::mHooks.push_back(std::move(hook));                                   \
+                }                   \
             }                   \
         } HookType##RegisterInstance;                     \
     }
 // Automatically adds a hook and creates a std::future to call the init function when the local player is valid
 // to get LP, you can to ClientInstance::get()->getLocalPlayer() (make sure you wait for ClientInstance to be valid first)
-#define REGISTER_LP_HOOK(HookType) \
-    namespace { \
-        struct HookType##Register { \
-            HookType##Register() { \
-                auto hook = std::make_unique<HookType>(); \
-                hook->mLocalPlayerDependent = true; \
-                std::future<void> future = std::async(std::launch::async, [hook = hook.get()]() { \
-                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
-                        if (Solstice::mRequestEject) return; \
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    }              \
-                    while (!ClientInstance::get() || !ClientInstance::get()->getLocalPlayer()) {      \
-                        if (Solstice::mRequestEject) return; \
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    }           \
-                    if (Solstice::mRequestEject) return; \
-                    hook->init();   \
-                });             \
-                HookManager::mFutures2.push_back(std::move(future));                               \
-                HookManager::mHooks.push_back(std::move(hook));                                   \
-            }                   \
-        } HookType##RegisterInstance;                     \
-    }
 
+// Do an ifndef check on the Registrar to prevent multiple definitions
+#define REGISTER_LP_HOOK(HookType) \
+    class HookType; \
+    static HookType global_##HookType##_instance; \
+    struct HookType##_Registrar { \
+        HookType##_Registrar() { \
+            static bool is_registered = false; \
+            if (!is_registered) { \
+                is_registered = true; \
+                global_##HookType##_instance.mLocalPlayerDependent = true; \
+                HookManager::mFutures2.push_back(std::async(std::launch::async, []() { \
+                    while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) { \
+                        if (Solstice::mRequestEject) return; \
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                    } \
+                    while (!ClientInstance::get()) { \
+                        if (Solstice::mRequestEject) return; \
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                    } \
+                    while (!ClientInstance::get()->getLocalPlayer()) { \
+                        if (Solstice::mRequestEject) return; \
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                    } \
+                    if (Solstice::mRequestEject) return; \
+                    global_##HookType##_instance.init(); \
+                })); \
+                HookManager::mHooks.push_back(std::make_unique<HookType>(global_##HookType##_instance)); \
+            } \
+        } \
+    }; \
+    static HookType##_Registrar global_##HookType##_registrar;

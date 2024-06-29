@@ -19,14 +19,6 @@ void KeyHook::onKey(uint32_t key, bool isDown)
     {
         if (ClientInstance::get()->getScreenName() != "chat_screen") Solstice::mRequestEject = true;
     }
-
-    if (key == VK_HOME) {
-        auto actors = ActorUtils::getActorList(false);
-        auto player = ClientInstance::get()->getLocalPlayer();
-        if (!player) return;
-
-        ChatUtils::displayClientMessage("actor count: " + std::to_string(actors.size()));
-    }
 }
 
 void KeyHook::init()

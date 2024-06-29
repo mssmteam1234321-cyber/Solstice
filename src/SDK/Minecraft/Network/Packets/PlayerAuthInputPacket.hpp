@@ -226,6 +226,8 @@ public:
     };
 
 public:
+    static const PacketID ID = PacketID::PlayerAuthInput;
+
     glm::vec2                                                           mRot;
     glm::vec3                                                           mPos;
     float                                                               mYHeadRot;

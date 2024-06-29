@@ -5,16 +5,11 @@
 #include "Solstice.hpp"
 
 #include <iostream>
-#include <ostream>
 #include <thread>
 #include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
-#include <SDK/Minecraft/UWP/BedrockPlatformUWP.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-#include <SDK/Minecraft/Rendering/GuiData.hpp>
-#include <SDK/Minecraft/UWP/MainView.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
-#include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/Logger.hpp>
 #include <spdlog/spdlog.h>
@@ -22,18 +17,9 @@
 #include <Utils/ProcUtils.hpp>
 #include <magic_enum.hpp>
 #include <MinHook.h>
+#include <Features/FeatureManager.hpp>
 #include <Hook/HookManager.hpp>
-
-#include <nes/event_dispatcher.hpp>
-
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
-
-enum class TestEnum
-{
-    Test1,
-    Test2,
-    Test3
-};
 
 void Solstice::init(HMODULE hModule)
 {
@@ -44,10 +30,12 @@ void Solstice::init(HMODULE hModule)
     mModule = hModule;
     mInitialized = true;
 
+
     Logger::initialize();
 
     console = spdlog::stdout_color_mt(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::color_mode::automatic);
 
+    spdlog::set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%^%l%$%$%#%$] %v");
     console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$%$%#%$] %v");
     console->set_level(spdlog::level::trace);
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
@@ -81,6 +69,8 @@ void Solstice::init(HMODULE hModule)
     console->info("initializing hooks...");
     HookManager::init();
 
+    gFeatureManager = std::make_unique<FeatureManager>();
+    gFeatureManager->init();
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");

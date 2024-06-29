@@ -24,6 +24,8 @@ enum class TextPacketType : unsigned char {
 
 class TextPacket : public Packet {
 public:
+    static const PacketID ID = PacketID::Text;
+
     TextPacketType           mType;            // this+0x30
     std::string              mAuthor;          // this+0x38
     std::string              mMessage;         // this+0x58
