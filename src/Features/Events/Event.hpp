@@ -6,7 +6,7 @@
 
 class Event {
 public:
-    Event();
+    explicit Event() = default;
 };
 
 class CancellableEvent : public Event {

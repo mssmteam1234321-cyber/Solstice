@@ -57,8 +57,6 @@ void Solstice::init(HMODULE hModule)
     console->info("initializing sigmanager...");
     SigManager::initialize();
 
-
-
     if (!ClientInstance::get())
     {
         while (!ClientInstance::get()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -86,7 +84,7 @@ void Solstice::init(HMODULE hModule)
 
     mRequestEject = true;
 
-    D3DHook::s_shutdown();
+    HookManager::shutdown();
 
     gFeatureManager->shutdown();
     gFeatureManager.reset();

@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 
+#include "Features/Events/ModuleStateChangeEvent.hpp"
+
 class Module {
 public:
     std::string mName;
@@ -23,33 +25,10 @@ public:
     virtual void onTick() {}
     [[nodiscard]] virtual const char* getTypeID() const = 0;
 
-    void setEnabled(bool enabled) {
-        mEnabled = enabled;
-        if (enabled) {
-            onEnable();
-        } else
-        {
-            onDisable();
-        }
-    };
-
-    void toggle()
-    {
-        setEnabled(!mEnabled);
-    }
-
-    void enable()
-    {
-        if (!mEnabled) setEnabled(true);
-    }
-
-    void disable()
-    {
-        if (mEnabled) setEnabled(false);
-    }
-
-
-
+    void setEnabled(bool enabled);
+    void toggle();
+    void enable();
+    void disable();
 };
 
 template <typename T>

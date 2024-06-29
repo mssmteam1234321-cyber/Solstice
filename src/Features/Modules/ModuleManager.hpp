@@ -19,7 +19,12 @@ public:
     void shutdown();
     void registerModule(std::unique_ptr<Module> module);
     std::vector<std::unique_ptr<Module>>& getModules();
+    Module* getModule(const std::string& name);
+    template <typename T>
+    T* getModule();
 };
+
+
 
 // Macro for module registration
 #define REGISTER_MODULE(MODULE_CLASS) \

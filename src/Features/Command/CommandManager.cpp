@@ -9,8 +9,11 @@
 #include <Utils/ChatUtils.hpp>
 #include <Utils/StringUtils.hpp>
 
+#include "Commands/BindCommand.hpp"
 #include "Commands/HelpCommand.hpp"
 #include "Commands/TestCommand.hpp"
+#include "Commands/ToggleCommand.hpp"
+#include "Commands/UnbindCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -18,6 +21,9 @@ void CommandManager::init()
 {
     ADD_COMMAND(HelpCommand);
     ADD_COMMAND(TestCommand);
+    ADD_COMMAND(ToggleCommand);
+    ADD_COMMAND(BindCommand);
+    ADD_COMMAND(UnbindCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

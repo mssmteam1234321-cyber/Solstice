@@ -4,8 +4,6 @@
 
 #include "Event.hpp"
 
-Event::Event() = default;
-
 bool CancellableEvent::isCancelled() const
 {
     return mCancelled;

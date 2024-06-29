@@ -5,13 +5,14 @@
 #include "TestModule.hpp"
 
 #include <spdlog/spdlog.h>
+#include <Utils/ChatUtils.hpp>
 
 void TestModule::onEnable()
 {
-    spdlog::info("TestModule enabled!");
+    ChatUtils::displayClientMessage("§6TestModule", "enabled!");
 }
 
 void TestModule::onDisable()
 {
-    spdlog::info("TestModule disabled!");
+    ChatUtils::displayClientMessage("§6TestModule", "disabled!");
 }

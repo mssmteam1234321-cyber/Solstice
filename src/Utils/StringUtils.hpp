@@ -14,4 +14,7 @@ public:
     static bool endsWith(std::string_view str, std::string_view suffix);
     static std::string_view trim(std::string_view str);
     static std::vector<std::string> split(std::string_view str, char delimiter);
+    static std::string toLower(std::string str);
+    static std::string toUpper(std::string str);
+    static bool equalsIgnoreCase(const std::string& str1, const std::string& str2);
 };

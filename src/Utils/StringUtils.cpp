@@ -4,6 +4,8 @@
 
 #include "StringUtils.hpp"
 
+#include <algorithm>
+
 bool StringUtils::startsWith(std::string_view str, std::string_view prefix)
 {
     return str.substr(0, prefix.size()) == prefix;
@@ -45,4 +47,22 @@ std::vector<std::string> StringUtils::split(std::string_view str, char delimiter
     result.emplace_back(str.substr(start));
 
     return result;
+}
+
+// toLower and toUpper
+std::string StringUtils::toLower(std::string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
+    return str;
+}
+
+std::string StringUtils::toUpper(std::string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::toupper(c); });
+    return str;
+}
+
+bool StringUtils::equalsIgnoreCase(const std::string& str1, const std::string& str2)
+{
+    return toLower(str1) == toLower(str2);
 }

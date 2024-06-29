@@ -9,16 +9,19 @@
 void TestCommand::execute(const std::vector<std::string>& args)
 {
     ChatUtils::displayClientMessage("Test command executed!");
+    // Display the amount of Modules and Commands
+    ChatUtils::displayClientMessage(std::to_string(gFeatureManager->mModuleManager->mModules.size()) + " modules and "
+        + std::to_string(gFeatureManager->mCommandManager->mCommands.size()) + " commands are currently loaded.");
 }
 
 std::vector<std::string> TestCommand::getAliases() const
 {
-    return {"t"};
+    return {};
 }
 
 std::string TestCommand::getDescription() const
 {
-    return "A test command";
+    return "A command for testing purposes.";
 }
 
 std::string TestCommand::getUsage() const
