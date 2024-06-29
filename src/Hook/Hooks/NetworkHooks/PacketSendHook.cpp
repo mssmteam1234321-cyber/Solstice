@@ -3,15 +3,13 @@
 //
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
-#include <Solstice.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <glm/gtc/random.hpp>
 #include "PacketSendHook.hpp"
-
 #include <Features/FeatureManager.hpp>
-#include <Features/Command/CommandManager.hpp>
+#include "Features/Events/ChatEvent.hpp"
 
+class ChatEvent;
 std::unique_ptr<Detour> PacketSendHook::mDetour = nullptr;
 
 void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
@@ -23,12 +21,9 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
         auto textPacket = reinterpret_cast<TextPacket*>(packet);
         if (gFeatureManager && gFeatureManager->mCommandManager)
         {
-            bool cancel = false;
-            gFeatureManager->mCommandManager->handleCommand(textPacket->mMessage, &cancel);
-            if (cancel)
-            {
-                return nullptr;
-            }
+            auto event = nes::make_holder<ChatEvent>(textPacket->mMessage);
+            gFeatureManager->mDispatcher->trigger(event);
+            if (event->isCancelled()) return nullptr;
         }
     }
 

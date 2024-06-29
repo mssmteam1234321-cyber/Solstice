@@ -16,6 +16,7 @@ public:
     class LevelRenderer* getLevelRenderer();
     class LoopbackPacketSender* getPacketSender();
     class GuiData* getGuiData();
+    class bgfx_context* getBGFX();
 
     class MinecraftGame* getMinecraftGame();
     class Actor* getLocalPlayer();

@@ -12,11 +12,33 @@ void FeatureManager::init()
 {
     spdlog::info("initializing FeatureManager");
 
+    spdlog::info("initializing event dispatcher");
+    mDispatcher = std::make_unique<nes::event_dispatcher>();
+    spdlog::info("Successfully created event dispatcher");
+
     spdlog::info("initializing ModuleManager");
     mModuleManager = std::make_unique<ModuleManager>();
     mModuleManager->init();
+    spdlog::info("Successfully initialized " + std::to_string(mModuleManager->mModules.size()) + " modules");
 
     spdlog::info("initializing CommandManager");
     mCommandManager = std::make_unique<CommandManager>();
     mCommandManager->init();
+    spdlog::info("Successfully initialized " + std::to_string(mCommandManager->mCommands.size()) + " commands");
+}
+
+void FeatureManager::shutdown()
+{
+    spdlog::info("shutting down FeatureManager");
+
+    spdlog::info("shutting down CommandManager");
+    mCommandManager->shutdown();
+    mCommandManager.reset();
+
+    spdlog::info("shutting down ModuleManager");
+    mModuleManager->shutdown();
+    mModuleManager.reset();
+
+    spdlog::info("shutting down event dispatcher");
+    mDispatcher.reset();
 }

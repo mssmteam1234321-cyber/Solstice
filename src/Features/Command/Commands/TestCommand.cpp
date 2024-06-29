@@ -23,5 +23,5 @@ std::string TestCommand::getDescription() const
 
 std::string TestCommand::getUsage() const
 {
-    return ".test";
+    return "Usage: .test";
 }

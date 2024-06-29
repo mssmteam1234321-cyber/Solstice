@@ -2,6 +2,14 @@
 #include <future>
 #include <memory>
 #include <vector>
+#include <Solstice.hpp>
+#include <Features/FeatureManager.hpp>
+#include <Hook/Hook.hpp>
+#include <Hook/HookManager.hpp>
+#include <SDK/OffsetProvider.hpp>
+#include <SDK/SigManager.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+
 
 #include "Hook.hpp"
 //
@@ -16,8 +24,7 @@ public:
 
 
     static void init();
-
-
+    static void shutdown();
 };
 
 // Automatically adds a hook after waiting for SigManager::mIsInitialized and OffsetProvider::mIsInitialized to be true
@@ -30,12 +37,16 @@ public:
                     is_registered = true; \
                     auto hook = std::make_unique<HookType>(); \
                     hook->mLocalPlayerDependent = false; \
-                    HookManager::mFutures.push_back(std::async(std::launch::async, [hook = hook.get()]() { \
+                    HookManager::mFutures2.push_back(std::async(std::launch::async, [hook = hook.get()]() { \
                         while (!SigManager::mIsInitialized || !OffsetProvider::mIsInitialized) {      \
                             if (Solstice::mRequestEject) return; \
                             std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
                         }           \
                         while (!ClientInstance::get()) {      \
+                            if (Solstice::mRequestEject) return; \
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                        }           \
+                        while (!gFeatureManager || !gFeatureManager->mCommandManager) {      \
                             if (Solstice::mRequestEject) return; \
                             std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
                         }           \
@@ -73,6 +84,10 @@ public:
                         if (Solstice::mRequestEject) return; \
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
                     } \
+                    while (!gFeatureManager || !gFeatureManager->mCommandManager) {      \
+                        if (Solstice::mRequestEject) return; \
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
+                    }           \
                     if (Solstice::mRequestEject) return; \
                     global_##HookType##_instance.init(); \
                 })); \

@@ -19,6 +19,8 @@
 #include <MinHook.h>
 #include <Features/FeatureManager.hpp>
 #include <Hook/HookManager.hpp>
+#include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
 void Solstice::init(HMODULE hModule)
@@ -66,6 +68,8 @@ void Solstice::init(HMODULE hModule)
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
     console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
 
+    HWND hwnd = ProcUtils::getMinecraftWindow(); // Cache the window handle
+
     console->info("initializing hooks...");
     HookManager::init();
 
@@ -82,15 +86,25 @@ void Solstice::init(HMODULE hModule)
 
     mRequestEject = true;
 
+    D3DHook::s_shutdown();
+
+    gFeatureManager->shutdown();
+    gFeatureManager.reset();
+
     // Shutdown
     console->warn("Shutting down...");
 
     // Remove all hooks
+    MH_DisableHook(MH_ALL_HOOKS);
     MH_Uninitialize();
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
     ChatUtils::displayClientMessage("§cEjected!");
+
     mInitialized = false;
+
+    Sleep(1000); // Give the user time to read the message
+
     Logger::deinitialize();
     FreeLibraryAndExitThread(mModule, 0);
 }

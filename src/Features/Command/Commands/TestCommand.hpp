@@ -18,8 +18,4 @@ public:
     [[nodiscard]] std::vector<std::string> getAliases() const override;
     [[nodiscard]] std::string getDescription() const override;
     [[nodiscard]] std::string getUsage() const override;
-
-
 };
-
-REGISTER_COMMAND(TestCommand);

@@ -22,7 +22,7 @@ CPMAddPackage(
         VERSION 1.1.0
 )
 
-CPMAddPackage( # The version tag doesn't start with a 'v' for this package
+CPMAddPackage(
         NAME glm
         GITHUB_REPOSITORY g-truc/glm
         GIT_TAG 1.0.1
@@ -85,6 +85,8 @@ include_directories(include/minhook/include)
 include_directories(include/libhat)
 include_directories(include/entt)
 include_directories(include/libhat/libhat)
+include_directories(include/ImGui)
+include_directories(include/Kiero)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
 
@@ -111,10 +113,15 @@ add_library(Solstice SHARED ${sourceFiles} ${resourceFiles})
 
 add_subdirectory(include/minhook)
 add_subdirectory(include/libhat)
+add_subdirectory(include/ImGui)
+add_subdirectory(include/Kiero)
 
-target_link_libraries(Solstice PRIVATE spdlog glm minhook nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum)
+target_include_directories(Solstice PRIVATE include/ImGui)
+target_include_directories(Solstice PRIVATE include/Kiero)
 
-set_property(TARGET Solstice minhook spdlog glm nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+target_link_libraries(Solstice PRIVATE spdlog glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib)
+
+set_property(TARGET Solstice minhook spdlog glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
 

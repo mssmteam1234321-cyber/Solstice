@@ -15,9 +15,23 @@ void KeyHook::onKey(uint32_t key, bool isDown)
     auto oFunc = mDetour->getOriginal<decltype(&onKey)>();
     oFunc(key, isDown);
 
-    if (key == VK_END)
+    if (key == VK_END && isDown)
     {
         if (ClientInstance::get()->getScreenName() != "chat_screen") Solstice::mRequestEject = true;
+    }
+
+    if (isDown)
+    {
+        if (!ClientInstance::get()->getMouseGrabbed()) return;
+        // Look for modules
+        for (auto& module : gFeatureManager->mModuleManager->getModules())
+        {
+            if (module->mKey == key)
+            {
+                module->toggle();
+                return;
+            };
+        }
     }
 }
 

@@ -15,3 +15,15 @@ void HookManager::init()
         future.wait();
     }
 }
+
+void HookManager::shutdown()
+{
+    for (auto& hook : mHooks)
+    {
+        hook->shutdown();
+    }
+
+    mHooks.clear();
+    mFutures.clear();
+    mFutures2.clear();
+}

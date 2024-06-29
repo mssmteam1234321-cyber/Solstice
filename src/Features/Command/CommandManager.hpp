@@ -12,30 +12,15 @@
 class CommandManager {
 public:
     std::vector<std::unique_ptr<Command>> mCommands;
-    static inline std::vector<std::future<void>> mCommandFutures;
+    static inline std::vector<std::future<void>> mCommandFutures = {};
 
     void init();
-    void handleCommand(const std::string& command, bool* cancel);
+    void shutdown();
+    void handleCommand(class ChatEvent& event);
+    std::vector<Command*> getCommands() const;
 };
 
 // Macro for command registration
-#define REGISTER_COMMAND(COMMAND_CLASS) \
-    namespace { \
-        struct COMMAND_CLASS ## _Registrator { \
-            COMMAND_CLASS ## _Registrator() { \
-                static bool isRegistered = false; \
-                if (isRegistered) return; \
-                isRegistered = true; \
-                CommandManager::mCommandFutures.push_back(std::async(std::launch::async, []() { \
-                    while (!gFeatureManager || !gFeatureManager->mCommandManager) { \
-                        if (Solstice::mRequestEject) return; \
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
-                    } \
-                    if (Solstice::mRequestEject) return; \
-                    gFeatureManager->mCommandManager->mCommands.push_back(std::make_unique<COMMAND_CLASS>()); \
-                    spdlog::info("Registered command: {}", #COMMAND_CLASS); \
-                })); \
-            } \
-        }; \
-        static COMMAND_CLASS ## _Registrator COMMAND_CLASS ## _registrator; \
-    }
+#define ADD_COMMAND(COMMAND_CLASS) \
+    gFeatureManager->mCommandManager->mCommands.emplace_back(std::make_unique<COMMAND_CLASS>()); \
+    spdlog::info("Registered command: {}", #COMMAND_CLASS);

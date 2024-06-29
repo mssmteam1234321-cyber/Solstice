@@ -16,7 +16,9 @@ public:
     static inline std::vector<std::future<void>> mModuleFutures;
 
     void init();
+    void shutdown();
     void registerModule(std::unique_ptr<Module> module);
+    std::vector<std::unique_ptr<Module>>& getModules();
 };
 
 // Macro for module registration
@@ -40,3 +42,9 @@ public:
         }; \
         static MODULE_CLASS ## _Registrator MODULE_CLASS ## _registrator; \
     }
+
+#ifdef __DEBUG__
+    #define REGISTER_DEBUG_MODULE(MODULE_CLASS) REGISTER_MODULE(MODULE_CLASS)
+#else
+    #define REGISTER_DEBUG_MODULE(MODULE_CLASS)
+#endif

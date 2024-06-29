@@ -6,6 +6,7 @@
 
 #include <libhat/Access.hpp>
 #include <SDK/OffsetProvider.hpp>
+#include <SDK/SigManager.hpp>
 
 #include "MinecraftGame.hpp"
 
@@ -40,6 +41,11 @@ LoopbackPacketSender* ClientInstance::getPacketSender()
 GuiData* ClientInstance::getGuiData()
 {
     return hat::member_at<GuiData*>(this, OffsetProvider::ClientInstance_mGuiData);
+}
+
+bgfx_context* ClientInstance::getBGFX()
+{
+    return *reinterpret_cast<bgfx_context**>(SigManager::ClientInstance_mBgfx);
 }
 
 MinecraftGame* ClientInstance::getMinecraftGame()

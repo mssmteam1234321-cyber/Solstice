@@ -10,11 +10,12 @@
 
 class FeatureManager {
 public:
-    nes::event_dispatcher mDispatcher;
-    std::unique_ptr<ModuleManager> mModuleManager;
-    std::unique_ptr<CommandManager> mCommandManager;
+    std::unique_ptr<nes::event_dispatcher> mDispatcher;
+    std::unique_ptr<ModuleManager> mModuleManager = nullptr;
+    std::unique_ptr<CommandManager> mCommandManager = nullptr;
 
     void init();
+    void shutdown();
 };
 
 inline std::unique_ptr<FeatureManager> gFeatureManager = nullptr;

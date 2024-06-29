@@ -5,26 +5,39 @@
 #include "CommandManager.hpp"
 
 #include <sstream>
+#include <Features/FeatureManager.hpp>
 #include <Utils/ChatUtils.hpp>
 #include <Utils/StringUtils.hpp>
 
+#include "Commands/HelpCommand.hpp"
+#include "Commands/TestCommand.hpp"
+#include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
 void CommandManager::init()
 {
-    for (auto& future : mCommandFutures)
-    {
-        future.get();
-    }
+    ADD_COMMAND(HelpCommand);
+    ADD_COMMAND(TestCommand);
+
+    gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }
 
-void CommandManager::handleCommand(const std::string& command, bool* cancel)
+void CommandManager::shutdown()
 {
-    // If the string doesn't start with a dot, it's not a command
+    gFeatureManager->mDispatcher->deafen<ChatEvent, &CommandManager::handleCommand>(this);
+    mCommands.clear();
+
+    spdlog::info("Successfully shut down CommandManager");
+}
+
+void CommandManager::handleCommand(ChatEvent& event)
+{
+    std::string command = event.getMessage();
+
     if (command[0] != '.')
         return;
 
-    *cancel = true;
+    event.setCancelled(true);
 
     // Remove the dot from the command
     std::string cmd = command.substr(1);
@@ -50,5 +63,19 @@ void CommandManager::handleCommand(const std::string& command, bool* cancel)
     }
 
     // Execute the command
+    spdlog::info("Executing command: {}", commandName);
     (*it)->execute(args);
+}
+
+std::vector<Command*> CommandManager::getCommands() const
+{
+    std::vector<Command*> commands;
+    commands.reserve(mCommands.size());
+
+    for (const auto& command : mCommands)
+    {
+        commands.push_back(command.get());
+    }
+
+    return commands;
 }

@@ -19,7 +19,27 @@ void ModuleManager::init()
     }
 }
 
+void ModuleManager::shutdown()
+{
+    for (auto& module : mModules)
+    {
+        if (module->mEnabled)
+        {
+            module->mEnabled = false;
+            module->onDisable();
+        }
+    }
+
+    mModules.clear();
+    mModuleFutures.clear();
+}
+
 void ModuleManager::registerModule(std::unique_ptr<Module> module)
 {
     mModules.push_back(std::move(module));
+}
+
+std::vector<std::unique_ptr<Module>>& ModuleManager::getModules()
+{
+    return mModules;
 }
