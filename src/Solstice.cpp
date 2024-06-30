@@ -13,7 +13,7 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/Logger.hpp>
 #include <spdlog/spdlog.h>
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 #include <Utils/ProcUtils.hpp>
 #include <magic_enum.hpp>
 #include <MinHook.h>

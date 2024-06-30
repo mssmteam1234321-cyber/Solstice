@@ -4,7 +4,7 @@
 
 #include "ToggleCommand.hpp"
 
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 void ToggleCommand::execute(const std::vector<std::string>& args)
 {

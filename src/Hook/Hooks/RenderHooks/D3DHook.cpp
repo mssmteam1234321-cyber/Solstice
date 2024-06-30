@@ -21,6 +21,8 @@
 #include <winrt/base.h>
 #include <Features/Events/RenderEvent.hpp>
 #include <Utils/FontHelper.hpp>
+#include <Utils/MiscUtils/D2D.hpp>
+
 
 using winrt::com_ptr;
 
@@ -147,13 +149,13 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
 
 
     initImGui(gDevice11.get(), gContext11.get());
+    D2D::init(swapChain, gDevice11.get());
+
 
     igNewFrame();
-
-    // draw test window
-    ImGui::Begin("Test Window");
-    ImGui::Text("Hello, world!");
-    ImGui::End();
+    winrt::com_ptr<IDXGISurface> surface;
+    mBackBuffer11Tex.at(index).try_as(surface);
+    D2D::beginRender(surface.get(), dpi);
 
     auto holder = nes::make_holder<RenderEvent>();
     gFeatureManager->mDispatcher->trigger(holder);
@@ -170,6 +172,8 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
     gContext11->OMSetRenderTargets(1, &thing, NULL);
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    D2D::endRender();
 
     if (!alreadyRunningD3D11) {
         ID3D11Resource *resource = mBackBuffer11Tex.at(index).get();
@@ -189,7 +193,7 @@ HRESULT D3DHook::resizeBuffers(IDXGISwapChain3* swapChain, UINT bufferCount, UIN
     {
 
         // release all the stuff we created
-
+        D2D::shutdown();
         shutdownImGui();
 
         mBackBuffer11Rtv.clear();
@@ -246,6 +250,13 @@ void D3DHook::igEndFrame()
 
 void D3DHook::init()
 {
+    static bool once = false;
+    if (once)
+    {
+        spdlog::critical("D3DHook::init() called more than once (nigga what)");
+        return;
+    }
+    once = true;
     mName = "D3DHook";
     // Attempt to init on D3D12
     if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)

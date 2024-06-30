@@ -4,7 +4,7 @@
 
 #include "HelpCommand.hpp"
 
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 void HelpCommand::execute(const std::vector<std::string>& args)
 {

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7...3.29)
 
 option(KIERO_INCLUDE_D3D9 "Enable support for D3D9" OFF)
 option(KIERO_INCLUDE_D3D10 "Enable support for D3D10" OFF)
-option(KIERO_INCLUDE_D3D11 "Enable support for D3D11" OFF)
+option(KIERO_INCLUDE_D3D11 "Enable support for D3D11" ON)
 option(KIERO_INCLUDE_D3D12 "Enable support for D3D12" ON)
 option(KIERO_INCLUDE_OPENGL "Enable support for OpenGL" OFF)
 option(KIERO_INCLUDE_VULKAN "Enable support for Vulkan" OFF)

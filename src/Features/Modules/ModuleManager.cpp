@@ -9,6 +9,7 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "spdlog/spdlog.h"
+#include "Visual/ClickGui.hpp"
 #include "Visual/Watermark.hpp"
 
 void ModuleManager::init()
@@ -16,6 +17,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<Watermark>());
+    mModules.emplace_back(std::make_shared<ClickGui>());
 
     for (auto& module : mModules)
     {

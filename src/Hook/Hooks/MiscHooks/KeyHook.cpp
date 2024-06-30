@@ -5,8 +5,8 @@
 #include "KeyHook.hpp"
 
 #include <Solstice.hpp>
-#include <Utils/ActorUtils.hpp>
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ActorUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 std::unique_ptr<Detour> KeyHook::mDetour = nullptr;
 

@@ -4,7 +4,7 @@
 
 #include "TestCommand.hpp"
 
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 void TestCommand::execute(const std::vector<std::string>& args)
 {

@@ -5,7 +5,7 @@
 #include "TestModule.hpp"
 
 #include <spdlog/spdlog.h>
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 void TestModule::onEnable()
 {

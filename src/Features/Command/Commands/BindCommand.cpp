@@ -4,7 +4,7 @@
 
 #include "BindCommand.hpp"
 
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 #include <Utils/Keyboard.hpp>
 
 void BindCommand::execute(const std::vector<std::string>& args)

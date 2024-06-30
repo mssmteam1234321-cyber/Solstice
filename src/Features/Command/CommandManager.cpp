@@ -6,7 +6,7 @@
 
 #include <sstream>
 #include <Features/FeatureManager.hpp>
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 #include <Utils/StringUtils.hpp>
 
 #include "Commands/BindCommand.hpp"

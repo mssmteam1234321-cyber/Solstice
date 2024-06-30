@@ -12,6 +12,6 @@ target_sources(Solstice PRIVATE
         "imgui_toggle_renderer.cpp"
         "stb_image.h"
         "ImTween.h"
-        )
+)
 
 target_include_directories(Solstice PUBLIC "${CMAKE_CURRENT_LIST_DIR}")

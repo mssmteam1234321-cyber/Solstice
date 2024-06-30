@@ -5,7 +5,7 @@
 #include "BaseTickHook.hpp"
 
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <Utils/ChatUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
