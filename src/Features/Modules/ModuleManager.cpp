@@ -6,12 +6,16 @@
 
 #include <Utils/StringUtils.hpp>
 
+#include "Misc/TestModule.hpp"
+#include "Misc/ToggleSounds.hpp"
+#include "spdlog/spdlog.h"
+#include "Visual/Watermark.hpp"
+
 void ModuleManager::init()
 {
-    for (auto& future : mModuleFutures)
-    {
-        future.get();
-    }
+    mModules.emplace_back(std::make_shared<TestModule>());
+    mModules.emplace_back(std::make_shared<ToggleSounds>());
+    mModules.emplace_back(std::make_shared<Watermark>());
 
     for (auto& module : mModules)
     {
@@ -36,17 +40,17 @@ void ModuleManager::shutdown()
     mModuleFutures.clear();
 }
 
-void ModuleManager::registerModule(std::unique_ptr<Module> module)
+void ModuleManager::registerModule(const std::shared_ptr<Module>& module)
 {
-    mModules.push_back(std::move(module));
+    mModules.push_back(module);
 }
 
-std::vector<std::unique_ptr<Module>>& ModuleManager::getModules()
+std::vector<std::shared_ptr<Module>>& ModuleManager::getModules()
 {
     return mModules;
 }
 
-Module* ModuleManager::getModule(const std::string& name)
+Module* ModuleManager::getModule(const std::string& name) const
 {
     for (const auto& module : mModules)
     {

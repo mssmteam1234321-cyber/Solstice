@@ -12,14 +12,14 @@
 
 class ModuleManager {
 public:
-    std::vector<std::unique_ptr<Module>> mModules;
+    std::vector<std::shared_ptr<Module>> mModules;
     static inline std::vector<std::future<void>> mModuleFutures;
 
     void init();
     void shutdown();
-    void registerModule(std::unique_ptr<Module> module);
-    std::vector<std::unique_ptr<Module>>& getModules();
-    Module* getModule(const std::string& name);
+    void registerModule(const std::shared_ptr<Module>& module);
+    std::vector<std::shared_ptr<Module>>& getModules();
+    Module* getModule(const std::string& name) const;
     template <typename T>
     T* getModule();
 };
@@ -27,7 +27,8 @@ public:
 
 
 // Macro for module registration
-#define REGISTER_MODULE(MODULE_CLASS) \
+#define REGISTER_MODULE(MODULE_CLASS)
+/*#define REGISTER_MODULE(MODULE_CLASS) \
     namespace { \
         struct MODULE_CLASS ## _Registrator { \
             MODULE_CLASS ## _Registrator() { \
@@ -40,13 +41,12 @@ public:
                         std::this_thread::sleep_for(std::chrono::milliseconds(1)); \
                     } \
                     if (Solstice::mRequestEject) return; \
-                    gFeatureManager->mModuleManager->registerModule(std::make_unique<MODULE_CLASS>()); \
-                    spdlog::info("Registered module: {}", #MODULE_CLASS); \
+                    gFeatureManager->mModuleManager->registerModule(std::make_shared<MODULE_CLASS>()); \
                 })); \
             } \
         }; \
         static MODULE_CLASS ## _Registrator MODULE_CLASS ## _registrator; \
-    }
+    }*/
 
 #ifdef __DEBUG__
     #define REGISTER_DEBUG_MODULE(MODULE_CLASS) REGISTER_MODULE(MODULE_CLASS)

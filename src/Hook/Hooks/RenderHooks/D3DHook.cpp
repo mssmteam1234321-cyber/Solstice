@@ -20,6 +20,7 @@
 #include <Utils/ProcUtils.hpp>
 #include <winrt/base.h>
 #include <Features/Events/RenderEvent.hpp>
+#include <Utils/FontHelper.hpp>
 
 using winrt::com_ptr;
 
@@ -207,8 +208,7 @@ void D3DHook::initImGui(ID3D11Device* device, ID3D11DeviceContext* deviceContext
     if (imGuiInitialized) return;
     ImGui::CreateContext();
 
-    //FontHelper::loadFonts();
-
+    FontHelper::load();
 
     ImGui_ImplWin32_Init(ProcUtils::getMinecraftWindow());
     ImGui_ImplDX11_Init(device, deviceContext);
@@ -226,9 +226,6 @@ void D3DHook::shutdownImGui()
     if (imGuiInitialized) {
         ImGui_ImplDX11_Shutdown();
         ImGui_ImplWin32_Shutdown();
-
-        // Destroy the context
-        ImGui::DestroyContext();
 
         imGuiInitialized = false;
     }
@@ -270,6 +267,11 @@ void D3DHook::init()
 
 void D3DHook::shutdown()
 {
+    s_shutdown();
+}
+
+void D3DHook::s_shutdown()
+{
     Solstice::console->info("Shutting down D3DHook");
     kiero::unbind(8);
     kiero::unbind(13);
@@ -281,6 +283,4 @@ void D3DHook::shutdown()
     mBackBuffer11Rtv.clear();
     mBackBuffer11Tex.clear();
     gContext11->Flush();
-
-    //FontHelper::unloadFonts();
 }
