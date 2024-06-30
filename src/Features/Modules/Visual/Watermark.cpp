@@ -21,7 +21,7 @@ void Watermark::onDisable()
 void Watermark::onRenderEvent(RenderEvent& event)
 {
     // Render the watermark here using ImGui
-    auto renderPosition = ImVec2(40.f, 40.f);
+    auto renderPosition = ImVec2(20.f, 20.f);
     static std::string watermarkText = "solstice";
     // Draw shadow
     float size = 50;
