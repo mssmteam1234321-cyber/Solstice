@@ -72,6 +72,8 @@ public:
         { "none", 0}
     };
 
+    static inline std::unordered_map<int, bool> mPressedKeys;
+
     static int getKeyId(const std::string& str);
     static bool isUsingMoveKeys(bool includeSpaceShift = false);
 

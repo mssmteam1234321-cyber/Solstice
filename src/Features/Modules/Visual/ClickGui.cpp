@@ -5,8 +5,10 @@
 #include "ClickGui.hpp"
 
 #include <imgui.h>
+#include <Features/GUI/Dropdown.hpp>
 #include <Utils/MiscUtils/ImRenderUtils.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
+#include <Utils/MiscUtils/EasingUtil.hpp>
 
 void ClickGui::onEnable()
 {
@@ -15,18 +17,34 @@ void ClickGui::onEnable()
 
 void ClickGui::onDisable()
 {
+
 }
+
+
 
 void ClickGui::onRenderEvent(RenderEvent& event)
 {
-    static float animationPercent = 0.0f;
-    float targetPercent = mEnabled ? 1.0f : 0.0f;
-    animationPercent = MathUtils::animate(animationPercent, targetPercent, ImGui::GetIO().DeltaTime * 10.0f);
+    static float animation = 0;
+    static int animationMode = 0; // Ease enum
+    static bool blur = true;
+    static int styleMode = 0; // Ease enum
+    static float animationSpeed = 10.5f; // Ease speed
+    static int scrollDirection = 0;
+    static char h[2] = { 0 };
+    static DropdownGui dropdownGui = DropdownGui();
+    static EasingUtil inEase = EasingUtil();
 
-    auto bg = ImGui::GetForegroundDrawList();
-    ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+    float delta = ImGui::GetIO().DeltaTime;
 
-    bg->AddRectFilled(ImVec2(0, 0), windowSize, ImColor(0.f, 0.f, 0.f, 0.6f * animationPercent));
+    this->mEnabled ? inEase.incrementPercentage(delta * animationSpeed / 10)
+    : inEase.decrementPercentage(delta * 2 * animationSpeed / 10);
+    float inScale = inEase.easeOutExpo();
+    if (inEase.isPercentageMax()) inScale = 1;
+    animation = MathUtils::lerp(0, 1, inEase.easeOutExpo());
 
-    ImRenderUtils::addBlur(ImVec4(0, 0, windowSize.x, windowSize.y), 9.f * animationPercent, 0.f);
+    if (animation < 0.0001f) {
+        return;
+    }
+
+    dropdownGui.render(animation, inScale, scrollDirection, h, blur);
 }

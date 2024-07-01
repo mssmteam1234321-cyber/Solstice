@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <glm/glm.hpp>
 
 #include "Features/Events/ModuleStateChangeEvent.hpp"
 
@@ -32,6 +33,17 @@ public:
     void enable();
     void disable();
     void addSetting(class Setting* setting);
+    std::string& getCategory();
+
+
+    float animPercentage = 0.f;
+    glm::vec2 location = glm::vec2(0, 0);
+    glm::vec2 size = glm::vec2(0, 0);
+    glm::vec2 pos = glm::vec2(0, 0);
+    bool showSettings = false;
+    float cAnim = 0;
+    float cFade = 0;
+    float cScale = 0;
 };
 
 template <typename T>

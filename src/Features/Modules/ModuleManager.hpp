@@ -34,6 +34,9 @@ public:
         }
         return nullptr;
     }
+
+    std::vector<std::shared_ptr<Module>>& getModulesInCategory(int catId);
+    std::unordered_map<std::string, std::shared_ptr<Module>> getModuleCategoryMap();
 };
 
 

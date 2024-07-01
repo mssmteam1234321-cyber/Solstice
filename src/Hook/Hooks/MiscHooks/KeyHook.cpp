@@ -6,6 +6,7 @@
 
 #include <Solstice.hpp>
 #include <Features/Modules/Visual/ClickGui.hpp>
+#include <Utils/Keyboard.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
@@ -20,6 +21,8 @@ void KeyHook::onKey(uint32_t key, bool isDown)
     {
         if (ClientInstance::get()->getScreenName() != "chat_screen") Solstice::mRequestEject = true;
     }
+
+    Keyboard::mPressedKeys[key] = isDown;
 
     if (isDown)
     {

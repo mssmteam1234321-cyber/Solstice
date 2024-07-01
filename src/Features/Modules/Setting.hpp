@@ -31,6 +31,14 @@ public:
         : mName(std::move(name)), mDescription(std::move(description)), mType(type)
     {
     }
+
+    //had to do dis sorry :/
+    float sliderEase = 0;
+    float boolScale = 0;
+    bool isDragging = false;
+
+    bool enumExtended = false;
+    float enumSlide = 0;
 };
 
 class BoolSetting : public Setting

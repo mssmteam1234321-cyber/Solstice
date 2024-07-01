@@ -45,3 +45,8 @@ void Module::addSetting(Setting* setting)
 {
     this->mSettings.emplace_back(setting);
 }
+
+std::string& Module::getCategory()
+{
+    return ModuleCategoryNames[static_cast<int>(mCategory)];
+}
