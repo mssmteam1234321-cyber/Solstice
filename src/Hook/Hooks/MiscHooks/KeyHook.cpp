@@ -5,6 +5,7 @@
 #include "KeyHook.hpp"
 
 #include <Solstice.hpp>
+#include <Features/Modules/Visual/ClickGui.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
@@ -22,10 +23,12 @@ void KeyHook::onKey(uint32_t key, bool isDown)
 
     if (isDown)
     {
-        if (!ClientInstance::get()->getMouseGrabbed()) return;
         // Look for modules
+        const auto* clickGui = gFeatureManager->mModuleManager->getModule<ClickGui>();
         for (auto& module : gFeatureManager->mModuleManager->getModules())
         {
+            if (!ClientInstance::get()->getMouseGrabbed() && module.get() != clickGui) continue;
+
             if (module->mKey == key)
             {
                 module->toggle();

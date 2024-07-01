@@ -6,6 +6,8 @@
 
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
+
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
@@ -14,6 +16,9 @@ void BaseTickHook::onBaseTick(Actor* actor)
     auto oFunc = mDetour->getOriginal<decltype(&onBaseTick)>();
     oFunc(actor);
     if (actor != ClientInstance::get()->getLocalPlayer()) return;
+
+    auto holder = nes::make_holder<BaseTickEvent>();
+    gFeatureManager->mDispatcher->trigger(holder);
 
 }
 

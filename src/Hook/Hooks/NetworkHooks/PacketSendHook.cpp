@@ -8,6 +8,7 @@
 #include "PacketSendHook.hpp"
 #include <Features/FeatureManager.hpp>
 #include "Features/Events/ChatEvent.hpp"
+#include "Features/Events/PacketOutEvent.hpp"
 
 class ChatEvent;
 std::unique_ptr<Detour> PacketSendHook::mDetour = nullptr;
@@ -26,6 +27,10 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
             if (event->isCancelled()) return nullptr;
         }
     }
+
+    auto holda = nes::make_holder<PacketOutEvent>(packet);
+    gFeatureManager->mDispatcher->trigger(holda);
+    if (holda->isCancelled()) return nullptr;
 
     return original(_this, packet);
 }

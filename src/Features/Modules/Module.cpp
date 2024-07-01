@@ -40,3 +40,8 @@ void Module::disable()
 {
     if (mEnabled) setEnabled(false);
 }
+
+void Module::addSetting(Setting* setting)
+{
+    this->mSettings.emplace_back(setting);
+}

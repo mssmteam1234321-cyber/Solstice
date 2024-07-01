@@ -8,7 +8,9 @@
 
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
+#include "Movement/Fly.hpp"
 #include "spdlog/spdlog.h"
+#include "Visual/AutoScale.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/Watermark.hpp"
 
@@ -18,6 +20,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<Watermark>());
     mModules.emplace_back(std::make_shared<ClickGui>());
+    mModules.emplace_back(std::make_shared<AutoScale>());
+    mModules.emplace_back(std::make_shared<Fly>());
+
 
     for (auto& module : mModules)
     {
@@ -64,17 +69,3 @@ Module* ModuleManager::getModule(const std::string& name) const
     return nullptr;
 }
 
-template <typename T>
-T* ModuleManager::getModule()
-{
-    // TypeID based search
-    const auto& typeID = typeid(T).name();
-    for (const auto& module : mModules)
-    {
-        if (module->getTypeID() == typeID)
-        {
-            return static_cast<T*>(module.get());
-        }
-    }
-    return nullptr;
-}

@@ -6,6 +6,7 @@
 #include "ModuleCategory.hpp"
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Features/Events/ModuleStateChangeEvent.hpp"
 
@@ -16,6 +17,7 @@ public:
     ModuleCategory mCategory;
     bool mEnabled;
     int mKey;
+    std::vector<class Setting*> mSettings;
 
     Module(std::string name, std::string description, const ModuleCategory category, const int key = 0, const bool enabled = false)
         : mName(std::move(name)), mDescription(std::move(description)), mCategory(category), mEnabled(enabled), mKey(key) {}
@@ -29,6 +31,7 @@ public:
     void toggle();
     void enable();
     void disable();
+    void addSetting(class Setting* setting);
 };
 
 template <typename T>

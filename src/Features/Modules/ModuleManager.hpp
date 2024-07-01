@@ -21,7 +21,19 @@ public:
     std::vector<std::shared_ptr<Module>>& getModules();
     Module* getModule(const std::string& name) const;
     template <typename T>
-    T* getModule();
+    T* getModule()
+    {
+        // TypeID based search
+        const auto& typeID = typeid(T).name();
+        for (const auto& module : mModules)
+        {
+            if (module->getTypeID() == typeID)
+            {
+                return static_cast<T*>(module.get());
+            }
+        }
+        return nullptr;
+    }
 };
 
 
