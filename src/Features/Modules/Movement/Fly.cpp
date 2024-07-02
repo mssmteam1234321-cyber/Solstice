@@ -32,7 +32,7 @@ void Fly::onDisable()
 
 void Fly::onBaseTickEvent(BaseTickEvent& event) const
 {
-    if (Mode.mValue == Motion)
+    if (Mode.mValue == Motion || Mode.mValue == Elytra)
     {
         auto player = ClientInstance::get()->getLocalPlayer();
         if (player == nullptr)
@@ -73,6 +73,16 @@ void Fly::onPacketOutEvent(PacketOutEvent& event) const
         {
             packet->mInputData |= AuthInputAction::START_GLIDING;
             packet->mInputData &= ~AuthInputAction::STOP_GLIDING;
+        }
+        if (Mode.mValue == Elytra)
+        {
+            static bool alternating = false;
+            alternating = !alternating;
+            packet->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::ASCEND | AuthInputAction::WANT_UP;
+            if (alternating)
+                packet->mInputData |= AuthInputAction::JUMPING | AuthInputAction::START_JUMPING | AuthInputAction::JUMP_DOWN;
+            packet->mInputData &= ~AuthInputAction::STOP_GLIDING | AuthInputAction::DESCEND | AuthInputAction::WANT_DOWN | AuthInputAction::SNEAKING | AuthInputAction::SNEAK_TOGGLE_DOWN | AuthInputAction::START_SNEAKING;
+
         }
     }
 }

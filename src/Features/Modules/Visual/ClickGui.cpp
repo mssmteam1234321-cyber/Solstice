@@ -13,6 +13,8 @@
 #include <Utils/MiscUtils/EasingUtil.hpp>
 
 static bool lastMouseState = false;
+static DropdownGui dropdownGui = DropdownGui();
+
 
 void ClickGui::onEnable()
 {
@@ -44,7 +46,7 @@ void ClickGui::onMouseEvent(MouseEvent& event)
 void ClickGui::onKeyEvent(KeyEvent& event)
 {
     if (event.mKey == VK_ESCAPE) {
-        this->toggle();
+        if (!dropdownGui.isBinding && event.mPressed) this->toggle();
         event.mCancelled = true;
     }
 }
@@ -59,7 +61,6 @@ void ClickGui::onRenderEvent(RenderEvent& event)
     static float animationSpeed = 10.5f; // Ease speed
     static int scrollDirection = 0;
     static char h[2] = { 0 };
-    static DropdownGui dropdownGui = DropdownGui();
     static EasingUtil inEase = EasingUtil();
 
     float delta = ImGui::GetIO().DeltaTime;

@@ -10,10 +10,11 @@
 class Fly : public ModuleBase<Fly> {
 public:
     enum Mode {
-        Motion
+        Motion,
+        Elytra
     };
 
-    EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Motion, { "Motion" });
+    EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Motion, { "Motion", "Elytra" });
     NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 

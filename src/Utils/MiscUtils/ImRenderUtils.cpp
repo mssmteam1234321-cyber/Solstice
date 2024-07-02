@@ -16,7 +16,7 @@ void ImRenderUtils::addBlur(const ImVec4& pos, float strength, float radius)
     D2D::addBlur(ImGui::GetBackgroundDrawList(), strength, pos, radius);
 }
 
-void ImRenderUtils::drawText(ImVec2 pos, std::string* textStr, const ImColor& color, float textSize, float alpha,
+void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImColor& color, float textSize, float alpha,
     bool shadow, int index, ImDrawList* d)
 {
     if (!ImGui::GetCurrentContext())
@@ -38,11 +38,11 @@ void ImRenderUtils::drawText(ImVec2 pos, std::string* textStr, const ImColor& co
 				d->AddText(font, (textSize * 18), textPos + shadowOffsetMinecraft, ImColor(color.Value.x * 0.2f, color.Value.y * 0.2f, color.Value.z * 0.2f, alpha * 0.7f), textStr->c_str());
 			}
 			else {*/
-        d->AddText(font, (textSize * 18), added, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, alpha * 0.9f), textStr->c_str());
+        d->AddText(font, (textSize * 18), added, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, alpha * 0.9f), textStr.c_str());
         //}
     }
 
-    d->AddText(font, (textSize * 18), textPos, ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), textStr->c_str());
+    d->AddText(font, (textSize * 18), textPos, ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), textStr.c_str());
 }
 
 void ImRenderUtils::fillRectangle(ImVec4 pos, const ImColor& color, float alpha, float radius, ImDrawList* list)

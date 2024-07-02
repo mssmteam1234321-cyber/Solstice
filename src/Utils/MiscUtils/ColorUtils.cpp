@@ -38,7 +38,7 @@ ImColor ColorUtils::getThemedColor(float index, uint64_t ms)
     if (theme == Interface::Rainbow) return Rainbow(interface->mColorSpeed.mValue, interface->mSaturation.mValue, 1.f, index);
     else if (theme == Interface::Custom)
     {
-        colors = { interface->mColor1.getAsImColor(), interface->mColor2.getAsImColor() };
+        colors = interface->getCustomColors();
     }
 
     return LerpColors(interface->mColorSpeed.mValue, index, colors, ms);

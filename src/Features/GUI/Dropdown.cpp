@@ -332,7 +332,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         float cSetRectCentreX = rect.x + ((rect.z - rect.x) -
                                             ImRenderUtils::getTextWidth(&setName, textSize)) / 2;
                                         float cSetRectCentreY = rect.y + ((rect.w - rect.y) - textHeight) / 2;
-                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), &setName,
+                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), setName,
                                                                ImColor(255, 255, 255), textSize, animation, true);
                                     }
                                     break;
@@ -395,7 +395,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                                 }
 
                                                 ImRenderUtils::drawText(
-                                                    ImVec2(rect2.x + 5.f, cSetRectCentreY), &enumValue,
+                                                    ImVec2(rect2.x + 5.f, cSetRectCentreY), enumValue,
                                                     ImColor(255, 255, 255), textSize, animation, true);
                                             }
                                         }
@@ -426,11 +426,11 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         auto ValueLen = ImRenderUtils::getTextWidth(&settingString, textSize);
 
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY),
-                                                               &settingName, ImColor(255, 255, 255), textSize,
+                                                               settingName, ImColor(255, 255, 255), textSize,
                                                                animation, true);
                                         ImRenderUtils::drawText(
                                             ImVec2((rect.z - 5.f) - ValueLen, cSetRectCentreY),
-                                            &settingString, ImColor(170, 170, 170), textSize, animation, true);
+                                            settingString, ImColor(170, 170, 170), textSize, animation, true);
                                     }
                                     if (rect.y > catRect.y - modHeight)
                                     {
@@ -525,10 +525,10 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
                                         auto ValueLen = ImRenderUtils::getTextWidth(&valueName, textSize);
                                         ImRenderUtils::drawText(
-                                            ImVec2((rect.z - 5.f) - ValueLen, rect.y + 2.5f), &valueName,
+                                            ImVec2((rect.z - 5.f) - ValueLen, rect.y + 2.5f), valueName,
                                             ImColor(170, 170, 170), textSize, animation, true);
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, rect.y + 2.5f),
-                                                               &setName, ImColor(255, 255, 255), textSize,
+                                                               setName, ImColor(255, 255, 255), textSize,
                                                                animation, true);
                                     }
                                     break;
@@ -565,7 +565,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         }
 
                                         float cSetRectCentreY = rect.y + ((rect.w - rect.y) - textHeight) / 2;
-                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), &setName,
+                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), setName,
                                                                ImColor(255, 255, 255), textSize, animation, true);
 
                                         ImVec2 colorRect = ImVec2(rect.z - 20, rect.y + 5);
@@ -623,7 +623,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                         //.lerp(ImVec2(modRect.x + 5, cRectCentreY), mod->cAnim) // if we want lerp to left on extend
                         ImVec2 modPosLerped = ImVec2(cRectCentreX, cRectCentreY);
 
-                        ImRenderUtils::drawText(modPosLerped, &modName,
+                        ImRenderUtils::drawText(modPosLerped, modName,
                                                ImColor(mod->mEnabled
                                                            ? ImColor(255, 255, 255)
                                                            : ImColor(180, 180, 180)).Lerp(
@@ -667,6 +667,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                             {
                                 lastMod = mod;
                                 isBinding = true;
+                                ClientInstance::get()->playUi("random.pop", 0.75f, 1.0f);
                             }
                         }
                     }
@@ -690,8 +691,15 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                     if (key.second && lastMod)
                     {
                         //lastMod->setKeybind(key.first == Keys::ESC ? 7 : key.first);
-                        lastMod->mKey = key.first;
+                        lastMod->mKey = key.first == VK_ESCAPE ? 0 : key.first;
                         isBinding = false;
+                        if (key.first == VK_ESCAPE)
+                        {
+                            ClientInstance::get()->playUi("random.orb", 0.75f, 1.0f);
+                        } else
+                        {
+                            ClientInstance::get()->playUi("random.break", 0.75f, 1.0f);
+                        }
                     }
                 }
             }
@@ -709,7 +717,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
             float cRectCentreY = catRect.y + ((catRect.w - catRect.y) - textHeight) / 2;
 
             // Draw the string
-            ImRenderUtils::drawText(ImVec2(cRectCentreX, cRectCentreY), &catName, ImColor(255, 255, 255),
+            ImRenderUtils::drawText(ImVec2(cRectCentreX, cRectCentreY), catName, ImColor(255, 255, 255),
                                    textSize * 1.15, animation, true);
 
             catPositions[i].x = std::clamp(catPositions[i].x, 0.f, screen.x - catWidth);
@@ -772,7 +780,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                            ), inScale);
 
             ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation, 0.f);
-            ImRenderUtils::drawText(ImVec2(tooltipRect.x + padding, tooltipRect.y + padding), &tooltip,
+            ImRenderUtils::drawText(ImVec2(tooltipRect.x + padding, tooltipRect.y + padding), tooltip,
                                    ImColor(255, 255, 255), textSize * 0.8f, animation, true);
         }
 

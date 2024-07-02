@@ -16,8 +16,14 @@ public:
         Custom
     };
     EnumSetting mMode = EnumSetting("Mode", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
+    NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFFFFFF);
     ColorSetting mColor2 = ColorSetting("Color 2", "The second color of the interface.", 0x000000FF);
+    ColorSetting mColor3 = ColorSetting("Color 3", "The third color of the interface.", 0x000000FF);
+    ColorSetting mColor4 = ColorSetting("Color 4", "The fourth color of the interface.", 0x000000FF);
+    ColorSetting mColor5 = ColorSetting("Color 5", "The fifth color of the interface.", 0x000000FF);
+    ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0x000000FF);
+
     NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 1.f, 1.f, 10.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
 
@@ -25,10 +31,22 @@ public:
     Interface() : ModuleBase("Interface", "Customize the visuals!", ModuleCategory::Visual, 0, true) {
         gFeatureManager->mDispatcher->listen<ModuleStateChangeEvent, &Interface::onModuleStateChange, nes::event_priority::FIRST>(this);
         addSetting(&mMode);
+        addSetting(&mColors);
         addSetting(&mColor1);
         addSetting(&mColor2);
-        VISIBILITY_CONDITION(mColor1, mMode.mValue == Custom);
-        VISIBILITY_CONDITION(mColor2, mMode.mValue == Custom);
+        addSetting(&mColor3);
+        addSetting(&mColor4);
+        addSetting(&mColor5);
+        addSetting(&mColor6);
+        // Visibility conditions
+        VISIBILITY_CONDITION(mColors, mMode.mValue == Custom);
+        VISIBILITY_CONDITION(mColor1, mMode.mValue == Custom && mColors.mValue >= 1);
+        VISIBILITY_CONDITION(mColor2, mMode.mValue == Custom && mColors.mValue >= 2);
+        VISIBILITY_CONDITION(mColor3, mMode.mValue == Custom && mColors.mValue >= 3);
+        VISIBILITY_CONDITION(mColor4, mMode.mValue == Custom && mColors.mValue >= 4);
+        VISIBILITY_CONDITION(mColor5, mMode.mValue == Custom && mColors.mValue >= 5);
+        VISIBILITY_CONDITION(mColor6, mMode.mValue == Custom && mColors.mValue >= 6);
+
         addSetting(&mColorSpeed);
         addSetting(&mSaturation);
     }
@@ -43,6 +61,17 @@ public:
         {Rainbow, {}},
         {Custom, {}}
     };
+
+    std::vector<ImColor> getCustomColors() {
+        auto result = std::vector<ImColor>();
+        if (mColors.mValue >= 1) result.push_back(mColor1.getAsImColor());
+        if (mColors.mValue >= 2) result.push_back(mColor2.getAsImColor());
+        if (mColors.mValue >= 3) result.push_back(mColor3.getAsImColor());
+        if (mColors.mValue >= 4) result.push_back(mColor4.getAsImColor());
+        if (mColors.mValue >= 5) result.push_back(mColor5.getAsImColor());
+        if (mColors.mValue >= 6) result.push_back(mColor6.getAsImColor());
+        return result;
+    }
 
     void onEnable() override;
     void onDisable() override;

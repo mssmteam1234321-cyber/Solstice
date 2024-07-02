@@ -91,15 +91,17 @@ void Solstice::init(HMODULE hModule)
 
     HookManager::shutdown();
 
+    // Remove all hooks
+    MH_DisableHook(MH_ALL_HOOKS);
+    MH_Uninitialize();
+
     gFeatureManager->shutdown();
     gFeatureManager.reset();
 
     // Shutdown
     console->warn("Shutting down...");
 
-    // Remove all hooks
-    MH_DisableHook(MH_ALL_HOOKS);
-    MH_Uninitialize();
+
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
     ChatUtils::displayClientMessage("§cEjected!");

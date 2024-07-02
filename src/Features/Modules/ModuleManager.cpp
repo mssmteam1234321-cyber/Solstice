@@ -6,6 +6,7 @@
 
 #include <Utils/StringUtils.hpp>
 
+#include "Misc/PacketLogger.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Movement/Fly.hpp"
@@ -26,6 +27,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Fly>());
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<Interface>());
+    mModules.emplace_back(std::make_shared<PacketLogger>());
 
 
     for (auto& module : mModules)

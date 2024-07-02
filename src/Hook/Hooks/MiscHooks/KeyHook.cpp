@@ -43,7 +43,6 @@ void KeyHook::onKey(uint32_t key, bool isDown)
             if (module->mKey == key)
             {
                 module->toggle();
-                return;
             };
         }
     }

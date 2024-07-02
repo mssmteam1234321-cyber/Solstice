@@ -104,7 +104,11 @@ class ColorSetting : public Setting
 public:
     // Use ImColor to convert this to a color
     float mValue[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    bool mIsPicking = false;
+    bool mIsExtended = false;
+    float mSlide = 0;
+    // vertical size of the color picker
+    static inline float mColorPickerSize = 400;
+
 
     ColorSetting(std::string name, std::string description, float r, float g, float b, float a)
         : Setting(std::move(name), std::move(description), SettingType::Color)
