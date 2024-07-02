@@ -104,6 +104,7 @@ class ColorSetting : public Setting
 public:
     // Use ImColor to convert this to a color
     float mValue[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    bool mIsPicking = false;
 
     ColorSetting(std::string name, std::string description, float r, float g, float b, float a)
         : Setting(std::move(name), std::move(description), SettingType::Color)
@@ -113,6 +114,17 @@ public:
         mValue[2] = b;
         mValue[3] = a;
     }
+
+    ColorSetting(std::string name, std::string description, uint64_t color)
+        : Setting(std::move(name), std::move(description), SettingType::Color)
+    {
+        mValue[0] = ((color >> 16) & 0xFF) / 255.0f;
+        mValue[1] = ((color >> 8) & 0xFF) / 255.0f;
+        mValue[2] = (color & 0xFF) / 255.0f;
+        mValue[3] = ((color >> 24) & 0xFF) / 255.0f;
+    }
+
+
 
     void setValue(float r, float g, float b, float a)
     {
@@ -125,5 +137,34 @@ public:
     ImColor getAsImColor()
     {
         return { mValue[0], mValue[1], mValue[2], mValue[3] };
+    }
+
+    void setFromImColor(const ImColor& color)
+    {
+        mValue[0] = color.Value.x;
+        mValue[1] = color.Value.y;
+        mValue[2] = color.Value.z;
+        mValue[3] = color.Value.w;
+    }
+
+    void setFromImVec4(const ImVec4& color)
+    {
+        mValue[0] = color.x;
+        mValue[1] = color.y;
+        mValue[2] = color.z;
+        mValue[3] = color.w;
+    }
+
+    ImVec4 getAsImVec4()
+    {
+        return { mValue[0], mValue[1], mValue[2], mValue[3] };
+    }
+
+    void setColor(float r, float g, float b, float a)
+    {
+        mValue[0] = r;
+        mValue[1] = g;
+        mValue[2] = b;
+        mValue[3] = a;
     }
 };

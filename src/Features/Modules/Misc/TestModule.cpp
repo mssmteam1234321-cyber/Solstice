@@ -7,21 +7,26 @@
 #include <imgui.h>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <spdlog/spdlog.h>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
 void TestModule::onEnable()
 {
-    ChatUtils::displayClientMessage("§6TestModule", "enabled!");
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
+    ClientInstance* client = ClientInstance::get();
+    GuiData* guiData = client->getGuiData();
+    ChatUtils::displayClientMessage("§6TestModule", "Screen size: " + std::to_string(guiData->resolution.x) + "x" + std::to_string(guiData->resolution.y));
+    ChatUtils::displayClientMessage("§6TestModule", "Screen size Rounded: " + std::to_string(guiData->resolutionRounded.x) + "x" + std::to_string(guiData->resolutionRounded.y));
+    ChatUtils::displayClientMessage("§6TestModule", "Screen size Scaled: " + std::to_string(guiData->resolutionScaled.x) + "x" + std::to_string(guiData->resolutionScaled.y));
+
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
 }
 
 void TestModule::onDisable()
 {
-    ChatUtils::displayClientMessage("§6TestModule", "disabled!");
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
+    ChatUtils::displayClientMessage("§6TestModule", "disabled!");
 }
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)

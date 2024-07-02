@@ -36,9 +36,9 @@ ImVec4 DropdownGui::getCenter(ImVec4& vec)
 void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, bool blur)
 {
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
-    ImVec2 screen = ImGui::GetIO().DisplaySize;
+    ImVec2 screen = ImRenderUtils::getScreenSize();
     float deltaTime = ImGui::GetIO().DeltaTime;
-    auto drawList = ImGui::GetForegroundDrawList();
+    auto drawList = ImGui::GetBackgroundDrawList();
 
     if (blur)
     {
@@ -61,7 +61,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
     //float textHeight = ImRenderUtils::getTextHeight(textSize);
     float textHeight = ImGui::GetFont()->CalcTextSizeA(textSize * 18, FLT_MAX, -1, "").y;
 
-    int screenWidth = (int)ImGui::GetIO().DisplaySize.x;
+    int screenWidth = (int)screen.x;
     int screenHeight = 10;
 
     float windowWidth = 220.0f;
@@ -70,9 +70,40 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
     float windowX = (screenWidth - windowWidth) * 0.5f;
     float windowY = screenHeight;
 
+    if (displayColorPicker && isEnabled)
+    {
+        ImGui::PushFont(FontHelper::Fonts["mojangles"]);
+        ColorSetting* colorSetting = lastColorSetting;
+        // Display the color picker in the bottom middle of the screen
+        ImGui::SetNextWindowPos(ImVec2(screen.x / 2 - 200, screen.y / 2));
+        ImGui::SetNextWindowSize(ImVec2(400, 400));
+
+        ImGui::Begin("Color Picker", &displayColorPicker, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+        {
+            ImVec4 color = colorSetting->getAsImColor().Value;
+            ImGui::ColorPicker4("Color", colorSetting->mValue, ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha);
+            ImGui::Button("Close");
+            if (ImGui::IsItemClicked())
+            {
+                // Set the color setting to the new color
+                colorSetting->setFromImColor(ImColor(color));
+                displayColorPicker = false;
+            }
+        }
+        ImGui::End();
+        ImGui::PopFont();
+
+        if (ImGui::IsMouseClicked(0) && !ImRenderUtils::isMouseOver(ImVec4(screen.x / 2 - 200, screen.y / 2, screen.x / 2 + 200, screen.y / 2 + 400)))
+        {
+            displayColorPicker = false;
+        }
+    }
+
+    if (!isEnabled) displayColorPicker = false;
+
     if (catPositions.empty() && isEnabled)
     {
-        float centerX = ImRenderUtils::getScreenSize().x / 2.f;
+        float centerX = screen.x / 2.f;
         float xPos = centerX - (categories.size() * (catWidth + catGap) / 2);
         for (std::string& category : categories)
         {
@@ -99,10 +130,10 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
             // Calculate the catRect pos
             ImVec4 catRect = ImVec4(catPositions[i].x, catPositions[i].y,
                                                     catPositions[i].x + catWidth, catPositions[i].y + catHeight)
-                .scaleToPoint(ImVec4(ImRenderUtils::getScreenSize().x / 2,
-                                             ImRenderUtils::getScreenSize().y / 2,
-                                             ImRenderUtils::getScreenSize().x / 2,
-                                             ImRenderUtils::getScreenSize().y / 2), inScale);
+                .scaleToPoint(ImVec4(screen.x / 2,
+                                             screen.y / 2,
+                                             screen.x / 2,
+                                             screen.y / 2), inScale);
 
             /* Calculate the height of the catWindow including the settings */
             float settingsHeight = 0;
@@ -145,6 +176,11 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                             settingsHeight = MathUtils::lerp(settingsHeight, settingsHeight + modHeight, mod->cAnim);
                             break;
                         }
+                    case SettingType::Color:
+                        {
+                            settingsHeight = MathUtils::lerp(settingsHeight, settingsHeight + modHeight, mod->cAnim);
+                            break;
+                        }
                     }
                 }
             }
@@ -153,11 +189,11 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
             ImVec4 catWindow = ImVec4(catPositions[i].x, catPositions[i].y,
                                                       catPositions[i].x + catWidth,
                                                       catPositions[i].y + moduleY + catWindowHeight)
-                .scaleToPoint(ImVec4(ImRenderUtils::getScreenSize().x / 2,
-                                             ImRenderUtils::getScreenSize().y / 2,
-                                             ImRenderUtils::getScreenSize().x / 2,
-                                             ImRenderUtils::getScreenSize().y / 2), inScale);
-            ImColor rgb = ColorUtils::Rainbow(2.5, 1, 1, i * 20);
+                .scaleToPoint(ImVec4(screen.x / 2,
+                                             screen.y / 2,
+                                             screen.x / 2,
+                                             screen.y / 2), inScale);
+            ImColor rgb = ColorUtils::getThemedColor(i * 20);
 
             // Can we scroll?
             if (ImRenderUtils::isMouseOver(catWindow) && catPositions[i].isExtended)
@@ -202,7 +238,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                     return std::tolower(c);
                 });
 
-                ImColor rgb = ColorUtils::Rainbow(2.5, 1, 1, moduleY * 2);
+                ImColor rgb = ColorUtils::getThemedColor(moduleY * 2);
 
                 // If the mod belongs to the category
                 if (mod->getCategory() == categories[i])
@@ -212,10 +248,10 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                                             catPositions[i].y + catHeight + moduleY,
                                                             catPositions[i].x + modWidth,
                                                             catPositions[i].y + catHeight + moduleY + modHeight)
-                        .scaleToPoint(ImVec4(ImRenderUtils::getScreenSize().x / 2,
-                                                     ImRenderUtils::getScreenSize().y / 2,
-                                                     ImRenderUtils::getScreenSize().x / 2,
-                                                     ImRenderUtils::getScreenSize().y / 2), inScale);
+                        .scaleToPoint(ImVec4(screen.x / 2,
+                                                     screen.y / 2,
+                                                     screen.x / 2,
+                                                     screen.y / 2), inScale);
 
                     // Animate the setting animation percentage
                     float targetAnim = mod->showSettings ? 1.f : 0.f;
@@ -232,7 +268,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                 continue;
                             }
 
-                            ImColor rgb = ColorUtils::Rainbow(2.5, 1, 1, moduleY * 2);
+                            ImColor rgb = ColorUtils::getThemedColor(moduleY * 2);
                             // Base the alpha off the animation percentage
                             rgb.Value.w = animation;
 
@@ -247,8 +283,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
-                                            ImVec4(modRect.x, ImRenderUtils::getScreenSize().y / 2,
-                                                           modRect.z, ImRenderUtils::getScreenSize().y / 2),
+                                            ImVec4(modRect.x, screen.y / 2,
+                                                           modRect.z, screen.y / 2),
                                             inScale);
 
                                     if (rect.y > catRect.y + 0.5f)
@@ -315,8 +351,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
-                                            ImVec4(modRect.x, ImRenderUtils::getScreenSize().y / 2,
-                                                           modRect.z, ImRenderUtils::getScreenSize().y / 2),
+                                            ImVec4(modRect.x, screen.y / 2,
+                                                           modRect.z, screen.y / 2),
                                             inScale);
 
                                     float targetAnim = setting->enumExtended && mod->showSettings ? 1.f : 0.f;
@@ -336,8 +372,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                                     modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
                                                     catPositions[i].y + catHeight + moduleY + modHeight)
                                                 .scaleToPoint(
-                                                    ImVec4(modRect.x, ImRenderUtils::getScreenSize().y / 2,
-                                                                   modRect.z, ImRenderUtils::getScreenSize().y / 2),
+                                                    ImVec4(modRect.x, screen.y / 2,
+                                                                   modRect.z, screen.y / 2),
                                                     inScale);
 
                                             if (rect2.y > catRect.y + 0.5f)
@@ -425,8 +461,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             modRect.x, (catPositions[i].y + catHeight + moduleY), modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
-                                            ImVec4(modRect.x, ImRenderUtils::getScreenSize().y / 2,
-                                                           modRect.z, ImRenderUtils::getScreenSize().y / 2),
+                                            ImVec4(modRect.x, screen.y / 2,
+                                                           modRect.z, screen.y / 2),
                                             inScale);
 
                                     if (rect.y > catRect.y + 0.5f)
@@ -477,7 +513,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             ImVec4(sliderBarMin.x, sliderBarMin.y, sliderBarMax.x,
                                                            sliderBarMax.y), rgb, animation);
                                         // Push a clip rect to prevent the shadow from going outside the slider bar
-                                        ImGui::GetForegroundDrawList()->PushClipRect(
+                                        ImGui::GetBackgroundDrawList()->PushClipRect(
                                             ImVec2(sliderBarMin.x, rect.y), ImVec2(sliderBarMax.x, sliderBarMax.y),
                                             true);
 
@@ -485,7 +521,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             ImVec4(sliderBarMin.x, sliderBarMin.y, sliderBarMax.x,
                                                            sliderBarMax.y), rgb, animation, 50.f, 0);
 
-                                        ImGui::GetForegroundDrawList()->PopClipRect();
+                                        ImGui::GetBackgroundDrawList()->PopClipRect();
 
                                         auto ValueLen = ImRenderUtils::getTextWidth(&valueName, textSize);
                                         ImRenderUtils::drawText(
@@ -494,6 +530,47 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, rect.y + 2.5f),
                                                                &setName, ImColor(255, 255, 255), textSize,
                                                                animation, true);
+                                    }
+                                    break;
+                                }
+                            case SettingType::Color:
+                                {
+                                    ColorSetting* colorSetting = reinterpret_cast<ColorSetting*>(setting);
+                                    ImColor color = colorSetting->getAsImColor();
+                                    ImVec4 rgb = color.Value;
+                                    std::string setName = setting->mName;
+
+                                    moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
+
+                                    ImVec4 rect = ImVec4(
+                                            modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
+                                            catPositions[i].y + catHeight + moduleY + modHeight)
+                                        .scaleToPoint(
+                                            ImVec4(modRect.x, screen.y / 2,
+                                                           modRect.z, screen.y / 2),
+                                            inScale);
+
+                                    if (rect.y > catRect.y + 0.5f)
+                                    {
+                                        ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation);
+
+                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                        {
+                                            tooltip = setting->mDescription;
+                                            if (ImGui::IsMouseClicked(0))
+                                            {
+                                                displayColorPicker = !displayColorPicker;
+                                                lastColorSetting = colorSetting;
+                                            }
+                                        }
+
+                                        float cSetRectCentreY = rect.y + ((rect.w - rect.y) - textHeight) / 2;
+                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), &setName,
+                                                               ImColor(255, 255, 255), textSize, animation, true);
+
+                                        ImVec2 colorRect = ImVec2(rect.z - 20, rect.y + 5);
+                                        ImRenderUtils::fillRectangle(ImVec4(rect.z - 20, rect.y + 5, rect.z - 5, rect.w - 5),
+                                                                     colorSetting->getAsImColor(), animation);
                                     }
                                     break;
                                 }
@@ -635,8 +712,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
             ImRenderUtils::drawText(ImVec2(cRectCentreX, cRectCentreY), &catName, ImColor(255, 255, 255),
                                    textSize * 1.15, animation, true);
 
-            catPositions[i].x = std::clamp(catPositions[i].x, 0.f, ImRenderUtils::getScreenSize().x - catWidth);
-            catPositions[i].y = std::clamp(catPositions[i].y, 0.f, ImRenderUtils::getScreenSize().y - catHeight);
+            catPositions[i].x = std::clamp(catPositions[i].x, 0.f, screen.x - catWidth);
+            catPositions[i].y = std::clamp(catPositions[i].y, 0.f, screen.y - catHeight);
 
 #pragma region DraggingLogic
             static bool dragging = false;
@@ -654,9 +731,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                     ImVec2 newPosition = ImVec2(ImRenderUtils::getMousePos().x - dragOffset.x,
                                                                 ImRenderUtils::getMousePos().y - dragOffset.y);
                     newPosition.x = std::clamp(newPosition.x, 0.f,
-                                               ImRenderUtils::getScreenSize().x - catWidth);
+                                               screen.x - catWidth);
                     newPosition.y = std::clamp(newPosition.y, 0.f,
-                                               ImRenderUtils::getScreenSize().y - catHeight);
+                                               screen.y - catHeight);
                     catPositions[i].x = newPosition.x;
                     catPositions[i].y = newPosition.y;
                 }
@@ -688,10 +765,10 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                 ImRenderUtils::getMousePos().x + offset + textWidth + padding * 2,
                 ImRenderUtils::getMousePos().y + textHeight / 2 + padding
             ).scaleToPoint(ImVec4(
-                               ImRenderUtils::getScreenSize().x / 2,
-                               ImRenderUtils::getScreenSize().y / 2,
-                               ImRenderUtils::getScreenSize().x / 2,
-                               ImRenderUtils::getScreenSize().y / 2
+                               screen.x / 2,
+                               screen.y / 2,
+                               screen.x / 2,
+                               screen.y / 2
                            ), inScale);
 
             ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation, 0.f);

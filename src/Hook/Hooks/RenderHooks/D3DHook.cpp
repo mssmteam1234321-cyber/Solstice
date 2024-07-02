@@ -240,6 +240,10 @@ void D3DHook::igNewFrame()
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+
 }
 
 void D3DHook::igEndFrame()

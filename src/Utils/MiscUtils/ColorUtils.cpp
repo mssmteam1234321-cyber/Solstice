@@ -4,9 +4,44 @@
 
 #include "ColorUtils.hpp"
 
+#include <Features/FeatureManager.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
+
 ImColor ColorUtils::Rainbow(float seconds, float saturation, float brightness, int index)
 {
     float hue = ((NOW + index) % (int)(seconds * 1000)) / (float)(seconds * 1000);
     float r, g, b = 0;
     return ImColor::HSV(hue, saturation, brightness);
 }
+
+ImColor ColorUtils::LerpColors(float seconds, float index, std::vector<ImColor> colors, uint64_t ms) {
+    if (colors.empty()) return { 255, 255, 255, 255};
+    float time = 10000.0f / seconds;
+    auto angle = static_cast<float>(((ms == 0 ? NOW : ms) + static_cast<int>(index)) % static_cast<int>(time));
+    float segmentTime = time / colors.size();
+
+    int segmentIndex = static_cast<int>(angle / segmentTime);
+    float segmentIndexFloat = angle / segmentTime - segmentIndex;
+
+    ImColor startColor = colors[segmentIndex];
+    ImColor endColor = colors[(segmentIndex + 1) % colors.size()];
+    return startColor.Lerp(endColor, segmentIndexFloat);
+}
+
+ImColor ColorUtils::getThemedColor(float index, uint64_t ms)
+{
+    auto interface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (!interface) return { 255, 255, 255, 255 };
+
+    auto theme = interface->mMode.mValue;
+    auto colors = Interface::ColorThemes[theme];
+    if (theme == Interface::Rainbow) return Rainbow(interface->mColorSpeed.mValue, interface->mSaturation.mValue, 1.f, index);
+    else if (theme == Interface::Custom)
+    {
+        colors = { interface->mColor1.getAsImColor(), interface->mColor2.getAsImColor() };
+    }
+
+    return LerpColors(interface->mColorSpeed.mValue, index, colors, ms);
+
+}
+

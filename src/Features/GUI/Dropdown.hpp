@@ -2,7 +2,7 @@
 #include <imgui.h>
 #include <vector>
 #include <Features/FeatureManager.hpp>
-
+#include <Features/Modules/Setting.hpp>
 
 
 #include "glm/glm.hpp"
@@ -34,6 +34,8 @@ public:
     std::vector<CategoryPosition> catPositions;
     std::shared_ptr<Module> lastMod = nullptr;
     bool isBinding = false;
+    ColorSetting* lastColorSetting = nullptr;
+    bool displayColorPicker = false;
 
     // scaleToPoint
     ImVec4 scaleToPoint(const ImVec4& _this, const ImVec4& point, float amount);
