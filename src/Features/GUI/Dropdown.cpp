@@ -511,7 +511,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         float ySize = rect.w - rect.y;
 
                                         ImVec2 sliderBarMin = ImVec2(rect.x, rect.w - ySize / 8);
-                                        ImVec2 sliderBarMax = ImVec2(rect.x + setting->sliderEase, rect.w);
+                                        ImVec2 sliderBarMax = ImVec2(rect.x + (setting->sliderEase * inScale), rect.w);
+                                        sliderBarMin.y = sliderBarMax.y - 4 * inScale;
+
 
 
                                         // The slider bar
@@ -633,7 +635,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                                ImColor(mod->mEnabled
                                                            ? ImColor(255, 255, 255)
                                                            : ImColor(180, 180, 180)).Lerp(
-                                                   ImColor(100, 100, 100), mod->cAnim), textSize, animation, true);
+                                                           mod->mEnabled
+                                                           ? ImColor(255, 255, 255)
+                                                           : ImColor(180, 180, 180), mod->cAnim), textSize, animation, true);
 
                         /*std::string bindName = (mod == lastMod && ClickGUIManager::isBinding) ? "Binding..." : std::to_string((char)mod->getKeybind()).c_str();
                         float bindNameLen = ImRenderUtils::getTextWidth(&bindName, textSize);
