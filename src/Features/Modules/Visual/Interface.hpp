@@ -15,15 +15,16 @@ public:
         Rainbow,
         Custom
     };
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
+    EnumSetting mMode = EnumSetting("Theme  ", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
-    ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFFFFFF);
-    ColorSetting mColor2 = ColorSetting("Color 2", "The second color of the interface.", 0xFF000000);
-    ColorSetting mColor3 = ColorSetting("Color 3", "The third color of the interface.", 0xFFFFFFFF);
-    ColorSetting mColor4 = ColorSetting("Color 4", "The fourth color of the interface.", 0xFF000000);
-    ColorSetting mColor5 = ColorSetting("Color 5", "The fifth color of the interface.", 0xFFFFFFFF);
-    ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF000000);
-    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 1.f, 1.f, 10.f, 0.01);
+    // Colors will be Fire-themed by default
+    ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);
+    ColorSetting mColor2 = ColorSetting("Color 2", "The second color of the interface.", 0xFFFF7F00);
+    ColorSetting mColor3 = ColorSetting("Color 3", "The third color of the interface.", 0xFFFFD600);
+    ColorSetting mColor4 = ColorSetting("Color 4", "The fourth color of the interface.", 0xFF00FF00);
+    ColorSetting mColor5 = ColorSetting("Color 5", "The fifth color of the interface.", 0xFF0000FF);
+    ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF8B00FF);
+    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 8.f, 0.01f, 10.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
 
 

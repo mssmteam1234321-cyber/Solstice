@@ -17,8 +17,8 @@ void AutoScale::onEnable()
     mOldScaledResolution = guiData->resolutionScaled;
 
     // Set the new values
-    guiData->guiScale = Scale;
-    guiData->scalingMultiplier = 1 / Scale;
+    guiData->guiScale = mScaleSetting.mValue;
+    guiData->scalingMultiplier = 1 / mScaleSetting.mValue;
     guiData->resolutionScaled = glm::vec2(guiData->resolution.x * guiData->scalingMultiplier, guiData->resolution.y * guiData->scalingMultiplier);
 
     gFeatureManager->mDispatcher->listen<RenderEvent, &AutoScale::onRenderEvent>(this);
@@ -37,7 +37,7 @@ void AutoScale::onDisable()
 
 void AutoScale::onRenderEvent(RenderEvent& event)
 {
-    float scale = Scale;
+    float scale = mScaleSetting.mValue;
     auto guiData = ClientInstance::get()->getGuiData();
     guiData->guiScale = scale;
     guiData->scalingMultiplier = 1 / scale;

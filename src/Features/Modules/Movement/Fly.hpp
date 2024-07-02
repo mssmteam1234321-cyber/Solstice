@@ -9,12 +9,12 @@
 
 class Fly : public ModuleBase<Fly> {
 public:
-    enum Mode {
+    enum class Mode {
         Motion,
         Elytra
     };
 
-    EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Motion, { "Motion", "Elytra" });
+    EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Mode::Motion,  "Motion", "Elytra");
     NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 
@@ -22,16 +22,16 @@ public:
         addSetting(&Mode);
         addSetting(&Speed);
         addSetting(&ApplyGlideFlags);
-        ApplyGlideFlags.mIsVisible = {
-            [this]() -> bool {
-                return Mode.mValue == Motion;
-            }
-
-        };
+        VISIBILITY_CONDITION(ApplyGlideFlags, Mode.mValue == static_cast<int>(Mode::Motion));
     }
 
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event) const;
     void onPacketOutEvent(class PacketOutEvent& event) const;
+
+    std::string getSettingDisplay() override
+    {
+        return Mode.mValue == static_cast<int>(Mode::Motion) ? "Motion" : "Elytra";
+    }
 };

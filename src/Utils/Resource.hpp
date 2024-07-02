@@ -7,6 +7,7 @@
 
 
 struct Resource {
+    Resource() = default;
     Resource(const char* begin, const char* end) : _begin(begin), _end(end) {}
     [[nodiscard]] const char* data() const { return _begin; }
     [[nodiscard]] void* data2() const { return (void*)_begin; }

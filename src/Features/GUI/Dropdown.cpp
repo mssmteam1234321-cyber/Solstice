@@ -705,10 +705,10 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                         isBinding = false;
                         if (key.first == VK_ESCAPE)
                         {
-                            ClientInstance::get()->playUi("random.orb", 0.75f, 1.0f);
+                            ClientInstance::get()->playUi("random.break", 0.75f, 1.0f);
                         } else
                         {
-                            ClientInstance::get()->playUi("random.break", 0.75f, 1.0f);
+                            ClientInstance::get()->playUi("random.orb", 0.75f, 1.0f);
                         }
                     }
                 }
@@ -804,5 +804,21 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
 void DropdownGui::onWindowResizeEvent(WindowResizeEvent& event)
 {
+    // Reset positions to default
     catPositions.clear();
+    ImVec2 screen = ImRenderUtils::getScreenSize();
+    auto categories = ModuleCategoryNames;
+    if (catPositions.empty())
+    {
+        float centerX = screen.x / 2.f;
+        float xPos = centerX - (categories.size() * (catWidth + catGap) / 2);
+        for (std::string& category : categories)
+        {
+            CategoryPosition pos;
+            pos.x = xPos;
+            pos.y = catGap * 2;
+            xPos += catWidth + catGap;
+            catPositions.push_back(pos);
+        }
+    }
 }

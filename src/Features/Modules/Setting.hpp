@@ -117,6 +117,13 @@ public:
 
     }
 
+    template <typename IndexType, typename... Args>
+    EnumSetting(std::string name, std::string description, IndexType index, Args... values)
+        : Setting(std::move(name), std::move(description), SettingType::Enum), mValue(static_cast<int>(index))
+    {
+        mValues = { values... };
+    }
+
     void setValue(int value)
     {
         mValue = value;

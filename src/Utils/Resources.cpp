@@ -4,12 +4,17 @@
 
 void ResourceLoader::loadResources() {
     auto fonts_Mojangles_ttf = GET_RESOURCE(fonts_Mojangles_ttf);
+    Resources.emplace("mojangles", fonts_Mojangles_ttf);
     FontHelper::Fonts.emplace("mojangles", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 20));
     FontHelper::Fonts.emplace("mojangles_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 42));
     auto fonts_Sarabun_Light_ttf = GET_RESOURCE(fonts_Sarabun_Light_ttf);
+    Resources.emplace("sarabun_light", fonts_Sarabun_Light_ttf);
     FontHelper::Fonts.emplace("sarabun_light", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 20));
     FontHelper::Fonts.emplace("sarabun_light_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 42));
     auto fonts_icons_v1_ttf = GET_RESOURCE(fonts_icons_v1_ttf);
+    Resources.emplace("icons_v1", fonts_icons_v1_ttf);
     FontHelper::Fonts.emplace("icons_v1", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 20));
     FontHelper::Fonts.emplace("icons_v1_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 42));
+    auto seven_days_png = GET_RESOURCE(seven_days_png);
+    Resources.emplace("seven_days.png", seven_days_png);
 }

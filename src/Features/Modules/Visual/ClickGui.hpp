@@ -28,7 +28,7 @@ public:
 
     ClickGui() : ModuleBase("ClickGui", "A customizable GUI for toggling modules.", ModuleCategory::Visual, VK_TAB, false) {
         // Register your features here
-        gFeatureManager->mDispatcher->listen<RenderEvent, &ClickGui::onRenderEvent>(this);
+        gFeatureManager->mDispatcher->listen<RenderEvent, &ClickGui::onRenderEvent, nes::event_priority::LAST>(this);
         gFeatureManager->mDispatcher->listen<WindowResizeEvent, &ClickGui::onWindowResizeEvent>(this);
         spdlog::info("ClickGui module has been constructed.");
         addSetting(&mStyle);
@@ -46,6 +46,10 @@ public:
     void onKeyEvent(class KeyEvent& event);
     float getEaseAnim(EasingUtil ease, int mode);
     void onRenderEvent(class RenderEvent& event);
+
+    std::string getSettingDisplay() override {
+        return mStyle.mValue == Dropdown ? "Dropdown" : "Unknown";
+    }
 };
 
 REGISTER_MODULE(ClickGui);

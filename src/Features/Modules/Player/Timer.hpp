@@ -17,4 +17,9 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+
+    std::string getSettingDisplay() override {
+        // Only display with 1 decimal place
+        return fmt::format("{:.1f}", mSpeed.mValue);
+    }
 };

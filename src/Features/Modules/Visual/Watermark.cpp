@@ -4,46 +4,71 @@
 
 #include "Watermark.hpp"
 
+#include <d3d11.h>
 #include <imgui.h>
 #include <Features/Events/RenderEvent.hpp>
+#include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
 #include <Utils/MiscUtils/ImRenderUtils.hpp>
+#include <Utils/MiscUtils/MathUtils.hpp>
 
 void Watermark::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<RenderEvent, &Watermark::onRenderEvent>(this);
 }
 
 void Watermark::onDisable()
 {
-    gFeatureManager->mDispatcher->deafen<RenderEvent, &Watermark::onRenderEvent>(this);
 }
 
 void Watermark::onRenderEvent(RenderEvent& event)
 {
+    static float anim = 0.f;
+    anim = MathUtils::lerp(anim, mEnabled ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 10.f);
+    anim = MathUtils::clamp(anim, 0.f, 1.f);
+
+    if (anim < 0.01f) return;
+
+    int initialPos = -50;
+    static auto renderPosition = ImVec2(initialPos, initialPos);
+
+
+    if (mStyle.mValue == static_cast<int>(Style::SevenDays))
+    {
+        renderPosition.x = MathUtils::lerp(-200, 20.f, anim);
+        renderPosition.y = MathUtils::lerp(-200, 20.f, anim);
+        static std::string filePath = "seven_days.png";
+        static ID3D11ShaderResourceView* texture;
+        static bool loaded = false;
+        static int width, height;
+        if (!loaded)
+        {
+            D3DHook::loadTextureFromEmbeddedResource(filePath.c_str(), &texture, &width, &height);
+            loaded = true;
+            width /= 8;
+            height /= 8;
+        }
+
+        // Get the exact center-point of the image
+        ImVec2 centeredImgPos = ImVec2(renderPosition.x + width / 2, renderPosition.y + height / 2);
+
+        // Add a red shadow circle
+        if (mGlow.mValue)
+            ImGui::GetBackgroundDrawList()->AddShadowCircle(centeredImgPos, (width / 2) * 1.05f, ImColor(1.f, 0.f, 0.f, anim), 100, ImVec2(0.f, 0.f), 0, 100);
+
+        ImGui::GetBackgroundDrawList()->AddImage(texture, renderPosition, ImVec2(renderPosition.x + width, renderPosition.y + height));
+        return;
+    }
+    renderPosition.x = MathUtils::lerp(initialPos, 20.f, anim);
+    renderPosition.y = MathUtils::lerp(initialPos, 20.f, anim);
+
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
-    auto renderPosition = ImVec2(20.f, 20.f);
+
     static std::string watermarkText = "solstice";
-    static
-    // Draw shadow
-    float size = 50;
-    // prevent the font from having any smoothing
-    // Draw the text
-    //ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), size, renderPosition, IM_COL32(255, 255, 255, 255), watermarkText.c_str());
-    // for each character in the string
-    /*
-     *int i = 0;
-    for (char c : str) {
-        ImVec2 charSize = ImGui::GetFont()->CalcTextSizeA(size, FLT_MAX, 0.0f, std::string(1, c).c_str());
+    static float size = 50;
 
-        // Add Glow
-        DrawList->AddShadowCircle(ImVec2(pos.x + (charSize.x / 2), pos.y + (charSize.y / 2)),
-                                                        size / 3, color[i], 100, ImVec2(0.f, 0.f), 0, 12);
 
-        pos.x += charSize.x;
-        i++;
-    }*/
+
 
     for (int i = 0; i < watermarkText.length(); i++)
     {
@@ -57,7 +82,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
 
         if (mGlow.mValue)
             ImGui::GetBackgroundDrawList()->AddShadowCircle(ImVec2(renderPosition.x + (charSize.x / 2), renderPosition.y + (charSize.y / 2)),
-                                                            size / 3, color, 100, ImVec2(0.f, 0.f), 0, 12);
+                                                            size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim), 100, ImVec2(0.f, 0.f), 0, 12);
         // draw a shadow
         ImColor shadowColor = ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f);
         ImVec2 shadowPos = renderPosition;

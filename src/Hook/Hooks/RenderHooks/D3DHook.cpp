@@ -14,15 +14,22 @@
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <kiero.hpp>
-#include <SDK/Minecraft/Rendering/bgfx_context.hpp>
-#include <SDK/Minecraft/Rendering/GuiData.hpp>
-#include <Utils/ProcUtils.hpp>
-#include <winrt/base.h>
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Events/WindowResizeEvent.hpp>
+#include <SDK/Minecraft/Rendering/bgfx_context.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/FontHelper.hpp>
+#include <Utils/ProcUtils.hpp>
+#include <Utils/Resource.hpp>
+#include <Utils/Resources.hpp>
 #include <Utils/MiscUtils/D2D.hpp>
+#include <winrt/base.h>
+
 
 
 using winrt::com_ptr;
@@ -58,6 +65,83 @@ static bool d3dInitImGui = false;
 
 #define BUFFER_COUNT 3
 
+
+
+struct LoadedResource {
+    ID3D11ShaderResourceView* srv;
+    int width;
+    int height;
+};
+
+bool D3DHook::loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
+{
+
+    static std::unordered_map<std::string, LoadedResource> loadedResources;
+    if (loadedResources.contains(resourceName))
+    {
+        LoadedResource& resource = loadedResources[resourceName];
+        *out_srv = resource.srv;
+        *out_width = resource.width;
+        *out_height = resource.height;
+        return true;
+    }
+
+    Resource resource = ResourceLoader::Resources[resourceName];
+    if (resource.data() == nullptr)
+    {
+        spdlog::error("Failed to load embedded resource: {0}", resourceName);
+        return false;
+    }
+
+
+    // The texture WILL be in a .png format, so we can just load it directly
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image_data = stbi_load_from_memory(static_cast<stbi_uc const*>(resource.data2()), resource.size(), &image_width, &image_height, nullptr, 4);
+    if (image_data == NULL)
+    {
+        spdlog::error("Failed to load embedded image: {0}", resourceName);
+        return false;
+    };
+
+    // Create texture
+    D3D11_TEXTURE2D_DESC desc;
+    ZeroMemory(&desc, sizeof(desc));
+    desc.Width = image_width;
+    desc.Height = image_height;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+
+    ID3D11Texture2D *pTexture = NULL;
+    D3D11_SUBRESOURCE_DATA subResource;
+    subResource.pSysMem = image_data;
+    subResource.SysMemPitch = desc.Width * 4;
+    subResource.SysMemSlicePitch = 0;
+    gDevice11->CreateTexture2D(&desc, &subResource, &pTexture);
+
+    // Create texture view
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    ZeroMemory(&srvDesc, sizeof(srvDesc));
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    gDevice11->CreateShaderResourceView(pTexture, &srvDesc, out_srv);
+    pTexture->Release();
+
+    *out_width = image_width;
+    *out_height = image_height;
+    stbi_image_free(image_data);
+
+    loadedResources[resourceName] = { *out_srv, image_width, image_height };
+
+    return true;
+}
 HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags)
 {
     gSwapChain = swapChain;

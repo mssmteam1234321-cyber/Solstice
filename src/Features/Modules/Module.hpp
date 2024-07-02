@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
+#include "Setting.hpp"
 #include "Features/Events/ModuleStateChangeEvent.hpp"
 
 class Module
@@ -21,7 +22,10 @@ public:
     bool mEnabled = false;
     bool mWantedState = false; // pretty much a way of queueing up a state change for the next client tick
     int mKey;
-    std::vector<class Setting*> mSettings;
+    BoolSetting mVisibleInArrayList = BoolSetting("Visible in ArrayList", "Whether the module is visible in the ArrayList", true);
+    std::vector<class Setting*> mSettings = {
+        &mVisibleInArrayList
+    };
 
     Module(std::string name, std::string description, const ModuleCategory category, const int key = 0, const bool enabled = false)
         : mName(std::move(name)), mDescription(std::move(description)), mCategory(category), mWantedState(enabled), mKey(key) {}
@@ -30,6 +34,7 @@ public:
     virtual void onDisable() {}
     virtual void onTick() {}
     virtual void onInit() {}
+    virtual std::string getSettingDisplay() { return ""; } // Used for ArrayList
     [[nodiscard]] virtual const char* getTypeID() const = 0;
 
     void setEnabled(bool enabled);
@@ -51,6 +56,8 @@ public:
     float cAnim = 0;
     float cFade = 0;
     float cScale = 0;
+
+    float mArrayListAnim = 0.f;
 };
 
 template <typename T>

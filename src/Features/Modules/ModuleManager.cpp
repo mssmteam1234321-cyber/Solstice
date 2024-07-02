@@ -13,6 +13,7 @@
 #include "Movement/Fly.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
+#include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/Interface.hpp"
@@ -20,16 +21,27 @@
 
 void ModuleManager::init()
 {
+
+    // Combat
+    // (none yet)
+
+    // Movement
+    mModules.emplace_back(std::make_shared<Fly>());
+
+    // Player
+    mModules.emplace_back(std::make_shared<Timer>());
+
+    // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
+    mModules.emplace_back(std::make_shared<PacketLogger>());
+
+    // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
     mModules.emplace_back(std::make_shared<ClickGui>());
     mModules.emplace_back(std::make_shared<AutoScale>());
-    mModules.emplace_back(std::make_shared<Fly>());
-    mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<Interface>());
-    mModules.emplace_back(std::make_shared<PacketLogger>());
-
+    mModules.emplace_back(std::make_shared<Arraylist>());
 
     for (auto& module : mModules)
     {
