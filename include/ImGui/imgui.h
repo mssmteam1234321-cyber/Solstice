@@ -55,6 +55,8 @@ Index of this file:
 #ifdef IMGUI_USER_CONFIG
 #include IMGUI_USER_CONFIG
 #endif
+#include <cmath>
+
 #include "imconfig.h"
 
 #ifndef IMGUI_DISABLE
@@ -284,6 +286,49 @@ struct ImVec4
     inline ImVec4 operator/(const float rhs) const
     {
         return ImVec4(x / rhs, y / rhs, z / rhs, w);
+    }
+
+    __forceinline ImVec4 scaleToPoint(const ImVec4& point, float amount) const
+    {
+        return {point.x + (this->x - point.x) * amount, point.y + (this->y - point.y) * amount,
+            point.z + (this->z - point.z) * amount, point.w + (this->w - point.w) * amount};
+    }
+
+    __forceinline float getWidth() {
+        return abs(this->z - this->x);
+    }
+
+    __forceinline float getHeight() {
+        return abs(this->w - this->y);
+    }
+
+    __forceinline ImVec4 getCenter() const {
+        float centerX = (x + z) / 2.0f;
+        float centerY = (y + w) / 2.0f;
+        return ImVec4(centerX, centerY, centerX, centerY);
+    }
+
+    __forceinline ImVec4 scaleToCenter(float scaleFactor) {
+        float centerX = (this->x + this->z) / 2.0f;
+        float centerY = (this->y + this->w) / 2.0f;
+
+        float width = this->getWidth();
+        float height = this->getHeight();
+
+        float scaledWidth = width * scaleFactor;
+        float scaledHeight = height * scaleFactor;
+
+        float newX = centerX - scaledWidth / 2.0f;
+        float newY = centerY - scaledHeight / 2.0f;
+        float newZ = newX + scaledWidth;
+        float newW = newY + scaledHeight;
+
+        return ImVec4(newX, newY, newZ, newW);
+    }
+
+    __forceinline ImVec4 scaleToPoint(const ImVec4& point, float amount) {
+        return ImVec4(point.x + (this->x - point.x) * amount, point.y + (this->y - point.y) * amount,
+            point.z + (this->z - point.z) * amount, point.w + (this->w - point.w) * amount);
     }
 
 #ifdef IM_VEC4_CLASS_EXTRA

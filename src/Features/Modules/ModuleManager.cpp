@@ -9,9 +9,11 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Movement/Fly.hpp"
+#include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/AutoScale.hpp"
 #include "Visual/ClickGui.hpp"
+#include "Visual/Interface.hpp"
 #include "Visual/Watermark.hpp"
 
 void ModuleManager::init()
@@ -22,13 +24,13 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ClickGui>());
     mModules.emplace_back(std::make_shared<AutoScale>());
     mModules.emplace_back(std::make_shared<Fly>());
+    mModules.emplace_back(std::make_shared<Timer>());
+    mModules.emplace_back(std::make_shared<Interface>());
 
 
     for (auto& module : mModules)
     {
-        if (module->mEnabled)
-            module->onEnable();
-
+        module->onInit();
     }
 }
 
@@ -106,4 +108,23 @@ std::unordered_map<std::string, std::shared_ptr<Module>> ModuleManager::getModul
     }
 
     return map;
+}
+
+void ModuleManager::onClientTick()
+{
+    for (auto& module : mModules)
+    {
+        if (module->mWantedState != module->mEnabled)
+        {
+            module->mEnabled = module->mWantedState;
+            if (module->mEnabled)
+            {
+                module->onEnable();
+            }
+            else
+            {
+                module->onDisable();
+            }
+        }
+    }
 }

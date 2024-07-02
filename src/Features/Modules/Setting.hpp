@@ -41,6 +41,9 @@ public:
     float enumSlide = 0;
 };
 
+// Define visible condition
+#define VISIBILITY_CONDITION(setting, condition) setting.mIsVisible = std::function<bool()>([&]() { return condition; });
+
 class BoolSetting : public Setting
 {
 public:

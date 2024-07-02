@@ -14,7 +14,7 @@ public:
     };
 
     EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Motion, { "Motion" });
-    NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 10.f, 0.1f);
+    NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 
     Fly() : ModuleBase("Fly", "Allows you to fly", ModuleCategory::Movement, 'C', false) {

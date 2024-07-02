@@ -19,5 +19,6 @@ void ToggleSounds::onDisable()
 
 void ToggleSounds::onModuleStateChange(ModuleStateChangeEvent& event)
 {
+    if (event.isCancelled()) return;
     ClientInstance::get()->getMinecraftGame()->playUi("random.lever_click", 1, event.mEnabled ? 0.6f : 0.5f);
 }

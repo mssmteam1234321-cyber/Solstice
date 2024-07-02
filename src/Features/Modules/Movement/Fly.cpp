@@ -42,7 +42,7 @@ void Fly::onBaseTickEvent(BaseTickEvent& event) const
 
         if (Keyboard::isUsingMoveKeys(true))
         {
-            glm::vec2 calc = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, Speed.mValue);
+            glm::vec2 calc = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, Speed.mValue / 10);
             motion.x = calc.x;
             motion.z = calc.y;
 
@@ -50,9 +50,9 @@ void Fly::onBaseTickEvent(BaseTickEvent& event) const
             bool isSneaking = player->getMoveInputComponent()->mIsSneakDown;
 
             if (isJumping)
-                motion.y += Speed.mValue;
+                motion.y += Speed.mValue / 10;
             else if (isSneaking)
-                motion.y -= Speed.mValue;
+                motion.y -= Speed.mValue / 10;
         }
 
         player->getStateVectorComponent()->mVelocity = motion;

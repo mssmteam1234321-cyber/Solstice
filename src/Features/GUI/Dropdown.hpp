@@ -39,5 +39,6 @@ public:
     ImVec4 scaleToPoint(const ImVec4& _this, const ImVec4& point, float amount);
     bool isMouseOver(const ImVec4& rect);
     ImVec4 getCenter(ImVec4& vec);
+    bool isMouseOverGuiElement();
     void render(float animation, float inScale, int& scrollDirection, char* h, bool blur);
 };

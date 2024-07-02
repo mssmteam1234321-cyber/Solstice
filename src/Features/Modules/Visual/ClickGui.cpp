@@ -5,21 +5,49 @@
 #include "ClickGui.hpp"
 
 #include <imgui.h>
+#include <Features/Events/MouseEvent.hpp>
+#include <Features/Events/KeyEvent.hpp>
 #include <Features/GUI/Dropdown.hpp>
 #include <Utils/MiscUtils/ImRenderUtils.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
 #include <Utils/MiscUtils/EasingUtil.hpp>
 
+static bool lastMouseState = false;
+
 void ClickGui::onEnable()
 {
+    auto ci = ClientInstance::get();
+    lastMouseState = !ci->getMouseGrabbed();
 
+    ci->releaseMouse();
+
+    gFeatureManager->mDispatcher->listen<MouseEvent, &ClickGui::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->listen<KeyEvent, &ClickGui::onKeyEvent>(this);
 }
 
 void ClickGui::onDisable()
 {
+    gFeatureManager->mDispatcher->deafen<MouseEvent, &ClickGui::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->deafen<KeyEvent, &ClickGui::onKeyEvent>(this);
 
+    if (lastMouseState) {
+        ClientInstance::get()->grabMouse();
+    }
 }
 
+
+void ClickGui::onMouseEvent(MouseEvent& event)
+{
+    event.mCancelled = true;
+}
+
+void ClickGui::onKeyEvent(KeyEvent& event)
+{
+    if (event.mKey == VK_ESCAPE) {
+        this->toggle();
+        event.mCancelled = true;
+    }
+}
 
 
 void ClickGui::onRenderEvent(RenderEvent& event)

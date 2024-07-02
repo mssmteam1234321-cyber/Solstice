@@ -25,6 +25,8 @@ public:
     void onEnable() override;
     void onDisable() override;
 
+    void onMouseEvent(class MouseEvent& event);
+    void onKeyEvent(class KeyEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };
 

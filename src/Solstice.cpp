@@ -80,7 +80,12 @@ void Solstice::init(HMODULE hModule)
     console->info("Press END to eject dll.");
 
     // Wait for the user to press END
-    while (!mRequestEject) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    while (!mRequestEject)
+    {
+        // For each module, call the onClientTick method
+        gFeatureManager->mModuleManager->onClientTick();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 
     mRequestEject = true;
 

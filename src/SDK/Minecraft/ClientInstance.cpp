@@ -77,6 +77,7 @@ std::string ClientInstance::getScreenName()
 
 void ClientInstance::setDisableInput(bool disable)
 {
+
     MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_setDisableInput, this, disable);
 }
 
@@ -87,12 +88,14 @@ bool ClientInstance::getMouseGrabbed()
 
 void ClientInstance::grabMouse()
 {
-    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
+    static uintptr_t func = SigManager::ClientInstance_grabMouse;
+    MemUtils::callFastcall<void>(func, this);
 }
 
 void ClientInstance::releaseMouse()
 {
-    MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_grabMouse, this);
+    static uintptr_t func = SigManager::ClientInstance_releaseMouse;
+    MemUtils::callFastcall<void>(func, this);
 }
 
 void ClientInstance::playUi(const std::string& soundName, float volume, float pitch)

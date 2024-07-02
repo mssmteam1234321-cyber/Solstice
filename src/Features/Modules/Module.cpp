@@ -10,20 +10,22 @@
 void Module::setEnabled(bool enabled)
 {
     bool prevEnabled = mEnabled;
-    mEnabled = enabled;
+    bool newEnabled = enabled;
 
-    if (mEnabled && !prevEnabled)
+    if (newEnabled && !prevEnabled)
     {
-        auto holder = nes::make_holder<ModuleStateChangeEvent>(mEnabled, prevEnabled);
+        auto holder = nes::make_holder<ModuleStateChangeEvent>(this, newEnabled, prevEnabled);
         gFeatureManager->mDispatcher->trigger(holder);
-        onEnable();
+        if (holder->isCancelled()) return;
     }
-    if (!mEnabled && prevEnabled)
+    if (!newEnabled && prevEnabled)
     {
-        auto holder = nes::make_holder<ModuleStateChangeEvent>(mEnabled, prevEnabled);
+        auto holder = nes::make_holder<ModuleStateChangeEvent>(this, newEnabled, prevEnabled);
         gFeatureManager->mDispatcher->trigger(holder);
-        onDisable();
+        if (holder->isCancelled()) return;
     }
+
+    mWantedState = newEnabled;
 }
 
 void Module::toggle()

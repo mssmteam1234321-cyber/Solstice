@@ -11,21 +11,24 @@
 
 #include "Features/Events/ModuleStateChangeEvent.hpp"
 
-class Module {
+class Module
+{
 public:
     std::string mName;
     std::string mDescription;
     ModuleCategory mCategory;
-    bool mEnabled;
+    bool mEnabled = false;
+    bool mWantedState = false; // pretty much a way of queueing up a state change for the next client tick
     int mKey;
     std::vector<class Setting*> mSettings;
 
     Module(std::string name, std::string description, const ModuleCategory category, const int key = 0, const bool enabled = false)
-        : mName(std::move(name)), mDescription(std::move(description)), mCategory(category), mEnabled(enabled), mKey(key) {}
+        : mName(std::move(name)), mDescription(std::move(description)), mCategory(category), mWantedState(enabled), mKey(key) {}
 
     virtual void onEnable() {}
     virtual void onDisable() {}
     virtual void onTick() {}
+    virtual void onInit() {}
     [[nodiscard]] virtual const char* getTypeID() const = 0;
 
     void setEnabled(bool enabled);

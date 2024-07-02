@@ -12,12 +12,13 @@
 #include <Utils/Keyboard.hpp>
 
 
-float MathUtils::animate(float from, float to, float speed)
-{
-    speed = (speed < 0.0) ? 0.0 : ((speed > 1.0) ? 1.0 : speed);
-    float diff = fmax(to, from) - fmin(to, from);
-    float factor = diff * speed;
-    return from + (to > from ? factor : -factor);
+float MathUtils::animate(float endPoint, float current, float speed) { // Animate the position
+    if (speed < 0.0) speed = 0.0; // If 0 is less than speed then set speed to 0.
+    else if (speed > 1.0) speed = 1.0; // If Speed is faster than 1 then set speed to 1.
+
+    float dif = std::fmax(endPoint, current) - std::fmin(endPoint, current); // Animate between max and min.
+    float factor = dif * speed;
+    return current + (endPoint > current ? factor : -factor); // Animates the distance
 }
 
 float MathUtils::lerp(float a, float b, float t)
