@@ -20,6 +20,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Hook/HookManager.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+#include <Utils/FileUtils.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
@@ -50,6 +51,8 @@ void Solstice::init(HMODULE hModule)
     {
         console->critical("Failed to initialize MinHook!");
     }
+
+    FileUtils::validateDirectories();
 
     console->info("initializing offsetprovider...");
     OffsetProvider::initialize();

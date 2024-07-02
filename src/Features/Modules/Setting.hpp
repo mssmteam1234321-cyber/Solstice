@@ -2,6 +2,7 @@
 #include <functional>
 #include <imgui.h>
 #include <string>
+#include <nlohmann/json.hpp>
 //
 // Created by vastrakai on 6/30/2024.
 //
@@ -39,6 +40,15 @@ public:
 
     bool enumExtended = false;
     float enumSlide = 0;
+
+    virtual nlohmann::json serialize()
+    {
+        nlohmann::json j;
+        j["name"] = mName;
+        j["description"] = mDescription;
+        j["type"] = static_cast<int>(mType);
+        return j;
+    }
 };
 
 // Define visible condition
@@ -58,6 +68,13 @@ public:
     void setValue(bool value)
     {
         mValue = value;
+    }
+
+    nlohmann::json serialize() override
+    {
+        nlohmann::json j = Setting::serialize();
+        j["boolValue"] = mValue;
+        return j;
     }
 };
 
@@ -79,6 +96,13 @@ public:
     {
         mValue = std::round(value / mStep) * mStep;
     }
+
+    nlohmann::json serialize() override
+    {
+        nlohmann::json j = Setting::serialize();
+        j["numberValue"] = mValue;
+        return j;
+    }
 };
 
 class EnumSetting : public Setting
@@ -96,6 +120,13 @@ public:
     void setValue(int value)
     {
         mValue = value;
+    }
+
+    nlohmann::json serialize() override
+    {
+        nlohmann::json j = Setting::serialize();
+        j["enumValue"] = mValue;
+        return j;
     }
 };
 
@@ -170,5 +201,17 @@ public:
         mValue[1] = g;
         mValue[2] = b;
         mValue[3] = a;
+    }
+
+    nlohmann::json serialize() override
+    {
+        nlohmann::json j = Setting::serialize();
+        j["colorValue"] = {
+            mValue[0],
+            mValue[1],
+            mValue[2],
+            mValue[3]
+        };
+        return j;
     }
 };

@@ -123,7 +123,7 @@ public:
     }
     __forceinline double easeOutElastic() {
         double t2 = (this->percentage - 1) * (this->percentage - 1);
-        return 1 - t2 * t2 * cos(this->percentage * PI * 4.5);
+        return 1 - t2 * t2 * cos(this->percentage * PI * 2.25);
     }
     __forceinline double easeInOutElastic() {
         double t2;

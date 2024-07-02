@@ -20,6 +20,7 @@
 #include <Utils/ProcUtils.hpp>
 #include <winrt/base.h>
 #include <Features/Events/RenderEvent.hpp>
+#include <Features/Events/WindowResizeEvent.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/MiscUtils/D2D.hpp>
 
@@ -151,6 +152,15 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
     initImGui(gDevice11.get(), gContext11.get());
     D2D::init(swapChain, gDevice11.get());
 
+    static ImVec2 lastWindowSize = ImGui::GetIO().DisplaySize;
+    ImVec2 windowSize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+
+    if (lastWindowSize.x != windowSize.x || lastWindowSize.y != windowSize.y) {
+        auto holder = nes::make_holder<WindowResizeEvent>(windowSize.x, windowSize.y);
+        gFeatureManager->mDispatcher->trigger(holder);
+    }
+
+
 
     igNewFrame();
     winrt::com_ptr<IDXGISurface> surface;
@@ -243,6 +253,7 @@ void D3DHook::igNewFrame()
 
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+
 
 }
 

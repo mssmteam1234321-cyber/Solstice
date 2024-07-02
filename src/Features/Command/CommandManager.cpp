@@ -10,6 +10,7 @@
 #include <Utils/StringUtils.hpp>
 
 #include "Commands/BindCommand.hpp"
+#include "Commands/ConfigCommand.hpp"
 #include "Commands/HelpCommand.hpp"
 #include "Commands/TestCommand.hpp"
 #include "Commands/ToggleCommand.hpp"
@@ -24,6 +25,7 @@ void CommandManager::init()
     ADD_COMMAND(ToggleCommand);
     ADD_COMMAND(BindCommand);
     ADD_COMMAND(UnbindCommand);
+    ADD_COMMAND(ConfigCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

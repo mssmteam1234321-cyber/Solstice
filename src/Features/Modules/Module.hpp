@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include "Features/Events/ModuleStateChangeEvent.hpp"
 
@@ -38,6 +39,9 @@ public:
     void addSetting(class Setting* setting);
     std::string& getCategory();
 
+    // Serialize the module
+    nlohmann::json serialize();
+    Setting* getSetting(const std::string& string);
 
     float animPercentage = 0.f;
     glm::vec2 location = glm::vec2(0, 0);

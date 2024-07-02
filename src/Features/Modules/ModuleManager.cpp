@@ -5,6 +5,7 @@
 #include "ModuleManager.hpp"
 
 #include <Utils/StringUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 
 #include "Misc/PacketLogger.hpp"
 #include "Misc/TestModule.hpp"
@@ -126,6 +127,127 @@ void ModuleManager::onClientTick()
             else
             {
                 module->onDisable();
+            }
+        }
+    }
+}
+
+nlohmann::json ModuleManager::serialize() const
+{
+    nlohmann::json j;
+    j["client"] = "Solstice";
+    j["version"] = SOLSTICE_VERSION;
+    j["modules"] = nlohmann::json::array();
+
+    for (const auto& module : mModules)
+    {
+        j["modules"].push_back(module->serialize());
+    }
+
+    return j;
+}
+/*
+nlohmann::json Module::serialize()
+{
+    nlohmann::json j;
+    j["enabled"] = mEnabled;
+    j["key"] = mKey;
+    j["settings"] = nlohmann::json::array();
+    for (const auto setting : mSettings)
+    {
+        if (setting->mType == SettingType::Enum)
+        {
+            auto* enumSetting = reinterpret_cast<EnumSetting*>(setting);
+            // use the serialize() from the enum setting
+            j["settings"].push_back(enumSetting->serialize());
+        }
+        else if (setting->mType == SettingType::Number)
+        {
+            auto* numberSetting = reinterpret_cast<NumberSetting*>(setting);
+            // use the serialize() from the number setting
+            j["settings"].push_back(numberSetting->serialize());
+        }
+        else if (setting->mType == SettingType::Bool)
+        {
+            auto* boolSetting = reinterpret_cast<BoolSetting*>(setting);
+            // use the serialize() from the bool setting
+            j["settings"].push_back(boolSetting->serialize());
+        }
+        else if (setting->mType == SettingType::Color)
+        {
+            auto* colorSetting = reinterpret_cast<ColorSetting*>(setting);
+            // use the serialize() from the color setting
+            j["settings"].push_back(colorSetting->serialize());
+        }
+    }
+    return j;
+}
+*/
+
+void ModuleManager::deserialize(const nlohmann::json& j)
+{
+    // Get the version of the config
+    const std::string version = j["version"];
+    std::string currentVersion = SOLSTICE_VERSION;
+
+    if (version != currentVersion)
+    {
+        spdlog::warn("Config version mismatch. Expected: {}, Got: {}", currentVersion, version);
+        ChatUtils::displayClientMessage("§eWarning: The specified config is from a different version of Solstice. §cSome settings may not be loaded§e.");
+    }
+
+    for (const auto& module : j["modules"])
+    {
+        const std::string name = module["name"];
+        const bool enabled = module["enabled"];
+        const int keybind = module["key"];
+        //const bool hideInArraylist = module["hideInArraylist"];
+
+        auto* mod = getModule(name);
+        if (mod)
+        {
+            mod->mWantedState = enabled;
+            mod->mKey = keybind;
+            //mod->mHideInArraylist = hideInArraylist;
+
+            if (module.contains("settings"))
+            {
+                for (const auto& setting : module["settings"].items())
+                {
+                    const auto& settingValue = setting.value();
+                    const std::string settingName = settingValue["name"];
+
+                    auto* set = mod->getSetting(settingName);
+                    if (set)
+                    {
+                        if (set->mType == SettingType::Bool)
+                        {
+                            auto* boolSetting = static_cast<BoolSetting*>(set);
+                            boolSetting->mValue = settingValue["boolValue"];
+                        }
+                        else if (set->mType == SettingType::Number)
+                        {
+                            auto* numberSetting = static_cast<NumberSetting*>(set);
+                            numberSetting->mValue = settingValue["numberValue"];
+                        }
+                        else if (set->mType == SettingType::Enum)
+                        {
+                            auto* enumSetting = static_cast<EnumSetting*>(set);
+                            enumSetting->mValue = settingValue["enumValue"];
+                        } else if (set->mType == SettingType::Color)
+                        {
+                            auto* colorSetting = static_cast<ColorSetting*>(set);
+                            // Get the  settingValue["colorValue"] as a float[4]
+                            for (int i = 0; i < 4; i++)
+                            {
+                                colorSetting->mValue[i] = settingValue["colorValue"][i];
+                            }
+                        }
+                    } else
+                    {
+                        spdlog::warn("Setting {} not found for module {}", settingName, name);
+                    }
+                }
             }
         }
     }

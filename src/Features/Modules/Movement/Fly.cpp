@@ -78,10 +78,11 @@ void Fly::onPacketOutEvent(PacketOutEvent& event) const
         {
             static bool alternating = false;
             alternating = !alternating;
-            packet->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::ASCEND | AuthInputAction::WANT_UP;
+            packet->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::ASCEND | AuthInputAction::WANT_UP | AuthInputAction::STOP_GLIDING;
+
             if (alternating)
                 packet->mInputData |= AuthInputAction::JUMPING | AuthInputAction::START_JUMPING | AuthInputAction::JUMP_DOWN;
-            packet->mInputData &= ~AuthInputAction::STOP_GLIDING | AuthInputAction::DESCEND | AuthInputAction::WANT_DOWN | AuthInputAction::SNEAKING | AuthInputAction::SNEAK_TOGGLE_DOWN | AuthInputAction::START_SNEAKING;
+            packet->mInputData &= ~AuthInputAction::DESCEND | AuthInputAction::WANT_DOWN | AuthInputAction::SNEAKING | AuthInputAction::SNEAK_TOGGLE_DOWN | AuthInputAction::START_SNEAKING;
 
         }
     }

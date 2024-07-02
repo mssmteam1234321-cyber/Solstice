@@ -5,6 +5,7 @@
 #include <Features/Modules/Setting.hpp>
 
 
+
 #include "glm/glm.hpp"
 //
 // Created by vastrakai on 7/1/2024.
@@ -42,5 +43,6 @@ public:
     bool isMouseOver(const ImVec4& rect);
     ImVec4 getCenter(ImVec4& vec);
     bool isMouseOverGuiElement();
-    void render(float animation, float inScale, int& scrollDirection, char* h, bool blur);
+    void render(float animation, float inScale, int& scrollDirection, char* h, float blur);
+    void onWindowResizeEvent(class WindowResizeEvent& event);
 };

@@ -33,22 +33,19 @@ ImVec4 DropdownGui::getCenter(ImVec4& vec)
     return { centerX, centerY, centerX, centerY };
 }
 
-void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, bool blur)
+void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, float blur)
 {
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
     ImVec2 screen = ImRenderUtils::getScreenSize();
     float deltaTime = ImGui::GetIO().DeltaTime;
     auto drawList = ImGui::GetBackgroundDrawList();
 
-    if (blur)
-    {
-        /*ImRenderUtils::fillRectangle(
-                ImVec4(0, 0, screen.x, screen.y),
-                ImColor(0, 0, 0), animation * 0.38f);*/
-        drawList->AddRectFilled(ImVec2(0, 0), ImVec2(screen.x, screen.y), IM_COL32(0, 0, 0, 255 * animation * 0.38f));
-        ImRenderUtils::addBlur(ImVec4(0.f, 0.f, screen.x, screen.y),
-                               animation * 9, 0);
-    }
+    /*ImRenderUtils::fillRectangle(
+            ImVec4(0, 0, screen.x, screen.y),
+            ImColor(0, 0, 0), animation * 0.38f);*/
+    drawList->AddRectFilled(ImVec2(0, 0), ImVec2(screen.x, screen.y), IM_COL32(0, 0, 0, 255 * animation * 0.38f));
+    ImRenderUtils::addBlur(ImVec4(0.f, 0.f, screen.x, screen.y),
+                           animation * blur, 0);
 
     static std::vector<std::string> categories = ModuleCategoryNames;
     static std::vector<std::shared_ptr<Module>>& modules = gFeatureManager->mModuleManager->getModules();
@@ -261,6 +258,8 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                     // Settings
                     if (mod->cAnim > 0.001)
                     {
+                        static bool wasDragging = false;
+                        Setting* lastDraggedSetting = nullptr;
                         for (const auto& setting : mod->mSettings)
                         {
                             if (!setting->mIsVisible())
@@ -481,16 +480,23 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                             if (ImGui::IsMouseDown(0))
                                             {
                                                 setting->isDragging = true;
+                                                lastDraggedSetting = setting;
                                             }
                                         }
 
                                         if (ImGui::IsMouseDown(0) && setting->isDragging && isEnabled)
                                         {
-                                            const float newValue = std::fmax(
-                                                std::fmin(
-                                                    (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
-                                                        max - min) + min, max), min);
-                                            numSetting->setValue(newValue);
+                                            if (lastDraggedSetting != setting)
+                                            {
+                                                setting->isDragging = false;
+                                            } else
+                                            {
+                                                const float newValue = std::fmax(
+                                                    std::fmin(
+                                                        (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
+                                                            max - min) + min, max), min);
+                                                numSetting->setValue(newValue);
+                                            }
                                         }
                                         else
                                         {
@@ -790,4 +796,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
         }
     }
     ImGui::PopFont();
+}
+
+void DropdownGui::onWindowResizeEvent(WindowResizeEvent& event)
+{
+    catPositions.clear();
 }

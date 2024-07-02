@@ -37,6 +37,11 @@ void ClickGui::onDisable()
     }
 }
 
+void ClickGui::onWindowResizeEvent(WindowResizeEvent& event)
+{
+    dropdownGui.onWindowResizeEvent(event);
+}
+
 
 void ClickGui::onMouseEvent(MouseEvent& event)
 {
@@ -51,23 +56,26 @@ void ClickGui::onKeyEvent(KeyEvent& event)
     }
 }
 
+float ClickGui::getEaseAnim(EasingUtil ease, int mode) {
+    switch (mode) {
+    case 0: return ease.easeOutExpo(); break;
+    case 1: return mEnabled ? ease.easeOutElastic() : ease.easeOutBack(); break;
+    }
+}
 
 void ClickGui::onRenderEvent(RenderEvent& event)
 {
     static float animation = 0;
-    static int animationMode = 0; // Ease enum
-    static bool blur = true;
     static int styleMode = 0; // Ease enum
-    static float animationSpeed = 10.5f; // Ease speed
     static int scrollDirection = 0;
     static char h[2] = { 0 };
     static EasingUtil inEase = EasingUtil();
 
     float delta = ImGui::GetIO().DeltaTime;
 
-    this->mEnabled ? inEase.incrementPercentage(delta * animationSpeed / 10)
-    : inEase.decrementPercentage(delta * 2 * animationSpeed / 10);
-    float inScale = inEase.easeOutExpo();
+    this->mEnabled ? inEase.incrementPercentage(delta * mEaseSpeed.mValue / 10)
+    : inEase.decrementPercentage(delta * 2 * mEaseSpeed.mValue / 10);
+    float inScale = getEaseAnim(inEase, mAnimation.mValue);
     if (inEase.isPercentageMax()) inScale = 1;
     animation = MathUtils::lerp(0, 1, inEase.easeOutExpo());
 
@@ -75,5 +83,5 @@ void ClickGui::onRenderEvent(RenderEvent& event)
         return;
     }
 
-    dropdownGui.render(animation, inScale, scrollDirection, h, blur);
+    dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue);
 }
