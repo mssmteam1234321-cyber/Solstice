@@ -17,4 +17,6 @@ void ResourceLoader::loadResources() {
     FontHelper::Fonts.emplace("icons_v1_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 42));
     auto seven_days_png = GET_RESOURCE(seven_days_png);
     Resources.emplace("seven_days.png", seven_days_png);
+    auto yo_at_here_gif = GET_RESOURCE(yo_at_here_gif);
+    Resources.emplace("yo_at_here.gif", yo_at_here_gif);
 }

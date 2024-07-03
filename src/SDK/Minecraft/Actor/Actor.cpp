@@ -4,6 +4,8 @@
 
 #include "Actor.hpp"
 
+#include "Components/RuntimeIDComponent.hpp"
+
 glm::vec3* Actor::getPos()
 {
     return &getStateVectorComponent()->mPos;
@@ -27,4 +29,9 @@ MoveInputComponent* Actor::getMoveInputComponent()
 ActorRotationComponent* Actor::getActorRotationComponent()
 {
     return mContext.getComponent<ActorRotationComponent>();
+}
+
+int64_t Actor::getRuntimeID()
+{
+    return mContext.getComponent<RuntimeIDComponent>()->runtimeID;
 }

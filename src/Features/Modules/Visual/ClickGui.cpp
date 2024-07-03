@@ -83,5 +83,16 @@ void ClickGui::onRenderEvent(RenderEvent& event)
         return;
     }
 
+    // Use IO to determine the scroll direction
+    if (ImGui::GetIO().MouseWheel > 0) {
+        scrollDirection = -1;
+    }
+    else if (ImGui::GetIO().MouseWheel < 0) {
+        scrollDirection = 1;
+    }
+    else {
+        scrollDirection = 0;
+    }
+
     dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue);
 }

@@ -19,7 +19,7 @@ Detour::~Detour()
     }
 }
 
-Detour::Detour(const std::string& name, void* addr, void* detour)
+Detour::Detour(const std::string& name, void* addr, void* detour, bool silent)
     : mName(name), mFunc(addr)
 {
     this->mFunc = addr;
@@ -27,16 +27,21 @@ Detour::Detour(const std::string& name, void* addr, void* detour)
 
     const MH_STATUS result = MH_CreateHook(mFunc, detour, &mOriginalFunc);
 
-    if (result == MH_STATUS::MH_OK) {
-        spdlog::info("Created detour for {} at {}", name, addr);
-    } else {
-        spdlog::critical("Failed to create detour for {} at {}, error: {}", name, addr, magic_enum::enum_name(result));
+    if (!silent)
+    {
+        if (result == MH_STATUS::MH_OK) {
+            spdlog::info("Created detour for {} at {}", name, addr);
+        } else {
+            spdlog::critical("Failed to create detour for {} at {}, error: {}", name, addr, magic_enum::enum_name(result));
+        }
     }
 }
 
-void Detour::enable() const
+void Detour::enable(bool silent) const
 {
     const MH_STATUS status = MH_EnableHook(mFunc);
+
+    if (silent) return;
     switch (status)
     {
     case MH_OK:

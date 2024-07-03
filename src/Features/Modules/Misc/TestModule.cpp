@@ -14,6 +14,7 @@
 
 void TestModule::onEnable()
 {
+
     ClientInstance* client = ClientInstance::get();
     GuiData* guiData = client->getGuiData();
     ChatUtils::displayClientMessage("§6TestModule", "Screen size: " + std::to_string(guiData->resolution.x) + "x" + std::to_string(guiData->resolution.y));
@@ -25,6 +26,7 @@ void TestModule::onEnable()
 
 void TestModule::onDisable()
 {
+
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
     ChatUtils::displayClientMessage("§6TestModule", "disabled!");
 }
@@ -36,8 +38,5 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
-    // render imgui test
-    ImGui::Begin("TestModule");
-    ImGui::Text("TestModule");
-    ImGui::End();
+    ImGui::ShowDemoWindow();
 }

@@ -8,17 +8,25 @@
 class Arraylist : public ModuleBase<Arraylist>
 {
 public:
-    enum class Style {
-        Solstice
+    enum class Background {
+        None,
+        Opacity
     };
-    EnumSetting mStyle = EnumSetting("Style", "The style of the watermark.", 0, "Solstice");
+
+    EnumSetting mBackground = EnumSetting("Background", "Background style", 0, "None", "Opacity");
+    BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
+    NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
+
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
+        addSetting(&mBackground);
+        addSetting(&mGlow);
+        addSetting(&mGlowStrength);
     }
     void onEnable() override;
     void onDisable() override;
 
     void onRenderEvent(class RenderEvent& event);
     std::string getSettingDisplay() override {
-        return mStyle.mValue == 0 ? "Solstice" : "Unknown";
+        return mBackground.mValue == 0 ? "None" : "Opacity";
     }
 };

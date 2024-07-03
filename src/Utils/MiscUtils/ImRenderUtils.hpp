@@ -18,6 +18,7 @@ class ImRenderUtils
 public:
 	static void addBlur(const ImVec4& pos, float strength, float radius = 0.f);
 	static void drawText(ImVec2 pos, const std::string& textStr, const ImColor& color, float textSize, float alpha, bool shadow = false, int index = 0, ImDrawList* d = ImGui::GetBackgroundDrawList());
+	static void drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize);
 	static void fillRectangle(ImVec4 pos, const ImColor& color, float alpha, float radius = 0.f, ImDrawList* list = ImGui::GetBackgroundDrawList());
 	static void fillShadowRectangle(ImVec4 pos, const ImColor& color, float alpha, float thickness, ImDrawFlags flags, float radius = 0.f, ImDrawList* list = ImGui::GetBackgroundDrawList());
 	static void fillShadowCircle(ImVec2 pos, float radius, const ImColor& color, float alpha, float thickness, ImDrawFlags flags, float segments = 12.f);

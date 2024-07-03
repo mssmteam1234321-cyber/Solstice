@@ -27,17 +27,32 @@ void Arraylist::onDisable()
     }
 }
 
-void drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize)
+
+
+void drawShadowTextW(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float size, bool shadow = true)
 {
     ImVec2 shadowPos = pos;
     shadowPos.x += 1.f;
     shadowPos.y += 1.f;
-    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f), text.c_str());
-    drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
+    ImVec2 textPos = pos;
+    //if (glow && !secondCall) drawList->AddShadowCircle(ImVec2(textPos.x, textPos.y + (size / 2)), size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f), glowStrength, ImVec2(0.f, 0.f), 0, 12);
+    // draw a glow rect instead
+    for (int i = 0; i < text.length(); i++)
+    {
+        char c = text[i];
+        //if (glow) drawList->AddShadowCircle(ImVec2(textPos.x + (size / 2), textPos.y + (size / 2)), size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f), glowStrength, ImVec2(0.f, 0.f), 0, 12);
+        if (shadow) drawList->AddText(ImGui::GetFont(), size, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f), &c, &c + 1);
+        drawList->AddText(ImGui::GetFont(), size, textPos, color, &c, &c + 1);
+        textPos.x += ImGui::GetFont()->CalcTextSizeA(size, FLT_MAX, 0, &c, &c + 1).x;
+        shadowPos.x += ImGui::GetFont()->CalcTextSizeA(size, FLT_MAX, 0, &c, &c + 1).x;
+    }
 }
 
-void drawSolsticeWatermark()
+void Arraylist::onRenderEvent(RenderEvent& event)
 {
+    bool glow = mGlow.mValue;
+    float glowStrength = mGlowStrength.mValue * 100.f;
+
     // Render the array list here
     static std::vector<std::shared_ptr<Module>> module;
 
@@ -81,8 +96,6 @@ void drawSolsticeWatermark()
 
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-
-
         ImVec2 displaySize = {0, 0};
         if (!settingDisplay.empty())
         {
@@ -91,12 +104,13 @@ void drawSolsticeWatermark()
         float endPos = textPos.x - textSize.x - displaySize.x;
 
         textPos.x = MathUtils::lerp(displayRes.x, endPos, mod->mArrayListAnim);
-        drawShadowText(drawList, name, textPos, color, fontSize);
+        if (glow) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        drawShadowTextW(drawList, name, textPos, color, fontSize, true);
 
         if (!settingDisplay.empty())
         {
             textPos.x += textSize.x;
-            drawShadowText(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize);
+            drawShadowTextW(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize, true);
         }
 
         pos.y += (textSize.y * mod->mArrayListAnim);
@@ -105,12 +119,4 @@ void drawSolsticeWatermark()
     }
 
     ImGui::PopFont();
-}
-
-void Arraylist::onRenderEvent(RenderEvent& event)
-{
-    if (mStyle.mValue == static_cast<int>(Style::Solstice))
-    {
-        drawSolsticeWatermark();
-    }
 }

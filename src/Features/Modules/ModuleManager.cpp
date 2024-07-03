@@ -11,12 +11,14 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Movement/Fly.hpp"
+#include "Movement/Velocity.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/Interface.hpp"
+#include "Visual/LevelInfo.hpp"
 #include "Visual/Watermark.hpp"
 
 void ModuleManager::init()
@@ -27,6 +29,7 @@ void ModuleManager::init()
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
+    mModules.emplace_back(std::make_shared<Velocity>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
@@ -42,6 +45,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoScale>());
     mModules.emplace_back(std::make_shared<Interface>());
     mModules.emplace_back(std::make_shared<Arraylist>());
+    mModules.emplace_back(std::make_shared<LevelInfo>());
 
     for (auto& module : mModules)
     {

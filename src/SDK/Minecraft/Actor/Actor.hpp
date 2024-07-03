@@ -20,4 +20,5 @@ public:
     StateVectorComponent* getStateVectorComponent();
     MoveInputComponent* getMoveInputComponent();
     ActorRotationComponent* getActorRotationComponent();
+    int64_t getRuntimeID();
 };

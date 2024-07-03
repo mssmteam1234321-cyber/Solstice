@@ -12,7 +12,7 @@
 struct ImGuiWindow;
 std::unique_ptr<Detour> MouseHook::mDetour = nullptr;
 
-void MouseHook::onMouse(void* _this, char actionButtonId, char buttonData, short x, short y, short dx, short dy,
+void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short x, short y, short dx, short dy,
     bool forceMotionlessPointer)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onMouse)>();
@@ -42,9 +42,15 @@ void MouseHook::onMouse(void* _this, char actionButtonId, char buttonData, short
             break;
         case 4:
             if(buttonData == 0x78 || buttonData == 0x7F)
+            {
+                spdlog::info("MouseWheel Up");
                 io.AddMouseWheelEvent(0, 0.5);
+            }
             else if (buttonData == 0x88 || buttonData == 0x80)
+            {
+                spdlog::info("MouseWheel Down");
                 io.AddMouseWheelEvent(0, -0.5);
+            }
             break;
         default:
             break;

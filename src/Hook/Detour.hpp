@@ -15,9 +15,9 @@ public:
     std::string mName;
 
     ~Detour();
-    Detour(const std::string& name, void* addr, void* detour);
+    Detour(const std::string& name, void* addr, void* detour, bool silent = false);
 
-    void enable() const;
+    void enable(bool silent = false) const;
     void restore() const; // provided just in case, you should NOT use this
 
     template <typename T>

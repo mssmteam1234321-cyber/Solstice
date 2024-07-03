@@ -22,7 +22,7 @@ public:
     bool mEnabled = false;
     bool mWantedState = false; // pretty much a way of queueing up a state change for the next client tick
     int mKey;
-    BoolSetting mVisibleInArrayList = BoolSetting("Visible in ArrayList", "Whether the module is visible in the ArrayList", true);
+    BoolSetting mVisibleInArrayList = BoolSetting("Visible", "Whether the module is visible in the Arraylist", true);
     std::vector<class Setting*> mSettings = {
         &mVisibleInArrayList
     };
@@ -47,6 +47,11 @@ public:
     // Serialize the module
     nlohmann::json serialize();
     Setting* getSetting(const std::string& string);
+
+    template <typename... Args>
+    void addSettings(Args... args) {
+        (addSetting(args), ...);
+    }
 
     float animPercentage = 0.f;
     glm::vec2 location = glm::vec2(0, 0);

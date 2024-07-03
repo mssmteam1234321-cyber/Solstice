@@ -36,6 +36,11 @@ public:
 
     virtual ~PacketHandlerDispatcher() = 0;
     virtual void handle(void* networkIdentifier, void* netEventCallback, std::shared_ptr<class Packet>) = 0;
+
+    uintptr_t getPacketHandler()
+    {
+        return MemUtils::GetVTableFunction(this, 1);
+    }
 };
 
 class Packet {
@@ -56,10 +61,7 @@ public:
     virtual void readExtended(class ReadOnlyBinaryStream&);
     virtual void disallowBatching();
 
-    uintptr_t getPacketHandler()
-    {
-        return MemUtils::GetVTableFunction(this, 1);
-    }
+
 };
 
 static_assert(sizeof(Packet) == 0x30);
