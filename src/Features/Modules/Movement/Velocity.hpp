@@ -21,6 +21,13 @@ public:
         addSettings(&mMode, &mHorizontal, &mVertical);
         VISIBILITY_CONDITION(mHorizontal, mMode.mValue == static_cast<int>(Mode::Percent));
         VISIBILITY_CONDITION(mVertical, mMode.mValue == static_cast<int>(Mode::Percent));
+
+        mNames = {
+            {Lowercase, "velocity"},
+            {LowercaseSpaced, "velocity"},
+            {Normal, "Velocity"},
+            {NormalSpaced, "Velocity"}
+        };
     }
 
     void onEnable() override;

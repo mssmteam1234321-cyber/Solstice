@@ -9,7 +9,15 @@
 class PacketLogger : public ModuleBase<PacketLogger>
 {
 public:
-    PacketLogger() : ModuleBase("PacketLogger", "Logs packets", ModuleCategory::Misc, 0, false) {}
+    PacketLogger() : ModuleBase("PacketLogger", "Logs packets", ModuleCategory::Misc, 0, false)
+    {
+        mNames = {
+            {Lowercase, "packetlogger"},
+            {LowercaseSpaced, "packet logger"},
+            {Normal, "PacketLogger"},
+            {NormalSpaced, "Packet Logger"}
+        };
+    }
 
     void onEnable() override;
     void onDisable() override;

@@ -19,6 +19,13 @@ public:
         addSetting(&mMode);
         addSetting(&mColor);
         VISIBILITY_CONDITION(mColor, mMode.mValue == 1);
+
+        mNames = {
+            {Lowercase, "testmodule"},
+            {LowercaseSpaced, "test module"},
+            {Normal, "TestModule"},
+            {NormalSpaced, "Test Module"}
+        };
     }
 
     void onEnable() override;

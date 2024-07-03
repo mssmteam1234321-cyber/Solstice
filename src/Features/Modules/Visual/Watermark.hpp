@@ -23,6 +23,13 @@ public:
         addSetting(&mGlow);
         gFeatureManager->mDispatcher->listen<RenderEvent, &Watermark::onRenderEvent>(this);
         VISIBILITY_CONDITION(mGlow, mStyle.mValue == 0);
+
+        mNames = {
+            {Lowercase, "watermark"},
+            {LowercaseSpaced, "watermark"},
+            {Normal, "Watermark"},
+            {NormalSpaced, "Watermark"}
+        };
     }
 
     void onEnable() override;

@@ -23,6 +23,13 @@ public:
         addSetting(&Speed);
         addSetting(&ApplyGlideFlags);
         VISIBILITY_CONDITION(ApplyGlideFlags, Mode.mValue == static_cast<int>(Mode::Motion));
+
+        mNames = {
+            {Lowercase, "fly"},
+            {LowercaseSpaced, "fly"},
+            {Normal, "Fly"},
+            {NormalSpaced, "Fly"}
+        };
     }
 
     void onEnable() override;

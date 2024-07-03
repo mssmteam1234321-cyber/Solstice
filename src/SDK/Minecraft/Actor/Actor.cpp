@@ -31,6 +31,11 @@ ActorRotationComponent* Actor::getActorRotationComponent()
     return mContext.getComponent<ActorRotationComponent>();
 }
 
+BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultiplierComponent()
+{
+    return mContext.getComponent<BlockMovementSlowdownMultiplierComponent>();
+}
+
 int64_t Actor::getRuntimeID()
 {
     return mContext.getComponent<RuntimeIDComponent>()->runtimeID;

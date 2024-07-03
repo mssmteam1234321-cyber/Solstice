@@ -11,7 +11,12 @@
 class ToggleSounds : public ModuleBase<ToggleSounds> {
 public:
     ToggleSounds() : ModuleBase("ToggleSounds", "Plays a sound on module toggle", ModuleCategory::Misc, 0, false) {
-        // Register your features here
+        mNames = {
+            {Lowercase, "togglesounds"},
+            {LowercaseSpaced, "toggle sounds"},
+            {Normal, "ToggleSounds"},
+            {NormalSpaced, "Toggle Sounds"}
+        };
     }
 
     void onEnable() override;

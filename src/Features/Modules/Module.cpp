@@ -6,8 +6,29 @@
 
 #include <Features/FeatureManager.hpp>
 #include <nes/event_dispatcher.hpp>
+#include <Utils/StringUtils.hpp>
 
 #include "Setting.hpp"
+#include "Visual/Interface.hpp"
+
+static Interface* interface;
+
+
+std::string Module::getSettingDisplayText()
+{
+    if (!interface) interface = gFeatureManager->mModuleManager->getModule<Interface>();
+    auto style = static_cast<NamingStyle>(interface->mNamingStyle.mValue);
+    if (style == Lowercase || style == LowercaseSpaced)
+        return StringUtils::toLower(getSettingDisplay());
+    return getSettingDisplay();
+}
+
+std::string& Module::getName()
+{
+    if (!interface) interface = gFeatureManager->mModuleManager->getModule<Interface>();
+    auto style = static_cast<NamingStyle>(interface->mNamingStyle.mValue);
+    return mNames[style];
+}
 
 void Module::setEnabled(bool enabled)
 {

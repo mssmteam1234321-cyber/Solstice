@@ -16,6 +16,13 @@ public:
 
     AutoScale() : ModuleBase("AutoScale", "Automatically sets the gui scale", ModuleCategory::Visual, 0, false) {
         addSetting(&mScaleSetting);
+
+        mNames = {
+            {Lowercase, "autoscale"},
+            {LowercaseSpaced, "auto scale"},
+            {Normal, "AutoScale"},
+            {NormalSpaced, "Auto Scale"}
+        };
     }
 
     float mOldScaleMultiplier{};

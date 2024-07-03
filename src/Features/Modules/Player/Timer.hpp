@@ -12,6 +12,13 @@ public:
     NumberSetting mSpeed = NumberSetting("Speed", "The speed of the game.", 20.0f, 1.f, 60.0f, 0.01f);
     Timer() : ModuleBase("Timer", "Speeds up the game.", ModuleCategory::Player, VK_F4, false) {
         addSetting(&mSpeed);
+
+        mNames = {
+            {Lowercase, "timer"},
+            {LowercaseSpaced, "timer"},
+            {Normal, "Timer"},
+            {NormalSpaced, "Timer"}
+        };
     }
 
     void onEnable() override;

@@ -68,10 +68,10 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
     std::ranges::sort(module, [](const std::shared_ptr<Module>& a, const std::shared_ptr<Module>& b)
     {
-        std::string aName = a->mName;
-        std::string bName = b->mName;
-        if (!a->getSettingDisplay().empty()) aName += " " + a->getSettingDisplay();
-        if (!b->getSettingDisplay().empty()) bName += " " + b->getSettingDisplay();
+        std::string aName = a->getName();
+        std::string bName = b->getName();
+        if (!a->getSettingDisplayText().empty()) aName += " " + a->getSettingDisplayText();
+        if (!b->getSettingDisplayText().empty()) bName += " " + b->getSettingDisplayText();
         return ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, aName.c_str()).x > ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, bName.c_str()).x;
     });
 
@@ -89,8 +89,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         if (mod->mArrayListAnim < 0.01f) continue;
         ImColor color = ColorUtils::getThemedColor(i * 100);
 
-        std::string name = mod->mName;
-        std::string settingDisplay = mod->getSettingDisplay();
+        std::string name = mod->getName();
+        std::string settingDisplay = mod->getSettingDisplayText();
         if (!settingDisplay.empty()) settingDisplay = " " + settingDisplay;
         ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
 
@@ -105,12 +105,12 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         textPos.x = MathUtils::lerp(displayRes.x, endPos, mod->mArrayListAnim);
         if (glow) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
-        drawShadowTextW(drawList, name, textPos, color, fontSize, true);
+        ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
 
         if (!settingDisplay.empty())
         {
             textPos.x += textSize.x;
-            drawShadowTextW(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize, true);
+            ImRenderUtils::drawShadowText(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize);
         }
 
         pos.y += (textSize.y * mod->mArrayListAnim);

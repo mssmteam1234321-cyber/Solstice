@@ -11,6 +11,7 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Movement/Fly.hpp"
+#include "Movement/NoSlowDown.hpp"
 #include "Movement/Velocity.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
@@ -30,6 +31,7 @@ void ModuleManager::init()
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
     mModules.emplace_back(std::make_shared<Velocity>());
+    mModules.emplace_back(std::make_shared<NoSlowDown>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());

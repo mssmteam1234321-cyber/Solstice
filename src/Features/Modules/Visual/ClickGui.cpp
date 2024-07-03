@@ -65,6 +65,7 @@ float ClickGui::getEaseAnim(EasingUtil ease, int mode) {
 
 void ClickGui::onRenderEvent(RenderEvent& event)
 {
+    if (mEnabled) ClientInstance::get()->releaseMouse();
     static float animation = 0;
     static int styleMode = 0; // Ease enum
     static int scrollDirection = 0;

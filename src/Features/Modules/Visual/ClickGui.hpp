@@ -36,6 +36,13 @@ public:
         //addSetting(&mBlur);
         addSetting(&mBlurStrength);
         addSetting(&mEaseSpeed);
+
+        mNames = {
+            {Lowercase, "clickgui"},
+            {LowercaseSpaced, "click gui"},
+            {Normal, "ClickGui"},
+            {NormalSpaced, "Click Gui"}
+        };
     }
 
     void onEnable() override;

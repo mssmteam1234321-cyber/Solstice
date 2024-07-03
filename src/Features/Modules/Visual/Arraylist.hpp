@@ -21,6 +21,13 @@ public:
         addSetting(&mBackground);
         addSetting(&mGlow);
         addSetting(&mGlowStrength);
+
+        mNames = {
+            {Lowercase, "arraylist"},
+            {LowercaseSpaced, "array list"},
+            {Normal, "Arraylist"},
+            {NormalSpaced, "Array List"}
+        };
     }
     void onEnable() override;
     void onDisable() override;

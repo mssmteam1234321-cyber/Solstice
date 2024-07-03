@@ -9,6 +9,13 @@ class LevelInfo : public ModuleBase<LevelInfo>
 {
 public:
     LevelInfo() : ModuleBase("LevelInfo", "Display general information", ModuleCategory::Visual, 0, true) {
+
+        mNames = {
+            {Lowercase, "levelinfo"},
+            {LowercaseSpaced, "level info"},
+            {Normal, "LevelInfo"},
+            {NormalSpaced, "Level Info"}
+        };
     }
     void onEnable() override;
     void onDisable() override;

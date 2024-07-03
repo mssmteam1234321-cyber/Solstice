@@ -7,10 +7,17 @@
 
 class NoSlowDown : public ModuleBase<NoSlowDown> {
 public:
-    NoSlowDown() : ModuleBase("NoSlowDown", "Prevents you from being slowed down while walking through webs, using items, etc.", ModuleCategory::Movement, 0, false) {
+    NoSlowDown() : ModuleBase("NoSlowdown", "Prevents you from being slowed down while walking through webs, using items, etc.", ModuleCategory::Movement, 0, false) {
+        mNames = {
+            {Lowercase, "noslowdown"},
+            {LowercaseSpaced, "no slowdown"},
+            {Normal, "NoSlowDown"},
+            {NormalSpaced, "No Slowdown"}
+        };
     }
 
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onItemSlowdownEvent(class ItemSlowdownEvent& event);
 };

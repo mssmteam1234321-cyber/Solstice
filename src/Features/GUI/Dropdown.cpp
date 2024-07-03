@@ -9,9 +9,11 @@
 #include <Utils/MiscUtils/ImRenderUtils.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
 #include <Features/Modules/Setting.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/Keyboard.hpp>
+#include <Utils/StringUtils.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
 
 ImVec4 DropdownGui::scaleToPoint(const ImVec4& _this, const ImVec4& point, float amount)
@@ -35,6 +37,9 @@ ImVec4 DropdownGui::getCenter(ImVec4& vec)
 
 void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, float blur)
 {
+    static auto interface = gFeatureManager->mModuleManager->getModule<Interface>();
+    bool lowercase = interface->mNamingStyle.mValue == NamingStyle::Lowercase || interface->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
+
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
     ImVec2 screen = ImRenderUtils::getScreenSize();
     float deltaTime = ImGui::GetIO().DeltaTime;
@@ -46,6 +51,20 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
     drawList->AddRectFilled(ImVec2(0, 0), ImVec2(screen.x, screen.y), IM_COL32(0, 0, 0, 255 * animation * 0.38f));
     ImRenderUtils::addBlur(ImVec4(0.f, 0.f, screen.x, screen.y),
                            animation * blur, 0);
+
+    // Draw a glow rect on the bottom 1/3 of the screen
+    ImColor shadowRectColor = ColorUtils::getThemedColor(0);
+    shadowRectColor.Value.w = 0.5f * animation;
+
+    // Draw a gradient rect on the bottom 1/3 of the screen with the shadow color, and making the alpha taper off as it goes up
+    float firstheight = (screen.y - screen.y / 3);
+    // As the animation reaches 0, the height should go below the screen height
+    firstheight = MathUtils::lerp(screen.y, firstheight, inScale);
+    ImRenderUtils::fillGradientOpaqueRectangle(
+        ImVec4(0, firstheight, screen.x, screen.y),
+        shadowRectColor, shadowRectColor, 0.4f * inScale, 0.0f);
+
+
 
     static std::vector<std::string> categories = ModuleCategoryNames;
     static std::vector<std::shared_ptr<Module>>& modules = gFeatureManager->mModuleManager->getModules();
@@ -137,7 +156,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
             for (const auto& mod : modsInCategory)
             {
-                std::string modLower = mod->mName;
+                std::string modLower = mod->getName();
 
                 std::transform(modLower.begin(), modLower.end(), modLower.begin(), [](unsigned char c)
                 {
@@ -228,7 +247,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
             for (const auto& mod : modsInCategory)
             {
-                std::string modLower = mod->mName;
+                std::string modLower = mod->getName();
 
                 std::transform(modLower.begin(), modLower.end(), modLower.begin(), [](unsigned char c)
                 {
@@ -288,7 +307,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {
-                                        std::string setName = setting->mName;
+                                        std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
                                         ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation);
 
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
@@ -339,8 +358,15 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                             case SettingType::Enum:
                                 {
                                     EnumSetting* enumSetting = reinterpret_cast<EnumSetting*>(setting);
-                                    std::string setName = setting->mName;
+                                    std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
                                     std::vector<std::string> enumValues = enumSetting->mValues;
+                                    if (lowercase)
+                                    {
+                                        for (std::string& value : enumValues)
+                                        {
+                                            value = StringUtils::toLower(value);
+                                        }
+                                    }
                                     int* iterator = &enumSetting->mValue;
                                     int numValues = static_cast<int>(enumValues.size());
 
@@ -451,7 +477,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                     sprintf_s(str, 10, "%.1f", value);
                                     std::string rVal = str;
 
-                                    std::string setName = setting->mName;
+                                    std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
                                     std::string valueName = rVal;
 
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
@@ -546,7 +572,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                     ColorSetting* colorSetting = reinterpret_cast<ColorSetting*>(setting);
                                     ImColor color = colorSetting->getAsImColor();
                                     ImVec4 rgb = color.Value;
-                                    std::string setName = setting->mName;
+                                    std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
 
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
 
@@ -595,7 +621,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                             ImRenderUtils::fillRectangle(modRect, ImColor(40, 40, 40), animation);
                         }
 
-                        std::string modName = mod->mName;
+                        std::string modName = mod->getName();
 
                         // Calculate the centre of the rect
                         ImVec2 center = ImVec2(modRect.x + modRect.getWidth() / 2.f,
@@ -695,7 +721,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
             if (isBinding)
             {
-                tooltip = "Currently binding " + lastMod->mName + "..." +" Press ESC to unbind.";
+                tooltip = "Currently binding " + lastMod->getName() + "..." +" Press ESC to unbind.";
                 for (const auto& key : Keyboard::mPressedKeys)
                 {
                     if (key.second && lastMod)
@@ -714,7 +740,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                 }
             }
 
-            std::string catName = categories[i];
+            std::string catName = lowercase ? StringUtils::toLower(categories[i]) : categories[i];
 
             if (ImRenderUtils::isMouseOver(catRect) && ImGui::IsMouseClicked(1))
                 catPositions[i].isExtended = !catPositions[i].isExtended;

@@ -15,7 +15,8 @@ public:
         Rainbow,
         Custom
     };
-    EnumSetting mMode = EnumSetting("Theme  ", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
+    EnumSetting mNamingStyle = EnumSetting("Naming", "The style of the module names.", Normal, {"lowercase", "lower spaced", "Normal", "Spaced"});
+    EnumSetting mMode = EnumSetting("Theme", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     // Colors will be Fire-themed by default
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);
@@ -24,12 +25,13 @@ public:
     ColorSetting mColor4 = ColorSetting("Color 4", "The fourth color of the interface.", 0xFF00FF00);
     ColorSetting mColor5 = ColorSetting("Color 5", "The fifth color of the interface.", 0xFF0000FF);
     ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF8B00FF);
-    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 8.f, 0.01f, 10.f, 0.01);
+    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 8.f, 0.01f, 20.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
 
 
     Interface() : ModuleBase("Interface", "Customize the visuals!", ModuleCategory::Visual, 0, true) {
         gFeatureManager->mDispatcher->listen<ModuleStateChangeEvent, &Interface::onModuleStateChange, nes::event_priority::FIRST>(this);
+        addSetting(&mNamingStyle);
         addSetting(&mMode);
         addSetting(&mColors);
         addSetting(&mColor1);
@@ -47,6 +49,13 @@ public:
         VISIBILITY_CONDITION(mColor6, mMode.mValue == Custom && mColors.mValue >= 6);
         addSetting(&mColorSpeed);
         addSetting(&mSaturation);
+
+        mNames = {
+            {Lowercase, "interface"},
+            {LowercaseSpaced, "interface"},
+            {Normal, "Interface"},
+            {NormalSpaced, "Interface"}
+        };
     }
 
     static inline std::unordered_map<int, std::vector<ImColor>> ColorThemes = {
