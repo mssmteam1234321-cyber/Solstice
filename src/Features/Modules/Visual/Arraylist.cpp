@@ -108,10 +108,27 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         if (glow) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
         ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
 
+        ImVec2 mousePos = ImGui::GetIO().MousePos;
+
+        bool isHovered = mousePos.x >= textPos.x && mousePos.x <= textPos.x + textSize.x + displaySize.x && mousePos.y >= textPos.y && mousePos.y <= textPos.y + textSize.y;
+        ImVec4 rect = {textPos.x, textPos.y, textPos.x + textSize.x + displaySize.x, textPos.y + textSize.y};
+
         if (!settingDisplay.empty())
         {
             textPos.x += textSize.x;
             ImRenderUtils::drawShadowText(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize);
+        }
+
+        // Add an invisible button to toggle the module
+
+
+        if (isHovered)
+        {
+            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(1.f, 1.f, 1.f, 0.1f));
+            if (ImGui::IsMouseClicked(0))
+            {
+                mod->toggle();
+            }
         }
 
         pos.y += (textSize.y * mod->mArrayListAnim);

@@ -17,6 +17,7 @@ public:
     };
     EnumSetting mNamingStyle = EnumSetting("Naming", "The style of the module names.", Normal, {"lowercase", "lower spaced", "Normal", "Spaced"});
     EnumSetting mMode = EnumSetting("Theme", "The mode of the interface.", Trans, {"Trans", "Rainbow", "Custom"});
+    EnumSetting mFont = EnumSetting("Font", "The font of the interface.", 0, {"Mojangles"});
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     // Colors will be Fire-themed by default
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);
@@ -33,6 +34,7 @@ public:
         gFeatureManager->mDispatcher->listen<ModuleStateChangeEvent, &Interface::onModuleStateChange, nes::event_priority::FIRST>(this);
         addSetting(&mNamingStyle);
         addSetting(&mMode);
+        addSetting(&mFont);
         addSetting(&mColors);
         addSetting(&mColor1);
         addSetting(&mColor2);
