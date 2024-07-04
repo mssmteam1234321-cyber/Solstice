@@ -30,6 +30,10 @@ public:
     void onDisable() override;
 
     void onModuleStateChange(ModuleStateChangeEvent& event);
+
+    std::string getSettingDisplay() override {
+        return mSound.mValue == Sound::Lever ? "Lever" : "Smooth";
+    }
 };
 
 REGISTER_MODULE(ToggleSounds);

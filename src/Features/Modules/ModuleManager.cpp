@@ -8,6 +8,7 @@
 #include <Utils/GameUtils/ChatUtils.hpp>
 
 #include "Misc/DeviceSpoof.hpp"
+#include "Misc/KickSounds.hpp"
 #include "Misc/PacketLogger.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
@@ -22,6 +23,7 @@
 #include "Visual/ClickGui.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/LevelInfo.hpp"
+#include "Visual/Notifications.hpp"
 #include "Visual/Watermark.hpp"
 
 void ModuleManager::init()
@@ -44,6 +46,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
+    mModules.emplace_back(std::make_shared<KickSounds>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -52,6 +55,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Interface>());
     mModules.emplace_back(std::make_shared<Arraylist>());
     mModules.emplace_back(std::make_shared<LevelInfo>());
+    mModules.emplace_back(std::make_shared<Notifications>());
 
     for (auto& module : mModules)
     {

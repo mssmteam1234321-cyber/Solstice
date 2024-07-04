@@ -1,0 +1,36 @@
+#pragma once
+//
+// Created by vastrakai on 7/4/2024.
+//
+
+#include <Solstice.hpp>
+#include <Features/FeatureManager.hpp>
+
+
+class KickSounds : public ModuleBase<KickSounds> {
+public:
+    enum Sound {
+        Fard
+    };
+    EnumSetting mSound = EnumSetting("Sound", "The sound to play when a DisconnectPacket is received", Sound::Fard, "Fard");
+    KickSounds() : ModuleBase("KickSounds", "Plays a sound on module toggle", ModuleCategory::Misc, 0, false) {
+        addSetting(&mSound);
+
+        mNames = {
+            {Lowercase, "kicksounds"},
+            {LowercaseSpaced, "kick sounds"},
+            {Normal, "KickSounds"},
+            {NormalSpaced, "Kick Sounds"}
+        };
+    }
+
+    void onEnable() override;
+    void onDisable() override;
+
+    void onPacketInEvent(class PacketInEvent& event);
+
+    std::string getSettingDisplay() override {
+        return mSound.mValue == Sound::Fard ? "Fard" : "Custom";
+    }
+
+};
