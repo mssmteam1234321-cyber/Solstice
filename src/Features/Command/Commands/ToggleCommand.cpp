@@ -26,7 +26,8 @@ void ToggleCommand::execute(const std::vector<std::string>& args)
     moduleName = module->mName;
 
     module->toggle();
-    ChatUtils::displayClientMessage("§aModule §6'" + moduleName + "'§a is now " + (module->mEnabled ? "§aenabled" : "§cdisabled") + "§a!");
+    bool newState = !module->mEnabled; // The mEnabled isn't instantly updated
+    ChatUtils::displayClientMessage("§aModule §6'" + moduleName + "'§a is now " + (newState ? "§aenabled" : "§cdisabled") + "§a!");
 
 
 

@@ -12,9 +12,11 @@
 #include "Components/ActorRotationComponent.hpp"
 #include "Components/BlockMovementSlowdownMultiplierComponent.hpp"
 
+#define PLAYER_HEIGHT 1.62f
+
 class Actor {
 public:
-    CLASS_FIELD(uintptr_t**, vtable, 0x0);
+    CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
 
     virtual bool getStatusFlag(ActorFlags) = 0;
@@ -27,4 +29,6 @@ public:
     ActorRotationComponent* getActorRotationComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
     int64_t getRuntimeID();
+
+    void setPosition(glm::vec3 pos);
 };

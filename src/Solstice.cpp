@@ -77,6 +77,8 @@ void Solstice::init(HMODULE hModule)
     gFeatureManager = std::make_unique<FeatureManager>();
     gFeatureManager->init();
 
+    while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 

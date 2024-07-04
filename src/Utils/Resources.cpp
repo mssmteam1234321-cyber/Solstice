@@ -3,6 +3,10 @@
 #include "FontHelper.hpp"
 
 void ResourceLoader::loadResources() {
+    auto cash_wav = GET_RESOURCE(cash_wav);
+    Resources.emplace("cash.wav", cash_wav);
+    auto fard_wav = GET_RESOURCE(fard_wav);
+    Resources.emplace("fard.wav", fard_wav);
     auto fonts_Mojangles_ttf = GET_RESOURCE(fonts_Mojangles_ttf);
     Resources.emplace("mojangles", fonts_Mojangles_ttf);
     FontHelper::Fonts.emplace("mojangles", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 20));
@@ -17,6 +21,10 @@ void ResourceLoader::loadResources() {
     FontHelper::Fonts.emplace("icons_v1_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 42));
     auto seven_days_png = GET_RESOURCE(seven_days_png);
     Resources.emplace("seven_days.png", seven_days_png);
+    auto smooth_off_wav = GET_RESOURCE(smooth_off_wav);
+    Resources.emplace("smooth_off.wav", smooth_off_wav);
+    auto smooth_on_wav = GET_RESOURCE(smooth_on_wav);
+    Resources.emplace("smooth_on.wav", smooth_on_wav);
     auto yo_at_here_gif = GET_RESOURCE(yo_at_here_gif);
     Resources.emplace("yo_at_here.gif", yo_at_here_gif);
 }

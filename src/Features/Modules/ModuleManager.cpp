@@ -7,9 +7,11 @@
 #include <Utils/StringUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
+#include "Misc/DeviceSpoof.hpp"
 #include "Misc/PacketLogger.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
+#include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Velocity.hpp"
@@ -32,6 +34,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Fly>());
     mModules.emplace_back(std::make_shared<Velocity>());
     mModules.emplace_back(std::make_shared<NoSlowDown>());
+    mModules.emplace_back(std::make_shared<AntiImmobile>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
@@ -40,6 +43,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<PacketLogger>());
+    mModules.emplace_back(std::make_shared<DeviceSpoof>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

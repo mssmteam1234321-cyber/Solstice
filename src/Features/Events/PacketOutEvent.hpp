@@ -14,4 +14,10 @@ public:
     explicit PacketOutEvent(Packet* packet) : CancellableEvent() {
         this->packet = packet;
     }
+
+    template <typename T>
+    T* getPacket() const
+    {
+        return reinterpret_cast<T*>(packet);
+    }
 };

@@ -12,4 +12,10 @@ public:
     std::shared_ptr<class Packet> mPacket;
     void* mNetworkIdentifier;
     void* mNetEventCallback;
+
+    template <typename T>
+    std::shared_ptr<T> getPacket() const
+    {
+        return std::reinterpret_pointer_cast<T>(mPacket);
+    }
 };

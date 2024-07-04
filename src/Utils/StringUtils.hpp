@@ -17,4 +17,5 @@ public:
     static std::string toLower(std::string str);
     static std::string toUpper(std::string str);
     static bool equalsIgnoreCase(const std::string& str1, const std::string& str2);
+    static std::string generateUUID();
 };

@@ -6,6 +6,28 @@
 
 #include <algorithm>
 
+
+std::string StringUtils::generateUUID()
+{
+    // Generate a UUID v4
+    std::string uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+
+    for (size_t i = 0; i < uuid.size(); i++)
+    {
+        char c = uuid[i];
+        if (c == 'x')
+        {
+            uuid[i] = "0123456789abcdef"[std::rand() % 16];
+        }
+        else if (c == 'y')
+        {
+            uuid[i] = "89ab"[std::rand() % 4];
+        }
+    }
+
+    return uuid;
+}
+
 bool StringUtils::startsWith(std::string_view str, std::string_view prefix)
 {
     return str.substr(0, prefix.size()) == prefix;

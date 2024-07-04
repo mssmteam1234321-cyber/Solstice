@@ -9,34 +9,69 @@
 #include <Features/Events/RenderEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
+#include <SDK/Minecraft/World/Block.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <SDK/Minecraft/World/BlockSource.hpp>
 #include <spdlog/spdlog.h>
 #include <Utils/GameUtils/ChatUtils.hpp>
+#include <Utils/MiscUtils/SoundUtils.hpp>
 
 void TestModule::onEnable()
 {
-
-    ClientInstance* client = ClientInstance::get();
-    GuiData* guiData = client->getGuiData();
-    ChatUtils::displayClientMessage("§6TestModule", "Screen size: " + std::to_string(guiData->resolution.x) + "x" + std::to_string(guiData->resolution.y));
-    ChatUtils::displayClientMessage("§6TestModule", "Screen size Rounded: " + std::to_string(guiData->resolutionRounded.x) + "x" + std::to_string(guiData->resolutionRounded.y));
-    ChatUtils::displayClientMessage("§6TestModule", "Screen size Scaled: " + std::to_string(guiData->resolutionScaled.x) + "x" + std::to_string(guiData->resolutionScaled.y));
-
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
 }
 
 void TestModule::onDisable()
 {
 
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     ChatUtils::displayClientMessage("§6TestModule", "disabled!");
 }
 
+Block* gDaBlock = nullptr;
+
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
-    spdlog::info("TestModule base tick event");
+    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(0, 0, 0);
+}
+
+void displayCopyableAddress(std::string name, void* address)
+{
+    std::string addressHex = "0x" + fmt::format("{:X}", reinterpret_cast<uintptr_t>(address));
+    ImGui::Text(addressHex.c_str());
+    ImGui::SameLine();
+    if (ImGui::Button(("Copy " + name + " address").c_str()))
+    {
+        ImGui::SetClipboardText(addressHex.c_str());
+    }
+
+
 }
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
-    ImGui::ShowDemoWindow();
+    ImGui::Begin("TestModule");
+    ImGui::Text("TestModule");
+    auto blockSource = ClientInstance::get()->getBlockSource();
+    auto block = gDaBlock;
+    if (block == nullptr)
+    {
+        ImGui::Text("Block is null");
+        ImGui::End();
+        return;
+    }
+
+    displayCopyableAddress("BlockSource", blockSource);
+    displayCopyableAddress("Block", block);
+    displayCopyableAddress("BlockLegacy", block->mLegacy);
+
+    ImGui::Button("Play Sound Test");
+    if (ImGui::IsItemClicked())
+    {
+        SoundUtils::playSoundFromEmbeddedResource("fard.wav", 1.0f);
+    }
+
+    ImGui::End();
 }

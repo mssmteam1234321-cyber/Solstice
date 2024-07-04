@@ -4,6 +4,8 @@
 
 #include "Actor.hpp"
 
+#include <SDK/SigManager.hpp>
+
 #include "Components/RuntimeIDComponent.hpp"
 
 glm::vec3* Actor::getPos()
@@ -39,4 +41,10 @@ BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultipl
 int64_t Actor::getRuntimeID()
 {
     return mContext.getComponent<RuntimeIDComponent>()->runtimeID;
+}
+
+void Actor::setPosition(glm::vec3 pos)
+{
+    static uintptr_t func = SigManager::Actor_setPosition;
+    MemUtils::callFastcall<void, void*, glm::vec3*>(func, this, &pos);
 }

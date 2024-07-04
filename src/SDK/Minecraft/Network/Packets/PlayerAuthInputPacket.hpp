@@ -86,7 +86,7 @@ enum class PlayerActionType {
 class PlayerBlockActionData {
 public:
     PlayerActionType mAction;
-    glm::i32vec3 mPos;
+    glm::ivec3 mPos;
     int mFace;
 };
 

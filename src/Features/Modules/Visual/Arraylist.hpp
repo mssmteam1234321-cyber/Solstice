@@ -13,12 +13,19 @@ public:
         Opacity
     };
 
+    enum class ModuleVisibility {
+        All,
+        Bound,
+    };
+
     EnumSetting mBackground = EnumSetting("Background", "Background style", 0, "None", "Opacity");
+    EnumSetting mVisibility = EnumSetting("Visibility", "Module visibility", ModuleVisibility::All, "All", "Bound");
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
 
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
         addSetting(&mBackground);
+        addSetting(&mVisibility);
         addSetting(&mGlow);
         addSetting(&mGlowStrength);
 

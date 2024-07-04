@@ -4,10 +4,14 @@
 #include <unordered_map>
 #include "Resource.hpp"
 
+LOAD_RESOURCE(cash_wav);
+LOAD_RESOURCE(fard_wav);
 LOAD_RESOURCE(fonts_Mojangles_ttf);
 LOAD_RESOURCE(fonts_Sarabun_Light_ttf);
 LOAD_RESOURCE(fonts_icons_v1_ttf);
 LOAD_RESOURCE(seven_days_png);
+LOAD_RESOURCE(smooth_off_wav);
+LOAD_RESOURCE(smooth_on_wav);
 LOAD_RESOURCE(yo_at_here_gif);
 
 class ResourceLoader {

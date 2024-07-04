@@ -43,12 +43,10 @@ void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short 
         case 4:
             if(buttonData == 0x78 || buttonData == 0x7F)
             {
-                spdlog::info("MouseWheel Up");
                 io.AddMouseWheelEvent(0, 0.5);
             }
             else if (buttonData == 0x88 || buttonData == 0x80)
             {
-                spdlog::info("MouseWheel Down");
                 io.AddMouseWheelEvent(0, -0.5);
             }
             break;

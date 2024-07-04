@@ -22,7 +22,6 @@ public:
         addSetting(&mStyle);
         addSetting(&mGlow);
         gFeatureManager->mDispatcher->listen<RenderEvent, &Watermark::onRenderEvent>(this);
-        VISIBILITY_CONDITION(mGlow, mStyle.mValue == 0);
 
         mNames = {
             {Lowercase, "watermark"},
