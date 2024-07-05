@@ -15,7 +15,7 @@ public:
 
     template <typename T>
     static std::shared_ptr<T> createPacket() {
-        const PacketID id = T::ID();
+        const PacketID id = T::ID;
         return std::reinterpret_pointer_cast<T>(createPacket(id));
     }
 };

@@ -8,6 +8,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Utils/FileUtils.hpp>
 #include <nlohmann/json.hpp>
+#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 #include "spdlog/spdlog.h"
 
@@ -30,9 +31,10 @@ void ConfigManager::loadConfig(const std::string& name)
 
     gFeatureManager->mModuleManager->deserialize(j);
 
-    lastLoadedConfig = name;
+    LastLoadedConfig = name;
 
     spdlog::info("Loaded config " + name + " successfully.");
+    NotifyUtils::Notify("Loaded config " + name + "!", 3.f, Notification::Type::Info);
 }
 
 void ConfigManager::saveConfig(const std::string& name)
@@ -43,8 +45,9 @@ void ConfigManager::saveConfig(const std::string& name)
     file << j.dump(4);
     file.close();
 
-    lastLoadedConfig = name;
+    LastLoadedConfig = name;
 
     spdlog::info("Config saved successfully.");
+    NotifyUtils::Notify("Saved config as " + name + ".", 3.f, Notification::Type::Info);
 
 }

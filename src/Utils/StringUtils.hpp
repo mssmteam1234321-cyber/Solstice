@@ -18,4 +18,6 @@ public:
     static std::string toUpper(std::string str);
     static bool equalsIgnoreCase(const std::string& str1, const std::string& str2);
     static std::string generateUUID();
+    static bool containsIgnoreCase(const std::string& str, const std::string& subStr);
+    static bool containsAnyIgnoreCase(const std::string& str, const std::vector<std::string>& strVector);
 };

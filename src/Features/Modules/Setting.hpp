@@ -76,6 +76,12 @@ public:
         j["boolValue"] = mValue;
         return j;
     }
+
+    // Operator overloading for easy access
+    explicit operator bool() const
+    {
+        return mValue;
+    }
 };
 
 class NumberSetting : public Setting
@@ -102,6 +108,24 @@ public:
         nlohmann::json j = Setting::serialize();
         j["numberValue"] = mValue;
         return j;
+    }
+
+    explicit operator float() const
+    {
+        return mValue;
+    }
+
+    // Math operators
+    NumberSetting& operator+=(float value)
+    {
+        mValue += value;
+        return *this;
+    }
+
+    NumberSetting& operator-=(float value)
+    {
+        mValue -= value;
+        return *this;
     }
 };
 

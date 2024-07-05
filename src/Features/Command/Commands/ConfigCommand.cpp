@@ -5,8 +5,10 @@
 #include "ConfigCommand.hpp"
 
 #include <Features/Configs/ConfigManager.hpp>
+#include <Features/Modules/Visual/Notifications.hpp>
 #include <Utils/FileUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
+#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 void ConfigCommand::execute(const std::vector<std::string>& args)
 {
@@ -34,8 +36,19 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
             return;
         }
 
-        ConfigManager::loadConfig(name);
-        ChatUtils::displayClientMessage("§aLoaded config §6" + name + "§a!");
+        try
+        {
+            ConfigManager::loadConfig(name); // Any exceptions here are usually from nlohmann::json
+            ChatUtils::displayClientMessage("§aLoaded config §6" + name + "§a!");
+        } catch (const std::exception& e)
+        {
+            ChatUtils::displayClientMessage("§cFailed to load config §6" + name + "§c.");
+            ChatUtils::displayClientMessage("§cError: §6" + std::string(e.what()));
+        } catch (...)
+        {
+            ChatUtils::displayClientMessage("§cFailed to load config §6" + name + "§c.");
+            ChatUtils::displayClientMessage("§cUnknown error occurred.");
+        }
     }
     else if (action == "save" || action == "s")
     {
@@ -43,6 +56,16 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
         {
             ChatUtils::displayClientMessage("§c" + getUsage());
             return;
+        }
+
+        if (ConfigManager::configExists(args[2]) && ConfigManager::LastLoadedConfig != args[2])
+        {
+            if (args.size() < 4 || args.size() < 4 && args[3] != "overwrite")
+            {
+                NotifyUtils::Notify(args[2] + " already exists!", 3.f, Notification::Type::Warning);
+                ChatUtils::displayClientMessage("§eWARNING: §6" + args[2] + " §calready exists. Use §6.config save " + args[2] + " overwrite §cto overwrite it.");
+                return;
+            }
         }
 
         std::string name = args[2];

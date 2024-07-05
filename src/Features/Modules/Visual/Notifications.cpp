@@ -65,10 +65,10 @@ void Notifications::onRenderEvent(RenderEvent& event)
         // Clamp the percentage done to 0-1
         percentDone = std::clamp(percentDone, 0.0f, 1.0f);
 
-        float fontSize = 20.0f;
+        constexpr float fontSize = 20.0f;
 
-        auto size = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, notification.mMessage.c_str()).x;
-        ImVec2 boxSize = ImVec2(fmax(200.0f, 50 + size), 50);
+        const auto size = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, notification.mMessage.c_str()).x;
+        auto boxSize = ImVec2(fmax(200.0f, 50 + size), 50);
 
         if (CalcSize(boxSize, y, x, displaySize, &notification)) continue;
 
@@ -89,8 +89,16 @@ void Notifications::onRenderEvent(RenderEvent& event)
 
         drawList->AddShadowRect(ImVec2(x, y), progMax, ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 1.f), 50.f, ImVec2(), 0, 5.0f);
         drawList->PushClipRect(ImVec2(x, y), ImVec2(x + (boxSize.x * percentDone), y + (boxSize.y - 10.f)));
-        drawList->AddRectFilled(ImVec2(x, y), progMax,
-                                         themeColor, 5.0f);
+
+        if (!mColorGradient.mValue)
+        {
+            drawList->AddRectFilled(ImVec2(x, y), progMax,
+                                             themeColor, 5.0f);
+        } else
+        {
+            ImColor rgb2 = ColorUtils::getThemedColor(y * 2 + ((x - progMax.x) * 1.2));
+            ImRenderUtils::fillGradientOpaqueRectangle(ImVec4(x, y, progMax.x, progMax.y), themeColor, rgb2, 1.f, 1.f);
+        }
         drawList->PopClipRect();
 
         drawList->PushClipRect(bgMin, bgMax);

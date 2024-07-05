@@ -7,6 +7,7 @@
 #include <Utils/StringUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
+#include "Misc/AutoQueue.hpp"
 #include "Misc/DeviceSpoof.hpp"
 #include "Misc/KickSounds.hpp"
 #include "Misc/PacketLogger.hpp"
@@ -47,6 +48,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
     mModules.emplace_back(std::make_shared<KickSounds>());
+    mModules.emplace_back(std::make_shared<AutoQueue>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -259,7 +261,14 @@ void ModuleManager::deserialize(const nlohmann::json& j)
                         else if (set->mType == SettingType::Enum)
                         {
                             auto* enumSetting = static_cast<EnumSetting*>(set);
-                            enumSetting->mValue = settingValue["enumValue"];
+                            // Make sure the enum value is valid and within the bounds
+                            if (settingValue["enumValue"] >= 0 && settingValue["enumValue"] < enumSetting->mValues.size())
+                                enumSetting->mValue = settingValue["enumValue"];
+                            else
+                            {
+                                spdlog::warn("Invalid enum value for setting {} in module {}", settingName, name);
+                                ChatUtils::displayClientMessage("§cInvalid enum value for setting §6" + settingName + "§c in module §6" + name + "§c.");
+                            }
                         } else if (set->mType == SettingType::Color)
                         {
                             auto* colorSetting = static_cast<ColorSetting*>(set);
@@ -272,9 +281,14 @@ void ModuleManager::deserialize(const nlohmann::json& j)
                     } else
                     {
                         spdlog::warn("Setting {} not found for module {}", settingName, name);
+                        ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
                     }
                 }
             }
+        } else
+        {
+            spdlog::warn("Module {} not found", name);
+            ChatUtils::displayClientMessage("§cModule §6" + name + "§c not found.");
         }
     }
 }

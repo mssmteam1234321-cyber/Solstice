@@ -88,3 +88,18 @@ bool StringUtils::equalsIgnoreCase(const std::string& str1, const std::string& s
 {
     return toLower(str1) == toLower(str2);
 }
+
+bool StringUtils::containsIgnoreCase(const std::string& str, const std::string& subStr)
+{
+    return toLower(str).find(toLower(subStr)) != std::string::npos;
+}
+
+bool StringUtils::containsAnyIgnoreCase(const std::string& str, const std::vector<std::string>& strVector)
+{
+    if (std::ranges::any_of(strVector, [&str](const std::string& subStr) { return containsIgnoreCase(str, subStr); }))
+    {
+        return true;
+    }
+
+    return false;
+}

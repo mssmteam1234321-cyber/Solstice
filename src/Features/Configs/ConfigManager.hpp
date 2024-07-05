@@ -8,7 +8,7 @@
 class ConfigManager
 {
 public:
-    static inline std::string lastLoadedConfig = "";
+    static inline std::string LastLoadedConfig = "";
     static std::string getConfigPath();
     static bool configExists(const std::string& name);
 
