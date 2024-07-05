@@ -30,7 +30,7 @@
 #include <Utils/MiscUtils/D2D.hpp>
 #include <winrt/base.h>
 
-
+// skidded (i do not care :trollcat:)
 
 using winrt::com_ptr;
 
@@ -55,8 +55,6 @@ static HWND wnd = NULL;
 static WNDPROC oWndProc;
 
 static IDXGISwapChain3* gSwapChain = nullptr;
-
-// command queue
 
 #define CHECK_HR(hr) if (FAILED(hr)) { spdlog::error("HRESULT failed: {0}", hr); return hr; }
 

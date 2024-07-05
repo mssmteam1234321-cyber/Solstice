@@ -8,6 +8,7 @@ enum class OffsetType {
     FieldOffset,
 };
 
+// kinda aids ik stfu
 #define DEFINE_INDEX_FIELD_TYPED(type, name, str, index_offset, offset_type) \
 public: \
 static inline type name; \

@@ -96,6 +96,7 @@ void Notifications::onRenderEvent(RenderEvent& event)
                                              themeColor, 5.0f);
         } else
         {
+            // uhhh theres no rounding on this..... 😭
             ImColor rgb2 = ColorUtils::getThemedColor(y * 2 + ((x - progMax.x) * 1.2));
             ImRenderUtils::fillGradientOpaqueRectangle(ImVec4(x, y, progMax.x, progMax.y), themeColor, rgb2, 1.f, 1.f);
         }

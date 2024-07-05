@@ -13,7 +13,7 @@ public:
     EnumSetting mStyle = EnumSetting("Style", "The style of the notifications", 0, "Solaris");
     BoolSetting mShowOnToggle = BoolSetting("Show on toggle", "Show a notification when a module is toggled", true);
     BoolSetting mShowOnJoin = BoolSetting("Show on join", "Show a notification when you join a server", true);
-    BoolSetting mColorGradient = BoolSetting("Color gradient", "Enable a color gradient on the notifications", true);
+    BoolSetting mColorGradient = BoolSetting("Color gradient", "Enable a color gradient on the notifications", false);
     BoolSetting mLimitNotifications = BoolSetting("Limit notifications", "Limit the number of notifications shown at one time", false);
     NumberSetting mMaxNotifications = NumberSetting("Max notifications", "The maximum number of notifications shown at one time", 6, 1, 25, 1);
 
@@ -22,7 +22,7 @@ public:
         addSetting(&mStyle);
         addSetting(&mShowOnToggle);
         addSetting(&mShowOnJoin);
-        addSetting(&mColorGradient);
+        //addSetting(&mColorGradient);
         addSetting(&mLimitNotifications);
         addSetting(&mMaxNotifications);
         VISIBILITY_CONDITION(mMaxNotifications, mLimitNotifications.mValue == true);

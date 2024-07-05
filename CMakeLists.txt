@@ -4,7 +4,6 @@ include(cmake/CPM.cmake)
 
 project(Solstice)
 
-# Make sure the ld command is available on the system
 execute_process(COMMAND cmd /c "ld --version > nul 2>&1" RESULT_VARIABLE LD_COMMAND_AVAILABLE)
 
 if (NOT ${LD_COMMAND_AVAILABLE} EQUAL 0)
@@ -18,32 +17,26 @@ CPMAddPackage(
         GITHUB_REPOSITORY gabime/spdlog
         VERSION 1.9.2
 )
-
 CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
         VERSION 0.9.5
 )
-
 CPMAddPackage(
         NAME nuvola_event_system
         GITHUB_REPOSITORY DisabledMallis/NuvolaEventSystem
         VERSION 1.1.0
 )
-
 CPMAddPackage(
         NAME glm
         GITHUB_REPOSITORY g-truc/glm
         GIT_TAG 1.0.1
 )
-# nlohmann_json
 CPMAddPackage(
         NAME nlohmann_json
         GITHUB_REPOSITORY nlohmann/json
         VERSION 3.11.3
 )
-
-#include SDL2
 CPMAddPackage(
         NAME SDL2
         GITHUB_REPOSITORY libsdl-org/SDL
@@ -90,8 +83,6 @@ add_compile_options($<$<CONFIG:Release>:/Oy->) # omit frame pointers
 
 
 
-#add_compile_options($<$<CONFIG:Release>:/O2;/Oi;/GL;/Gy;/Gw;/GS;/Gm-;/GF;/fp:fast;/GR-;/Gd;/MT;/Ob2>)
-
 set(SOLSTICE_VERSION "v1.0.0")
 add_compile_definitions(SOLSTICE_VERSION="${SOLSTICE_VERSION}")
 
@@ -109,8 +100,8 @@ include_directories(include/Kiero)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
 
+# Krazy resource embedding code
 
-# get a list of all files in the resources directory (with relative paths)
 file(GLOB_RECURSE resource_files_list "resources/*")
 
 function(add_resources out_var)
@@ -194,9 +185,8 @@ foreach(file ${resource_files_list})
     string(REPLACE "-" "_" resource_name ${resource_name})
 
     set(RESOURCE_SOURCE_CONTENT "${RESOURCE_SOURCE_CONTENT}    auto ${resource_name} = GET_RESOURCE(${resource_name});\n")
-    # add the resource to the resources map
     set(RESOURCE_SOURCE_CONTENT "${RESOURCE_SOURCE_CONTENT}    Resources.emplace(\"${friendly_name}\", ${resource_name});\n")
-    #Continue if the file doesn't end with .ttf
+
     if(NOT ${relative_file} MATCHES ".*\\.ttf")
         continue()
     endif()
@@ -207,7 +197,6 @@ endforeach()
 
 set(RESOURCE_SOURCE_CONTENT "${RESOURCE_SOURCE_CONTENT}}\n")
 
-# Write the entire Resources.cpp content at once
 file(WRITE ${RESOURCE_SOURCE_FILE} "${RESOURCE_SOURCE_CONTENT}")
 
 message(STATUS "Generated Resources.cpp")
