@@ -13,7 +13,7 @@ public:
         Fard
     };
     EnumSetting mSound = EnumSetting("Sound", "The sound to play when a DisconnectPacket is received", Sound::Fard, "Fard");
-    KickSounds() : ModuleBase("KickSounds", "Plays a sound on module toggle", ModuleCategory::Misc, 0, false) {
+    KickSounds() : ModuleBase("KickSounds", "Plays a sound when a DisconnectPacket is received", ModuleCategory::Misc, 0, false) {
         addSetting(&mSound);
 
         mNames = {

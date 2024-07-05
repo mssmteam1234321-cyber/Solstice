@@ -140,7 +140,9 @@ void KeyHook::onKey(uint32_t key, bool isDown)
 
     if (holder->mCancelled) return;
 
+    if (!ImGui::GetCurrentContext()) return;
     ImGuiIO& io = ImGui::GetIO();
+
     ImGuiKey imKey = ImGui_ImplWin32_VirtualKeyToImGuiKey(key);
     io.AddKeyEvent(imKey, isDown);
     if (isDown)

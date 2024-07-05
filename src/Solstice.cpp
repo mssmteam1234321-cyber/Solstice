@@ -21,6 +21,7 @@
 #include <Hook/HookManager.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <Utils/FileUtils.hpp>
+#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
@@ -85,10 +86,16 @@ void Solstice::init(HMODULE hModule)
     console->info("Press END to eject dll.");
 
     // Wait for the user to press END
+    bool firstCall = true;
     while (!mRequestEject)
     {
         // For each module, call the onClientTick method
         gFeatureManager->mModuleManager->onClientTick();
+        if (firstCall)
+        {
+            NotifyUtils::Notify("Solstice initialized!", 5.0f, Notification::Type::Info);
+            firstCall = false;
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
@@ -105,8 +112,6 @@ void Solstice::init(HMODULE hModule)
 
     // Shutdown
     console->warn("Shutting down...");
-
-
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
     ChatUtils::displayClientMessage("§cEjected!");

@@ -77,7 +77,8 @@ void ClickGui::onRenderEvent(RenderEvent& event)
     this->mEnabled ? inEase.incrementPercentage(delta * mEaseSpeed.mValue / 10)
     : inEase.decrementPercentage(delta * 2 * mEaseSpeed.mValue / 10);
     float inScale = getEaseAnim(inEase, mAnimation.mValue);
-    if (inEase.isPercentageMax()) inScale = 1;
+    if (inEase.isPercentageMax()) inScale = 0.996;
+    inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
     animation = MathUtils::lerp(0, 1, inEase.easeOutExpo());
 
     if (animation < 0.0001f) {

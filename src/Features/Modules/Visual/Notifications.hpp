@@ -10,11 +10,20 @@
 
 class Notifications : public ModuleBase<Notifications> {
 public:
+    EnumSetting mStyle = EnumSetting("Style", "The style of the notifications", 0, "Solaris");
     BoolSetting mShowOnToggle = BoolSetting("Show on toggle", "Show a notification when a module is toggled", true);
+    BoolSetting mShowOnJoin = BoolSetting("Show on join", "Show a notification when you join a server", true);
+    BoolSetting mLimitNotifications = BoolSetting("Limit notifications", "Limit the number of notifications shown at one time", false);
+    NumberSetting mMaxNotifications = NumberSetting("Max notifications", "The maximum number of notifications shown at one time", 6, 1, 25, 1);
 
 
-    Notifications() : ModuleBase("Notifications", "Shows notifications on module toggle and other events", ModuleCategory::Visual, 0, false) {
+    Notifications() : ModuleBase("Notifications", "Shows notifications on module toggle and other events", ModuleCategory::Visual, 0, true) {
+        addSetting(&mStyle);
         addSetting(&mShowOnToggle);
+        addSetting(&mShowOnJoin);
+        addSetting(&mLimitNotifications);
+        addSetting(&mMaxNotifications);
+        VISIBILITY_CONDITION(mMaxNotifications, mLimitNotifications.mValue == true);
 
         mNames = {
             {Lowercase, "notifications"},
@@ -32,5 +41,10 @@ public:
     void onDisable() override;
     void onRenderEvent(class RenderEvent& event);
     void onModuleStateChange(ModuleStateChangeEvent& event);
+    void onConnectionRequestEvent(class ConnectionRequestEvent& event);
     void onNotifyEvent(class NotifyEvent& event);
+
+    std::string getSettingDisplay() override {
+        return mStyle.mValue == 0 ? "Solaris" : "Custom";
+    }
 };

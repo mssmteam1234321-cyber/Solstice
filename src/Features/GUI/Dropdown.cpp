@@ -643,7 +643,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                         // Interpolate between original rectangle and scaled rectangle
                         if (mod->cScale > 0)
                         {
-                            ImRenderUtils::fillRectangle(scaledRect, rgb, animation * mod->cScale);
+                            ImRenderUtils::fillRectangle(scaledRect, rgb, animation * mod->cScale + 0.01f);
                             //ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, ImColor(0, 0, 0), ImColor(0, 0, 0), 0.F * animation, 0.25F * animation);
                             //ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, ColorUtils::RainbowDark(2.5, (moduleY * 2)), ColorUtils::RainbowDark(2.5, (moduleY * 2) + 400), 1, 1);
                             //ImRenderUtils::fillRectangle(Vector4(scaledRect.x, scaledRect.y, scaledRect.z, scaledRect.y + 1), ImColor(0, 0, 0), animation);
