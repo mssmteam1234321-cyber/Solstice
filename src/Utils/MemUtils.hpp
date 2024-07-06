@@ -1,9 +1,105 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <atomic>
 //
 // Created by vastrakai on 6/25/2024.
 //
+
+
+/*template<typename T>
+struct SharedCounter {
+    /* volatile ? #1# T* value;
+    std::atomic<int> shared, weak;
+
+    SharedCounter(T* value) : value(value) {}
+
+    void addSharedRef() { ++shared; }
+
+    void addWeakRef() { --shared; }
+
+    bool releaseSharedRef() {
+        if (--shared == 0) {
+            if (value != nullptr) {
+                T* oldValue = value;
+                value = nullptr;
+                delete oldValue;
+            }
+            return (weak == 0);
+        }
+        return false;
+    }
+
+    bool releaseWeakRef() {
+        return (--weak == 0 && value);
+    }
+};
+
+template<typename T>
+struct WeakPtr {
+    SharedCounter<T>* counter = nullptr;
+
+    WeakPtr(T* val = nullptr) {
+        if (val) {
+            counter = new SharedCounter<T>(val);
+            counter->addWeakRef();
+        }
+    }
+
+    WeakPtr(WeakPtr&& ptr) {
+        counter = std::move(ptr.counter);
+        ptr.counter = nullptr;
+    }
+
+    WeakPtr& operator=(WeakPtr const& ptr) {
+        reset();
+        this->counter = ptr.counter;
+        if (counter)
+            counter->addWeakRef();
+        return *this;
+    }
+
+    WeakPtr& operator=(WeakPtr&& ptr) {
+        counter = std::move(ptr.counter);
+        ptr.counter = nullptr;
+        return *this;
+    }
+
+    void reset() {
+        if (counter && counter->releaseWeakRef())
+            delete counter;
+        counter = nullptr;
+    }
+
+    ~WeakPtr() {
+        reset();
+    };
+
+    template <typename... Args>
+    static WeakPtr<T> make(Args&&... args) {
+        return WeakPtr<T>(new T(std::forward(args...)));
+    }
+
+    T& operator*() {
+        return *counter->value;
+    }
+
+    T* operator->() {
+        return counter->value;
+    }
+
+    T* get() {
+        if (!counter)
+            return nullptr;
+        return counter->value;
+    }
+
+    T const* get() const {
+        if (!counter)
+            return nullptr;
+        return counter->value;
+    }
+};*/
 
 
 class MemUtils {

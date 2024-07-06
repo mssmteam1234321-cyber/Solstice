@@ -9,7 +9,7 @@
 
 class Detour {
 public:
-    void* mFunc;
+    void* mFunc{};
     void* mOriginalFunc{};
 
     std::string mName;

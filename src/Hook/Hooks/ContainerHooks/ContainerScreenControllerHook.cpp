@@ -1,0 +1,32 @@
+//
+// Created by vastrakai on 7/5/2024.
+//
+
+#include "ContainerScreenControllerHook.hpp"
+
+#include <memory>
+#include <Features/Events/ContainerScreenTickEvent.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+
+std::unique_ptr<Detour> ContainerScreenControllerHook::mDetour;
+
+uint32_t ContainerScreenControllerHook::onContainerTick(class ContainerScreenController *csc)
+{
+    auto original = mDetour->getOriginal<decltype(&ContainerScreenControllerHook::onContainerTick)>();
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return original(csc); // just in case
+    if (player->getContainerManagerModel()->getContainerType() != ContainerType::Container) return original(csc);
+
+    auto holder = nes::make_holder<ContainerScreenTickEvent>(csc);
+    gFeatureManager->mDispatcher->trigger(holder);
+
+    return original(csc);
+}
+
+void ContainerScreenControllerHook::init()
+{
+    auto func = SigManager::ContainerScreenController_tick;
+    mDetour = std::make_unique<Detour>("ContainerScreenController::tick", reinterpret_cast<void*>(func), &ContainerScreenControllerHook::onContainerTick);
+    mDetour->enable();
+}

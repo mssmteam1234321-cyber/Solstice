@@ -80,3 +80,13 @@ glm::vec2 MathUtils::getMotion(float yaw, float speed) {
 
     return motion;
 }
+
+float MathUtils::random(float min, float max)
+{
+    return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+}
+
+int MathUtils::random(int min, int max)
+{
+    return min + (rand() % (max - min + 1));
+}

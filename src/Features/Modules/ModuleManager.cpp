@@ -2,8 +2,7 @@
 // Created by vastrakai on 6/28/2024.
 //
 
-#include "ModuleManager.hpp"
-
+#include <Features/Modules/ModuleManager.hpp>
 #include <Utils/StringUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
@@ -17,6 +16,7 @@
 #include "Movement/Fly.hpp"
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Velocity.hpp"
+#include "Player/ChestStealer.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Arraylist.hpp"
@@ -41,6 +41,7 @@ void ModuleManager::init()
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
+    mModules.emplace_back(std::make_shared<ChestStealer>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());

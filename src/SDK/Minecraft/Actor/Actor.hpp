@@ -11,6 +11,7 @@
 #include "Components/MoveInputComponent.hpp"
 #include "Components/ActorRotationComponent.hpp"
 #include "Components/BlockMovementSlowdownMultiplierComponent.hpp"
+#include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #define PLAYER_HEIGHT 1.62f
 
@@ -28,6 +29,7 @@ public:
     MoveInputComponent* getMoveInputComponent();
     ActorRotationComponent* getActorRotationComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
+    ContainerManagerModel* getContainerManagerModel();
     int64_t getRuntimeID();
 
     void setPosition(glm::vec3 pos);

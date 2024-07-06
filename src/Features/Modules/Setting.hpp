@@ -109,24 +109,6 @@ public:
         j["numberValue"] = mValue;
         return j;
     }
-
-    explicit operator float() const
-    {
-        return mValue;
-    }
-
-    // Math operators
-    NumberSetting& operator+=(float value)
-    {
-        mValue += value;
-        return *this;
-    }
-
-    NumberSetting& operator-=(float value)
-    {
-        mValue -= value;
-        return *this;
-    }
 };
 
 class EnumSetting : public Setting

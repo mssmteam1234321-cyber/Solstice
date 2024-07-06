@@ -4,6 +4,7 @@
 
 #include "Actor.hpp"
 
+#include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
 
 #include "Components/RuntimeIDComponent.hpp"
@@ -36,6 +37,11 @@ ActorRotationComponent* Actor::getActorRotationComponent()
 BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultiplierComponent()
 {
     return mContext.getComponent<BlockMovementSlowdownMultiplierComponent>();
+}
+
+ContainerManagerModel* Actor::getContainerManagerModel()
+{
+    return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);
 }
 
 int64_t Actor::getRuntimeID()

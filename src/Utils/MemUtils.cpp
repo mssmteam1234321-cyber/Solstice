@@ -8,7 +8,7 @@
 #include <Psapi.h>
 #include <libhat/Process.hpp>
 
-#include "cmake-build-debug/_deps/spdlog-src/include/spdlog/fmt/bundled/xchar.h"
+#include <spdlog/spdlog.h>
 
 
 template <typename Ret, typename ... Args>

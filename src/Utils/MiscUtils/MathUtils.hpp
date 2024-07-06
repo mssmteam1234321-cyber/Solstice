@@ -3,6 +3,7 @@
 // Created by vastrakai on 6/29/2024.
 //
 
+#include <atomic>
 #include <cmath>
 
 #include <glm/glm.hpp>
@@ -19,5 +20,13 @@ public:
     }
     static float clamp(float value, float min, float max) {
         return std::max(min, std::min(value, max));
+    }
+
+    // random
+    static float random(float min, float max);
+    static int random(int min, int max);
+    template <typename T>
+    static T random(T min, T max) {
+        return random(static_cast<T>(min), static_cast<T>(max));
     }
 };
