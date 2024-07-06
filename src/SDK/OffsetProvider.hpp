@@ -91,7 +91,7 @@ public:
     DEFINE_INDEX_FIELD(Actor_mGameMode, "4C 8B ? ? ? ? ? 49 8B ? 4C 8B ? ? ? ? ? 49 8B ? ? 48 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Actor_mSupplies, "48 8B ? ? ? ? ? 80 BA B8 00 00 00 ? 75 ? 48 8B ? ? ? ? ? 8B 52 ? 48 8B ? 48 8B ? ? 48 FF ? ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(PlayerInventory_mContainer, "48 8B ? ? ? ? ? 8B 52 ? 48 8B ? 48 8B ? ? 48 FF ? ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD_TYPED(uint8_t, Inventory_getItem, "48 8B ? ? FF 15 ? ? ? ? 4C 8B ? EB ? 4C 8D ? ? ? ? ? 48 C7 C7", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD_TYPED(uint8_t, Container_getItem, "48 8B ? ? FF 15 ? ? ? ? 4C 8B ? EB ? 4C 8D ? ? ? ? ? 48 C7 C7", 3, OffsetType::Index);
 
     // 44 0F ? ? ? ? ? ? B8 ? ? ? ? 48 8B ? 48 8B
     static void initialize();

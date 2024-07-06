@@ -5,10 +5,13 @@
 
 #include <Utils/MemUtils.hpp>
 
-class Inventory {
+#include "SimpleContainer.hpp"
+
+class Inventory : public SimpleContainer {
 public:
-    virtual ~Inventory();
-    class ItemStack* getItem(int);
+    void dropSlot(int slot);
+    void swapSlots(int from, int to);
+    void equipArmor(int slot);
 };
 
 class PlayerInventory {

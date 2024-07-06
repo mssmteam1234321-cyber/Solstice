@@ -49,6 +49,11 @@ ContainerManagerModel* Actor::getContainerManagerModel()
     return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);
 }
 
+SimpleContainer* Actor::getArmorContainer()
+{
+    return mContext.getComponent<ActorEquipmentComponent>()->mArmorContainer;
+}
+
 PlayerInventory* Actor::getSupplies()
 {
     return hat::member_at<PlayerInventory*>(this, OffsetProvider::Actor_mSupplies);

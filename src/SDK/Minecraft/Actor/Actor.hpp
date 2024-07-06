@@ -11,7 +11,9 @@
 #include "Components/MoveInputComponent.hpp"
 #include "Components/ActorRotationComponent.hpp"
 #include "Components/BlockMovementSlowdownMultiplierComponent.hpp"
+#include "Components/ActorEquipmentComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
+
 
 #define PLAYER_HEIGHT 1.62f
 
@@ -32,6 +34,7 @@ public:
     ActorRotationComponent* getActorRotationComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
     ContainerManagerModel* getContainerManagerModel();
+    class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     void setPosition(glm::vec3 pos);
 };
