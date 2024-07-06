@@ -25,12 +25,13 @@ public:
 
     glm::vec3* getPos();
     glm::vec3* getPosPrev();
+    class GameMode* getGameMode();
+    int64_t getRuntimeID();
     StateVectorComponent* getStateVectorComponent();
     MoveInputComponent* getMoveInputComponent();
     ActorRotationComponent* getActorRotationComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
     ContainerManagerModel* getContainerManagerModel();
-    int64_t getRuntimeID();
-
+    class PlayerInventory* getSupplies();
     void setPosition(glm::vec3 pos);
 };

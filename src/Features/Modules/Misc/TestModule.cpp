@@ -14,6 +14,7 @@
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <spdlog/spdlog.h>
 #include <Utils/GameUtils/ChatUtils.hpp>
+#include <Utils/GameUtils/PacketUtils.hpp>
 #include <Utils/MiscUtils/SoundUtils.hpp>
 
 void TestModule::onEnable()
@@ -35,6 +36,7 @@ Block* gDaBlock = nullptr;
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
     gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(0, 0, 0);
+    PacketUtils::spoofSlot(0);
 }
 
 void displayCopyableAddress(std::string name, void* address)

@@ -19,6 +19,11 @@ glm::vec3* Actor::getPosPrev()
     return &getStateVectorComponent()->mPosOld;
 }
 
+GameMode* Actor::getGameMode()
+{
+    return hat::member_at<GameMode*>(this, OffsetProvider::Actor_mGameMode);
+}
+
 StateVectorComponent* Actor::getStateVectorComponent()
 {
     return mContext.getComponent<StateVectorComponent>();
@@ -42,6 +47,11 @@ BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultipl
 ContainerManagerModel* Actor::getContainerManagerModel()
 {
     return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);
+}
+
+PlayerInventory* Actor::getSupplies()
+{
+    return hat::member_at<PlayerInventory*>(this, OffsetProvider::Actor_mSupplies);
 }
 
 int64_t Actor::getRuntimeID()

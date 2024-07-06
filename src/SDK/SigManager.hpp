@@ -69,5 +69,19 @@ public:
     DEFINE_SIG(ContainerScreenController_tick, "E8 ? ? ? ? 48 8B ? ? ? ? ? 48 8D ? ? ? ? ? 41 B8 ? ? ? ? 8B F8", SigType::RefSig, 1);
     DEFINE_SIG(ContainerScreenController_handleAutoPlace, "E8 ? ? ? ? 66 ? ? ? ? ? ? ? 0F 8C", SigType::RefSig, 1);
 
+    DEFINE_SIG(NetworkStackItemDescriptor_ctor, "E8 ? ? ? ? 48 8D ? ? 4C 3B ? 74 ? 48 8B ? ? 48 C7 45 8F", SigType::RefSig, 1);
+    DEFINE_SIG(InventoryTransaction_addAction, "E8 ? ? ? ? 48 8B 17 48 8B 42 ? 48 8B ? ? 48 ? ? 74 ?", SigType::RefSig, 1);
+    DEFINE_SIG(ComplexInventoryTransaction_vtable, "48 8D 05 ? ? ? ? 48 89 01 8B 42 ? 89 41 ? 48 83 C1 ? 48 83 C2 ? E8 ? ? ? ? 90 48 8D 05", SigType::RefSig, 3);
+    DEFINE_SIG(ItemUseInventoryTransaction_vtable, "48 8D 05 ? ? ? ? 48 89 07 8B 43 ? 89 47 ? 8B 53", SigType::RefSig, 3);
+    DEFINE_SIG(ItemUseOnActorInventoryTransaction_vtable, "48 8D 05 ? ? ? ? 48 89 4B ? 0F 57 C0 48 89 4B ? 48 89 4B ? 48 8B 5C 24 ? 48 89 07 48 8D 05 ? ? ? ? 48 89 4F ? 89 4F", SigType::RefSig, 3);
+
+    DEFINE_SIG(SimulatedPlayer_simulateJump, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ? 8B 47", SigType::Sig, 0);
+    DEFINE_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", SigType::RefSig, 1);
+    DEFINE_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", SigType::RefSig, 1);
+    DEFINE_SIG(PlayerMovement_clearInputState, "E8 ? ? ? ? 48 89 ? ? 88 9F ? ? ? ? 48 8D", SigType::RefSig, 1);
+    DEFINE_SIG(GameMode_getDestroyRate, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 0F 29 ? ? ? 48 8B ? ? E8", SigType::Sig, 0);
+    DEFINE_SIG(GameMode_baseUseItem, "E8 ? ? ? ? 84 C0 74 ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 85", SigType::RefSig, 1);
+    DEFINE_SIG(ItemStack_vTable, "48 8D 05 ? ? ? ? 48 89 85 ? ? ? ? 89 BD ? ? ? ? C6 85 ? ? ? ? ? 48 8D 95", SigType::RefSig, 3);
+
     static void initialize();
 };

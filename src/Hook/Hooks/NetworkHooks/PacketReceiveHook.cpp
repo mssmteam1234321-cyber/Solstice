@@ -41,7 +41,6 @@ void PacketReceiveHook::init()
             std::string name = std::string(magic_enum::enum_name<PacketID>(packet->getId()));
             name = "PacketHandlerDispatcherInstance<" + name + "Packet,0>::handle";
             auto detour = std::make_unique<Detour>(name, reinterpret_cast<void*>(packetFunc), &onPacketSend, true);
-            detour->enable(true);
             mDetours[packetId] = std::move(detour);
         }
     };
@@ -59,6 +58,11 @@ void PacketReceiveHook::init()
     }
 
     uint64_t timeTaken = NOW - start;
+
+    // Enable all the detours
+    for (const auto& detour : mDetours | std::views::values) {
+        detour->enable(true);
+    }
 
     spdlog::info("Successfully hooked {} packets in {}ms", mDetours.size(), timeTaken);
 }
