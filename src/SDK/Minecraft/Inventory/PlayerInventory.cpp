@@ -42,7 +42,7 @@ void Inventory::dropSlot(int slot)
     pkt->mTransaction = std::move(cit);
     ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
 
-    //setItem(slot, blankStack);
+    //setItem(slot, &blankStack);
 }
 
 void Inventory::swapSlots(int from, int to)
@@ -65,8 +65,8 @@ void Inventory::swapSlots(int from, int to)
     cit->data.addAction(action1);
     cit->data.addAction(action2);
 
-    //setItem(from, *item2);
-    //setItem(to, *item1);
+    /*setItem(from, item2);
+    setItem(to, item1);*/
 
     pkt->mTransaction = std::move(cit);
     ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
@@ -80,11 +80,11 @@ void Inventory::equipArmor(int slot)
 
     if (!itemStack->mItem) return;
 
+    static ItemStack blankStack = ItemStack();
+
     Item* item = *itemStack->mItem;
     // Get the current item stack in the armor slot
     ItemStack* armorStack = player->getArmorContainer()->getItem(item->getArmorSlot());
-
-    static ItemStack blankStack = ItemStack();
 
     InventoryAction action = InventoryAction(slot, itemStack, armorStack);
     action.mSource.mType = InventorySourceType::ContainerInventory;
@@ -104,7 +104,8 @@ void Inventory::equipArmor(int slot)
     pkt->mTransaction = std::move(cit);
     ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
 
-    //setItem(slot, blankStack);
+    /*setItem(slot, armorStack);
+    player->getArmorContainer()->setItem(item->getArmorSlot(), itemStack);*/
 }
 
 Inventory* PlayerInventory::getContainer()

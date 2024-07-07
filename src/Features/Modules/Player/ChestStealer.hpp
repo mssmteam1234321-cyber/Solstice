@@ -33,4 +33,15 @@ public:
     void onDisable() override;
     uint64_t getDelay() const;
     void onContainerScreenTickEvent(class ContainerScreenTickEvent& event) const;
+
+    std::string getSettingDisplay() override {
+        if (mRandomizeDelay.mValue)
+        {
+            return std::to_string(static_cast<int>(mRandomizeMin.mValue)) + " " + std::to_string(static_cast<int>(mRandomizeMax.mValue));
+        }
+        else
+        {
+            return std::to_string(static_cast<int>(mDelay.mValue)) + "";
+        }
+    }
 };

@@ -5,15 +5,21 @@
 #include "TestModule.hpp"
 
 #include <imgui.h>
+#include <magic_enum.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Inventory/Item.hpp>
+#include <SDK/Minecraft/Inventory/ItemStack.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <spdlog/spdlog.h>
 #include <Utils/GameUtils/ChatUtils.hpp>
+#include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/GameUtils/PacketUtils.hpp>
 #include <Utils/MiscUtils/SoundUtils.hpp>
 
@@ -35,8 +41,17 @@ Block* gDaBlock = nullptr;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
-    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(0, 0, 0);
-    PacketUtils::spoofSlot(0);
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto supplies = player->getSupplies();
+    auto container = supplies->getContainer();
+    auto item = container->getItem(supplies->mSelectedSlot);
+    if (!item->mItem) return;
+
+    auto bestItems = ItemUtils::getBestItems();
+
+    ChatUtils::displayClientMessage("ItemType: " + std::string(magic_enum::enum_name(item->getItem()->getItemType())) + " Value: " + std::to_string(ItemUtils::getItemValue(item)) + " itemName: " + item->getItem()->mName + " isBestItem: " + std::to_string(supplies->mSelectedSlot == bestItems[item->getItem()->getItemType()]));
+
+
 }
 
 void displayCopyableAddress(std::string name, void* address)

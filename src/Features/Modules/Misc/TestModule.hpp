@@ -26,6 +26,8 @@ public:
             {Normal, "TestModule"},
             {NormalSpaced, "Test Module"}
         };
+
+
     }
 
     void onEnable() override;

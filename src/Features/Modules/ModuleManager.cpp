@@ -17,6 +17,7 @@
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Velocity.hpp"
 #include "Player/ChestStealer.hpp"
+#include "Player/InvManager.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Arraylist.hpp"
@@ -42,6 +43,7 @@ void ModuleManager::init()
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<ChestStealer>());
+    mModules.emplace_back(std::make_shared<InvManager>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
