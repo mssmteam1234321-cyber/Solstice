@@ -18,7 +18,7 @@ public:
     NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 
-    Fly() : ModuleBase("Fly", "Allows you to fly", ModuleCategory::Movement, 'C', false) {
+    Fly() : ModuleBase("Fly", "Allows you to fly", ModuleCategory::Movement, 0, false) {
         addSetting(&Mode);
         addSetting(&Speed);
         addSetting(&ApplyGlideFlags);
@@ -39,6 +39,6 @@ public:
 
     std::string getSettingDisplay() override
     {
-        return Mode.mValue == static_cast<int>(Mode::Motion) ? "Motion" : "Elytra";
+        return Mode.mValues[Mode.mValue];
     }
 };

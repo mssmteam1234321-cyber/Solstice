@@ -181,6 +181,7 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         once = true;
     }
 
+    // Only set transform if we have enough frames
     while(FrameTransforms.size() > transformDelay)
     {
         RenderUtils::transform = FrameTransforms.front();

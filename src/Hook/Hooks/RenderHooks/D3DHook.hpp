@@ -20,7 +20,7 @@ public:
         mName = "D3DHook";
     }
 
-    static inline std::queue<FrameTransform> FrameTransforms;
+    static inline std::queue<FrameTransform> FrameTransforms = {};
     static inline int transformDelay = 3;
 
     static bool loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);

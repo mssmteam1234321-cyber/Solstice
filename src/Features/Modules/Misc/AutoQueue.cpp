@@ -26,6 +26,8 @@ void AutoQueue::onEnable()
 {
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AutoQueue::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoQueue::onBaseTickEvent>(this);
+
+    mQueuedCommands[NOW] = "/connection";
 }
 
 void AutoQueue::onDisable()

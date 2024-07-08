@@ -58,6 +58,7 @@ Index of this file:
 #include <cmath>
 
 #include "imconfig.h"
+#include <glm/glm.hpp>
 
 #ifndef IMGUI_DISABLE
 
@@ -270,6 +271,8 @@ struct ImVec2
         return ImVec2(x + v, y + v);
     }
 
+    // Conversions from glm::vec2
+    ImVec2(const glm::vec2& v) : x(v.x), y(v.y) {}
 #ifdef IM_VEC2_CLASS_EXTRA
     IM_VEC2_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec2.
 #endif

@@ -102,16 +102,16 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb)
 
     auto corrected = RenderUtils::transform.mMatrix;
 
-    glm::vec3 worldPoints[8];
-
-    worldPoints[0] = glm::vec3(aabb.mMin.x, aabb.mMin.y, aabb.mMin.z);
-    worldPoints[1] = glm::vec3(aabb.mMin.x, aabb.mMin.y, aabb.mMax.z);
-    worldPoints[2] = glm::vec3(aabb.mMax.x, aabb.mMin.y, aabb.mMin.z);
-    worldPoints[3] = glm::vec3(aabb.mMax.x, aabb.mMin.y, aabb.mMax.z);
-    worldPoints[4] = glm::vec3(aabb.mMin.x, aabb.mMax.y, aabb.mMin.z);
-    worldPoints[5] = glm::vec3(aabb.mMin.x, aabb.mMax.y, aabb.mMax.z);
-    worldPoints[6] = glm::vec3(aabb.mMax.x, aabb.mMax.y, aabb.mMin.z);
-    worldPoints[7] = glm::vec3(aabb.mMax.x, aabb.mMax.y, aabb.mMax.z);
+    glm::vec3 worldPoints[8] = {
+        {aabb.mMin.x, aabb.mMin.y, aabb.mMin.z},
+        {aabb.mMin.x, aabb.mMin.y, aabb.mMax.z},
+        {aabb.mMax.x, aabb.mMin.y, aabb.mMin.z},
+        {aabb.mMax.x, aabb.mMin.y, aabb.mMax.z},
+        {aabb.mMin.x, aabb.mMax.y, aabb.mMin.z},
+        {aabb.mMin.x, aabb.mMax.y, aabb.mMax.z},
+        {aabb.mMax.x, aabb.mMax.y, aabb.mMin.z},
+        {aabb.mMax.x, aabb.mMax.y, aabb.mMax.z}
+    };
 
     std::vector<glm::vec2> points;
     for (int i = 0; i < 8; i++)
@@ -134,7 +134,7 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb)
     // Follow outline
     std::vector<glm::vec2> outline;
     glm::vec2 current = start;
-    outline.push_back(current);
+    outline.emplace_back(current);
     float lastDirAtan2 = atan2(0, -1);
 
     do {
@@ -158,7 +158,7 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb)
         }
 
         if (smallestE.x != 0 && smallestE.y != 0)
-            outline.push_back(smallestE);
+            outline.emplace_back(smallestE);
         lastDirAtan2 = atan2(smallestDir.y, smallestDir.x);
         current = smallestE;
     } while (current != start && outline.size() < 8);

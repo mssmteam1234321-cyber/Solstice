@@ -16,17 +16,19 @@
 
 AABB Actor::getAABB()
 {
-    glm::vec3 renderPos = getRenderPositionComponent()->mPosition - glm::vec3(0, PLAYER_HEIGHT, 0);
-    if (!isPlayer()) renderPos = getRenderPositionComponent()->mPosition;
+    // Get all components
+    auto renderPositionComponent = getRenderPositionComponent();
+    if (!renderPositionComponent) return AABB();
+    auto aabbShapeComponent = getAABBShapeComponent();
+    if (!aabbShapeComponent) return AABB();
 
-    glm::vec2 size = { getAABBShapeComponent()->mWidth, getAABBShapeComponent()->mHeight };
+    glm::vec3 renderPos = renderPositionComponent->mPosition - glm::vec3(0, PLAYER_HEIGHT, 0);
+    if (!isPlayer()) renderPos = renderPositionComponent->mPosition;
+
+    glm::vec2 size = { aabbShapeComponent->mWidth, aabbShapeComponent->mHeight };
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
     if (this == localPlayer)
     {
-        /*glm::vec3 pos = *getPos() - glm::vec3(0, PLAYER_HEIGHT, 0);
-        glm::vec3 posOld = *getPosPrev() - glm::vec3(0, PLAYER_HEIGHT, 0);
-        */
-
         renderPos = RenderUtils::transform.mPlayerPos - glm::vec3(0, PLAYER_HEIGHT, 0);
     }
 

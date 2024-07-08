@@ -10,6 +10,29 @@
 #include <glm/glm.hpp>
 #include <Utils/Structs.hpp>
 
+struct SPolygon {
+    std::vector<ImVec2> points;
+    ImColor color;
+
+    [[nodiscard]] bool overlaps(const SPolygon& other) const {
+        for (const auto& point : points) {
+            if (other.contains(point)) return true;
+        }
+        return false;
+    }
+
+    [[nodiscard]] bool contains(const ImVec2& point) const {
+        bool result = false;
+        for (int i = 0, j = points.size() - 1; i < points.size(); j = i++) {
+            if ((points[i].y > point.y) != (points[j].y > point.y) &&
+                (point.x < (points[j].x - points[i].x) * (point.y - points[i].y) / (points[j].y - points[i].y) + points[i].x)) {
+                result = !result;
+            }
+        }
+        return result;
+    }
+};
+
 class MathUtils {
 public:
     static inline glm::vec2 fov = { 0, 0 };
@@ -28,7 +51,6 @@ public:
         return std::max(min, std::min(value, max));
     }
 
-    // random
     static float random(float min, float max);
     static int random(int min, int max);
     template <typename T>

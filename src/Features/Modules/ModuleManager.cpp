@@ -22,6 +22,7 @@
 #include "spdlog/spdlog.h"
 #include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
+#include "Visual/BlockESP.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/LevelInfo.hpp"
@@ -63,6 +64,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<LevelInfo>());
     mModules.emplace_back(std::make_shared<Notifications>());
     mModules.emplace_back(std::make_shared<ESP>());
+    mModules.emplace_back(std::make_shared<BlockESP>());
 
     for (auto& module : mModules)
     {
