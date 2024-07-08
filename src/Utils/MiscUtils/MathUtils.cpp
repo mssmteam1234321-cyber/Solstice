@@ -95,12 +95,13 @@ int MathUtils::random(int min, int max)
     return min + (rand() % (max - min + 1));
 }
 
-std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb)
-{
+#define PI IM_PI
+
+std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb) {
     ClientInstance* ci = ClientInstance::get();
     if (!ci->getLocalPlayer()) return {};
 
-    auto corrected = RenderUtils::transform.mMatrix;
+    auto& corrected = RenderUtils::transform.mMatrix;
 
     glm::vec3 worldPoints[8] = {
         {aabb.mMin.x, aabb.mMin.y, aabb.mMin.z},
@@ -114,54 +115,57 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb)
     };
 
     std::vector<glm::vec2> points;
-    for (int i = 0; i < 8; i++)
-    {
-        glm::vec2 result;
-        if (!corrected.OWorldToScreen(origin, worldPoints[i], result, fov, displaySize)) return {};
-        if (result.x < 0 || result.y < 0 || result.x > displaySize.x || result.y > displaySize.y) return {};
-        points.push_back(result);
-    };
+    points.reserve(8);
+    for (const auto& wp : worldPoints) {
+        glm::vec2 result = {0, 0};
+        if (!corrected.OWorldToScreen(origin, wp, result, fov, displaySize)) return {};
+        if (result != glm::vec2(FLT_MAX, FLT_MAX)) {
+            points.push_back(result);
+        } else {
+            return {};
+        }
+    }
 
-    if (points.size() < 3)
-        return {};
+    if (points.size() < 3) return {};
 
-    // Find start vertex
-    auto startIt = std::min_element(points.begin(), points.end(), [](const auto& lhs, const auto& rhs) {
-        return lhs.x < rhs.x;
+    auto it = std::ranges::min_element(points, [](const glm::vec2& a, const glm::vec2& b) {
+        return a.x < b.x;
     });
-    glm::vec2 start = *startIt;
+    glm::vec2 start = *it;
 
-    // Follow outline
-    std::vector<glm::vec2> outline;
+    std::vector<glm::vec2> indices;
+    indices.reserve(8);
+    indices.push_back(start);
+
     glm::vec2 current = start;
-    outline.emplace_back(current);
-    float lastDirAtan2 = atan2(0, -1);
+    glm::vec2 lastDir = glm::vec2(0, -1);
 
     do {
-        float smallestAngle = IM_PI * 2;
-        glm::vec2 smallestDir = { 0, 0 };
-        glm::vec2 smallestE = { 0, 0 };
-        for (const auto& e : points)
-        {
-            if (e == current) continue;
-            glm::vec2 dir = e - current;
+        float smallestAngle = 2 * PI;
+        glm::vec2 smallestDir;
+        glm::vec2 smallestE;
+        float lastDirAtan2 = atan2(lastDir.y, lastDir.x);
+
+        for (const auto& t : points) {
+            if (current == t) continue;
+
+            glm::vec2 dir = t - current;
             float angle = atan2(dir.y, dir.x) - lastDirAtan2;
-            if (angle > IM_PI)
-                angle -= IM_PI * 2;
-            else if (angle <= -IM_PI)
-                angle += IM_PI * 2;
+            if (angle > PI) angle -= 2 * PI;
+            else if (angle <= -PI) angle += 2 * PI;
+
             if (angle >= 0 && angle < smallestAngle) {
                 smallestAngle = angle;
                 smallestDir = dir;
-                smallestE = e;
+                smallestE = t;
             }
         }
 
-        if (smallestE.x != 0 && smallestE.y != 0)
-            outline.emplace_back(smallestE);
-        lastDirAtan2 = atan2(smallestDir.y, smallestDir.x);
+        indices.push_back(smallestE);
+        lastDir = smallestDir;
         current = smallestE;
-    } while (current != start && outline.size() < 8);
 
-    return outline;
+    } while (current != start && indices.size() < 8);
+
+    return indices;
 }

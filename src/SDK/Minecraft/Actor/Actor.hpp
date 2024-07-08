@@ -14,6 +14,7 @@
 #include "Components/ActorEquipmentComponent.hpp"
 #include "Components/AABBShapeComponent.hpp"
 #include "Components/RenderPositionComponent.hpp"
+#include "Components/ActorUniqueIDComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -42,6 +43,7 @@ public:
     ActorRotationComponent* getActorRotationComponent();
     AABBShapeComponent* getAABBShapeComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
+    ActorUniqueIDComponent* getActorUniqueIDComponent();
     ContainerManagerModel* getContainerManagerModel();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();

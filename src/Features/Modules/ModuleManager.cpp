@@ -12,6 +12,7 @@
 #include "Misc/PacketLogger.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
+#include "Misc/AntiBot.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/NoSlowDown.hpp"
@@ -54,6 +55,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
+    mModules.emplace_back(std::make_shared<AntiBot>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

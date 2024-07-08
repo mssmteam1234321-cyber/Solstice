@@ -23,7 +23,7 @@ void ESP::onDisable()
 
 void ESP::onRenderEvent(RenderEvent& event)
 {
-    auto actors = ActorUtils::getActorList(false);
+    auto actors = ActorUtils::getActorList(false, true);
 
     auto drawList = ImGui::GetBackgroundDrawList();
 
@@ -39,13 +39,13 @@ void ESP::onRenderEvent(RenderEvent& event)
         std::vector<ImVec2> imPoints = {};
         for (auto point : points)
         {
-            imPoints.push_back(ImVec2(point.x, point.y));
+            imPoints.emplace_back(point.x, point.y);
         }
 
         // try drawing as convex polygon
         auto themeColor = ColorUtils::getThemedColor(0);
 
-        drawList->AddConvexPolyFilled(imPoints.data(), points.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
+        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), points.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
         drawList->AddPolyline(imPoints.data(), points.size(), themeColor, 0, 2.0f);
     }
 }

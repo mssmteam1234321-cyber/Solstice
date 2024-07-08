@@ -9,5 +9,5 @@
 
 class ActorUtils {
 public:
-    static std::vector<class Actor*> getActorList(bool playerOnly = true);
+    static std::vector<class Actor*> getActorList(bool playerOnly = true, bool excludeBots = true);
 };

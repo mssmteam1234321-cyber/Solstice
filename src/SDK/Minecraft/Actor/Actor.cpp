@@ -99,6 +99,11 @@ BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultipl
     return mContext.getComponent<BlockMovementSlowdownMultiplierComponent>();
 }
 
+ActorUniqueIDComponent* Actor::getActorUniqueIDComponent()
+{
+    return mContext.getComponent<ActorUniqueIDComponent>();
+}
+
 ContainerManagerModel* Actor::getContainerManagerModel()
 {
     return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);

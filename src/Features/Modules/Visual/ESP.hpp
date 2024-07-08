@@ -8,7 +8,12 @@
 class ESP : public ModuleBase<ESP>
 {
 public:
+    EnumSetting mStyle = EnumSetting("Style", "The style of the ESP.", 0, { "3D" });
+    BoolSetting mRenderFilled = BoolSetting("Render Filled", "Whether or not to render the ESP filled.", true);
     ESP() : ModuleBase("ESP", "Draws a box around entities", ModuleCategory::Visual, 0, false) {
+        addSetting(&mStyle);
+        addSetting(&mRenderFilled);
+
         mNames = {
             {Lowercase, "esp"},
             {LowercaseSpaced, "esp"},
