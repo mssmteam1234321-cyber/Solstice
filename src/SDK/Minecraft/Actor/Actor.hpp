@@ -12,7 +12,11 @@
 #include "Components/ActorRotationComponent.hpp"
 #include "Components/BlockMovementSlowdownMultiplierComponent.hpp"
 #include "Components/ActorEquipmentComponent.hpp"
+#include "Components/AABBShapeComponent.hpp"
+#include "Components/RenderPositionComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
+
+#include "Components/ActorTypeComponent.hpp"
 
 
 #define PLAYER_HEIGHT 1.62f
@@ -25,13 +29,18 @@ public:
     virtual bool getStatusFlag(ActorFlags) = 0;
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
+    AABB getAABB();
+    bool isPlayer();
     glm::vec3* getPos();
     glm::vec3* getPosPrev();
     class GameMode* getGameMode();
+    ActorTypeComponent* getActorTypeComponent();
+    RenderPositionComponent* getRenderPositionComponent();
     int64_t getRuntimeID();
     StateVectorComponent* getStateVectorComponent();
     MoveInputComponent* getMoveInputComponent();
     ActorRotationComponent* getActorRotationComponent();
+    AABBShapeComponent* getAABBShapeComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
     ContainerManagerModel* getContainerManagerModel();
     class SimpleContainer* getArmorContainer();

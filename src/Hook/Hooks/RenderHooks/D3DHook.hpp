@@ -6,6 +6,7 @@
 #include <Hook/HookManager.hpp>
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <Utils/Structs.hpp>
 //
 // Created by vastrakai on 6/29/2024.
 //
@@ -18,6 +19,9 @@ public:
     D3DHook() : Hook() {
         mName = "D3DHook";
     }
+
+    static inline std::queue<FrameTransform> FrameTransforms;
+    static inline int transformDelay = 3;
 
     static bool loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
     static HRESULT present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags);

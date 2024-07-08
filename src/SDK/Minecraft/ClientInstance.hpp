@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
 #include <Utils/MemUtils.hpp>
+#include <glm/glm.hpp>
+#include <Utils/Structs.hpp>
 //
 // Created by vastrakai on 6/24/2024.
 //
+
 
 
 class ClientInstance {
@@ -17,6 +20,8 @@ public:
     class LoopbackPacketSender* getPacketSender();
     class GuiData* getGuiData();
     class bgfx_context* getBGFX();
+    glmatrixf getViewMatrix();
+    glm::vec2 getFov();
 
     class MinecraftGame* getMinecraftGame();
     class Actor* getLocalPlayer();

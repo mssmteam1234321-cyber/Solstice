@@ -69,3 +69,36 @@ HWND ProcUtils::getMinecraftWindow()
 
     return window;
 }
+
+std::vector<std::wstring> ProcUtils::getModulePaths()
+{
+    HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+
+    if (hModuleSnap == INVALID_HANDLE_VALUE)
+    {
+        return {};
+    }
+
+    MODULEENTRY32 me32;
+    me32.dwSize = sizeof(MODULEENTRY32);
+
+    if (!Module32First(hModuleSnap, &me32))
+    {
+        CloseHandle(hModuleSnap);
+        return {};
+    }
+
+    std::vector<std::wstring> modulePaths;
+
+    do
+    {
+        char* path = me32.szExePath;
+        // Convert the path to a wide string
+        std::wstring wpath(path, path + strlen(path));
+        modulePaths.push_back(wpath);
+    } while (Module32Next(hModuleSnap, &me32));
+
+    CloseHandle(hModuleSnap);
+
+    return modulePaths;
+}

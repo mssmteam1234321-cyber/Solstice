@@ -27,6 +27,7 @@
 #include "Visual/LevelInfo.hpp"
 #include "Visual/Notifications.hpp"
 #include "Visual/Watermark.hpp"
+#include "Visual/ESP.hpp"
 
 void ModuleManager::init()
 {
@@ -61,6 +62,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Arraylist>());
     mModules.emplace_back(std::make_shared<LevelInfo>());
     mModules.emplace_back(std::make_shared<Notifications>());
+    mModules.emplace_back(std::make_shared<ESP>());
 
     for (auto& module : mModules)
     {

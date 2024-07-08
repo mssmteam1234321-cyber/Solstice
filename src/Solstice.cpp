@@ -22,6 +22,7 @@
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <Utils/FileUtils.hpp>
 #include <Utils/MiscUtils/NotifyUtils.hpp>
+#include <Utils/SysUtils/ExceptionHandler.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
@@ -47,6 +48,8 @@ void Solstice::init(HMODULE hModule)
         + CC(255, 0, 0) + " [Debug] " + ANSI_COLOR_RESET
 #endif
 );
+
+    ExceptionHandler::init();
 
     if (MH_Initialize() != MH_OK)
     {

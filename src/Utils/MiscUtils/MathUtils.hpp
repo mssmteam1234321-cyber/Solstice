@@ -5,11 +5,17 @@
 
 #include <atomic>
 #include <cmath>
+#include <vector>
 
 #include <glm/glm.hpp>
+#include <Utils/Structs.hpp>
 
 class MathUtils {
 public:
+    static inline glm::vec2 fov = { 0, 0 };
+    static inline glm::vec2 displaySize = { 0, 0 };
+    static inline glm::vec3 origin = { 0, 0, 0 };
+
     static float animate(float endPoint, float current, float speed);
     static float lerp(float a, float b, float t);
     static float getRotationKeyOffset();
@@ -29,4 +35,6 @@ public:
     static T random(T min, T max) {
         return random(static_cast<T>(min), static_cast<T>(max));
     }
+
+    static std::vector<glm::vec2> getBoxPoints(const AABB& aabb);
 };

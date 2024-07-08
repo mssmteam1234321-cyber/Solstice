@@ -9,6 +9,8 @@
 #include <SDK/SigManager.hpp>
 
 #include "MinecraftGame.hpp"
+#include <glm/glm.hpp>
+#include <Utils/Structs.hpp>
 
 ClientInstance* ClientInstance::get()
 {
@@ -21,6 +23,18 @@ ClientInstance* ClientInstance::get()
     static ClientInstance* instance = game->getPrimaryClientInstance();
     if (instance == nullptr) instance = game->getPrimaryClientInstance();
     return instance;
+}
+
+glmatrixf ClientInstance::getViewMatrix()
+{
+    return hat::member_at<glmatrixf>(this, 0x330);
+}
+
+glm::vec2 ClientInstance::getFov()
+{
+    float x = hat::member_at<float>(this, 0x6F0);
+    float y = hat::member_at<float>(this, 0x704);
+    return { x, y };
 }
 
 MinecraftSim* ClientInstance::getMinecraftSim()

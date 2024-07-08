@@ -45,3 +45,13 @@ uintptr_t MemUtils::GetVTableFunction(void *_this, int index) {
     uintptr_t *vtable = *reinterpret_cast<uintptr_t **>(_this);
     return vtable[index];
 }
+
+std::string MemUtils::getModulePath(HMODULE handle)
+{
+    char path[MAX_PATH];
+    if (GetModuleFileNameExA(GetCurrentProcess(), handle, path, MAX_PATH))
+    {
+        return path;
+    }
+    return "";
+}

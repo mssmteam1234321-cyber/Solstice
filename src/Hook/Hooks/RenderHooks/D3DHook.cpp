@@ -28,6 +28,8 @@
 #include <Utils/Resource.hpp>
 #include <Utils/Resources.hpp>
 #include <Utils/MiscUtils/D2D.hpp>
+#include <Utils/MiscUtils/MathUtils.hpp>
+#include <Utils/MiscUtils/RenderUtils.hpp>
 #include <winrt/base.h>
 
 // skidded (i do not care :trollcat:)
@@ -177,6 +179,12 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         }
 
         once = true;
+    }
+
+    while(FrameTransforms.size() > transformDelay)
+    {
+        RenderUtils::transform = FrameTransforms.front();
+        FrameTransforms.pop();
     }
 
     int count = alreadyRunningD3D11 ? 1 : BUFFER_COUNT;
@@ -336,6 +344,10 @@ void D3DHook::igNewFrame()
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
 
+    MathUtils::fov = ClientInstance::get()->getFov();
+    MathUtils::displaySize = ClientInstance::get()->getGuiData()->resolution;
+    MathUtils::origin = RenderUtils::transform.mOrigin;
+
 
 }
 
@@ -348,11 +360,7 @@ void D3DHook::igEndFrame()
 void D3DHook::init()
 {
     static bool once = false;
-    if (once)
-    {
-        spdlog::critical("D3DHook::init() called more than once (nigga what)");
-        return;
-    }
+    if (once) return;
     once = true;
     mName = "D3DHook";
     // Attempt to init on D3D12

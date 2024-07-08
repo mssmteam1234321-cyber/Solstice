@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <string>
 #include <atomic>
+#define _AMD64_
+#include <minwindef.h>
 //
 // Created by vastrakai on 6/25/2024.
 //
@@ -151,6 +153,7 @@ public:
     static const std::string getMbMemoryString(uintptr_t addr);
 
     static uintptr_t GetVTableFunction(void *_this, int index);
+    static std::string getModulePath(HMODULE handle);
 };
 
 
