@@ -58,5 +58,9 @@ public:
         return random(static_cast<T>(min), static_cast<T>(max));
     }
 
+    static float wrap(float val, float min, float max);
     static std::vector<glm::vec2> getBoxPoints(const AABB& aabb);
+
+    static glm::vec2 getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget);
+    static glm::vec2 getRots(const glm::vec3& pEyePos, const AABB& target);
 };

@@ -85,6 +85,11 @@ glm::vec2 MathUtils::getMotion(float yaw, float speed) {
     return motion;
 }
 
+float MathUtils::wrap(float val, float min, float max)
+{
+    return fmod(fmod(val - min, max - min) + (max - min), max - min) + min;
+}
+
 float MathUtils::random(float min, float max)
 {
     return min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
@@ -168,4 +173,17 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb) {
     } while (current != start && indices.size() < 8);
 
     return indices;
+}
+
+glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget)
+{
+    glm::vec3 delta = pTarget - pEyePos;
+    const float yaw = atan2(delta.z, delta.x) * 180.0f / IM_PI;
+    const float pitch = atan2(delta.y, sqrt(delta.x * delta.x + delta.z * delta.z)) * 180.0f / IM_PI;
+    return {-pitch, yaw - 90};
+}
+
+glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const AABB& target)
+{
+    return getRots(pEyePos, target.getClosestPoint(pEyePos));
 }

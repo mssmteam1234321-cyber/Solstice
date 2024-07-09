@@ -7,6 +7,10 @@
 #include <imgui.h>
 #include <magic_enum.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
+#include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
@@ -15,21 +19,25 @@
 
 void TestModule::onEnable()
 {
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
 }
 
 void TestModule::onDisable()
 {
-
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
 }
 
 Block* gDaBlock = nullptr;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
-
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
 }
 
-void displayCopyableAddress(std::string name, void* address)
+void displayCopyableAddress(const std::string& name, void* address)
 {
     std::string addressHex = "0x" + fmt::format("{:X}", reinterpret_cast<uintptr_t>(address));
     ImGui::Text(addressHex.c_str());
@@ -47,17 +55,9 @@ void TestModule::onRenderEvent(RenderEvent& event)
     ImGui::Begin("TestModule");
     ImGui::Text("TestModule");
     auto blockSource = ClientInstance::get()->getBlockSource();
-    auto block = gDaBlock;
-    if (block == nullptr)
-    {
-        ImGui::Text("Block is null");
-        ImGui::End();
-        return;
-    }
+    auto player = ClientInstance::get()->getLocalPlayer();
 
-    displayCopyableAddress("BlockSource", blockSource);
-    displayCopyableAddress("Block", block);
-    displayCopyableAddress("BlockLegacy", block->mLegacy);
+    displayCopyableAddress("swing", player->vtable[117]);
 
     ImGui::Button("Play Sound Test");
     if (ImGui::IsItemClicked())

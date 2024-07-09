@@ -14,12 +14,12 @@ std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 void BaseTickHook::onBaseTick(Actor* actor)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onBaseTick)>();
-    oFunc(actor);
-    if (actor != ClientInstance::get()->getLocalPlayer()) return;
+    if (actor != ClientInstance::get()->getLocalPlayer()) return oFunc(actor);
 
-    auto holder = nes::make_holder<BaseTickEvent>();
+    auto holder = nes::make_holder<BaseTickEvent>(actor);
     gFeatureManager->mDispatcher->trigger(holder);
 
+    return oFunc(actor);
 }
 
 void BaseTickHook::init()

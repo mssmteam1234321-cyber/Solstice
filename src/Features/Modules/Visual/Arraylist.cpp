@@ -153,6 +153,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
     for (auto& mod : module)
     {
+        if (!mod->mVisibleInArrayList.mValue) continue;
         if (mVisibility.mValue == static_cast<int>(ModuleVisibility::Bound) && mod->mKey == 0) continue;
         if (mod->mArrayListAnim < 0.01f) continue;
 
@@ -185,7 +186,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         ImVec2 mousePos = ImGui::GetIO().MousePos;
         bool isHovered = mousePos.x >= textPos.x && mousePos.x <= textPos.x + textSize.x + displaySize.x && mousePos.y >= textPos.y && mousePos.y <= textPos.y + textSize.y;
         ImVec4 rect = {textPos.x, textPos.y, textPos.x + textSize.x + displaySize.x, textPos.y + textSize.y};
-
+        rect.x -= 3; // Padding
+        rect.z += 3; // Padding
 
         backgroundRects.push_back({name, ImVec2(rect.x + (addedPadding ? 7.f : 0.f), rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), color, mod.get()});
 
@@ -275,7 +277,11 @@ void Arraylist::onRenderEvent(RenderEvent& event)
                 lines.push_back({name, ImVec2(start.x, end.y), ImVec2(end.x + 2, end.y), color, mod});
             } else if (next.start.x >= start.x)
             {
-                lines.push_back({name, ImVec2(start.x, end.y), ImVec2(next.start.x, end.y), color, mod});
+                // ignore if the x is within 1 pixel
+                if (next.start.x - start.x > 2)
+                {
+                    lines.push_back({name, ImVec2(start.x, end.y), ImVec2(next.start.x - 1, end.y), color, mod});
+                }
             }
 
         }

@@ -5,6 +5,8 @@
 #include "ESP.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/Structs.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
@@ -27,8 +29,11 @@ void ESP::onRenderEvent(RenderEvent& event)
 
     auto drawList = ImGui::GetBackgroundDrawList();
 
+    auto localPlayer = ClientInstance::get()->getLocalPlayer();
+
     for (auto actor : actors)
     {
+        if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;
         AABB aabb = actor->getAABB();

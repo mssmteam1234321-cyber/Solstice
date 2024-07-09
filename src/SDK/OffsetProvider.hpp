@@ -94,6 +94,8 @@ public:
     DEFINE_INDEX_FIELD_TYPED(uint8_t, Container_getItem, "48 8B ? ? FF 15 ? ? ? ? 4C 8B ? EB ? 4C 8D ? ? ? ? ? 48 C7 C7", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(LevelRenderer_mRendererPlayer, "48 8B ? ? ? ? ? 48 89 ? ? 48 8D ? ? ? ? ? 48 85 ? 0F 84", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(LevelRendererPlayer_mCameraPos, "F3 0F ? ? ? ? ? ? 0F 28 ? F3 0F ? ? F3 0F ? ? F3 0F ? ? F3 0F ? ? F3 0F ? ? F3 0F ? ? 0F 2F", 4, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Actor_mSwinging, "88 ? ? ? ? ? EB ? 33 ? 89", 2, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Actor_swing, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 44 39 ? ? ? 74", 3, OffsetType::Index);
     // 44 0F ? ? ? ? ? ? B8 ? ? ? ? 48 8B ? 48 8B
     static void initialize();
 };

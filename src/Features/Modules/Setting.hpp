@@ -109,6 +109,12 @@ public:
         j["numberValue"] = mValue;
         return j;
     }
+
+    template <typename T>
+    T as() const
+    {
+        return static_cast<T>(mValue);
+    }
 };
 
 class EnumSetting : public Setting
@@ -140,6 +146,18 @@ public:
         nlohmann::json j = Setting::serialize();
         j["enumValue"] = mValue;
         return j;
+    }
+
+    template <typename T>
+    explicit operator T() const
+    {
+        return static_cast<T>(mValue);
+    }
+
+    template <typename T>
+    T as() const
+    {
+        return static_cast<T>(mValue);
     }
 };
 

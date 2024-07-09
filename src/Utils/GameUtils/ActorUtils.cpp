@@ -13,6 +13,9 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Misc/AntiBot.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
+#include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 
 std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots) {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -32,4 +35,24 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
 
 
     return actors;
+}
+
+std::shared_ptr<InventoryTransactionPacket> ActorUtils::createAttackTransaction(Actor* actor, int slot)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    if (slot == -1) slot = player->getSupplies()->mSelectedSlot;
+    auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
+
+    auto cit = std::make_unique<ItemUseOnActorInventoryTransaction>();
+    cit->slot = slot;
+    cit->itemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
+    cit->actorId = actor->getActorUniqueIDComponent()->mUniqueID;
+    cit->actionType = ItemUseOnActorInventoryTransaction::ActionType::Attack;
+    cit->clickPos = actor->getAABB().getClosestPoint(*player->getPos());
+    cit->playerPos = *player->getPos();
+
+    pkt->mTransaction = std::move(cit);
+
+    return pkt;
 }

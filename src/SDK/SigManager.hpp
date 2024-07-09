@@ -85,6 +85,7 @@ public:
     DEFINE_SIG(EnchantUtils_getEnchantLevel, "48 89 ? ? ? 48 89 ? ? ? 57 48 83 EC ? 48 8B ? 0F B6 ? 33 FF", SigType::Sig, 0);
     DEFINE_SIG(ItemStack_getCustomName, "E8 ? ? ? ? 48 8D ? ? ? ? ? 48 8B ? E8 ? ? ? ? 48 8B ? ? ? 48 83 FA ? 0F 82", SigType::RefSig, 1);
     DEFINE_SIG(ScreenView_setupAndRender, "E8 ? ? ? ? 48 8B 44 24 ? 48 8D 4C 24 ? 48 8B 80", SigType::RefSig, 1);
+    DEFINE_SIG(ActorRenderDispatcher_render, "E8 ? ? ? ? 44 0F ? ? ? ? 4C 8D ? ? ? ? ? ? 41 0F ? ? ? 41 0F ? ? ? 45 0F ? ? ? 45 0F ? ? ? 49 8B", SigType::RefSig, 1);
 
     static void initialize();
 };

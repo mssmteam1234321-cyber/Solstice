@@ -186,7 +186,8 @@ public:
     ActionType actionType{};
     int32_t slot{};
     NetworkItemStackDescriptor itemInHand{};
-    glm::vec3 playerPos{}, clickPos{};
+    glm::vec3 playerPos{};
+    glm::vec3 clickPos{};
 
     ItemUseOnActorInventoryTransaction()
     {

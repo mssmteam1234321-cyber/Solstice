@@ -6,6 +6,7 @@
 #include <Utils/StringUtils.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
+#include "Combat/Aura.hpp"
 #include "Misc/AutoQueue.hpp"
 #include "Misc/DeviceSpoof.hpp"
 #include "Misc/KickSounds.hpp"
@@ -35,7 +36,7 @@ void ModuleManager::init()
 {
 
     // Combat
-    // (none yet)
+    mModules.emplace_back(std::make_shared<Aura>());
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());

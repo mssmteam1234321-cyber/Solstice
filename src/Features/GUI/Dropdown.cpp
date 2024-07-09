@@ -283,6 +283,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                         {
                             if (!setting->mIsVisible())
                             {
+                                //Reset the animation if the setting is not visible
+                                setting->sliderEase = 0;
+                                setting->enumSlide = 0;
                                 continue;
                             }
 

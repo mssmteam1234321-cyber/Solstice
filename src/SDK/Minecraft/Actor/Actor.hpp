@@ -15,6 +15,8 @@
 #include "Components/AABBShapeComponent.hpp"
 #include "Components/RenderPositionComponent.hpp"
 #include "Components/ActorUniqueIDComponent.hpp"
+#include "Components/ActorHeadRotationComponent.hpp"
+#include "Components/MobBodyRotationComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -26,10 +28,12 @@ class Actor {
 public:
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
+    CLASS_FIELD(std::string, mEntityIdentifier, 0x2B8)
 
     virtual bool getStatusFlag(ActorFlags) = 0;
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
+    void swing();
     AABB getAABB();
     bool isPlayer();
     glm::vec3* getPos();
@@ -45,7 +49,10 @@ public:
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();
     ActorUniqueIDComponent* getActorUniqueIDComponent();
     ContainerManagerModel* getContainerManagerModel();
+    ActorHeadRotationComponent* getActorHeadRotationComponent();
+    MobBodyRotationComponent* getMobBodyRotationComponent();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     void setPosition(glm::vec3 pos);
+    float distanceTo(Actor* actor);
 };

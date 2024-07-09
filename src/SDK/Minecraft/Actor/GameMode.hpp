@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 class GameMode {
+public:
     CLASS_FIELD(class Actor*, mPlayer, 0x8);
     CLASS_FIELD(float, mBreakProgress, 0x24);
 

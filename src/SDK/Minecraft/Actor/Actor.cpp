@@ -14,6 +14,11 @@
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/RuntimeIDComponent.hpp"
 
+void Actor::swing()
+{
+    MemUtils::callVirtualFunc<void>(OffsetProvider::Actor_swing, this);
+}
+
 AABB Actor::getAABB()
 {
     // Get all components
@@ -109,6 +114,16 @@ ContainerManagerModel* Actor::getContainerManagerModel()
     return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);
 }
 
+ActorHeadRotationComponent* Actor::getActorHeadRotationComponent()
+{
+    return mContext.getComponent<ActorHeadRotationComponent>();
+}
+
+MobBodyRotationComponent* Actor::getMobBodyRotationComponent()
+{
+    return mContext.getComponent<MobBodyRotationComponent>();
+}
+
 SimpleContainer* Actor::getArmorContainer()
 {
     return mContext.getComponent<ActorEquipmentComponent>()->mArmorContainer;
@@ -128,4 +143,10 @@ void Actor::setPosition(glm::vec3 pos)
 {
     static uintptr_t func = SigManager::Actor_setPosition;
     MemUtils::callFastcall<void, void*, glm::vec3*>(func, this, &pos);
+}
+
+float Actor::distanceTo(Actor* actor)
+{
+    glm::vec3 closestPoint = getAABB().getClosestPoint(*actor->getPos());
+    return glm::distance(closestPoint, *actor->getPos());
 }
