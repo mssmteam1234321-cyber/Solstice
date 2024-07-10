@@ -147,8 +147,8 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb) {
 
     do {
         float smallestAngle = 2 * PI;
-        glm::vec2 smallestDir;
-        glm::vec2 smallestE;
+        glm::vec2 smallestDir = {0, 0};
+        glm::vec2 smallestE = {0, 0};
         float lastDirAtan2 = atan2(lastDir.y, lastDir.x);
 
         for (const auto& t : points) {

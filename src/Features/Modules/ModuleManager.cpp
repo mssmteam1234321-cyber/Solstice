@@ -14,9 +14,11 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AntiBot.hpp"
+#include "Misc/AntiCheatDetector.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/NoSlowDown.hpp"
+#include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
@@ -43,6 +45,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Velocity>());
     mModules.emplace_back(std::make_shared<NoSlowDown>());
     mModules.emplace_back(std::make_shared<AntiImmobile>());
+    mModules.emplace_back(std::make_shared<Sprint>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
@@ -57,6 +60,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
+    mModules.emplace_back(std::make_shared<AntiCheatDetector>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

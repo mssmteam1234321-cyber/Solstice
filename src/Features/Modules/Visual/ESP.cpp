@@ -34,6 +34,7 @@ void ESP::onRenderEvent(RenderEvent& event)
     for (auto actor : actors)
     {
         if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0) continue;
+        if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;
         AABB aabb = actor->getAABB();

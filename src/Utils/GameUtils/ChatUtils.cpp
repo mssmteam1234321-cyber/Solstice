@@ -17,4 +17,10 @@ void ChatUtils::displayClientMessage(const std::string& subcaption, const std::s
     ClientInstance::get()->getGuiData()->displayClientMessage("§asolstice§7 » §7[" + subcaption + "§7] §r" + msg);
 }
 
+void ChatUtils::displayClientMessageRaw(const std::string& msg)
+{
+    ClientInstance::get()->getGuiData()->displayClientMessage(msg);
+}
+
+
 

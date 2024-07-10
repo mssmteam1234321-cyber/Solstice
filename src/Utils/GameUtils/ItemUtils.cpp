@@ -50,7 +50,7 @@ int ItemUtils::getBestItem(SItemType type)
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
-    int bestSlot = -1;
+    int bestSlot = supplies->mSelectedSlot;
     int bestValue = 0;
 
     for (int i = 0; i < 36; i++)

@@ -25,9 +25,24 @@ public:
         Synched
     };
 
+    enum class SwitchMode
+    {
+        None,
+        Full,
+        Spoof
+    };
+
+    enum class AnticheatMode {
+        None,
+        FlareonV1,
+        FlareonV2
+    };
+
     EnumSetting mMode = EnumSetting("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
     EnumSetting mAttackMode = EnumSetting("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
     EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
+    EnumSetting mSwitchMode = EnumSetting("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
+    EnumSetting mAnticheatMode = EnumSetting("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
@@ -36,7 +51,7 @@ public:
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mStrafe);
+        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mStrafe);
 
         VISIBILITY_CONDITION(mAPS, mRandomizeAPS.mValue == false);
         VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue == true);
@@ -56,8 +71,10 @@ public:
     void onEnable() override;
     void onDisable() override;
     void rotate(Actor* target);
+    void onRenderEvent(class RenderEvent& event);
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
+    Actor* findObstructingActor(Actor* player, Actor* target);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.mValue];
