@@ -177,6 +177,7 @@ enum BlockLegacyVFuncIndex {
 
 class BlockLegacy {
 public:
+    CLASS_FIELD(uintptr_t**, mVfTable, 0x0);
     CLASS_FIELD(std::string, mTileName, 0x28);
     CLASS_FIELD(std::string, mName, 0xA0);
     CLASS_FIELD(bool, mSolid, 0x164);

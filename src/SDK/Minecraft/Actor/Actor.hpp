@@ -5,7 +5,7 @@
 
 #include <Utils/MemUtils.hpp>
 #include "EntityContext.hpp"
-#include "glm/vec3.hpp"
+#include <glm/glm.hpp>
 #include "ActorFlags.hpp"
 #include "Components/StateVectorComponent.hpp"
 #include "Components/MoveInputComponent.hpp"
@@ -17,6 +17,7 @@
 #include "Components/ActorUniqueIDComponent.hpp"
 #include "Components/ActorHeadRotationComponent.hpp"
 #include "Components/MobBodyRotationComponent.hpp"
+#include "Components/JumpControlComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -34,6 +35,10 @@ public:
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
     void swing();
+    bool isSwinging();
+    void setSwinging(bool swinging);
+    int getSwingProgress();
+    void setSwingProgress(int progress);
     AABB getAABB();
     bool isPlayer();
     glm::vec3* getPos();
@@ -51,8 +56,16 @@ public:
     ContainerManagerModel* getContainerManagerModel();
     ActorHeadRotationComponent* getActorHeadRotationComponent();
     MobBodyRotationComponent* getMobBodyRotationComponent();
+    JumpControlComponent* getJumpControlComponent();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
+    class Level* getLevel();
     void setPosition(glm::vec3 pos);
     float distanceTo(Actor* actor);
+    bool wasOnGround();
+    bool isInWater();
+    void setInWater(bool inWater);
+    bool isOnGround();
+    void setOnGround(bool);
+    void jumpFromGround();
 };

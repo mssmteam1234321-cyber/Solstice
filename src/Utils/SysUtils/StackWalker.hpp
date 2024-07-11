@@ -14,4 +14,5 @@ public:
     std::vector<std::string> ShowCallstack(HANDLE hThread, PCONTEXT pContext);
 private:
     void LoadModuleSymbols(const std::vector<std::wstring>& modulePaths);
+    void UnloadModuleSymbols();
 };

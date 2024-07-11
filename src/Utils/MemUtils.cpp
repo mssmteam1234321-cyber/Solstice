@@ -24,6 +24,12 @@ auto MemUtils::getVirtualFunc(void* _this, int index)
     return reinterpret_cast<Ret(__thiscall*)(void*, Args...)>(vtable[index]);
 }
 
+uintptr_t MemUtils::getAddressByIndex(uintptr_t _this, int index)
+{
+    const auto vtable = *reinterpret_cast<uintptr_t**>(_this);
+    return vtable[index];
+}
+
 const std::string MemUtils::getMbMemoryString(uintptr_t addr)
 {
     MEMORY_BASIC_INFORMATION mbi;

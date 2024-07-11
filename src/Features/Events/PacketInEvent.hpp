@@ -5,7 +5,7 @@
 #include "Event.hpp"
 #include <memory>
 
-class PacketInEvent : public CancellableEvent {
+class PacketInEvent : public CancelableEvent {
 public:
     explicit PacketInEvent(std::shared_ptr<class Packet> packet, void* networkIdentifier, void* netEventCallback) : mPacket(packet), mNetworkIdentifier(networkIdentifier), mNetEventCallback(netEventCallback) {}
 

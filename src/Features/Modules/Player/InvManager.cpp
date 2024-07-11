@@ -29,6 +29,10 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
     auto armorContainer = player->getArmorContainer();
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
+
+    // If we are in a container, don't do anything
+    if (ClientInstance::get()->getMouseGrabbed() && player) return;
+
     std::vector<int> itemsToEquip;
     bool isInstant = mMode.mValue == static_cast<int>(Mode::Instant);
     static uint64_t lastAction = 0;

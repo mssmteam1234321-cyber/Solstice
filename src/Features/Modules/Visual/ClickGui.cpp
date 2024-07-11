@@ -96,5 +96,5 @@ void ClickGui::onRenderEvent(RenderEvent& event)
         scrollDirection = 0;
     }
 
-    dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue);
+    dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue);
 }

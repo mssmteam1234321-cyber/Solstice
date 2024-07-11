@@ -35,7 +35,7 @@ ImVec4 DropdownGui::getCenter(ImVec4& vec)
     return { centerX, centerY, centerX, centerY };
 }
 
-void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, float blur)
+void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, float blur, float midclickRounding)
 {
     static auto interface = gFeatureManager->mModuleManager->getModule<Interface>();
     bool lowercase = interface->mNamingStyle.mValue == NamingStyle::Lowercase || interface->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
@@ -477,7 +477,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                     const float max = numSetting->mMax;
 
                                     char str[10];
-                                    sprintf_s(str, 10, "%.1f", value);
+                                    sprintf_s(str, 10, "%.2f", value);
                                     std::string rVal = str;
 
                                     std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
@@ -506,7 +506,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseDown(0))
+                                            if (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(2))
                                             {
                                                 setting->isDragging = true;
                                                 lastDraggedSetting = setting;
@@ -525,6 +525,22 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                                         (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
                                                             max - min) + min, max), min);
                                                 numSetting->setValue(newValue);
+                                            }
+                                        }
+                                        else if (ImGui::IsMouseDown(2) && setting->isDragging && isEnabled)
+                                        {
+                                            if (lastDraggedSetting != setting)
+                                            {
+                                                setting->isDragging = false;
+                                            } else
+                                            {
+                                                float newValue = std::fmax(
+                                                    std::fmin(
+                                                        (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
+                                                            max - min) + min, max), min);
+                                                // Round the value to the nearest value specified by midclickRounding
+                                                newValue = std::round(newValue / midclickRounding) * midclickRounding;
+                                                numSetting->mValue = newValue;
                                             }
                                         }
                                         else
@@ -821,9 +837,21 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                                screen.y / 2
                            ), inScale);
 
-            ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation, 0.f);
+            static float alpha = 1.f;
+
+            // If mid or left click is down, lerp the alpha to 0.25f;
+            if (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(2))
+            {
+                alpha = MathUtils::animate(0.0f, alpha, ImRenderUtils::getDeltaTime() * 10);
+            }
+            else
+            {
+                alpha = MathUtils::animate(1.f, alpha, ImRenderUtils::getDeltaTime() * 10);
+            }
+
+            ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation * alpha, 0.f);
             ImRenderUtils::drawText(ImVec2(tooltipRect.x + padding, tooltipRect.y + padding), tooltip,
-                                   ImColor(255, 255, 255), textSize * 0.8f, animation, true);
+                                   ImColor(255, 255, 255), textSize * 0.8f, animation * alpha, true);
         }
 
         if (isEnabled)

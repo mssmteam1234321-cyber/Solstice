@@ -43,6 +43,6 @@ public:
     bool isMouseOver(const ImVec4& rect);
     ImVec4 getCenter(ImVec4& vec);
     bool isMouseOverGuiElement();
-    void render(float animation, float inScale, int& scrollDirection, char* h, float blur);
+    void render(float animation, float inScale, int& scrollDirection, char* h, float blur, float midclickRounding);
     void onWindowResizeEvent(class WindowResizeEvent& event);
 };

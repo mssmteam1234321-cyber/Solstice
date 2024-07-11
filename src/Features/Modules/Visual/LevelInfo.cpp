@@ -6,6 +6,7 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/PingUpdateEvent.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/FontHelper.hpp>
@@ -16,14 +17,20 @@ void LevelInfo::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RenderEvent, &LevelInfo::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &LevelInfo::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<PingUpdateEvent, &LevelInfo::onPingUpdateEvent>(this);
 }
 
 void LevelInfo::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &LevelInfo::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &LevelInfo::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &LevelInfo::onPingUpdateEvent>(this);
 }
 
+void LevelInfo::onPingUpdateEvent(PingUpdateEvent& event)
+{
+    mPing = event.mPing;
+}
 
 
 void LevelInfo::onBaseTickEvent(BaseTickEvent& event)
@@ -63,6 +70,9 @@ void LevelInfo::onBaseTickEvent(BaseTickEvent& event)
 
 void LevelInfo::onRenderEvent(RenderEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (ClientInstance::get()->getMouseGrabbed() && player) return;
+
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
 
     ImVec2 pos = { 2, ImGui::GetIO().DisplaySize.y };
@@ -71,7 +81,6 @@ void LevelInfo::onRenderEvent(RenderEvent& event)
     float fontY = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, -1.f, fpsText.c_str()).y;
     pos.y -= fontY + 2.f;
 
-    auto player = ClientInstance::get()->getLocalPlayer();
 
 
     if (mShowBPS.mValue && player)
@@ -89,13 +98,18 @@ void LevelInfo::onRenderEvent(RenderEvent& event)
         pos.y -= fontY + 2.f;
     }
 
+    if (mShowPing.mValue)
+    {
+        std::string pingText = "Ping: " + std::to_string(mPing) + "ms";
+        ImRenderUtils::drawShadowText(ImGui::GetBackgroundDrawList(), pingText, pos, ImColor(1.f, 1.f, 1.f, 1.f), fontSize);
+        pos.y -= fontY + 2.f;
+    }
+
     if (mShowFPS.mValue && ClientInstance::get()->getScreenName() != "start_screen")
     {
         ImRenderUtils::drawShadowText(ImGui::GetBackgroundDrawList(), fpsText, pos, ImColor(1.f, 1.f, 1.f, 1.f), fontSize);
         pos.y -= fontY + 2.f;
     }
-
-
 
 
     ImGui::PopFont();

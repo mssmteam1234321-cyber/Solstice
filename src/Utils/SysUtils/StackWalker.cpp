@@ -28,18 +28,22 @@ StackWalker::StackWalker()
 StackWalker::~StackWalker()
 {
     // Cleanup the symbol handler
-    SymCleanup(GetCurrentProcess());
+    UnloadModuleSymbols();
 }
+
+// Stored vector of loaded module paths
+static std::vector<std::wstring> gModulePaths;
 
 void StackWalker::LoadModuleSymbols(const std::vector<std::wstring>& modulePaths) {
     HMODULE mainModule = Solstice::mModule;
     std::string modulePathStr = MemUtils::getModulePath(mainModule);
     if (!modulePathStr.empty()) {
+        gModulePaths.emplace_back(modulePathStr.begin(), modulePathStr.end());
+
         DWORD symOptions = SymGetOptions();
         symOptions |= SYMOPT_LOAD_LINES;
         symOptions |= SYMOPT_UNDNAME;
         SymSetOptions(symOptions);
-
 
         DWORD64 result = SymLoadModuleEx(GetCurrentProcess(), Solstice::mModule, modulePathStr.c_str(), nullptr, 0, 0,
                                          nullptr, 0);
@@ -51,9 +55,17 @@ void StackWalker::LoadModuleSymbols(const std::vector<std::wstring>& modulePaths
         }
 
 
+
+
     } else {
         spdlog::error("Could not get module path for the main module.");
     }
+}
+
+void StackWalker::UnloadModuleSymbols()
+{
+    SymUnloadModule64(GetCurrentProcess(), SymGetModuleBase64(GetCurrentProcess(), 0));
+    SymCleanup(GetCurrentProcess());
 }
 
 

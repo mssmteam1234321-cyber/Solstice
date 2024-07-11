@@ -9,11 +9,11 @@ public:
     explicit Event() = default;
 };
 
-class CancellableEvent : public Event {
+class CancelableEvent : public Event {
 public:
     bool mCancelled = false;
 
-    explicit CancellableEvent(bool cancelled = false) : mCancelled(cancelled) {}
+    explicit CancelableEvent(bool cancelled = false) : mCancelled(cancelled) {}
 
     [[nodiscard]] bool isCancelled() const;
     void setCancelled(bool cancelled);

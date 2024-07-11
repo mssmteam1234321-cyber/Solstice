@@ -33,6 +33,8 @@ void Aura::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Aura::onRenderEvent>(this);
+    mHasTarget = false;
+    mRotating = false;
 }
 
 void Aura::rotate(Actor* target)
@@ -49,6 +51,23 @@ void Aura::onRenderEvent(RenderEvent& event)
 {
     if (mAPSMin.mValue < 0) mAPSMin.mValue = 0;
     if (mAPSMax.mValue < mAPSMin.mValue + 1) mAPSMax.mValue = mAPSMin.mValue + 1;
+
+    if (mStrafe.mValue)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+
+        if (mRotating)
+        {
+            glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
+            auto rot = player->getActorRotationComponent();
+            rot->mPitch = rots.x;
+            rot->mYaw = rots.y;
+            rot->mOldPitch = rots.x;
+            rot->mOldYaw = rots.y;
+
+        }
+    }
 }
 
 void Aura::onBaseTickEvent(BaseTickEvent& event)
@@ -143,6 +162,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     }
 
     if (!foundAttackable) mRotating = false;
+    mHasTarget = foundAttackable;
 }
 
 void Aura::onPacketOutEvent(PacketOutEvent& event)

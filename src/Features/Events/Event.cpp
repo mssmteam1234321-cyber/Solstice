@@ -4,17 +4,17 @@
 
 #include "Event.hpp"
 
-bool CancellableEvent::isCancelled() const
+bool CancelableEvent::isCancelled() const
 {
     return mCancelled;
 }
 
-void CancellableEvent::setCancelled(bool cancelled)
+void CancelableEvent::setCancelled(bool cancelled)
 {
     mCancelled = cancelled;
 }
 
-void CancellableEvent::cancel()
+void CancelableEvent::cancel()
 {
     setCancelled(true);
 }

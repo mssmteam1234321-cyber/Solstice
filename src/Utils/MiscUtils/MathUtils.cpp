@@ -187,3 +187,12 @@ glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const AABB& target)
 {
     return getRots(pEyePos, target.getClosestPoint(pEyePos));
 }
+
+float MathUtils::snapYaw(float yaw)
+{// Snap to a cardinal direction (range: -180 to 180)
+    if (yaw < -135 || yaw > 135) return -180;
+    if (yaw < -45) return -90;
+    if (yaw < 45) return 0;
+    if (yaw < 135) return 90;
+    return 180;
+}

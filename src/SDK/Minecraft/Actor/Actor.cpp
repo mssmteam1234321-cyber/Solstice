@@ -13,10 +13,31 @@
 #include "ActorType.hpp"
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/RuntimeIDComponent.hpp"
+#include "Components/FlagComponent.hpp"
 
 void Actor::swing()
 {
     MemUtils::callVirtualFunc<void>(OffsetProvider::Actor_swing, this);
+}
+
+bool Actor::isSwinging()
+{
+    return hat::member_at<bool>(this, OffsetProvider::Actor_mSwinging);
+}
+
+void Actor::setSwinging(bool swinging)
+{
+    hat::member_at<bool>(this, OffsetProvider::Actor_mSwinging) = swinging;
+}
+
+int Actor::getSwingProgress()
+{
+    return hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4);
+}
+
+void Actor::setSwingProgress(int progress)
+{
+    hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4) = progress;
 }
 
 AABB Actor::getAABB()
@@ -124,6 +145,14 @@ MobBodyRotationComponent* Actor::getMobBodyRotationComponent()
     return mContext.getComponent<MobBodyRotationComponent>();
 }
 
+JumpControlComponent* Actor::getJumpControlComponent()
+{
+    static auto func = SigManager::Mob_getJumpControlComponent;
+    auto id = mContext.mEntityId;
+    return MemUtils::callFastcall<JumpControlComponent*>(func, mContext.mRegistry, &id);
+
+}
+
 SimpleContainer* Actor::getArmorContainer()
 {
     return mContext.getComponent<ActorEquipmentComponent>()->mArmorContainer;
@@ -132,6 +161,11 @@ SimpleContainer* Actor::getArmorContainer()
 PlayerInventory* Actor::getSupplies()
 {
     return hat::member_at<PlayerInventory*>(this, OffsetProvider::Actor_mSupplies);
+}
+
+Level* Actor::getLevel()
+{
+    return hat::member_at<Level*>(this, OffsetProvider::Actor_mLevel);
 }
 
 int64_t Actor::getRuntimeID()
@@ -149,4 +183,61 @@ float Actor::distanceTo(Actor* actor)
 {
     glm::vec3 closestPoint = getAABB().getClosestPoint(*actor->getPos());
     return glm::distance(closestPoint, *actor->getPos());
+}
+
+bool Actor::wasOnGround()
+{
+    auto storage = mContext.assure<FlagComponent<WasOnGroundFlag>>();
+    return storage->contains(this->mContext.mEntityId);
+}
+
+bool Actor::isInWater()
+{
+    auto storage = mContext.assure<FlagComponent<InWaterFlag>>();
+    return storage->contains(this->mContext.mEntityId);
+}
+
+void Actor::setInWater(bool inWater)
+{
+    auto storage = mContext.assure<FlagComponent<InWaterFlag>>();
+    if (inWater)
+    {
+        storage->emplace(this->mContext.mEntityId);
+    }
+    else
+    {
+        storage->remove(this->mContext.mEntityId);
+    }
+}
+
+bool Actor::isOnGround()
+{
+    auto storage = mContext.assure<OnGroundFlagComponent>();
+    return storage->contains(this->mContext.mEntityId);
+}
+
+void Actor::setOnGround(bool flag)
+{
+    auto storage = mContext.assure<OnGroundFlagComponent>();
+    auto wasOnGround = isOnGround();
+    if (flag && !wasOnGround)
+    {
+        storage->emplace(this->mContext.mEntityId);
+    }
+    else if (!flag && wasOnGround)
+    {
+        storage->remove(this->mContext.mEntityId);
+    }
+}
+
+
+void Actor::jumpFromGround()
+{
+    spdlog::info("Jumping from ground");
+    auto jumpComponent = getJumpControlComponent();
+    bool noJumpDelay = jumpComponent->mNoJumpDelay;
+    jumpComponent->mNoJumpDelay = false;
+    static auto func = reinterpret_cast<void*>(SigManager::SimulatedPlayer_simulateJump);
+    MemUtils::callFastcall<void>(func, this);
+    jumpComponent->mNoJumpDelay = noJumpDelay;
 }

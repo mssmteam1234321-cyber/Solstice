@@ -9,6 +9,8 @@
 #include <SDK/Minecraft/Inventory/Item.hpp>
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/World/Block.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 int ItemUtils::getItemValue(ItemStack* item) {
     int value = 0;
@@ -116,5 +118,83 @@ std::unordered_map<SItemType, int> ItemUtils::getBestItems()
     }
 
     return bestItemsResult;
+}
+
+// Blacklisted block name
+constexpr std::array<const char*, 5> blacklistedBlocks = {
+    "netherreactor",
+    "boombox",
+    "lilypad",
+    "torch",
+    "fence"
+};
+
+int ItemUtils::getAllPlaceables(bool hotbarOnly)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    int placeables = 0;
+
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        Item* item = stack->getItem();
+        if (hotbarOnly && i > 8) continue;
+        if (stack->mBlock)
+        {
+            if (std::ranges::find(blacklistedBlocks, stack->mBlock->toLegacy()->mName) != blacklistedBlocks.end()) continue;
+
+            placeables += stack->mCount;
+        }
+    }
+
+    return placeables;
+}
+
+int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool prioHighest)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+    auto supplies = player->getSupplies();
+
+    int slot = -1;
+    // slot, count
+    std::map<int, int> placeables;
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = supplies->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        Item* item = stack->getItem();
+        if (hotbarOnly && i > 8) continue;
+        if (stack->mBlock)
+        {
+            if (std::ranges::find(blacklistedBlocks, stack->mBlock->toLegacy()->mName) != blacklistedBlocks.end()) continue;
+            Block* block = stack->mBlock;
+            if (!block->mLegacy->mayPlaceOn(blockPos)) continue;
+
+            if (!prioHighest)
+            {
+                slot = i;
+                break;
+            }
+
+            placeables[i] = stack->mCount;
+        }
+    }
+
+    if (prioHighest)
+    {
+        int highest = 0;
+        for (const auto& [pSlot, count] : placeables)
+        {
+            if (count > highest)
+            {
+                highest = count;
+                slot = pSlot;
+            }
+        }
+    }
+
+    return slot;
 }
 

@@ -6,7 +6,7 @@
 
 #include "Event.hpp"
 
-class KeyEvent : public CancellableEvent {
+class KeyEvent : public CancelableEvent {
 public:
     int mKey;
     bool mPressed;

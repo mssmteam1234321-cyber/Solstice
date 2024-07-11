@@ -5,7 +5,7 @@
 #pragma once
 #include "Event.hpp"
 
-class MouseEvent : public CancellableEvent {
+class MouseEvent : public CancelableEvent {
     // void* _this, char actionButtonId, char buttonData, __int16 x, __int16 y, __int16 dx, __int16 dy, bool forceMotionlessPointer);
 public:
     void* mThis;

@@ -20,8 +20,10 @@
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
+#include "Movement/Speed.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
+#include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Arraylist.hpp"
@@ -46,11 +48,14 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoSlowDown>());
     mModules.emplace_back(std::make_shared<AntiImmobile>());
     mModules.emplace_back(std::make_shared<Sprint>());
+    mModules.emplace_back(std::make_shared<Speed>());
+
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
+    mModules.emplace_back(std::make_shared<Scaffold>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
@@ -238,9 +243,18 @@ void ModuleManager::deserialize(const nlohmann::json& j)
         ChatUtils::displayClientMessage("§eWarning: The specified config is from a different version of Solstice. §cSome settings may not be loaded§e.");
     }
 
+    int modulesLoaded = 0;
+    int settingsLoaded = 0;
+    // Get names of all modules in the moduleManager
+    std::vector<std::string> moduleNames;
+    for (const auto& module : mModules)
+    {
+        moduleNames.push_back(module->mName);
+    }
     for (const auto& module : j["modules"])
     {
         const std::string name = module["name"];
+        std::erase(moduleNames, name);
         const bool enabled = module["enabled"];
         const int keybind = module["key"];
         //const bool hideInArraylist = module["hideInArraylist"];
@@ -251,13 +265,19 @@ void ModuleManager::deserialize(const nlohmann::json& j)
             mod->mWantedState = enabled;
             mod->mKey = keybind;
             //mod->mHideInArraylist = hideInArraylist;
-
+            // Get the settings for the module
+            std::vector<std::string> settingNames;
+            for (const auto& setting : mod->mSettings)
+            {
+                settingNames.push_back(setting->mName);
+            }
             if (module.contains("settings"))
             {
                 for (const auto& setting : module["settings"].items())
                 {
                     const auto& settingValue = setting.value();
                     const std::string settingName = settingValue["name"];
+                    std::erase(settingNames, settingName);
 
                     auto* set = mod->getSetting(settingName);
                     if (set)
@@ -292,12 +312,23 @@ void ModuleManager::deserialize(const nlohmann::json& j)
                                 colorSetting->mValue[i] = settingValue["colorValue"][i];
                             }
                         }
+
+                        settingsLoaded++;
                     } else
                     {
                         spdlog::warn("Setting {} not found for module {}", settingName, name);
                         ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
                     }
                 }
+
+                modulesLoaded++;
+            }
+
+            // If there are any settings left, log it
+            for (const auto& settingName : settingNames)
+            {
+                spdlog::warn("Setting {} not found for module {}, default value will be used", settingName, name);
+                ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c, default value will be used.");
             }
         } else
         {
@@ -305,4 +336,13 @@ void ModuleManager::deserialize(const nlohmann::json& j)
             ChatUtils::displayClientMessage("§cModule §6" + name + "§c not found.");
         }
     }
+
+    // If there are any modules left, log it
+    for (const auto& moduleName : moduleNames)
+    {
+        spdlog::warn("Module {} not found in config, using default settings", moduleName);
+        ChatUtils::displayClientMessage("§cModule §6" + moduleName + "§c not found in config, using default settings.");
+    }
+
+    spdlog::info("Loaded {} modules and {} settings from config", modulesLoaded, settingsLoaded);
 }

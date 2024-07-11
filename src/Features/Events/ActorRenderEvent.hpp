@@ -13,7 +13,7 @@ class ActorRenderDispatcher;
 class BaseActorRenderContext;
 class Actor;
 
-struct ActorRenderEvent : public CancellableEvent {
+struct ActorRenderEvent : public CancelableEvent {
     ActorRenderDispatcher* _this;
     BaseActorRenderContext* mEntityRenderContext;
     Actor* mEntity;

@@ -7,7 +7,7 @@
 //
 
 
-class ChatEvent : public CancellableEvent {
+class ChatEvent : public CancelableEvent {
     std::string mMessage;
 public:
     explicit ChatEvent(const std::string_view message) {

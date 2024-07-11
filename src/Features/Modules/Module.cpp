@@ -121,5 +121,16 @@ Setting* Module::getSetting(const std::string& string)
             return setting;
         }
     }
+    // Go through again
+    for (auto setting : mSettings)
+    {
+        std::string filteredName = StringUtils::toLower(setting->mName);
+        std::erase_if(filteredName, [](char c) { return !std::isalnum(c); });
+
+        if (filteredName == StringUtils::toLower(string))
+        {
+            return setting;
+        }
+    }
     return nullptr;
 }

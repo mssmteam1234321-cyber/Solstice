@@ -19,7 +19,7 @@ void AntiCheatDetector::onEnable()
     mLastCheck = NOW;
     mDetectedAntiCheat = AntiCheats::None;
     ChatUtils::displayClientMessageRaw("§8[§cF§8]§r §7Recalculating...");
-    ClientInstance::get()->playUi("random.orb", 1.0f, 0.75f);
+    ClientInstance::get()->playUi("random.orb", 1.0f, 0.5f);
 
 }
 
@@ -58,8 +58,12 @@ void AntiCheatDetector::onBaseTickEvent(BaseTickEvent& event)
 void AntiCheatDetector::onPacketInEvent(PacketInEvent& event)
 {
     if (event.mPacket->getId() == PacketID::ChangeDimension) {
-        // Return if the last check was within 2 seconds
-        if (NOW - mLastCheck < 2000) return;
+        static uint64_t lastDimensionChange = 0;
+        // Return if the last dimension change was within 1 seconds
+        if (NOW - lastDimensionChange < 1000) return;
+
+
+        lastDimensionChange = NOW;
 
         // If the player changes dimension, reset the anti-cheat detection
         mDetectedAntiCheat = AntiCheats::None;

@@ -67,6 +67,7 @@ public:
 
     AABB mTargetedAABB = AABB();
     bool mRotating = false;
+    bool mHasTarget = false;
 
     void onEnable() override;
     void onDisable() override;

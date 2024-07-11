@@ -26,6 +26,12 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
     spdlog::error(text);
 
     auto result = MessageBoxA(nullptr, LPCSTR(text.c_str()), "Unhandled Exception", MB_ABORTRETRYIGNORE | MB_ICONERROR);
+
+    // deconstruct stack trace
+    stackTrace.clear();
+    sw.~StackWalker();
+
+
     switch (result)
     {
     case IDABORT:

@@ -13,8 +13,7 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <Utils/Keyboard.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
+#include <glm/glm.hpp>
 
 class PlayerAuthInputPacket;
 

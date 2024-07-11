@@ -149,6 +149,7 @@ public:
 
 #define PADDING(size) char TOKENPASTE2(padding_, __LINE__) [size]
 
+    static uintptr_t getAddressByIndex(uintptr_t _this, int index);
 
     static const std::string getMbMemoryString(uintptr_t addr);
 

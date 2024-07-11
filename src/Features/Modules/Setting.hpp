@@ -20,6 +20,7 @@ class Setting
 {
 public:
     virtual ~Setting() = default;
+    bool parse(const std::string& value);
 
     std::string mName;
     std::string mDescription;
@@ -244,5 +245,12 @@ public:
             mValue[3]
         };
         return j;
+    }
+
+    void setFromHex(unsigned long val) {
+        mValue[0] = ((val >> 16) & 0xFF) / 255.0f;
+        mValue[1] = ((val >> 8) & 0xFF) / 255.0f;
+        mValue[2] = (val & 0xFF) / 255.0f;
+        mValue[3] = ((val >> 24) & 0xFF) / 255.0f;
     }
 };

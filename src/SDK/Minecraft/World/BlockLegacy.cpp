@@ -18,7 +18,8 @@ uint16_t BlockLegacy::getBlockId()
 bool BlockLegacy::mayPlaceOn(glm::ivec3 pos)
 {
     BlockSource* blockSource = ClientInstance::get()->getBlockSource();
-    return MemUtils::callFastcall<bool, void*, void*, const glm::ivec3&>(SigManager::BlockLegacy_mayPlaceOn, this, blockSource, pos);
+    static auto vIndex = OffsetProvider::BlockLegacy_mayPlaceOn;
+    return MemUtils::callVirtualFunc<bool, void*, const glm::ivec3&>(vIndex, this, blockSource, pos);
 }
 
 bool BlockLegacy::isAir()

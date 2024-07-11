@@ -5,8 +5,12 @@
 #include "BlockUtils.hpp"
 
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
-#include <omp.h>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 
 std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, float r)
 {
@@ -28,4 +32,111 @@ std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, floa
 
 
     return newBlocks;
+}
+
+int BlockUtils::getBlockPlaceFace(glm::ivec3 blockPos)
+{
+    for (auto& [face, offset] : blockFaceOffsets)
+        if (!isAirBlock(blockPos + glm::ivec3(offset))) return face;
+    return -1;
+}
+
+bool BlockUtils::isAirBlock(glm::ivec3 blockPos)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return false;
+
+    return ClientInstance::get()->getBlockSource()->getBlock(blockPos)->toLegacy()->getBlockId() == 0;
+}
+
+glm::ivec3 BlockUtils::getClosestPlacePos(glm::ivec3 pos, float distance)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return pos;
+
+    for (int i = 2; i < 6; i++) {
+        glm::vec3 blockSel = pos + glm::ivec3(blockFaceOffsets[i]);
+        if (isValidPlacePos(blockSel) && isAirBlock(blockSel)) return blockSel;
+    }
+
+    glm::vec3 playerPos = *player->getPos() - glm::vec3(0, PLAYER_HEIGHT + 1.f, 0);
+    playerPos = glm::floor(playerPos);
+
+    auto closestBlock = glm::vec3(INT_MAX, INT_MAX, INT_MAX);
+    float closestDist = FLT_MAX;
+
+    for (int x = pos.x - distance; x < pos.x + distance; x++)
+        for (int y = pos.y - distance; y < pos.y + distance; y++)
+            for (int z = pos.z - distance; z < pos.z + distance; z++)
+            {
+                auto blockSel = glm::vec3(x, y, z);
+                if (isValidPlacePos(blockSel) && isAirBlock(blockSel)) {
+                    float distance = glm::distance(playerPos, blockSel);
+                    if (distance < closestDist) {
+                        closestDist = distance;
+                        closestBlock = blockSel;
+                    }
+                }
+            }
+
+    if (closestBlock.x != INT_MAX && closestBlock.y != INT_MAX && closestBlock.z != INT_MAX) {
+        return closestBlock;
+    }
+
+    for (int i = 0; i < 1; i++) {
+        glm::ivec3 blockSel = pos + glm::ivec3(blockFaceOffsets[i]);
+        if (isValidPlacePos(blockSel)) return blockSel;
+    }
+
+    return { INT_MAX, INT_MAX, INT_MAX };
+}
+
+bool BlockUtils::isValidPlacePos(glm::ivec3 blockPos)
+{
+    return getBlockPlaceFace(blockPos) != -1;
+}
+
+void BlockUtils::placeBlock(glm::vec3 pos, int side)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    glm::ivec3 blockPos = pos;
+    if (side == -1) side = getBlockPlaceFace(blockPos);
+
+    glm::vec3 vec = blockPos;
+
+    if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
+
+    HitResult* res = player->getLevel()->getHitResult();
+
+    if (res->mType == HitType::BLOCK) {
+        vec += blockFaceOffsets[side] * 0.5f;
+
+        res->mBlockPos = vec;
+        res->mFacing = side;
+
+        res->mType = HitType::BLOCK;
+        res->mIndirectHit = false;
+        res->mRayDir = vec;
+        res->mPos = blockPos;
+    }
+
+    bool oldSwinging = player->isSwinging();
+    int oldSwingProgress = player->getSwingProgress();
+    player->getGameMode()->buildBlock(blockPos + glm::ivec3(blockFaceOffsets[side]) , side, true);
+    player->setSwinging(oldSwinging);
+    player->setSwingProgress(oldSwingProgress);
+
+    if (res->mType == HitType::BLOCK) {
+        vec += blockFaceOffsets[side] * 0.5f;
+
+        res->mBlockPos = vec;
+        res->mFacing = side;
+
+        res->mType = HitType::BLOCK;
+        res->mIndirectHit = false;
+        res->mRayDir = vec;
+        res->mPos = blockPos;
+    }
+
+    return;
 }

@@ -7,11 +7,11 @@
 #include "Event.hpp"
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 
-class PacketOutEvent : public CancellableEvent {
+class PacketOutEvent : public CancelableEvent {
 public:
     Packet* packet;
 
-    explicit PacketOutEvent(Packet* packet) : CancellableEvent() {
+    explicit PacketOutEvent(Packet* packet) : CancelableEvent() {
         this->packet = packet;
     }
 

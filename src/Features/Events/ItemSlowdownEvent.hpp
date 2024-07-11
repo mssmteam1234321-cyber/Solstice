@@ -6,7 +6,7 @@
 
 #include "Event.hpp"
 
-class ItemSlowdownEvent : public CancellableEvent {
+class ItemSlowdownEvent : public CancelableEvent {
 public:
-    ItemSlowdownEvent() : CancellableEvent() {}
+    ItemSlowdownEvent() : CancelableEvent() {}
 };

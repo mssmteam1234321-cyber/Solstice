@@ -4,13 +4,15 @@
 #pragma once
 
 enum struct EventPriorities {
-    ABSOLUTE_FIRST = 0,
-    VERY_FIRST = 1,
-    FIRST = 2,
-    NORMAL = 3,
-    LAST = 4,
-    VERY_LAST = 5,
-    ABSOLUTE_LAST = 6
+    ABSOLUTE_FIRST,
+    VERY_FIRST,
+    FIRST,
+    KINDA_FIRST,
+    NORMAL,
+    KINDA_LAST,
+    LAST,
+    VERY_LAST,
+    ABSOLUTE_LAST,
 };
 #define NES_PRIORITY_TYPE EventPriorities
 

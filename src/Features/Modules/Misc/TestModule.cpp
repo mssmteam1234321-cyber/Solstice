@@ -14,6 +14,7 @@
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 #include <spdlog/spdlog.h>
 #include <Utils/MiscUtils/SoundUtils.hpp>
 
@@ -35,6 +36,10 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
+
+    //player->jumpFromGround();
+    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(glm::ivec3(0, 0, 0));
+
 }
 
 void displayCopyableAddress(const std::string& name, void* address)
@@ -52,18 +57,24 @@ void displayCopyableAddress(const std::string& name, void* address)
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
     ImGui::Begin("TestModule");
     ImGui::Text("TestModule");
     auto blockSource = ClientInstance::get()->getBlockSource();
-    auto player = ClientInstance::get()->getLocalPlayer();
+
+    if (gDaBlock)
+    {
+        displayCopyableAddress("fuckyou", gDaBlock->mLegacy->mVfTable[85]);
+    }
 
     displayCopyableAddress("swing", player->vtable[117]);
 
-    ImGui::Button("Play Sound Test");
-    if (ImGui::IsItemClicked())
-    {
-        SoundUtils::playSoundFromEmbeddedResource("fard.wav", 1.0f);
-    }
+    ImGui::Text("isOnGround: %d", player->isOnGround());
+    ImGui::Text("wasOnGround: %d", player->wasOnGround());
+    ImGui::Text("isInWater: %d", player->isInWater());
+    displayCopyableAddress("getHitResult", player->getLevel()->mVfTable[288]);
 
     ImGui::End();
 }
