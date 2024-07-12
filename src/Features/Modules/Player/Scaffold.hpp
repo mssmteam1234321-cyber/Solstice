@@ -3,6 +3,7 @@
 // Created by vastrakai on 7/10/2024.
 //
 
+#include <Features/FeatureManager.hpp>
 #include <Features/Modules/Module.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 
@@ -35,6 +36,11 @@ public:
         Velocity,
     };
 
+    enum class BlockHUDStyle {
+        None,
+        Solstice,
+    };
+
     NumberSetting mPlaces = NumberSetting("Places", "The amount of blocks to place per tick", 1, 0, 20, 0.01);
     NumberSetting mRange = NumberSetting("Range", "The range at which to place blocks", 5, 0, 10, 0.01);
     NumberSetting mExtend = NumberSetting("Extend", "The distance to extend the placement", 0, 0, 10, 1);
@@ -45,6 +51,7 @@ public:
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only place blocks from the hotbar", false);
     EnumSetting mTowerMode = EnumSetting("Tower Mode", "The mode for tower placement", TowerMode::Vanilla, "Vanilla", "Velocity");
     NumberSetting mTowerSpeed = NumberSetting("Tower Speed", "The speed for tower placement", 8.5, 0, 20, 0.01);
+    EnumSetting mBlockHUDStyle = EnumSetting("HUD Style", "The style for the block HUD", BlockHUDStyle::Solstice, "None", "Solstice");
     BoolSetting mFallDistanceCheck = BoolSetting("Fall Distance Check", "Whether or not to check fall distance before towering", false);
     BoolSetting mAllowMovement = BoolSetting("Allow Movement", "Whether or not to allow movement while towering", false);
     BoolSetting mFlareonV2Placement = BoolSetting("Flareon V2", "Whether or not to use Flareon V2 placement", false);
@@ -56,7 +63,7 @@ public:
     BoolSetting mTest = BoolSetting("Test", "Test", false);
 
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
-        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
+        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mBlockHUDStyle, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
 
         VISIBILITY_CONDITION(mSwitchPriority, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
         VISIBILITY_CONDITION(mHotbarOnly, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
@@ -71,6 +78,8 @@ public:
             {Normal, "Scaffold"},
             {NormalSpaced, "Scaffold"}
         };
+
+        gFeatureManager->mDispatcher->listen<RenderEvent, &Scaffold::onRenderEvent>(this);
     }
 
     float mStartY = 0;

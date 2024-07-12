@@ -21,4 +21,5 @@ public:
     static bool containsIgnoreCase(const std::string& str, const std::string& subStr);
     static bool containsAnyIgnoreCase(const std::string& str, const std::vector<std::string>& strVector);
     static std::string getClipboardText();
+    static std::string join(const std::vector<std::string>& strings, const std::string& delimiter);
 };

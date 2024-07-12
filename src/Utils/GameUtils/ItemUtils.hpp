@@ -16,5 +16,6 @@ public:
     static std::unordered_map<SItemType, int> getBestItems();
     static int getAllPlaceables(bool hotbarOnly = true);
     static int getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly = true, bool prioHighest = true);
-
+    static int getSwiftnessSpellbook();
+    static void useItem(int slot);
 };

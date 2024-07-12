@@ -9,21 +9,24 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <Utils/FontHelper.hpp>
 #include <Utils/Keyboard.hpp>
+#include <Utils/StringUtils.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/MiscUtils/BlockUtils.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
+#include <Utils/MiscUtils/EasingUtil.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
 
 void Scaffold::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Scaffold::onBaseTickEvent, nes::event_priority::LAST>(this);
-    gFeatureManager->mDispatcher->listen<RenderEvent, &Scaffold::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Scaffold::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
 
 
@@ -37,7 +40,6 @@ void Scaffold::onEnable()
 void Scaffold::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Scaffold::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->deafen<RenderEvent, &Scaffold::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Scaffold::onPacketOutEvent>(this);
 
     // Reset fields
@@ -192,6 +194,124 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
 void Scaffold::onRenderEvent(RenderEvent& event)
 {
+
+    if (mBlockHUDStyle.as<BlockHUDStyle>() == BlockHUDStyle::None) return;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    float delta = ImGui::GetIO().DeltaTime;
+
+    static EasingUtil inEase = EasingUtil();
+    static float anim = 0.f;
+    constexpr float easeSpeed = 10.f;
+    this->mEnabled ? inEase.incrementPercentage(delta * easeSpeed / 10)
+    : inEase.decrementPercentage(delta * 2 * easeSpeed / 10);
+    float inScale = inEase.easeOutExpo();
+    if (inEase.isPercentageMax()) inScale = 0.996;
+    inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
+    anim = MathUtils::lerp(0, 1, inEase.easeOutExpo());
+
+    anim = MathUtils::lerp(anim, mEnabled ? 1.f : 0.f, delta * 10.f);
+
+    if (anim < 0.0001f) return;
+
+    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y * 0.75f);
+
+    int totalBlocks = ItemUtils::getAllPlaceables(mHotbarOnly.mValue);
+
+    std::string displayText = "Blocks: ";
+    Interface* interface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (interface->mNamingStyle.as<NamingStyle>() == NamingStyle::Lowercase || interface->mNamingStyle.as<NamingStyle>() == NamingStyle::LowercaseSpaced)
+    {
+        displayText = "blocks: ";
+    }
+    std::string text = displayText + std::to_string(totalBlocks);
+    std::string numberText = std::to_string(totalBlocks);
+
+    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+
+    float fontSize = 25.f * anim;
+
+    ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, text.c_str());
+    // Compensate for anim
+    pos.x -= textSize.x / 2;
+    pos.y -= textSize.y / 2;
+
+    auto drawList = ImGui::GetBackgroundDrawList();
+
+    drawList->AddShadowRect(ImVec2(pos.x - 5, pos.y - 5), ImVec2(pos.x + textSize.x + 5, pos.y + textSize.y + 5), ImColor(0.f, 0.f, 0.f, 0.45f * anim), 500, ImVec2(0, 0));
+    drawList->AddRectFilled(ImVec2(pos.x - 5, pos.y - 5), ImVec2(pos.x + textSize.x + 5, pos.y + textSize.y + 5), ImColor(0.f, 0.f, 0.f, (0.45f * anim)), 5.f, 0);
+
+    ImColor color = ImColor(255, 255, 255, 255);
+
+    // Center the text on the bg
+
+    for (int i = 0; i < displayText.size(); i++) {
+        color = ColorUtils::getThemedColor(i * 100);
+        color.Value.w = color.Value.w * anim;
+        ImVec2 ptextSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, std::string(1, displayText[i]).c_str());
+
+        //Render::RenderText(std::string(1, display[i]), pos, fontSize, ImColor(color.Value.x, color.Value.y, color.Value.z, color.Value.w * inScale), true);
+        ImVec2 shadowPos = ImVec2(pos.x + 1, pos.y + 1);
+        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f), std::string(1, displayText[i]).c_str());
+        drawList->AddText(ImGui::GetFont(), fontSize, pos, color, std::string(1, displayText[i]).c_str());
+        pos.x += ptextSize.x;
+    }
+
+    int colorStartingIndex = displayText.size() * 100;
+
+    // render da number
+    // Smoothly animate the number
+    static std::vector<std::string> numbers = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    static std::string joinedNumbers = StringUtils::join(numbers, "\n");
+
+    int num = totalBlocks;
+    std::string numStr = std::to_string(num);
+
+    // Add a cliprect to the drawlist
+    ImVec2 numTextSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, numStr.c_str());
+
+    ImVec2 clipRectMin = ImVec2(pos.x, pos.y);
+    ImVec2 clipRectMax = ImVec2(pos.x + numTextSize.x + 5, pos.y + numTextSize.y);
+
+    drawList->PushClipRect(clipRectMin, clipRectMax, true);
+
+    // Render the number
+    for (int i = 0; i < numStr.size(); i++) {
+        // Calc text size
+        std::string num = std::string(1, numStr[i]);
+        int realNum = std::stoi(num);
+        ImVec2 ptextSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, num.c_str());
+
+        float offset = ptextSize.y * (realNum);
+        static std::map<int, float> indexOffsetMap;
+
+        if (!indexOffsetMap.contains(i)) {
+            indexOffsetMap[i] = offset;
+        }
+
+        // Scroll the number smoothly to the offset
+        ImVec2 daPos = ImVec2((float)i * (float)ptextSize.x + pos.x, (float)-indexOffsetMap[i] + pos.y);
+
+        color = ColorUtils::getThemedColor(colorStartingIndex + i * 100);
+        color.Value.w = color.Value.w * anim;
+
+        // Draw the number
+        //Render::RenderText(joinedNumbers, daPos, fontSize, ImColor(color.Value.x, color.Value.y, color.Value.z, color.Value.w * AnimationPerc), true);
+        ImVec2 shadowPos = ImVec2(daPos.x + 1, daPos.y + 1);
+        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f * anim), joinedNumbers.c_str());
+        drawList->AddText(ImGui::GetFont(), fontSize, daPos, color, joinedNumbers.c_str());
+        // we will cliprect this later
+
+        // lerp da offset
+        indexOffsetMap[i] = MathUtils::lerp(indexOffsetMap[i], offset, ImGui::GetIO().DeltaTime * 10.f);
+    }
+
+    drawList->PopClipRect();
+
+
+    ImGui::PopFont();
 
 }
 

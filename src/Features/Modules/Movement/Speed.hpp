@@ -2,8 +2,10 @@
 //
 // Created by vastrakai on 7/10/2024.
 //
+#include <Features/FeatureManager.hpp>
 #include <Features/Modules/Module.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
 
 enum class JumpType {
     Vanilla,
@@ -47,6 +49,10 @@ public:
 
     EnumSetting mMode = EnumSetting("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
     EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1");
+    BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
+    BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
+    NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);
+    NumberSetting mSwiftnessFriction = NumberSetting("Swiftness Friction", "The friction to apply when swiftness is active", 0.975, 0, 1, 0.01);
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
     BoolSetting mTimerBoost = BoolSetting("Timer Boost", "Whether or not to boost timer speed", false);
@@ -59,7 +65,12 @@ public:
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
     Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
-        addSettings(&mMode, &mFlareonPreset, &mSpeed, &mFriction, &mTimerBoost, &mTimerSpeed, &mFastFall, &mFallTicks, &mFallSpeed, &mJumpType, &mJumpHeight, &mApplyNetskip);
+        addSettings(&mMode, &mFlareonPreset, &mSwiftness, &mHoldSpace, &mSwiftnessSpeed, &mSwiftnessFriction, &mSpeed, &mFriction, &mTimerBoost, &mTimerSpeed, &mFastFall, &mFallTicks, &mFallSpeed, &mJumpType, &mJumpHeight, &mApplyNetskip);
+
+        VISIBILITY_CONDITION(mSwiftnessSpeed, mSwiftness.mValue);
+        VISIBILITY_CONDITION(mSwiftnessFriction, mSwiftness.mValue);
+        VISIBILITY_CONDITION(mHoldSpace, mSwiftness.mValue);
+
 
         VISIBILITY_CONDITION(mFlareonPreset, mMode.as<Mode>() == Mode::FlareonV1);
         VISIBILITY_CONDITION(mSpeed, mMode.as<Mode>() == Mode::Friction);
@@ -79,12 +90,18 @@ public:
             {Normal, "Speed"},
             {NormalSpaced, "Speed"}
         };
+
+        gFeatureManager->mDispatcher->listen<PacketInEvent, &Speed::onPacketInEvent>(this);
     }
+
+    std::map<EffectType, uint64_t> mEffectTimers = {};
 
     void onEnable() override;
     void onDisable() override;
     void onRunUpdateCycleEvent(class RunUpdateCycleEvent& event);
+    bool tickSwiftness();
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void tickFriction(Actor* player);
     void tickFrictionPreset(FrictionPreset& preset);

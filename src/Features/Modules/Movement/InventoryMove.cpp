@@ -73,15 +73,18 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (screenName != "hud_screen")input->mIsMoveLocked = true;
+    if (screenName != "hud_screen") input->mIsMoveLocked = true;
     else input->mIsMoveLocked = false;
 
     input->mForward = w;
     input->mBackward = s;
     input->mLeft = a;
     input->mRight = d;
-    input->mIsJumping = space;
-    input->mIsJumping2 = space;
+    if (screenName != "hud_screen") // I hate this game
+    {
+        input->mIsJumping = space;
+        input->mIsJumping2 = space;
+    }
     input->mIsSneakDown = shift;
     input->mMoveVector = MathUtils::getMovement();
 }

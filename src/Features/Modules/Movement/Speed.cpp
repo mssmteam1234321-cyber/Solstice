@@ -4,18 +4,23 @@
 
 #include "Speed.hpp"
 
+#include <SDL_stdinc.h>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RunUpdateCycleEvent.hpp>
 #include <Features/Modules/Player/Scaffold.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
 #include <Utils/Keyboard.hpp>
+#include <Utils/GameUtils/ItemUtils.hpp>
+#include <Utils/MiscUtils/ColorUtils.hpp>
 #include <Utils/MiscUtils/EasingUtil.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
-
+#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 
 void Speed::onEnable()
@@ -49,10 +54,80 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
     }
 }
 
+bool Speed::tickSwiftness()
+{
+    bool hasSpeed = mEffectTimers.contains(EffectType::Speed);
+    for (auto& [effect, time] : mEffectTimers)
+    {
+        // if time is expired, clear the effect
+        if (time < NOW) mEffectTimers.erase(effect);
+        if (time > NOW && effect == EffectType::Speed)
+        {
+            if (time - NOW < 100) hasSpeed = false;
+            else hasSpeed = true;
+        }
+    }
+
+    static bool lastSpace = false;
+    bool space = Keyboard::mPressedKeys[VK_SPACE];
+
+    int spellbook = ItemUtils::getSwiftnessSpellbook();
+    if (spellbook == -1 && !hasSpeed) return false;
+
+    static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
+
+
+    if (space && !lastSpace && !hasSpeed && spellbook != -1 && !scaffold->mEnabled)
+    {
+        ItemUtils::useItem(spellbook);
+        NotifyUtils::Notify("Using swiftness!", 5.f, Notification::Type::Info);
+    }
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    if (space && hasSpeed || !mHoldSpace.mValue && hasSpeed)
+    {
+        auto input = player->getMoveInputComponent();
+        input->mIsJumping = false;
+
+        glm::vec3 velocity = player->getStateVectorComponent()->mVelocity;
+        float movementSpeed = sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+
+        float movementYaw = atan2(velocity.z, velocity.x);
+        float movementYawDegrees = movementYaw * (180.0f / M_PI) - 90.f;
+
+        float playerYawDegrees = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+
+        float yawDifference = playerYawDegrees - movementYawDegrees;
+        float yawDifferenceRadians = yawDifference * (M_PI / 180.0f);
+        float newMovementYaw = movementYaw + yawDifferenceRadians;
+        static float fric = 1.f;
+        if (!player->isOnGround()) fric *= mSwiftnessFriction.as<float>();
+        else fric = 1.f;
+
+        if (Keyboard::isUsingMoveKeys())
+        {
+            movementSpeed = mSwiftnessSpeed.mValue * fric;
+        }
+        glm::vec3 newVelocity = {cos(newMovementYaw) * movementSpeed, velocity.y, sin(newMovementYaw) * movementSpeed};
+        player->getStateVectorComponent()->mVelocity = newVelocity;
+
+        return true;
+    }
+
+    lastSpace = space;
+    return false;
+}
+
 void Speed::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
     if (!player) return;
+
+    if (mSwiftness.mValue)
+    {
+        if (tickSwiftness()) return;
+    }
 
     if (mMode.as<Mode>() == Mode::Friction)
     {
@@ -76,6 +151,33 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         }
         tickFrictionPreset(preset);
     }
+}
+
+void Speed::onPacketInEvent(PacketInEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::MobEffect)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+
+        auto mep = event.getPacket<MobEffectPacket>();
+
+        if (mep->mRuntimeId != player->getRuntimeID()) return;
+
+        auto effect = std::string(mep->getEffectName());
+        auto eventName = std::string(mep->getEventName());
+        uint64_t time = mep->mEffectDurationTicks * 50;
+
+        if (mep->mEventId == MobEffectPacket::Event::Add) {
+            mEffectTimers[mep->mEffectId] = NOW + time;
+        } else if (mep->mEventId == MobEffectPacket::Event::Remove) {
+            mEffectTimers.erase(mep->mEffectId);
+        }
+
+        spdlog::info("Effect: {} Event: {} Time: {}", effect, eventName, time);
+    }
+
+    if (!mEnabled) return;
 }
 
 void Speed::onPacketOutEvent(PacketOutEvent& event)

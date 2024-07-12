@@ -7,9 +7,12 @@
 #include <Features/FeatureManager.hpp>
 #include <utility>
 
+#include "spdlog/spdlog.h"
+
 void NotifyUtils::Notify(std::string message, float duration, Notification::Type type)
 {
     const auto notification = Notification(std::move(message), type, duration);
     auto holder = nes::make_holder<NotifyEvent>(notification);
     gFeatureManager->mDispatcher->trigger<NotifyEvent>(holder);
+    spdlog::info("[NotifyUtils] Notified: {}", message);
 }

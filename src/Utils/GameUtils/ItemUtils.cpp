@@ -6,11 +6,13 @@
 
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Inventory/Item.hpp>
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <Utils/StringUtils.hpp>
 
 int ItemUtils::getItemValue(ItemStack* item) {
     int value = 0;
@@ -198,3 +200,40 @@ int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool
     return slot;
 }
 
+int ItemUtils::getSwiftnessSpellbook()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+
+    int slot = -1;
+
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        Item* item = stack->getItem();
+        if (StringUtils::containsIgnoreCase(stack->getCustomName(), "Spell of Swiftness"))
+        {
+            slot = i;
+            break;
+        }
+    }
+
+    return slot;
+}
+
+void ItemUtils::useItem(int slot)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    ItemStack* stack = player->getSupplies()->getContainer()->getItem(slot);
+    if (!stack->mItem) return;
+
+    auto supplies = player->getSupplies();
+
+    int currentSlot = supplies->mSelectedSlot;
+    supplies->mSelectedSlot = slot;
+    player->getGameMode()->baseUseItem(stack);
+    supplies->mSelectedSlot = currentSlot;
+}
