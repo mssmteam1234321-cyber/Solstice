@@ -35,6 +35,7 @@ public:
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
     void swing();
+    bool isDestroying();
     bool isSwinging();
     void setSwinging(bool swinging);
     int getSwingProgress();

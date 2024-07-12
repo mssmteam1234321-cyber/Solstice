@@ -5,6 +5,7 @@
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
 
 #include <glm/glm.hpp>
+#include <SDK/Minecraft/World/BlockSource.hpp>
 //
 // Created by vastrakai on 7/6/2024.
 //
@@ -18,4 +19,6 @@ public:
     static int getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly = true, bool prioHighest = true);
     static int getSwiftnessSpellbook();
     static void useItem(int slot);
+    static int getBestBreakingTool(Block* block);
+    static float getDestroySpeed(int slot, Block* block);
 };

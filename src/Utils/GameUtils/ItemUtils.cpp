@@ -237,3 +237,44 @@ void ItemUtils::useItem(int slot)
     player->getGameMode()->baseUseItem(stack);
     supplies->mSelectedSlot = currentSlot;
 }
+
+int ItemUtils::getBestBreakingTool(Block* block)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+
+    auto supplies = player->getSupplies();
+    auto container = supplies->getContainer();
+
+    int bestSlot = supplies->mSelectedSlot;
+    float bestSpeed = 0.0f;
+
+    for (int i = 0; i < 36; i++)
+    {
+        auto item = container->getItem(i);
+        if (!item->mItem) continue;
+
+        float speed = getDestroySpeed(i, block);
+        if (speed > bestSpeed)
+        {
+            bestSpeed = speed;
+            bestSlot = i;
+        }
+    }
+
+    return bestSlot;
+}
+
+float ItemUtils::getDestroySpeed(int slot, Block* block)
+{
+    float result = 1.0f;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return result;
+
+    int oldSlot = player->getSupplies()->mSelectedSlot;
+    player->getSupplies()->mSelectedSlot = slot;
+    result = player->getGameMode()->getDestroyRate(*block);
+    player->getSupplies()->mSelectedSlot = oldSlot;
+
+    return result;
+}

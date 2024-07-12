@@ -21,6 +21,11 @@ void Actor::swing()
     MemUtils::callVirtualFunc<void>(OffsetProvider::Actor_swing, this);
 }
 
+bool Actor::isDestroying()
+{
+    return hat::member_at<bool>(this, OffsetProvider::Actor_mDestroying);
+}
+
 bool Actor::isSwinging()
 {
     return hat::member_at<bool>(this, OffsetProvider::Actor_mSwinging);
