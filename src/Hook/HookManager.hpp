@@ -54,7 +54,9 @@ public:
                         hook->init();   \
                     }));           \
                     HookManager::mHooks.push_back(std::move(hook));                                   \
-                }                   \
+                } else { \
+                    spdlog::error("Hook {} already registered", #HookType); \
+                } \
             }                   \
         } HookType##RegisterInstance;                     \
     }

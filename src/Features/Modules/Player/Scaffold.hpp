@@ -11,7 +11,8 @@ public:
     enum class RotateMode {
         None,
         Normal,
-        Down
+        Down,
+        Backwards
     };
 
     enum class PlacementMode {
@@ -29,25 +30,34 @@ public:
         Highest
     };
 
-
+    enum class TowerMode {
+        Vanilla,
+        Velocity,
+    };
 
     NumberSetting mPlaces = NumberSetting("Places", "The amount of blocks to place per tick", 1, 0, 10, 0.01);
     NumberSetting mRange = NumberSetting("Range", "The range at which to place blocks", 5, 0, 10, 0.01);
     NumberSetting mExtend = NumberSetting("Extend", "The distance to extend the placement", 0, 0, 10, 1);
-    EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Down");
+    EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Down", "Backwards");
     EnumSetting mPlacementMode = EnumSetting("Placement", "The mode for block placement", PlacementMode::Normal, "Normal", "Flareon");
     EnumSetting mSwitchMode = EnumSetting("Switch Mode", "The mode for block switching", SwitchMode::None, "None", "Full");
     EnumSetting mSwitchPriority = EnumSetting("Switch Prio", "The priority for block switching", SwitchPriority::First, "First", "Highest");
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only place blocks from the hotbar", false);
+    EnumSetting mTowerMode = EnumSetting("Tower Mode", "The mode for tower placement", TowerMode::Vanilla, "Vanilla", "Velocity");
+    NumberSetting mTowerSpeed = NumberSetting("Tower Speed", "The speed for tower placement", 8.5, 0, 20, 0.01);
+    BoolSetting mFallDistanceCheck = BoolSetting("Fall Distance Check", "Whether or not to check fall distance before towering", false);
+    BoolSetting mAllowMovement = BoolSetting("Allow Movement", "Whether or not to allow movement while towering", false);
     BoolSetting mFlareonV2Placement = BoolSetting("Flareon V2", "Whether or not to use Flareon V2 placement", false);
     BoolSetting mLockY = BoolSetting("Lock Y", "Whether or not to lock the Y position", false);
     BoolSetting mSwing = BoolSetting("Swing", "Whether or not to swing the arm", false);
+    BoolSetting mTest = BoolSetting("Test", "Test", false);
 
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
-        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mFlareonV2Placement, &mLockY, &mSwing);
+        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mLockY, &mSwing, &mTest);
 
         VISIBILITY_CONDITION(mSwitchPriority, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
         VISIBILITY_CONDITION(mHotbarOnly, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
+        VISIBILITY_CONDITION(mTowerSpeed, mTowerMode.as<TowerMode>() != TowerMode::Vanilla);
 
         mNames = {
             {Lowercase, "scaffold"},
@@ -62,6 +72,10 @@ public:
     int mLastFace = -1;
     bool mShouldRotate = false;
     uint64_t mLastSwitchTime = 0;
+    int mLastSlot = -1;
+
+    // Tower stuff
+    bool mIsTowering = false;
 
     void onEnable() override;
     void onDisable() override;

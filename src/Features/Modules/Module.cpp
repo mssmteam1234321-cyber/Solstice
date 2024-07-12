@@ -37,12 +37,14 @@ void Module::setEnabled(bool enabled)
     if (newEnabled && !prevEnabled)
     {
         auto holder = nes::make_holder<ModuleStateChangeEvent>(this, newEnabled, prevEnabled);
+        spdlog::trace(mName + " triggered state change [new: " + std::to_string(newEnabled) + ", prev: " + std::to_string(prevEnabled) + "]");
         gFeatureManager->mDispatcher->trigger(holder);
         if (holder->isCancelled()) return;
     }
     if (!newEnabled && prevEnabled)
     {
         auto holder = nes::make_holder<ModuleStateChangeEvent>(this, newEnabled, prevEnabled);
+        spdlog::trace(mName + " triggered state change [new: " + std::to_string(newEnabled) + ", prev: " + std::to_string(prevEnabled) + "]");
         gFeatureManager->mDispatcher->trigger(holder);
         if (holder->isCancelled()) return;
     }

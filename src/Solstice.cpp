@@ -30,7 +30,7 @@ void Solstice::init(HMODULE hModule)
 {
     // Not doing this could cause crashes if you inject too soon
     // Honestly, I don't think this helps much but it's not a bad idea to have it here
-    while (ProcUtils::getModuleCount() < 130) Sleep(1);
+    while (ProcUtils::getModuleCount() < 130) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     mModule = hModule;
     mInitialized = true;
@@ -43,6 +43,7 @@ void Solstice::init(HMODULE hModule)
     spdlog::set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%^%l%$%$%#%$] %v");
     console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$%$%#%$] %v");
     console->set_level(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::trace);
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
         + CC(255, 0, 0) + " [Debug] " + ANSI_COLOR_RESET
@@ -88,17 +89,33 @@ void Solstice::init(HMODULE hModule)
 
     console->info("Press END to eject dll.");
 
+    // Create a thread to monitor the mLastTick variable
+    mLastTick = NOW;
+    std::thread t([]() {
+        while (!mRequestEject)
+        {
+            mLastTick = NOW;
+            gFeatureManager->mModuleManager->onClientTick();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        }
+    });
+
     // Wait for the user to press END
     bool firstCall = true;
     while (!mRequestEject)
     {
-        // For each module, call the onClientTick method
-        gFeatureManager->mModuleManager->onClientTick();
         if (firstCall)
         {
             NotifyUtils::Notify("Solstice initialized!", 5.0f, Notification::Type::Info);
             firstCall = false;
         }
+
+        if (NOW - mLastTick > 1000)
+        {
+            console->critical("Client tick took too long! ({}ms)", NOW - mLastTick);
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
@@ -106,9 +123,7 @@ void Solstice::init(HMODULE hModule)
 
     HookManager::shutdown();
 
-    // Remove all hooks
-    MH_DisableHook(MH_ALL_HOOKS);
-    MH_Uninitialize();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     gFeatureManager->shutdown();
     gFeatureManager.reset();
@@ -121,7 +136,7 @@ void Solstice::init(HMODULE hModule)
 
     mInitialized = false;
 
-    Sleep(1000); // Give the user time to read the message
+    Sleep(5000); // Give the user time to read the message
 
     Logger::deinitialize();
     FreeLibraryAndExitThread(mModule, 0);

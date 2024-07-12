@@ -28,6 +28,8 @@ void Aura::onEnable()
     gFeatureManager->mDispatcher->listen<RenderEvent, &Aura::onRenderEvent>(this);
 }
 
+bool chargingBow = false;
+
 void Aura::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
@@ -35,6 +37,9 @@ void Aura::onDisable()
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Aura::onRenderEvent>(this);
     mHasTarget = false;
     mRotating = false;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
 }
 
 void Aura::rotate(Actor* target)
@@ -45,6 +50,100 @@ void Aura::rotate(Actor* target)
 
     mTargetedAABB = target->getAABB();
     mRotating = true;
+}
+
+void Aura::shootBow(Actor* target)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (!mAutoBow.mValue)
+    {
+        spdlog::info("Auto bow is disabled");
+    }
+
+    int bowSlot = -1;
+    int arrowSlot = -1;
+    for (int i = 0; i < 36; i++)
+    {
+        auto item = player->getSupplies()->getContainer()->getItem(i);
+        if (!item->mItem) continue;
+        if (item->getItem()->mName.contains("bow"))
+        {
+            bowSlot = i;
+        }
+        if (item->getItem()->mName.contains("arrow"))
+        {
+            arrowSlot = i;
+        }
+        if (bowSlot != -1 && arrowSlot != -1) break;
+    }
+
+    if (bowSlot == -1 || arrowSlot == -1)
+    {
+        spdlog::info("No bow or arrow found");
+        return;
+    }
+
+    static int useTicks = 0;
+    constexpr int maxUseTicks = 17;
+
+    if (useTicks == 0)
+    {
+        spdlog::info("Starting to use bow");
+        player->getSupplies()->getContainer()->startUsingItem(bowSlot);
+        chargingBow = true;
+        useTicks++;
+    }
+    else if (useTicks < maxUseTicks)
+    {
+        useTicks++;
+    }
+    else if (useTicks >= maxUseTicks)
+    {
+        spdlog::info("Releasing bow");
+        player->getSupplies()->getContainer()->releaseUsingItem(bowSlot);
+        chargingBow = false;
+        useTicks = 0;
+    }
+
+}
+
+void Aura::throwProjectiles(Actor* target)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    static uint64_t lastThrow = 0;
+    int64_t throwDelay = mThrowDelay.mValue * 50.f;
+
+    if (NOW - lastThrow < throwDelay) return;
+
+    int snowballSlot = -1;
+    if (mThrowProjectiles.mValue)
+        for (int i = 0; i < 36; i++)
+        {
+            auto item = player->getSupplies()->getContainer()->getItem(i);
+            if (!item->mItem) continue;
+            if (item->getItem()->mName.contains("snowball"))
+            {
+                snowballSlot = i;
+                break;
+            }
+        }
+
+    if (snowballSlot == -1)
+    {
+        return;
+    }
+
+    int oldSlot = player->getSupplies()->mSelectedSlot;
+    player->getSupplies()->mSelectedSlot = snowballSlot;
+    player->getGameMode()->baseUseItem(player->getSupplies()->getContainer()->getItem(snowballSlot));
+    player->getSupplies()->mSelectedSlot = oldSlot;
+
+    lastThrow = NOW;
+
 }
 
 void Aura::onRenderEvent(RenderEvent& event)
@@ -128,6 +227,9 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         rotate(actor);
         foundAttackable = true;
+
+        throwProjectiles(actor);
+        shootBow(actor);
 
         if (now - lastAttack < delay) return;
 

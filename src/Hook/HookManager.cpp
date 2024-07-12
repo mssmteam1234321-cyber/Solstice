@@ -4,8 +4,10 @@
 
 #include "HookManager.hpp"
 
+#include <MinHook.h>
 #include <Solstice.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <Utils/ProcUtils.hpp>
 
 void HookManager::init()
 {
@@ -22,6 +24,9 @@ void HookManager::shutdown()
     {
         hook->shutdown();
     }
+
+    MH_DisableHook(MH_ALL_HOOKS);
+    MH_Uninitialize();
 
     mHooks.clear();
     mFutures.clear();

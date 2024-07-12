@@ -55,6 +55,11 @@ void Detour::enable(bool silent) const
 
 void Detour::restore() const
 {
+    if (!this)
+    {
+        spdlog::critical("Failed to restore detour for {} [this == nullptr]", mName);
+        return;
+    }
     if (!mFunc)
     {
         spdlog::critical("Failed to restore detour for {} [mFunc == nullptr]", mName);

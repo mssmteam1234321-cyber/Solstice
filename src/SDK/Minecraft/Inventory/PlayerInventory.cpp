@@ -9,6 +9,7 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Inventory/Item.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -106,6 +107,32 @@ void Inventory::equipArmor(int slot)
 
     /*setItem(slot, armorStack);
     player->getArmorContainer()->setItem(item->getArmorSlot(), itemStack);*/
+}
+
+void Inventory::startUsingItem(int slot) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
+
+    auto cit = std::make_unique<ItemUseInventoryTransaction>();
+    cit->actionType = ItemUseInventoryTransaction::ActionType::Use;
+    cit->slot = slot;
+    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+
+
+    pkt->mTransaction = std::move(cit);
+
+    ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
+}
+
+void Inventory::releaseUsingItem(int slot)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    int oldSlot = player->getSupplies()->mSelectedSlot;
+    player->getSupplies()->mSelectedSlot = slot;
+    player->getGameMode()->releaseUsingItem();
+    player->getSupplies()->mSelectedSlot = oldSlot;
 }
 
 Inventory* PlayerInventory::getContainer()

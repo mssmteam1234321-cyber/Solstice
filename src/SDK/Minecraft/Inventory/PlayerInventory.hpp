@@ -12,6 +12,8 @@ public:
     void dropSlot(int slot);
     void swapSlots(int from, int to);
     void equipArmor(int slot);
+    void startUsingItem(int slot);
+    void releaseUsingItem(int slot);
 };
 
 class PlayerInventory {

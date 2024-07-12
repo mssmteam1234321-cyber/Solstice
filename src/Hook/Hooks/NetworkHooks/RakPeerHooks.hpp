@@ -23,6 +23,7 @@ public:
     static void init(uintptr_t addr);
 
     void init() override;
+    void shutdown();
 };
 
 REGISTER_HOOK(RakPeerHooks);

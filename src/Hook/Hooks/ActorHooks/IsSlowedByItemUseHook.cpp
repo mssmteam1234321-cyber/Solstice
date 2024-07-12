@@ -12,6 +12,7 @@ void* IsSlowedByItemUseHook::onIsSlowedByItemUse(void* a1, void* a2, void* a3)
     auto oFunc = mDetour->getOriginal<decltype(&onIsSlowedByItemUse)>();
 
     auto holder = nes::make_holder<ItemSlowdownEvent>();
+    spdlog::trace("ItemUseSlowdownSystem::isSlowedByItemUse triggered slowdown event");
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled()) return nullptr;
 

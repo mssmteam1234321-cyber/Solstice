@@ -33,6 +33,8 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };
 

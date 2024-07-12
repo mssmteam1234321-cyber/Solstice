@@ -139,7 +139,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         }
         float endPos = textPos.x - textSize.x - displaySize.x;
 
-        textPos.x = MathUtils::lerp(displayRes.x, endPos, mod->mArrayListAnim);
+        textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
         if (glow) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
 
@@ -182,7 +182,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         }
         float endPos = textPos.x - textSize.x - displaySize.x;
 
-        textPos.x = MathUtils::lerp(displayRes.x, endPos, mod->mArrayListAnim);
+        textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
         bool isHovered = mousePos.x >= textPos.x && mousePos.x <= textPos.x + textSize.x + displaySize.x && mousePos.y >= textPos.y && mousePos.y <= textPos.y + textSize.y;
         ImVec4 rect = {textPos.x, textPos.y, textPos.x + textSize.x + displaySize.x, textPos.y + textSize.y};
@@ -228,6 +228,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     int bgi = 0;
     // Mode bar: Renders a bar on the right of the bgr
     // Mode outline: Renders an outline around each bgr as if they were all one big rect
+    ImVec4 startingRect;
+
     for (auto& [name, start, end, color, mod] : backgroundRects)
     {
         start.x -= 2.f;
@@ -253,6 +255,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         bool hasNext = !next.moduleName.empty();
 
+
         if (mLine.mValue == static_cast<int>(Line::Outline))
         {
             // Side: Right
@@ -269,6 +272,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
             // Side: Top
             if (bgi == 0)
             {
+                startingRect = {start.x, start.y, end.x, end.y};
                 lines.push_back({name, ImVec2(start.x, start.y), ImVec2(end.x + 2, start.y), color, mod});
             }
             // Side: Bottom
@@ -292,7 +296,17 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         bgi++;
     }
+    // Get the background with the lowest starting X
+    std::ranges::sort(backgroundRects, [](const TempRenderInfo& a, const TempRenderInfo& b)
+    {
+        return a.start.x < b.start.x;
+    });
 
+    if (mLine.as<Line>() == Line::Outline && backgroundRects.size() > 0)
+    {
+        auto lowest = backgroundRects.front();
+        lines.push_back({lowest.moduleName, ImVec2(lowest.start.x, lowest.start.y), ImVec2(startingRect.x + 2, lowest.start.y), lowest.color, lowest.mod});
+    }
 
 
     for (auto& line : lines)

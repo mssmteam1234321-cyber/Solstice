@@ -167,6 +167,7 @@ void ModuleManager::onClientTick()
         if (module->mWantedState != module->mEnabled)
         {
             module->mEnabled = module->mWantedState;
+            spdlog::trace("onClientTick: calling {} on module {}", module->mEnabled ? "onEnable" : "onDisable", module->mName);
             if (module->mEnabled)
             {
                 module->onEnable();

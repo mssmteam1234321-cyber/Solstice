@@ -15,6 +15,8 @@
 #include <Utils/MiscUtils/MathUtils.hpp>
 #include <Utils/MiscUtils/NotifyUtils.hpp>
 
+#include "InvManager.hpp"
+
 void ChestStealer::onEnable()
 {
     gFeatureManager->mDispatcher->listen<ContainerScreenTickEvent, &ChestStealer::onContainerScreenTickEvent>(this);
@@ -46,6 +48,7 @@ void ChestStealer::onContainerScreenTickEvent(ContainerScreenTickEvent& event) c
     std::vector<int> itemz = {};
     for (int i = 0; i < 54; i++) {
         ItemStack* stack = container->getSlot(i);
+        if (mIgnoreUseless.mValue && InvManager::isItemUseless(stack, -1)) continue;
         if (stack && stack->mItem) itemz.push_back(i);
     }
 

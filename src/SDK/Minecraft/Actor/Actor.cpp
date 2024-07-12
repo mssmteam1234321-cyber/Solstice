@@ -14,6 +14,7 @@
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/RuntimeIDComponent.hpp"
 #include "Components/FlagComponent.hpp"
+#include "Components/FallDistanceComponent.hpp"
 
 void Actor::swing()
 {
@@ -240,4 +241,9 @@ void Actor::jumpFromGround()
     static auto func = reinterpret_cast<void*>(SigManager::SimulatedPlayer_simulateJump);
     MemUtils::callFastcall<void>(func, this);
     jumpComponent->mNoJumpDelay = noJumpDelay;
+}
+
+float Actor::getFallDistance()
+{
+    return mContext.getComponent<FallDistanceComponent>()->mFallDistance;
 }

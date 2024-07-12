@@ -13,6 +13,7 @@ public:
     static inline HMODULE mModule;
     static inline bool mInitialized = false;
     static inline bool mRequestEject = false;
+    static inline int64_t mLastTick = 0;
     static inline std::shared_ptr<spdlog::logger> console;
 
     /* Functions */

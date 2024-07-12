@@ -68,4 +68,5 @@ public:
     bool isOnGround();
     void setOnGround(bool);
     void jumpFromGround();
+    float getFallDistance();
 };

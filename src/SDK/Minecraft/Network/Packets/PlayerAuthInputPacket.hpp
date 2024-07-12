@@ -31,7 +31,7 @@ enum class ClientPlayMode : int {
     NumModes            = 0x9,
 };
 
-enum class NewInteractionModel : int {
+enum class  NewInteractionModel : int {
     Touch     = 0x0,
     Crosshair = 0x1,
     Classic   = 0x2,
@@ -306,5 +306,24 @@ public:
     std::unique_ptr<class ItemStackRequestData>                         mItemStackRequest;
     PlayerBlockActions                                                  mPlayerBlockActions;
     uint64_t                                                            mPredictedVehicle;
+
+    void removeAllInputData() {
+        mInputData = AuthInputAction::NONE;
+    }
+    void addInputData(AuthInputAction data) {
+        mInputData |= data;
+    }
+    bool hasInputData(AuthInputAction data) {
+        return (mInputData & data) == data;
+    }
+    void addAllInputData() {
+        for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
+            // Continue if this input data isn't valid
+            if (i == 2 || i == 27 || i == 31 || i == 0x22 || i == 0x23 || i == 0x24) {
+                continue;
+            }
+            mInputData |= static_cast<AuthInputAction>(1ULL << i);
+        }
+    }
 };
 

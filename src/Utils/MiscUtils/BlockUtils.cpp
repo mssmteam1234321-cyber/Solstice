@@ -108,17 +108,16 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
 
     HitResult* res = player->getLevel()->getHitResult();
 
-    if (res->mType == HitType::BLOCK) {
-        vec += blockFaceOffsets[side] * 0.5f;
+    vec += blockFaceOffsets[side] * 0.5f;
 
-        res->mBlockPos = vec;
-        res->mFacing = side;
+    res->mBlockPos = vec;
+    res->mFacing = side;
 
-        res->mType = HitType::BLOCK;
-        res->mIndirectHit = false;
-        res->mRayDir = vec;
-        res->mPos = blockPos;
-    }
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
 
     bool oldSwinging = player->isSwinging();
     int oldSwingProgress = player->getSwingProgress();
@@ -126,17 +125,16 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     player->setSwinging(oldSwinging);
     player->setSwingProgress(oldSwingProgress);
 
-    if (res->mType == HitType::BLOCK) {
-        vec += blockFaceOffsets[side] * 0.5f;
+    vec += blockFaceOffsets[side] * 0.5f;
 
-        res->mBlockPos = vec;
-        res->mFacing = side;
+    res->mBlockPos = vec;
+    res->mFacing = side;
 
-        res->mType = HitType::BLOCK;
-        res->mIndirectHit = false;
-        res->mRayDir = vec;
-        res->mPos = blockPos;
-    }
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
 
     return;
 }

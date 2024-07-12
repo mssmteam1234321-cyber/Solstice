@@ -48,17 +48,33 @@ void AntiImmobile::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
+    // Continue if the mLastTeleport was within 200ms
+    if (NOW - mLastTeleport < 200)
+    {
+        return;
+    }
+
+
+
     bool isAir = true;
     glm::vec3 blockPos = glm::ivec3(floorf(pos->x), floorf(pos->y - PLAYER_HEIGHT), floorf(pos->z));
+    bool found = false;
 
     while (isAir && blockPos.y > 0) {
         blockPos.y -= 1;
-        auto block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
+        const auto block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
+        spdlog::info("Block at {}/{}/{}: {}", blockPos.x, blockPos.y, blockPos.z, block->mLegacy->getBlockId());
         isAir = block->mLegacy->getBlockId() == 0 || block->mLegacy->getBlockId() == 95;
+        if (!isAir)
+        {
+            found = true;
+            break;
+        }
     }
 
-    if (blockPos.y > 0)
+    if (!found)
     {
+        spdlog::info("Failed to find a solid block below player");
         return;
     }
 
@@ -70,6 +86,7 @@ void AntiImmobile::onBaseTickEvent(BaseTickEvent& event)
     player->getStateVectorComponent()->mPos = blockPos + glm::vec3(0.f, PLAYER_HEIGHT, 0.f);
     player->getStateVectorComponent()->mPosOld = blockPos + glm::vec3(0.f, PLAYER_HEIGHT, 0.f);
     ChatUtils::displayClientMessage("§6AntiImmobile", "§aClipped!");
+    spdlog::info("Clipped!");
 
     // Prevent from teleporting again
     mLastTeleport = 0;

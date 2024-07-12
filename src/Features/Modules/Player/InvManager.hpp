@@ -61,6 +61,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event) const;
     void onPacketInEvent(class PacketInEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
+    static bool isItemUseless(class ItemStack* item, int slot);
 
     std::string getSettingDisplay() override {
         return mMode.mValue == static_cast<int>(Mode::Instant) ? "Instant" : std::to_string(static_cast<int>(mDelay.mValue));

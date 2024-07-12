@@ -5,29 +5,34 @@
 #include "TestModule.hpp"
 
 #include <imgui.h>
-#include <magic_enum.hpp>
+#include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
-#include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerListPacket.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
-#include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <spdlog/spdlog.h>
-#include <Utils/MiscUtils/SoundUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
+#include <Utils/MemUtils.hpp>
 
 void TestModule::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
 }
 
 void TestModule::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
 }
 
 Block* gDaBlock = nullptr;
@@ -37,9 +42,52 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    //player->jumpFromGround();
-    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(glm::ivec3(0, 0, 0));
 
+    std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
+    std::vector<std::string> playerNames;
+    for (auto& [uuid, entry] : *playerList)
+    {
+        playerNames.emplace_back(entry.name);
+    }
+    static std::vector<std::string> lastPlayerNames = playerNames;
+
+    // Check if the player list has changed
+    // Use ChatUtils::displayClientMessageRaw to display a message in the chat, depending on the player list
+    // example: "§a§l» §r§7player has joined." or "§c§l» §r§7player has left."
+
+    for (auto& playerName : playerNames)
+    {
+        if (std::ranges::find(lastPlayerNames, playerName) == lastPlayerNames.end())
+        {
+            ChatUtils::displayClientMessageRaw("§a§l» §r§7" + playerName + " has joined.");
+        }
+    }
+
+    for (auto& playerName : lastPlayerNames)
+    {
+        if (std::ranges::find(playerNames, playerName) == playerNames.end())
+        {
+            ChatUtils::displayClientMessageRaw("§c§l» §r§7" + playerName + " has left.");
+        }
+    }
+
+    // Store the last player list
+    lastPlayerNames = playerNames;
+}
+
+void TestModule::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    {
+    }
+}
+
+void TestModule::onPacketInEvent(PacketInEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::PlayerList)
+    {
+
+    }
 }
 
 void displayCopyableAddress(const std::string& name, void* address)
@@ -64,17 +112,10 @@ void TestModule::onRenderEvent(RenderEvent& event)
     ImGui::Text("TestModule");
     auto blockSource = ClientInstance::get()->getBlockSource();
 
-    if (gDaBlock)
-    {
-        displayCopyableAddress("fuckyou", gDaBlock->mLegacy->mVfTable[85]);
-    }
-
-    displayCopyableAddress("swing", player->vtable[117]);
-
     ImGui::Text("isOnGround: %d", player->isOnGround());
     ImGui::Text("wasOnGround: %d", player->wasOnGround());
     ImGui::Text("isInWater: %d", player->isInWater());
-    displayCopyableAddress("getHitResult", player->getLevel()->mVfTable[288]);
+    displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
 
     ImGui::End();
 }

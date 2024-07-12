@@ -22,7 +22,7 @@
 
 void Scaffold::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &Scaffold::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &Scaffold::onBaseTickEvent, nes::event_priority::LAST>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Scaffold::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Scaffold::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
 
@@ -31,6 +31,7 @@ void Scaffold::onEnable()
     if (!player) return;
 
     mStartY = player->getPos()->y - PLAYER_HEIGHT - 1.f;
+    mLastSlot = player->getSupplies()->mSelectedSlot;
 }
 
 void Scaffold::onDisable()
@@ -45,6 +46,21 @@ void Scaffold::onDisable()
     mLastFace = 0;
     mLastSwitchTime = 0;
     mShouldRotate = false;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+    if (mLastSlot != -1)
+    {
+        player->getSupplies()->mSelectedSlot = mLastSlot;
+    }
+
+    if (mIsTowering)
+    {
+        mIsTowering = false;
+        if (mTowerMode.as<TowerMode>() != TowerMode::Vanilla)
+        {
+            player->getStateVectorComponent()->mVelocity.y = -5.0f;
+        }
+    }
 }
 
 void Scaffold::onBaseTickEvent(BaseTickEvent& event)
@@ -70,6 +86,8 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     glm::vec3 velocity = player->getStateVectorComponent()->mVelocity;
 
+    bool isMoving = Keyboard::isUsingMoveKeys();
+
     float maxExtend = mExtend.mValue;
 
     if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) == 0) return false;
@@ -81,13 +99,49 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     glm::vec3 blockPos = getPlacePos(0.f);
 
-
     if (!Keyboard::isUsingMoveKeys())
     {
         maxExtend = 0.f;
     }
 
-    if (!BlockUtils::isAirBlock(blockPos))
+    bool space = Keyboard::mPressedKeys[VK_SPACE];
+    bool wasTowering = mIsTowering;
+
+    float fallDistance = player->getFallDistance();
+    if (!mFallDistanceCheck.mValue) fallDistance = 0.f;
+    switch (mTowerMode.as<TowerMode>())
+    {
+        default:
+            break;
+    case TowerMode::Velocity:
+            if (ClientInstance::get()->getMouseGrabbed()) break;
+            if ((space && mAllowMovement.mValue || space && !isMoving) && fallDistance < 3.f)
+            {
+                if (!mAllowMovement.mValue)
+                {
+                    player->getStateVectorComponent()->mVelocity.x = 0;
+                    player->getStateVectorComponent()->mVelocity.z = 0;
+                } else if (!player->isOnGround())
+                {
+                    glm::vec2 motion = MathUtils::getMotion(yaw - 90, 2.55 / 10);
+                    player->getStateVectorComponent()->mVelocity.x = motion.x;
+                    player->getStateVectorComponent()->mVelocity.z = motion.y;
+                }
+                mStartY = player->getPos()->y;
+                mIsTowering = true;
+                player->getStateVectorComponent()->mVelocity.y = mTowerSpeed.mValue / 10;
+                maxExtend = 0.f;
+            }
+            else if (wasTowering)
+            {
+                mIsTowering = false;
+                player->getStateVectorComponent()->mVelocity.y = -5.0f;
+            }
+            break;
+    }
+
+
+    if (!BlockUtils::isAirBlock(blockPos) && !mIsTowering)
     {
         for (float i = 0.f; i < maxExtend; i += 1.f)
         {
@@ -101,6 +155,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     int side = BlockUtils::getBlockPlaceFace(blockPos);
     mLastSwitchTime = NOW;
 
+    if (mLastSlot == -1) mLastSlot = player->getSupplies()->mSelectedSlot;
     if (mSwitchMode.as<SwitchMode>() == SwitchMode::Full)
     {
         int slot = ItemUtils::getPlaceableItemOnBlock(blockPos, mHotbarOnly.mValue, mSwitchPriority.as<SwitchPriority>() == SwitchPriority::Highest);
@@ -142,6 +197,11 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 
+        if (mTest.mValue)
+        {
+            paip->mPos.y = paip->mPos.y - 0.01f;
+        }
+
         if (mShouldRotate && mRotateMode.as<RotateMode>() != RotateMode::None)
         {
             glm::vec3 side = BlockUtils::blockFaceOffsets[mLastFace] * 0.5f;
@@ -157,6 +217,12 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
             }
 
             if (mRotateMode.as<RotateMode>() == RotateMode::Down) rotations.x = 89.9f;
+            if (mRotateMode.as<RotateMode>() == RotateMode::Backwards)
+            {
+                rotations.y += 180.f;
+                if (rotations.y > 180.f) rotations.y -= 360.f;
+                if (rotations.y < -180.f) rotations.y += 360.f;
+            }
 
             bool flickRotate = false;
 

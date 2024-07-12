@@ -30,8 +30,18 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
+    // Check how many free slots we have
+    int freeSlots = 0;
+    for (int i = 0; i < 36; i++)
+    {
+        if (!container->getItem(i)->mItem) freeSlots++;
+    }
+
     // If we are in a container, don't do anything
-    if (ClientInstance::get()->getMouseGrabbed() && player) return;
+    if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0)
+    {
+        return;
+    }
 
     std::vector<int> itemsToEquip;
     bool isInstant = mMode.mValue == static_cast<int>(Mode::Instant);
@@ -254,4 +264,26 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
             break;
         }
     }
+}
+
+bool InvManager::isItemUseless(ItemStack* item, int slot)
+{
+    if (!item->mItem) return true;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    SItemType itemType = item->getItem()->getItemType();
+    auto itemValue = ItemUtils::getItemValue(item);
+    // if the item is a piece of armor
+    if (itemType == SItemType::Helmet || itemType == SItemType::Chestplate || itemType == SItemType::Leggings || itemType == SItemType::Boots)
+    {
+        int equippedItemValue = ItemUtils::getItemValue(player->getArmorContainer()->getItem(static_cast<int>(itemType)));
+        return equippedItemValue >= itemValue;
+    }
+    if (itemType == SItemType::Sword || itemType == SItemType::Pickaxe || itemType == SItemType::Axe || itemType == SItemType::Shovel)
+    {
+        int bestSlot = ItemUtils::getBestItem(itemType);
+        int bestValue = ItemUtils::getItemValue(player->getSupplies()->getContainer()->getItem(bestSlot));
+        return bestValue >= itemValue && bestSlot != slot;
+    }
+
+    return false;
 }

@@ -48,14 +48,18 @@ public:
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
     NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 10, 0, 20, 0.01);
     NumberSetting mAPSMax = NumberSetting("APS Max", "The maximum APS to randomize", 20, 0, 20, 0.01);
+    BoolSetting mThrowProjectiles = BoolSetting("Throw Projectiles", "Whether or not to throw projectiles at the target", false);
+    NumberSetting mThrowDelay = NumberSetting("Throw Delay", "The delay between throwing projectiles (in ticks)", 1, 0, 20, 0.01);
+    BoolSetting mAutoBow = BoolSetting("Auto Bow", "Whether or not to automatically shoot the bow", false);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mStrafe);
+        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
 
         VISIBILITY_CONDITION(mAPS, mRandomizeAPS.mValue == false);
         VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue == true);
         VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue == true);
+        VISIBILITY_CONDITION(mThrowDelay, mThrowProjectiles.mValue == true);
 
         mNames = {
             {Lowercase, "aura"},
@@ -72,6 +76,8 @@ public:
     void onEnable() override;
     void onDisable() override;
     void rotate(Actor* target);
+    void shootBow(Actor* target);
+    void throwProjectiles(Actor* target);
     void onRenderEvent(class RenderEvent& event);
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
