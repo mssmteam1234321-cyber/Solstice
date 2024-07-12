@@ -41,6 +41,22 @@ int BlockUtils::getBlockPlaceFace(glm::ivec3 blockPos)
     return -1;
 }
 
+int BlockUtils::getExposedFace(glm::ivec3 blockPos)
+{
+    static std::vector<glm::ivec3> offsetList = {
+        glm::ivec3(0, -1, 0),
+        glm::ivec3(0, 1, 0),
+        glm::ivec3(0, 0, -1),
+        glm::ivec3(0, 0, 1),
+        glm::ivec3(-1, 0, 0),
+        glm::ivec3(1, 0, 0),
+    };
+    for (int i = 0; i < offsetList.size(); i++) {
+        if (isAirBlock(blockPos + offsetList[i])) return i;
+    }
+    return -1;
+}
+
 bool BlockUtils::isAirBlock(glm::ivec3 blockPos)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -122,6 +138,90 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     bool oldSwinging = player->isSwinging();
     int oldSwingProgress = player->getSwingProgress();
     player->getGameMode()->buildBlock(blockPos + glm::ivec3(blockFaceOffsets[side]) , side, true);
+    player->setSwinging(oldSwinging);
+    player->setSwingProgress(oldSwingProgress);
+
+    vec += blockFaceOffsets[side] * 0.5f;
+
+    res->mBlockPos = vec;
+    res->mFacing = side;
+
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
+
+    return;
+}
+
+void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    glm::ivec3 blockPos = pos;
+    if (side == -1) side = getExposedFace(blockPos);
+
+    glm::vec3 vec = blockPos;
+
+    if (side != -1) vec += blockFaceOffsets[side] * -0.5f;
+
+    HitResult* res = player->getLevel()->getHitResult();
+
+    vec += blockFaceOffsets[side] * 0.5f;
+
+    res->mBlockPos = vec;
+    res->mFacing = side;
+
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
+    bool isDestroyedOut = false;
+    player->getGameMode()->startDestroyBlock(&blockPos, side, isDestroyedOut);
+
+    vec += blockFaceOffsets[side] * -0.5f;
+
+    res->mBlockPos = vec;
+    res->mFacing = side;
+
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
+
+    return;
+}
+
+
+void BlockUtils::destroyBlock(glm::vec3 pos, int side)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    glm::ivec3 blockPos = pos;
+    if (side == -1) side = getBlockPlaceFace(blockPos);
+
+    glm::vec3 vec = blockPos;
+
+    if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
+
+    HitResult* res = player->getLevel()->getHitResult();
+
+    vec += blockFaceOffsets[side] * 0.5f;
+
+    res->mBlockPos = vec;
+    res->mFacing = side;
+
+    res->mType = HitType::BLOCK;
+    res->mIndirectHit = false;
+    res->mRayDir = vec;
+    res->mPos = blockPos;
+
+
+    bool oldSwinging = player->isSwinging();
+    int oldSwingProgress = player->getSwingProgress();
+    player->getGameMode()->destroyBlock(&blockPos, side);
+    player->getGameMode()->stopDestroyBlock(blockPos);
     player->setSwinging(oldSwinging);
     player->setSwingProgress(oldSwingProgress);
 

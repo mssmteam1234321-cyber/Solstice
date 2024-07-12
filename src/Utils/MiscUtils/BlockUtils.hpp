@@ -36,9 +36,12 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
     };
 
     static int getBlockPlaceFace(glm::ivec3 blockPos);
+    static int getExposedFace(glm::ivec3 blockPos);
     static bool isAirBlock(glm::ivec3 blockPos);
     static glm::ivec3 getClosestPlacePos(glm::ivec3 pos, float distance);
     static bool isValidPlacePos(glm::ivec3 pos);
     static void placeBlock(glm::vec3 pos, int side);
+    static void startDestroyBlock(glm::vec3 pos, int side);
+    static void destroyBlock(glm::vec3 pos, int side);
 
 };

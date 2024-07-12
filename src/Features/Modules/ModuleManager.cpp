@@ -25,6 +25,7 @@
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
+#include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
@@ -58,6 +59,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
+    mModules.emplace_back(std::make_shared<Regen>());
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<AutoTool>());
 
