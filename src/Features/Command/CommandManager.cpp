@@ -17,6 +17,7 @@
 #include "Commands/TestCommand.hpp"
 #include "Commands/ToggleCommand.hpp"
 #include "Commands/UnbindCommand.hpp"
+#include "Commands/ModuleCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -30,6 +31,7 @@ void CommandManager::init()
     ADD_COMMAND(ConfigCommand);
     ADD_COMMAND(QueueCommand);
     ADD_COMMAND(SetCommand);
+    ADD_COMMAND(ModuleCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

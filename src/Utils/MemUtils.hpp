@@ -156,6 +156,9 @@ public:
 
     static uintptr_t GetVTableFunction(void *_this, int index);
     static std::string getModulePath(HMODULE handle);
+    static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes, size_t size);
+    static void writeBytes(uintptr_t ptr, const void* bytes, size_t size);
+    static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes);
 };
 
 

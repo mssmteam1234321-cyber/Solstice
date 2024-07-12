@@ -20,4 +20,5 @@ public:
     static std::string generateUUID();
     static bool containsIgnoreCase(const std::string& str, const std::string& subStr);
     static bool containsAnyIgnoreCase(const std::string& str, const std::vector<std::string>& strVector);
+    static std::string getClipboardText();
 };

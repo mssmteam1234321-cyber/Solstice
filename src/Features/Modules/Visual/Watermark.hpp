@@ -3,12 +3,8 @@
 // Created by vastrakai on 6/29/2024.
 //
 
-#include <Solstice.hpp>
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Setting.hpp>
-
-#include "spdlog/spdlog.h"
-
 
 class Watermark : public ModuleBase<Watermark> {
 public:
@@ -40,5 +36,3 @@ public:
         return mStyle.mValue == 0 ? "Solstice" : "7 Days";
     }
 };
-
-REGISTER_MODULE(Watermark);

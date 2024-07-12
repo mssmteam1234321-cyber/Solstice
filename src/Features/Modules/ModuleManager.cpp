@@ -17,6 +17,7 @@
 #include "Misc/AntiCheatDetector.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
+#include "Movement/InventoryMove.hpp"
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
@@ -49,6 +50,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AntiImmobile>());
     mModules.emplace_back(std::make_shared<Sprint>());
     mModules.emplace_back(std::make_shared<Speed>());
+    mModules.emplace_back(std::make_shared<InventoryMove>());
 
 
     // Player
@@ -194,6 +196,22 @@ nlohmann::json ModuleManager::serialize() const
 
     return j;
 }
+
+nlohmann::json ModuleManager::serializeModule(Module* module)
+{
+    // same as above but only for the specified module
+    nlohmann::json j;
+    j["client"] = "Solstice";
+    j["version"] = SOLSTICE_VERSION;
+    j["modules"] = nlohmann::json::array();
+
+    j["modules"].push_back(module->serialize());
+
+    return j;
+}
+
+
+
 /*
 nlohmann::json Module::serialize()
 {
@@ -232,7 +250,7 @@ nlohmann::json Module::serialize()
 }
 */
 
-void ModuleManager::deserialize(const nlohmann::json& j)
+void ModuleManager::deserialize(const nlohmann::json& j, bool showMessages)
 {
     // Get the version of the config
     const std::string version = j["version"];
@@ -302,7 +320,7 @@ void ModuleManager::deserialize(const nlohmann::json& j)
                             else
                             {
                                 spdlog::warn("Invalid enum value for setting {} in module {}", settingName, name);
-                                ChatUtils::displayClientMessage("§cInvalid enum value for setting §6" + settingName + "§c in module §6" + name + "§c.");
+                                if (showMessages) ChatUtils::displayClientMessage("§cInvalid enum value for setting §6" + settingName + "§c in module §6" + name + "§c.");
                             }
                         } else if (set->mType == SettingType::Color)
                         {
@@ -318,7 +336,7 @@ void ModuleManager::deserialize(const nlohmann::json& j)
                     } else
                     {
                         spdlog::warn("Setting {} not found for module {}", settingName, name);
-                        ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
+                        if (showMessages) ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
                     }
                 }
 
@@ -329,12 +347,12 @@ void ModuleManager::deserialize(const nlohmann::json& j)
             for (const auto& settingName : settingNames)
             {
                 spdlog::warn("Setting {} not found for module {}, default value will be used", settingName, name);
-                ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c, default value will be used.");
+                if (showMessages) ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c, default value will be used.");
             }
         } else
         {
             spdlog::warn("Module {} not found", name);
-            ChatUtils::displayClientMessage("§cModule §6" + name + "§c not found.");
+            if (showMessages) ChatUtils::displayClientMessage("§cModule §6" + name + "§c not found.");
         }
     }
 
@@ -342,7 +360,7 @@ void ModuleManager::deserialize(const nlohmann::json& j)
     for (const auto& moduleName : moduleNames)
     {
         spdlog::warn("Module {} not found in config, using default settings", moduleName);
-        ChatUtils::displayClientMessage("§cModule §6" + moduleName + "§c not found in config, using default settings.");
+        if (showMessages) ChatUtils::displayClientMessage("§cModule §6" + moduleName + "§c not found in config, using default settings.");
     }
 
     spdlog::info("Loaded {} modules and {} settings from config", modulesLoaded, settingsLoaded);

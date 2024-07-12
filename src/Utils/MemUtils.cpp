@@ -61,3 +61,25 @@ std::string MemUtils::getModulePath(HMODULE handle)
     }
     return "";
 }
+
+void MemUtils::writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes, size_t size)
+{
+    DWORD oldProtect;
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, PAGE_EXECUTE_READWRITE, &oldProtect);
+    memcpy(reinterpret_cast<void*>(ptr), bytes.data(), size);
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, oldProtect, &oldProtect);
+}
+
+void MemUtils::writeBytes(uintptr_t ptr, const void* bytes, size_t size)
+{
+    DWORD oldProtect;
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, PAGE_EXECUTE_READWRITE, &oldProtect);
+    memcpy(reinterpret_cast<void*>(ptr), bytes, size);
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, oldProtect, &oldProtect);
+}
+
+void MemUtils::writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes)
+{
+    writeBytes(ptr, bytes, bytes.size());
+}
+

@@ -67,7 +67,14 @@ void Scaffold::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
 
-    for (int i = 0; i < mPlaces.as<int>(); i++)
+    int places = mPlaces.as<int>();
+
+    if (mFastClutch.mValue && player->getFallDistance() > mClutchFallDistance.mValue)
+    {
+        places = mCluchPlaces.as<int>();
+    }
+
+    for (int i = 0; i < places; i++)
     {
         if (!tickPlace(event)) break;
     }
@@ -123,9 +130,20 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
                     player->getStateVectorComponent()->mVelocity.z = 0;
                 } else if (!player->isOnGround())
                 {
-                    glm::vec2 motion = MathUtils::getMotion(yaw - 90, 2.55 / 10);
+                    /*float yaw = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+                    glm::vec2 motion = MathUtils::getMotion(yaw, 2.55 / 10);
                     player->getStateVectorComponent()->mVelocity.x = motion.x;
-                    player->getStateVectorComponent()->mVelocity.z = motion.y;
+                    player->getStateVectorComponent()->mVelocity.z = motion.y;*/
+                    glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
+                    float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
+                    float movementYaw = atan2(currentMotion.y, currentMotion.x);
+                    float moveYawDeg = movementYaw * (180 / M_PI) - 90.f;
+                    float playerYawDeg = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+                    float yawDiff = playerYawDeg - moveYawDeg;
+                    float yawDiffRad = yawDiff * (M_PI / 180);
+                    float newMoveYaw = movementYaw + yawDiffRad;
+                    player->getStateVectorComponent()->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
+                    player->getStateVectorComponent()->mVelocity.z = sin(newMoveYaw) * movementSpeed;
                 }
                 mStartY = player->getPos()->y;
                 mIsTowering = true;
@@ -276,6 +294,14 @@ glm::vec3 Scaffold::getPlacePos(float extend)
 
     if (side == -1)
     {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return {FLT_MAX, FLT_MAX, FLT_MAX};
+
+        if (player->getFallDistance() > 3.f)
+        {
+            blockSel.y = player->getPos()->y - 3.62f;
+        }
+
         // Find da block
         blockSel = BlockUtils::getClosestPlacePos(blockSel, mRange.as<float>());
         if (blockSel.x == INT_MAX) return {FLT_MAX, FLT_MAX, FLT_MAX};

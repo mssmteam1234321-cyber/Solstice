@@ -46,7 +46,6 @@ public:
     {
         nlohmann::json j;
         j["name"] = mName;
-        j["description"] = mDescription;
         j["type"] = static_cast<int>(mType);
         return j;
     }

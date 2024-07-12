@@ -64,4 +64,5 @@ public:
     static glm::vec2 getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget);
     static glm::vec2 getRots(const glm::vec3& pEyePos, const AABB& target);
     static float snapYaw(float yaw);
+    static glm::vec2 getMovement();
 };

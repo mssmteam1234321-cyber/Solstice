@@ -67,6 +67,12 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
             case FlareonPreset::FastFall:
                 preset = FrictionPreset(3.75, 0.98, true, 20.20, true, 4, 3.00, JumpType::Vanilla, 0.42f);
                 break;
+            case FlareonPreset::Normal:
+                preset = FrictionPreset(3.66, 0.98, false, 20.20, true, 5, 1.00, JumpType::Vanilla, 0.42f);
+                break;
+            case FlareonPreset::Low1:
+                preset = FrictionPreset(3.78, 0.98, true, 20.30, true, 1, 2.00, JumpType::Vanilla, 0.42f);
+                break;
         }
         tickFrictionPreset(preset);
     }

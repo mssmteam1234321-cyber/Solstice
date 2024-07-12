@@ -196,3 +196,53 @@ float MathUtils::snapYaw(float yaw)
     if (yaw < 135) return 90;
     return 180;
 }
+
+glm::vec2 MathUtils::getMovement() {
+    glm::vec2 ret = glm::vec2(0, 0);
+    float forward = 0.0f;
+    float side = 0.0f;
+
+    bool w = Keyboard::mPressedKeys['W'];
+    bool a = Keyboard::mPressedKeys['A'];
+    bool s = Keyboard::mPressedKeys['S'];
+    bool d = Keyboard::mPressedKeys['D'];
+
+    if (!w && !a && !s && !d)
+        return ret;
+
+    static constexpr float forwardF = 1;
+    static constexpr float sideF = 0.7071067691f;
+
+    if (w) {
+        if (!a && !d)
+            forward = forwardF;
+        if (a) {
+            forward = sideF;
+            side = sideF;
+        }
+        else if (d) {
+            forward = sideF;
+            side = -sideF;
+        }
+    }
+    else if (s) {
+        if (!a && !d)
+            forward = -forwardF;
+        if (a) {
+            forward = -sideF;
+            side = sideF;
+        }
+        else if (d) {
+            forward = -sideF;
+            side = -sideF;
+        }
+    }
+    else if (!w && !s) {
+        if (!a && d) side = -forwardF;
+        else side = forwardF;
+    }
+
+    ret.x = side;
+    ret.y = forward;
+    return ret;
+}

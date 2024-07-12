@@ -40,11 +40,13 @@ public:
 
     enum class FlareonPreset {
         FastFall,
+        Normal,
+        Low1,
     };
 
 
     EnumSetting mMode = EnumSetting("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
-    EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall");
+    EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1");
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
     BoolSetting mTimerBoost = BoolSetting("Timer Boost", "Whether or not to boost timer speed", false);

@@ -39,7 +39,8 @@ public:
     std::unordered_map<std::string, std::shared_ptr<Module>> getModuleCategoryMap();
     void onClientTick();
     nlohmann::json serialize() const;
-    void deserialize(const nlohmann::json& j);
+    nlohmann::json serializeModule(Module* module);
+    void deserialize(const nlohmann::json& j, bool showMessages = true);
 };
 
 

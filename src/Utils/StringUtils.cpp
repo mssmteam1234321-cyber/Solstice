@@ -6,6 +6,10 @@
 
 #include <algorithm>
 
+#include <windows.h>
+
+#include "spdlog/spdlog.h"
+
 
 std::string StringUtils::generateUUID()
 {
@@ -102,4 +106,41 @@ bool StringUtils::containsAnyIgnoreCase(const std::string& str, const std::vecto
     }
 
     return false;
+}
+
+std::string StringUtils::getClipboardText()
+{
+    // Try opening the clipboard
+    if (! OpenClipboard(nullptr))
+    {
+        spdlog::error("Failed to open clipboard: {}", GetLastError());
+        return "";
+    }
+
+    // Get handle of clipboard object for ANSI text
+    HANDLE hData = GetClipboardData(CF_TEXT);
+    if (hData == nullptr)
+    {
+        spdlog::error("Failed to get clipboard text: {}", GetLastError());
+        return "";
+    }
+
+    // Lock the handle to get the actual text pointer
+    char * pszText = static_cast<char*>( GlobalLock(hData) );
+    if (pszText == nullptr)
+    {
+        spdlog::error("Failed to get clipboard text: {}", GetLastError());
+        return "";
+    }
+
+    // Save text in a string class instance
+    std::string text( pszText );
+
+    // Release the lock
+    GlobalUnlock( hData );
+
+    // Release the clipboard
+    CloseClipboard();
+
+    return text;
 }

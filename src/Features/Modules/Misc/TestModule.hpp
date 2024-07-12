@@ -37,5 +37,3 @@ public:
     void onPacketInEvent(class PacketInEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };
-
-REGISTER_MODULE(TestModule);
