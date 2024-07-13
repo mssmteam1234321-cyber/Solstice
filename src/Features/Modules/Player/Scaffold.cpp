@@ -4,7 +4,7 @@
 
 #include "Scaffold.hpp"
 
-#include <cmake-build-release/_deps/sdl2-build/include/SDL2/SDL_stdinc.h>
+#include <imgui_internal.h>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -139,10 +139,10 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
                     glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
                     float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
                     float movementYaw = atan2(currentMotion.y, currentMotion.x);
-                    float moveYawDeg = movementYaw * (180 / M_PI) - 90.f;
+                    float moveYawDeg = movementYaw * (180 / IM_PI) - 90.f;
                     float playerYawDeg = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
                     float yawDiff = playerYawDeg - moveYawDeg;
-                    float yawDiffRad = yawDiff * (M_PI / 180);
+                    float yawDiffRad = yawDiff * (IM_PI / 180);
                     float newMoveYaw = movementYaw + yawDiffRad;
                     player->getStateVectorComponent()->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
                     player->getStateVectorComponent()->mVelocity.z = sin(newMoveYaw) * movementSpeed;
@@ -392,7 +392,7 @@ glm::vec3 Scaffold::getRotBasedPos(float extend, float yPos)
         playerRots.y = MathUtils::snapYaw(playerRots.y);
     }
 
-    float correctedYaw = (playerRots.y + 90) * ((float)M_PI / 180);
+    float correctedYaw = (playerRots.y + 90) * ((float)IM_PI / 180);
     float inFrontX = cos(correctedYaw) * extend;
     float inFrontZ = sin(correctedYaw) * extend;
     float placeX = player->getPos()->x + inFrontX;
