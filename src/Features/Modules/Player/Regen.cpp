@@ -126,9 +126,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock);
         PacketUtils::spoofSlot(bestToolSlot);
         mToolSlot = bestToolSlot;
-        mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        if (!mOldCalculation.mValue) mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock) / mDestroySpeed.mValue;
 
-        if (mDestroySpeed.mValue <= mBreakingProgress) { // Destroy block
+        if (mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();

@@ -10,12 +10,13 @@ public:
     EnumSetting mMode = EnumSetting("Mode", "The regen mode", 0, "Flareon");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 8, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0, 1, 0.01);
+    BoolSetting mOldCalculation = BoolSetting("Old Calculation", "Use the old calculation for breaking blocks", false);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mRange, &mDestroySpeed, &mSwing, &mUncover, &mRenderBlock);
+        addSettings(&mMode, &mRange, &mDestroySpeed, &mOldCalculation, &mSwing, &mUncover, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
