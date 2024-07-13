@@ -206,6 +206,7 @@ void Regen::onRenderEvent(RenderEvent& event)
 
         if (progress < 0.01f) return;
 
+
         auto size = glm::vec3(progress, progress, progress);
         glm::vec3 blockPos = mCurrentBlockPos;
         blockPos.x += 0.5f - (progress / 2.f);
