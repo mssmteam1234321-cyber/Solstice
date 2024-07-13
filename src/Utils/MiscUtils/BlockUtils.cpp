@@ -61,8 +61,9 @@ bool BlockUtils::isAirBlock(glm::ivec3 blockPos)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return false;
-
-    return ClientInstance::get()->getBlockSource()->getBlock(blockPos)->toLegacy()->getBlockId() == 0;
+    int blockId = ClientInstance::get()->getBlockSource()->getBlock(blockPos)->toLegacy()->getBlockId();
+    bool isLiquid = 8 <= blockId && blockId <= 11;
+    return blockId == 0 || isLiquid;
 }
 
 glm::ivec3 BlockUtils::getClosestPlacePos(glm::ivec3 pos, float distance)
