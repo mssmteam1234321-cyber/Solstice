@@ -36,6 +36,8 @@ public:
     int mPreviousSlot = -1;
     int mToolSlot = -1;
 
+    uint64_t mLastBlockPlace = 0;
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);

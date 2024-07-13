@@ -47,11 +47,26 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 
     static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
     if (scaffold->mEnabled) return;
-    if (mMode.as<Mode>() != Mode::Friction) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(101));
-    } else if (mApplyNetskip.mValue) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(101));
+
+    bool applyNetskip = false;
+
+    if (mMode.as<Mode>() != Mode::Friction || mApplyNetskip.mValue) {
+        applyNetskip = true;
     }
+
+    static uint64_t lastCall = 0;
+    uint64_t netskipMs = 101;
+
+    // If less than netskipMs has passed since last call, cancel
+    if (applyNetskip && NOW - lastCall < netskipMs)
+    {
+        event.cancel();
+        return;
+    }
+
+    lastCall = NOW;
+
+
 }
 
 bool Speed::tickSwiftness()

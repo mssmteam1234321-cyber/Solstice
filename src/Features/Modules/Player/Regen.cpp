@@ -116,7 +116,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     float absorption = player->getAbsorption();
 
-    if (10 <= absorption || supplies->getContainer()->getItem(supplies->mSelectedSlot)->mBlock) {
+    // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
+    if (10 <= absorption || mLastBlockPlace + 500 > NOW) {
         initializeRegen();
         return;
     }
@@ -196,7 +197,8 @@ void Regen::onRenderEvent(RenderEvent& event)
         static float lastProgress = 0.f;
         float progress = 1.f;
 
-        progress = mBreakingProgress / mDestroySpeed.mValue;
+        progress = mBreakingProgress;
+        if (!mOldCalculation.mValue) progress /= mDestroySpeed.mValue;
         if (progress < lastProgress) lastProgress = progress;
         progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
         lastProgress = progress;
@@ -235,6 +237,16 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
+        }
+    } else if (event.packet->getId() == PacketID::InventoryTransaction) {
+        if (const auto it = event.getPacket<InventoryTransactionPacket>();
+            it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+        {
+            if (const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
+                transac->actionType == ItemUseInventoryTransaction::ActionType::Place)
+            {
+                mLastBlockPlace = NOW;
+            }
         }
     }
 }

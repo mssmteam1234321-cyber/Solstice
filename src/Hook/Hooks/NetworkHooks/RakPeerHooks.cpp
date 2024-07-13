@@ -29,9 +29,13 @@ void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
 
 
     auto holder = nes::make_holder<RunUpdateCycleEvent>();
-    spdlog::trace("RakNet::RakPeer::RunUpdateCycle triggered RunUpdateCycle event");
     gFeatureManager->mDispatcher->trigger(holder);
-    if (holder->isCancelled()) return;
+    if (holder->isCancelled())
+    {
+        spdlog::trace("RakNet::RakPeer::RunUpdateCycle cancelled RunUpdateCycle event");
+        return;
+    }
+    spdlog::trace("RakNet::RakPeer::RunUpdateCycle triggered RunUpdateCycle event");
 
     original(_this, a2);
 }
