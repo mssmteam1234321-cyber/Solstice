@@ -73,11 +73,94 @@ void D2D::beginRender(IDXGISurface* surface, float fxdpi)
 {
     D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
                                  D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED));
-    d2dDeviceContext->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, sourceBitmap.put());
+    HRESULT hr = d2dDeviceContext->CreateBitmapFromDxgiSurface(surface, &bitmapProperties, sourceBitmap.put());
+
+    if (FAILED(hr)) {
+        spdlog::error("Failed to create bitmap from DXGI surface");
+        return;
+    }
+
+    d2dDeviceContext->SetTarget(sourceBitmap.get());
+    d2dDeviceContext->BeginDraw();
+}
+
+void D2D::ghostFrameCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd)
+{
+    auto data = (GhostCallbackData*)cmd->UserCallbackData;
+    if (data == nullptr) {
+        return;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    GhostCallbackData* blurData = (GhostCallbackData*)cmd->UserCallbackData;
+
+    // Copy the current render target to a bitmap
+    ID2D1Bitmap* targetBitmap = nullptr;
+    D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(sourceBitmap->GetPixelFormat());
+    d2dDeviceContext->CreateBitmap(sourceBitmap->GetPixelSize(), props, &targetBitmap);
+    auto destPoint = D2D1::Point2U(0, 0);
+    auto size = sourceBitmap->GetPixelSize();
+    auto rect = D2D1::RectU(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    targetBitmap->CopyFromBitmap(&destPoint, sourceBitmap.get(), &rect);
+
+    static std::vector<ID2D1Bitmap*> ghostBitmaps;
+    int maxFrames = data->maxFrames;
+    /*if (ghostBitmaps.size() >= maxFrames) {
+        auto bitmap = ghostBitmaps[0];
+        ghostBitmaps.erase(ghostBitmaps.begin());
+        bitmap->Release();
+    }*/
+    while (ghostBitmaps.size() >= maxFrames) {
+        auto bitmap = ghostBitmaps[0];
+        ghostBitmaps.erase(ghostBitmaps.begin());
+        bitmap->Release();
+    }
+
+    // Make a copy of the current render target and store it in the ghostBitmaps vector
+    ID2D1Bitmap* ghostBitmap = nullptr;
+    d2dDeviceContext->CreateBitmap(sourceBitmap->GetPixelSize(), props, &ghostBitmap);
+    ghostBitmap->CopyFromBitmap(&destPoint, sourceBitmap.get(), &rect);
+    ghostBitmaps.push_back(ghostBitmap);
+
+    // Draw the ghost frames
+    float alpha = 0.3f;
+    alpha *= data->strength;
+    for (int i = 0; i < ghostBitmaps.size(); i++) {
+        d2dDeviceContext->DrawBitmap(ghostBitmaps[i], D2D1::RectF(0, 0, io.DisplaySize.x, io.DisplaySize.y), alpha, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+        alpha *= data->strength;
+    }
+
+    // free interfaces
+    d2dDeviceContext->Flush();
+
+    // Release the target bitmap
+    targetBitmap->Release();
+    // Free the callback data
+    for (auto it = ghostCallbacks.begin(); it != ghostCallbacks.end(); it++) {
+        if (it->get() == data) {
+            ghostCallbacks.erase(it);
+            break;
+        }
+    }
+};
+
+void D2D::addGhostFrame(ImDrawList* drawList, int maxFrames, float strength)
+{
+    if (!initD2D) {
+        return;
+    }
+
+    auto uniqueData = std::make_shared<GhostCallbackData>(strength, maxFrames);
+    auto data = uniqueData.get();
+    ghostCallbacks.push_back(uniqueData);
+    drawList->AddCallback(ghostFrameCallback, data);
+
 }
 
 void D2D::endRender()
 {
+    // Call begin draw and end draw to flush the render target
+    d2dDeviceContext->EndDraw();
     d2dDeviceContext->SetTarget(nullptr); // Unbind the render target
     sourceBitmap = nullptr;
 }
@@ -94,9 +177,6 @@ void D2D::blurCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd) {
     ImGuiIO& io = ImGui::GetIO();
     BlurCallbackData* blurData = (BlurCallbackData*)cmd->UserCallbackData;
     ImVec4 clipRect = data->clipRect.has_value() ? *data->clipRect : cmd->ClipRect;
-
-    d2dDeviceContext->SetTarget(sourceBitmap.get());
-    d2dDeviceContext->BeginDraw();
 
     // Copy the current render target to a bitmap
     ID2D1Bitmap* targetBitmap = nullptr;
@@ -142,10 +222,8 @@ void D2D::blurCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd) {
     d2dDeviceContext->FillGeometry(clipRectGeo, outImageBrush);
     clipRectGeo->Release();
 
-    //Finish Direct2d draw
-    d2dDeviceContext->Flush();
-    d2dDeviceContext->EndDraw();
     //Release interfaces
+    d2dDeviceContext->Flush();
     outImageBrush->Release();
     outImage->Release();
     targetBitmap->Release();

@@ -9,4 +9,6 @@
 class RenderUtils {
 public:
     static inline FrameTransform transform;
+
+    static void drawOutlinedAABB(const AABB& aabb, bool filled);
 };

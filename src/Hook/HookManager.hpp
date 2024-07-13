@@ -25,6 +25,7 @@ public:
 
     static void init();
     static void shutdown();
+    static void waitForHooks();
 };
 
 // Automatically adds a hook after waiting for SigManager::mIsInitialized and OffsetProvider::mIsInitialized to be true

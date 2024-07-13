@@ -8,5 +8,5 @@
 
 class NotifyUtils {
 public:
-    static void Notify(std::string message, float duration, Notification::Type type);
+    static void notify(std::string message, float duration, Notification::Type type);
 };

@@ -80,7 +80,7 @@ void AutoQueue::onPacketInEvent(PacketInEvent& event)
         if (tp->mMessage == "§c§l» §r§c§lGame OVER!" && mQueueOnGameEnd) {
             mQueueForGame = true;
             mLastQueueTime = NOW;
-            NotifyUtils::Notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
+            NotifyUtils::notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
             return;
         }
 

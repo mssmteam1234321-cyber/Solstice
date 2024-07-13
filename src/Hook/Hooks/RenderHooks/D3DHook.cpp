@@ -261,6 +261,7 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
     auto holder = nes::make_holder<RenderEvent>();
     gFeatureManager->mDispatcher->trigger(holder);
 
+
     igEndFrame();
 
     if (!alreadyRunningD3D11) {

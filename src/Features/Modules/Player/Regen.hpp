@@ -7,13 +7,15 @@
 
 class Regen : public ModuleBase<Regen> {
 public:
-    NumberSetting mRange = NumberSetting("Range", "The range for destroying blocks", 5, 0, 8, 0.01);
-    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for regen", 1, 0, 1, 0.01);
-    BoolSetting mSwing = BoolSetting("Swing", "Should swing arm when broke block", false);
-    BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if there are no exposed redstones around you", false);
+    EnumSetting mMode = EnumSetting("Mode", "The regen mode", 0, "Flareon");
+    NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 8, 0.01);
+    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0, 1, 0.01);
+    BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
+    BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
+    BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
-    Regen() : ModuleBase("Regen", "Get extra health in hive automatically", ModuleCategory::Player, 0, false) {
-        addSettings(&mRange, &mDestroySpeed, &mSwing, &mUncover);
+    Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
+        addSettings(&mMode, &mRange, &mDestroySpeed, &mSwing, &mUncover, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
@@ -43,7 +45,7 @@ public:
     bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly);
 
     std::string getSettingDisplay() override {
-        return std::to_string(static_cast<int>(mRange.mValue));
+        return mMode.mValues[mMode.mValue];
     }
 
 };

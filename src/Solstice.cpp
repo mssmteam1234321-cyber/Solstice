@@ -18,6 +18,7 @@
 #include <magic_enum.hpp>
 #include <MinHook.h>
 #include <Features/FeatureManager.hpp>
+#include <Features/Configs/ConfigManager.hpp>
 #include <Hook/HookManager.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <Utils/FileUtils.hpp>
@@ -59,6 +60,8 @@ void Solstice::init(HMODULE hModule)
 
     FileUtils::validateDirectories();
 
+    Prefs = PreferenceManager::load();
+
     console->info("initializing offsetprovider...");
     OffsetProvider::initialize();
 
@@ -87,18 +90,42 @@ void Solstice::init(HMODULE hModule)
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
+    // Create a thead to wait for all futures in hooks then load a default config if any
+    static std::thread dfcthread([]() {
+        HookManager::waitForHooks();
+        while (!ClientInstance::get()->getLocalPlayer() && !mRequestEject) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (mRequestEject) return;
+
+        if (!Prefs->mDefaultConfigName.empty())
+        {
+            if (ConfigManager::configExists(Prefs->mDefaultConfigName))
+            {
+                ConfigManager::loadConfig(Prefs->mDefaultConfigName);
+            }
+            else
+            {
+                console->warn("Default config does not exist! Clearing default config...");
+                NotifyUtils::notify("Default config does not exist! Clearing default config...", 10.0f, Notification::Type::Warning);
+                Prefs->mDefaultConfigName = "";
+            }
+        }
+
+        dfcthread.detach();
+    });
+
     console->info("Press END to eject dll.");
 
     // Create a thread to monitor the mLastTick variable
     mLastTick = NOW;
-    std::thread t([]() {
+    static std::thread tickthread([]() {
         while (!mRequestEject)
         {
             mLastTick = NOW;
             gFeatureManager->mModuleManager->onClientTick();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
         }
+
+        tickthread.detach();
     });
 
     // Wait for the user to press END
@@ -107,7 +134,7 @@ void Solstice::init(HMODULE hModule)
     {
         if (firstCall)
         {
-            NotifyUtils::Notify("Solstice initialized!", 5.0f, Notification::Type::Info);
+            NotifyUtils::notify("Solstice initialized!", 5.0f, Notification::Type::Info);
             firstCall = false;
         }
 
@@ -126,7 +153,6 @@ void Solstice::init(HMODULE hModule)
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     gFeatureManager->shutdown();
-    gFeatureManager.reset();
 
     // Shutdown
     console->warn("Shutting down...");
@@ -136,7 +162,20 @@ void Solstice::init(HMODULE hModule)
 
     mInitialized = false;
 
-    Sleep(5000); // Give the user time to read the message
+    // wait for threads to finish
+    spdlog::info("Waiting for threads to finish...");
+    if (dfcthread.joinable())
+    {
+        dfcthread.join();
+        spdlog::info("Default config thread finished.");
+    }
+    if (tickthread.joinable())
+    {
+        tickthread.join();
+        spdlog::info("Tick thread finished.");
+    }
+
+    Sleep(1000); // Give the user time to read the message
 
     Logger::deinitialize();
     FreeLibraryAndExitThread(mModule, 0);

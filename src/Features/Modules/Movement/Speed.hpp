@@ -44,11 +44,12 @@ public:
         FastFall,
         Normal,
         Low1,
+        Low2
     };
 
 
     EnumSetting mMode = EnumSetting("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
-    EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1");
+    EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
     NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);

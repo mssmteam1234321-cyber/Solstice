@@ -33,11 +33,9 @@ void FeatureManager::shutdown()
 
     spdlog::info("shutting down CommandManager");
     mCommandManager->shutdown();
-    mCommandManager.reset();
 
     spdlog::info("shutting down ModuleManager");
     mModuleManager->shutdown();
-    mModuleManager.reset();
 
     spdlog::info("shutting down event dispatcher");
     mDispatcher.reset();

@@ -175,6 +175,16 @@ std::vector<glm::vec2> MathUtils::getBoxPoints(const AABB& aabb) {
     return indices;
 }
 
+std::vector<ImVec2> MathUtils::getImBoxPoints(const AABB& aabb) {
+    std::vector<glm::vec2> points = getBoxPoints(aabb);
+    std::vector<ImVec2> imPoints = {};
+    for (auto point : points)
+    {
+        imPoints.emplace_back(point.x, point.y);
+    }
+    return imPoints;
+}
+
 glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget)
 {
     glm::vec3 delta = pTarget - pEyePos;

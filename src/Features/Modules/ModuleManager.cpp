@@ -15,6 +15,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
+#include "Misc/Friends.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/InventoryMove.hpp"
@@ -25,6 +26,7 @@
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
+#include "Player/MidclickAction.hpp"
 #include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
@@ -38,6 +40,7 @@
 #include "Visual/Notifications.hpp"
 #include "Visual/Watermark.hpp"
 #include "Visual/ESP.hpp"
+#include "Visual/MotionBlur.hpp"
 
 void ModuleManager::init()
 {
@@ -62,6 +65,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Regen>());
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<AutoTool>());
+    mModules.emplace_back(std::make_shared<MidclickAction>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
@@ -72,6 +76,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
     mModules.emplace_back(std::make_shared<AntiCheatDetector>());
+    mModules.emplace_back(std::make_shared<Friends>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -83,6 +88,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Notifications>());
     mModules.emplace_back(std::make_shared<ESP>());
     mModules.emplace_back(std::make_shared<BlockESP>());
+    mModules.emplace_back(std::make_shared<MotionBlur>());
 
     for (auto& module : mModules)
     {

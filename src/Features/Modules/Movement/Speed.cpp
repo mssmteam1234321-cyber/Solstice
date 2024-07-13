@@ -80,7 +80,7 @@ bool Speed::tickSwiftness()
     if (space && !lastSpace && !hasSpeed && spellbook != -1 && !scaffold->mEnabled)
     {
         ItemUtils::useItem(spellbook);
-        NotifyUtils::Notify("Using swiftness!", 5.f, Notification::Type::Info);
+        NotifyUtils::notify("Using swiftness!", 5.f, Notification::Type::Info);
     }
 
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -147,6 +147,9 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
                 break;
             case FlareonPreset::Low1:
                 preset = FrictionPreset(3.78, 0.98, true, 20.30, true, 1, 2.00, JumpType::Vanilla, 0.42f);
+                break;
+            case FlareonPreset::Low2:
+                preset = FrictionPreset(3.75, 0.98, true, 21.00, true, 4, 1.00, JumpType::Velocity, 0.29f);
                 break;
         }
         tickFrictionPreset(preset);

@@ -64,7 +64,7 @@ void ChestStealer::onContainerScreenTickEvent(ContainerScreenTickEvent& event) c
     static uint64_t delay = getDelay();
 
     if (!isStealing) {
-        NotifyUtils::Notify("Stealing!", 1.0f + (static_cast<float>(delay) / 1000.0f * itemz.size()), Notification::Type::Info);
+        NotifyUtils::notify("Stealing!", 1.0f + (static_cast<float>(delay) / 1000.0f * itemz.size()), Notification::Type::Info);
         isStealing = true;
     }
 

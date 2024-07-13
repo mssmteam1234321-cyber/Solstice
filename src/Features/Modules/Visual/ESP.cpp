@@ -5,6 +5,7 @@
 #include "ESP.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -37,10 +38,20 @@ void ESP::onRenderEvent(RenderEvent& event)
         if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;
+
+        auto themeColor = ColorUtils::getThemedColor(0);
+
+        if (actor->isPlayer())
+        {
+            if (gFriendManager->isFriend(actor))
+            {
+                if (mShowFriends.mValue) themeColor = ImColor(0.0f, 1.0f, 0.0f);
+                else continue;
+            }
+        }
+
         AABB aabb = actor->getAABB();
 
-        glm::vec3 min = aabb.mMin;
-        glm::vec3 max = aabb.mMax;
         std::vector<glm::vec2> points = MathUtils::getBoxPoints(aabb);
         std::vector<ImVec2> imPoints = {};
         for (auto point : points)
@@ -49,7 +60,6 @@ void ESP::onRenderEvent(RenderEvent& event)
         }
 
         // try drawing as convex polygon
-        auto themeColor = ColorUtils::getThemedColor(0);
 
         if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), points.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
         drawList->AddPolyline(imPoints.data(), points.size(), themeColor, 0, 2.0f);

@@ -5,6 +5,7 @@
 #include "FileUtils.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <Windows.h>
 
 #include "spdlog/spdlog.h"
@@ -83,4 +84,11 @@ std::vector<std::string> FileUtils::listFiles(const std::string& path)
     FindClose(hFind);
 
     return files;
+}
+
+void FileUtils::createFile(const std::string& path)
+{
+    std::ofstream file(path);
+    file.close();
+    spdlog::info("Created file: {}", path);
 }

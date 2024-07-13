@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <Features/Configs/PreferenceManager.hpp>
 
 #include "spdlog/logger.h"
 //
@@ -15,6 +16,7 @@ public:
     static inline bool mRequestEject = false;
     static inline int64_t mLastTick = 0;
     static inline std::shared_ptr<spdlog::logger> console;
+    static inline std::shared_ptr<Preferences> Prefs;
 
     /* Functions */
     static void init(HMODULE hModule);

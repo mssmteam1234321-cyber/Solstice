@@ -60,6 +60,7 @@ public:
 
     static float wrap(float val, float min, float max);
     static std::vector<glm::vec2> getBoxPoints(const AABB& aabb);
+    static std::vector<ImVec2> getImBoxPoints(const AABB& aabb);
 
     static glm::vec2 getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget);
     static glm::vec2 getRots(const glm::vec3& pEyePos, const AABB& target);

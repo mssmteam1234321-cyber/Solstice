@@ -11,6 +11,7 @@
 
 #include "Commands/BindCommand.hpp"
 #include "Commands/ConfigCommand.hpp"
+#include "Commands/FriendCommand.hpp"
 #include "Commands/HelpCommand.hpp"
 #include "Commands/QueueCommand.hpp"
 #include "Commands/SetCommand.hpp"
@@ -32,6 +33,7 @@ void CommandManager::init()
     ADD_COMMAND(QueueCommand);
     ADD_COMMAND(SetCommand);
     ADD_COMMAND(ModuleCommand);
+    ADD_COMMAND(FriendCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

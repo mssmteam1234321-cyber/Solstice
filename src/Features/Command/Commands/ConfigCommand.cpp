@@ -18,9 +18,7 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
         return;
     }
 
-    std::string action = args[1];
-
-    if (action == "load" || action == "l")
+    if (const std::string& action = args[1]; action == "load" || action == "l")
     {
         if (args.size() < 3)
         {
@@ -28,7 +26,7 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
             return;
         }
 
-        const std::string name = args[2];
+        const std::string& name = args[2];
 
         if (!ConfigManager::configExists(name))
         {
@@ -62,13 +60,13 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
         {
             if (args.size() < 4 || args.size() < 4 && args[3] != "overwrite")
             {
-                NotifyUtils::Notify(args[2] + " already exists!", 3.f, Notification::Type::Warning);
+                NotifyUtils::notify(args[2] + " already exists!", 3.f, Notification::Type::Warning);
                 ChatUtils::displayClientMessage("§eWARNING: §6" + args[2] + " §calready exists. Use §6.config save " + args[2] + " overwrite §cto overwrite it.");
                 return;
             }
         }
 
-        std::string name = args[2];
+        const std::string& name = args[2];
         ConfigManager::saveConfig(name);
         ChatUtils::displayClientMessage("§aSaved config as §6" + name + "§a.");
     }
@@ -112,6 +110,30 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
 
         ChatUtils::displayClientMessage("§aSuccessfully deleted config §6" + name + "§a.");
     }
+    else if (action == "default" || action == "d")
+    {
+        // Get the next arg
+        if (args.size() < 3)
+        {
+            // Clear the current config
+            Solstice::Prefs->mDefaultConfigName = "";
+            PreferenceManager::save(Solstice::Prefs);
+            ChatUtils::displayClientMessage("§eSuccessfully cleared the default config.");
+            return;
+        }
+
+        const std::string& name = args[2];
+
+        if (!ConfigManager::configExists(name))
+        {
+            ChatUtils::displayClientMessage("§cThe config §6'" + name + "' §cdoes not exist.");
+            return;
+        }
+
+        Solstice::Prefs->mDefaultConfigName = name;
+        PreferenceManager::save(Solstice::Prefs);
+        ChatUtils::displayClientMessage("§aSuccessfully set the default config to §6" + name + "§a.");
+    }
     else
     {
         ChatUtils::displayClientMessage("§c" + getUsage());
@@ -131,5 +153,5 @@ std::string ConfigCommand::getDescription() const
 
 std::string ConfigCommand::getUsage() const
 {
-    return "Usage: .config <load/save/list/delete> <name>";
+    return "Usage: .config <load/save/list/delete/default> <name>";
 }

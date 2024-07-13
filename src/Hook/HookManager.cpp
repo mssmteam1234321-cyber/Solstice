@@ -32,3 +32,15 @@ void HookManager::shutdown()
     mFutures.clear();
     mFutures2.clear();
 }
+
+void HookManager::waitForHooks()
+{
+    for (auto& future : mFutures2)
+    {
+        future.wait();
+    }
+    for (auto& hook : mFutures2)
+    {
+        hook.wait();
+    }
+}

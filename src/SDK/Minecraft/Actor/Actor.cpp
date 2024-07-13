@@ -8,6 +8,7 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 #include <Utils/MiscUtils/RenderUtils.hpp>
 
 #include "ActorType.hpp"
@@ -188,7 +189,7 @@ void Actor::setPosition(glm::vec3 pos)
 float Actor::distanceTo(Actor* actor)
 {
     glm::vec3 closestPoint = getAABB().getClosestPoint(*actor->getPos());
-    return glm::distance(closestPoint, *actor->getPos());
+    return distance(closestPoint, *actor->getPos());
 }
 
 bool Actor::wasOnGround()
@@ -251,4 +252,73 @@ void Actor::jumpFromGround()
 float Actor::getFallDistance()
 {
     return mContext.getComponent<FallDistanceComponent>()->mFallDistance;
+}
+
+const std::string& Actor::getRawName()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    int64_t uniqueId = getActorUniqueIDComponent()->mUniqueID;
+    for (auto& [id, entry] : *player->getLevel()->getPlayerList())
+    {
+        if (entry.id == uniqueId)
+        {
+            return entry.name;
+        }
+    }
+
+    return getNameTag();
+}
+
+const std::string& Actor::getNameTag()
+{
+    static auto func = SigManager::Actor_getNameTag;
+    return *MemUtils::callFastcall<std::string*>(func, this);
+}
+
+void Actor::setNametag(const std::string& name)
+{
+    static auto func = SigManager::Actor_setNameTag;
+    MemUtils::callFastcall<void, void*, std::string>(func, this, name);
+}
+
+
+AttributesComponent* Actor::getAttributesComponent()
+{
+    return mContext.getComponent<AttributesComponent>();
+}
+
+float Actor::getMaxHealth()
+{
+    return getAttribute(Health)->maximumValue;
+}
+
+float Actor::getHealth()
+{
+    return getAttribute(Health)->currentValue;
+}
+
+float Actor::getAbsorption()
+{
+    return getAttribute(Absorption)->currentValue;
+}
+
+float Actor::getMaxAbsorption()
+{
+    return getAttribute(Absorption)->maximumValue;
+}
+
+AttributeInstance* Actor::getAttribute(AttributeId id)
+{
+    return getAttribute(static_cast<int>(id));
+}
+
+AttributeInstance* Actor::getAttribute(int id)
+{
+    // Directly access the map
+    auto& map = getAttributesComponent()->baseAttributeMap.attributes;
+    auto it = map.find(id);
+    if (it != map.end()) {
+        return &it->second;
+    }
+    return nullptr;
 }

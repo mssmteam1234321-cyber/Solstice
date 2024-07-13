@@ -34,7 +34,7 @@ void ConfigManager::loadConfig(const std::string& name)
     LastLoadedConfig = name;
 
     spdlog::info("Loaded config " + name + " successfully.");
-    NotifyUtils::Notify("Loaded config " + name + "!", 3.f, Notification::Type::Info);
+    NotifyUtils::notify("Loaded config " + name + "!", 3.f, Notification::Type::Info);
 }
 
 void ConfigManager::saveConfig(const std::string& name)
@@ -48,6 +48,6 @@ void ConfigManager::saveConfig(const std::string& name)
     LastLoadedConfig = name;
 
     spdlog::info("Config saved successfully.");
-    NotifyUtils::Notify("Saved config as " + name + ".", 3.f, Notification::Type::Info);
+    NotifyUtils::notify("Saved config as " + name + ".", 3.f, Notification::Type::Info);
 
 }

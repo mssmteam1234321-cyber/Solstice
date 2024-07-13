@@ -15,6 +15,7 @@
 #include <Utils/MiscUtils/BlockUtils.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
+#include <Utils/MiscUtils/RenderUtils.hpp>
 
 void Regen::initializeRegen() {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -113,11 +114,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     PlayerInventory* supplies = player->getSupplies();
     mPreviousSlot = supplies->getmSelectedSlot();
 
-    /*float absorption = 0;
+    float absorption = player->getAbsorption();
+
     if (10 <= absorption) {
         initializeRegen();
         return;
-    }*/
+    }
 
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering)) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
@@ -181,8 +183,37 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
 void Regen::onRenderEvent(RenderEvent& event)
 {
-    // TODO
-    // render slider code
+    // NOTE: Keep in mind if you have a RenderEvent that needs something to animate out when disabled,
+    //       you need to put the listen call in the module's constructor without any deafen call.
+    // TODO: Regen progress bar
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (mRenderBlock.mValue && mIsMiningBlock)
+    {
+        static float lastProgress = 0.f;
+        float progress = 1.f;
+
+        progress = mBreakingProgress;
+        if (progress < lastProgress) lastProgress = progress;
+        progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
+        lastProgress = progress;
+
+        // clamp the progress to 0-1
+        progress = MathUtils::clamp(progress, 0.f, 1.f);
+
+        if (progress < 0.01f) return;
+
+        auto size = glm::vec3(progress, progress, progress);
+        glm::vec3 blockPos = mCurrentBlockPos;
+        blockPos.x += 0.5f - (progress / 2.f);
+        blockPos.y += 0.5f - (progress / 2.f);
+        blockPos.z += 0.5f - (progress / 2.f);
+        auto blockAABB = AABB(blockPos, size);
+        RenderUtils::drawOutlinedAABB(blockAABB, ColorUtils::getThemedColor(0)); // TODO: Replace the color with the color of the progress bar as per state (queueing, uncovering, mining, stealing, etc.)
+    }
+
 }
 
 void Regen::onPacketOutEvent(PacketOutEvent& event)
@@ -196,10 +227,9 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
 
         if (mShouldRotate)
         {
-            glm::vec3 blockPos = glm::vec3(mCurrentBlockPos.x + 0.5f, mCurrentBlockPos.y + 0.5f, mCurrentBlockPos.z + 0.5f);
-            glm::vec3 side = BlockUtils::blockFaceOffsets[mCurrentBlockFace] * -0.5f;
-            glm::vec3 target = blockPos + side;
-            glm::vec2 rotations = MathUtils::getRots(*player->getPos(), target);
+            const glm::vec3 blockPos = mCurrentBlockPos;
+            auto blockAABB = AABB(blockPos, glm::vec3(1, 1, 1));
+            glm::vec2 rotations = MathUtils::getRots(*player->getPos(), blockAABB);
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;

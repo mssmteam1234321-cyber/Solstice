@@ -18,6 +18,7 @@
 #include "Components/ActorHeadRotationComponent.hpp"
 #include "Components/MobBodyRotationComponent.hpp"
 #include "Components/JumpControlComponent.hpp"
+#include "Components/AttributesComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -70,4 +71,14 @@ public:
     void setOnGround(bool);
     void jumpFromGround();
     float getFallDistance();
+    const std::string& getRawName();
+    const std::string& getNameTag();
+    void setNametag(const std::string& name);
+    AttributesComponent* getAttributesComponent();
+    float getMaxHealth();
+    float getHealth();
+    float getAbsorption();
+    float getMaxAbsorption();
+    AttributeInstance* getAttribute(AttributeId id);
+    AttributeInstance* getAttribute(int id);
 };

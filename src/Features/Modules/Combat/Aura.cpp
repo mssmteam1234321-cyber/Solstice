@@ -8,6 +8,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
+#include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -224,6 +225,14 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     {
         if (actor == player) continue;
         if (actor->distanceTo(player) > mRange.mValue) continue;
+
+        if (actor->isPlayer() && gFriendManager->mEnabled)
+        {
+            if (gFriendManager->isFriend(actor))
+            {
+                continue;
+            }
+        }
 
         rotate(actor);
         foundAttackable = true;
