@@ -8,6 +8,7 @@
 #include <Utils/MemUtils.hpp>
 
 #include <glm/glm.hpp>
+#include <Utils/Structs.hpp>
 
 enum BlockLegacyVFuncIndex {
     VFUNC_BlockLegacy_dtor,

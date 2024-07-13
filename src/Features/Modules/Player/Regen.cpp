@@ -53,7 +53,9 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     }
 
     // Distance Check
-    if (mRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos))) return false;
+    AABB blockAABB = AABB(blockPos, glm::vec3(1, 1, 1));
+    glm::vec3 closestPos = blockAABB.getClosestPoint(*player->getPos());
+    if (mRange.mValue < glm::distance(closestPos, *player->getPos())) return false;
 
     // Exposed Check
     if (exposedOnly) {
@@ -115,9 +117,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     mPreviousSlot = supplies->getmSelectedSlot();
 
     float absorption = player->getAbsorption();
+    bool maxAbsorption = 10 <= absorption;
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (10 <= absorption || mLastBlockPlace + 500 > NOW) {
+    if (maxAbsorption && !mQueueRedstone.mValue || mLastBlockPlace + 500 > NOW) {
         initializeRegen();
         return;
     }
@@ -127,10 +130,18 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock);
         PacketUtils::spoofSlot(bestToolSlot);
         mToolSlot = bestToolSlot;
-        if (!mOldCalculation.mValue) mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock) / mDestroySpeed.mValue;
 
-        if (mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) {
+        float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+
+        if (!mOldCalculation.mValue) mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mDestroySpeed.mValue);
+
+        bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
+
+        bool finishBreak = true;
+        if (maxAbsorption && isRedstone) finishBreak = false;
+
+        if ((mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue  || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();

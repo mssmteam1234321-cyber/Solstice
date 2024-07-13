@@ -265,7 +265,7 @@ int ItemUtils::getBestBreakingTool(Block* block)
     return bestSlot;
 }
 
-float ItemUtils::getDestroySpeed(int slot, Block* block)
+float ItemUtils::getDestroySpeed(const int slot, const Block* block, const float divisor)
 {
     float result = 1.0f;
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -276,5 +276,5 @@ float ItemUtils::getDestroySpeed(int slot, Block* block)
     result = player->getGameMode()->getDestroyRate(*block);
     player->getSupplies()->mSelectedSlot = oldSlot;
 
-    return result;
+    return result / divisor;
 }

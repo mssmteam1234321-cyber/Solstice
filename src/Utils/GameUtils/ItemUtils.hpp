@@ -20,5 +20,5 @@ public:
     static int getSwiftnessSpellbook();
     static void useItem(int slot);
     static int getBestBreakingTool(Block* block);
-    static float getDestroySpeed(int slot, Block* block);
+    static float getDestroySpeed(int slot, const Block* block, float divisor = 1.f);
 };
