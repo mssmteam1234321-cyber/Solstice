@@ -116,7 +116,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     float absorption = player->getAbsorption();
 
-    if (10 <= absorption) {
+    if (10 <= absorption || supplies->getContainer()->getItem(supplies->mSelectedSlot)->mBlock) {
         initializeRegen();
         return;
     }
@@ -196,7 +196,7 @@ void Regen::onRenderEvent(RenderEvent& event)
         static float lastProgress = 0.f;
         float progress = 1.f;
 
-        progress = mBreakingProgress;
+        progress = mBreakingProgress / mDestroySpeed.mValue;
         if (progress < lastProgress) lastProgress = progress;
         progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
         lastProgress = progress;
