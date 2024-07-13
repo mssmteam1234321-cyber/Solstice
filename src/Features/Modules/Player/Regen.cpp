@@ -73,7 +73,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     PacketUtils::spoofSlot(bestToolSlot);
     mToolSlot = bestToolSlot;
-    mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
+    //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
 
 void Regen::onEnable()
