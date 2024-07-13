@@ -34,6 +34,7 @@ public:
     bool mIsMiningBlock = false;
     bool mIsUncovering = false;
     bool mShouldRotate = false;
+    bool mShouldSpoofSlot = false;
     int mPreviousSlot = -1;
     int mToolSlot = -1;
 

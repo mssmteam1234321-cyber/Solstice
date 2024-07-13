@@ -179,7 +179,7 @@ void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
 
     bool isDestroyedOut = false;
     player->getGameMode()->startDestroyBlock(&blockPos, side, isDestroyedOut);
-    if (!isDestroyedOut) player->getGameMode()->continueDestroyBlock(blockPos, side, *player->getPos(), isDestroyedOut);
+    //if (!isDestroyedOut) player->getGameMode()->continueDestroyBlock(blockPos, side, *player->getPos(), isDestroyedOut);
 
     vec += blockFaceOffsets[side] * -0.5f;
 

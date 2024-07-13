@@ -10,6 +10,7 @@
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/GameUtils/PacketUtils.hpp>
 #include <Utils/MiscUtils/BlockUtils.hpp>
@@ -31,6 +32,7 @@ void Regen::initializeRegen() {
     mTargettingBlockPos = { 0, 0, 0 };
     mCurrentBlockFace = -1;
     mBreakingProgress = 0.f;
+    mShouldSpoofSlot = true;
     mIsMiningBlock = false;
     mIsUncovering = false;
     mToolSlot = -1;
@@ -74,7 +76,10 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block);
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
-    PacketUtils::spoofSlot(bestToolSlot);
+    if (mShouldSpoofSlot) {
+        PacketUtils::spoofSlot(bestToolSlot);
+        mShouldSpoofSlot = false;
+    }
     mToolSlot = bestToolSlot;
     //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
@@ -128,7 +133,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering)) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock);
-        PacketUtils::spoofSlot(bestToolSlot);
+        if (mShouldSpoofSlot) {
+            PacketUtils::spoofSlot(bestToolSlot);
+            mShouldSpoofSlot = false;
+        }
         mToolSlot = bestToolSlot;
 
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
@@ -169,10 +177,26 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             else continue;
         }
 
+        bool foundBlock = false;
+        glm::vec3 playerPos = *player->getPos();
+        glm::ivec3 pos;
+        glm::ivec3 targettingPos;
+        float closestDistance = INT_MAX;
         if (!exposedBlockList.empty()) {
             for (int i = 0; i < exposedBlockList.size(); i++) {
-                mTargettingBlockPos = exposedBlockList[i].mPosition;
-                queueBlock(exposedBlockList[i].mPosition);
+                glm::vec3 blockPos = exposedBlockList[i].mPosition;
+                float dist = glm::distance(playerPos, blockPos);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    pos = blockPos;
+                    targettingPos = blockPos;
+                    foundBlock = true;
+                }
+            }
+            // queue block
+            if (foundBlock) {
+                mTargettingBlockPos = targettingPos;
+                queueBlock(pos);
                 return;
             }
         }
@@ -182,11 +206,21 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     glm::ivec3 blockPos = unexposedBlockList[i2].mPosition;
                     blockPos.y += i;
                     if (BlockUtils::getExposedFace(blockPos) != -1 || i == 2) { // Is exposed
-                        mIsUncovering = true;
-                        mTargettingBlockPos = unexposedBlockList[i2].mPosition;
-                        queueBlock(blockPos);
-                        return;
+                        float dist = glm::distance(playerPos, glm::vec3(blockPos));
+                        if (dist < closestDistance) {
+                            closestDistance = dist;
+                            pos = blockPos;
+                            targettingPos = blockPos;
+                            foundBlock = true;
+                        }
                     }
+                }
+                // queue block
+                if (foundBlock) {
+                    mIsUncovering = true;
+                    mTargettingBlockPos = targettingPos;
+                    queueBlock(pos);
+                    return;
                 }
             }
         }
@@ -249,7 +283,7 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
         }
-    } else if (event.packet->getId() == PacketID::InventoryTransaction) {
+    }else if (event.packet->getId() == PacketID::InventoryTransaction) {
         if (const auto it = event.getPacket<InventoryTransactionPacket>();
             it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
@@ -259,5 +293,9 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
                 mLastBlockPlace = NOW;
             }
         }
+    }
+    else if (event.packet->getId() == PacketID::MobEquipment) {
+        auto mpkt = event.getPacket<MobEquipmentPacket>();
+        if (mpkt->mSlot != mToolSlot) mShouldSpoofSlot = true;
     }
 }
