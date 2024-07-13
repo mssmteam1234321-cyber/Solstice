@@ -14,8 +14,10 @@ public:
     }
 
     static std::unordered_map<PacketID, std::unique_ptr<Detour>> mDetours;
+    static inline void* NetworkIdentifier = nullptr;
 
     static void* onPacketSend(void* _this, void* networkIdentifier, void* netEventCallback, std::shared_ptr<class Packet> packet);
+    static void handlePacket(std::shared_ptr<Packet> packet);
     void init() override;
 };
 

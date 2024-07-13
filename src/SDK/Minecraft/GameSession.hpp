@@ -5,5 +5,6 @@
 
 
 class GameSession {
+public:
     void* getEventCallback();
 };

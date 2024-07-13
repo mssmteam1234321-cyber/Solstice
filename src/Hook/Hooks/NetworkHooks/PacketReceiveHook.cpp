@@ -7,6 +7,8 @@
 #include <magic_enum.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <Features/Events/PacketInEvent.hpp>
+#include <SDK/Minecraft/GameSession.hpp>
+#include <SDK/Minecraft/MinecraftSim.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
 
 std::unordered_map<PacketID, std::unique_ptr<Detour>> PacketReceiveHook::mDetours;
@@ -15,6 +17,8 @@ void* PacketReceiveHook::onPacketSend(void* _this, void* networkIdentifier, void
 {
     auto ofunc = PacketReceiveHook::mDetours[packet->getId()]->getOriginal<decltype(&onPacketSend)>();
 
+    NetworkIdentifier = networkIdentifier;
+
     auto holder = nes::make_holder<PacketInEvent>(packet, networkIdentifier, netEventCallback);
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled()) return nullptr;
@@ -22,8 +26,19 @@ void* PacketReceiveHook::onPacketSend(void* _this, void* networkIdentifier, void
     return ofunc(_this, networkIdentifier, netEventCallback, packet);
 }
 
+void PacketReceiveHook::handlePacket(std::shared_ptr<Packet> packet)
+{
+    if (!NetworkIdentifier) return;
+    auto ofunc = mDetours[packet->getId()]->getOriginal<decltype(&onPacketSend)>();
+    ofunc(packet->mDispatcher, NetworkIdentifier, ClientInstance::get()->getMinecraftSim()->getGameSession()->getEventCallback(), packet);
+}
+
 void PacketReceiveHook::init()
 {
+    static bool called = false;
+    if (called) return;
+    called = true;
+
     // Go through the enum of PacketID using magic_enum, and hook the packet receive function for each packet
     // Also do this asynchonously, using futures
     std::vector<std::future<void>> futures;

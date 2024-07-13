@@ -14,6 +14,8 @@ struct BlockInfo {
     AABB getAABB() {
         return AABB(mPosition, glm::vec3(1, 1, 1));
     }
+
+    BlockInfo(Block* block, glm::ivec3 position) : mBlock(block), mPosition(position) {}
 };
 
 class BlockUtils {

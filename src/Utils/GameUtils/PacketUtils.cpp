@@ -4,6 +4,7 @@
 
 #include "PacketUtils.hpp"
 
+#include <Hook/Hooks/NetworkHooks/PacketReceiveHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -27,4 +28,9 @@ void PacketUtils::spoofSlot(int slot)
     mep->mSelectedSlotByte = static_cast<unsigned char>(slot);
     mep->mSlotByte = static_cast<unsigned char>(slot);
     ClientInstance::get()->getPacketSender()->sendToServer(mep.get());
+}
+
+void PacketUtils::sendToSelf(std::shared_ptr<Packet> packet)
+{
+    PacketReceiveHook::handlePacket(packet);
 }
