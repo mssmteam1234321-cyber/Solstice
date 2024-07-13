@@ -82,7 +82,7 @@ void Solstice::init(HMODULE hModule)
     console->info("initializing hooks...");
     HookManager::init();
 
-    gFeatureManager = std::make_unique<FeatureManager>();
+    gFeatureManager = std::make_shared<FeatureManager>();
     gFeatureManager->init();
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));

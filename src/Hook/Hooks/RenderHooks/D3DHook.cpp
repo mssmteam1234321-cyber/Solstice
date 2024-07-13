@@ -253,16 +253,14 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
 
     lastWindowSize = windowSize;
 
-
-
     igNewFrame();
+
     winrt::com_ptr<IDXGISurface> surface;
     mBackBuffer11Tex.at(index).try_as(surface);
     D2D::beginRender(surface.get(), dpi);
 
     auto holder = nes::make_holder<RenderEvent>();
     gFeatureManager->mDispatcher->trigger(holder);
-
 
     igEndFrame();
 

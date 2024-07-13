@@ -43,6 +43,7 @@ public:
     EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
     EnumSetting mSwitchMode = EnumSetting("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
     EnumSetting mAnticheatMode = EnumSetting("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
+    BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
@@ -54,12 +55,13 @@ public:
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
+        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mHotbarOnly, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
 
         VISIBILITY_CONDITION(mAPS, mRandomizeAPS.mValue == false);
         VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue == true);
         VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue == true);
         VISIBILITY_CONDITION(mThrowDelay, mThrowProjectiles.mValue == true);
+
 
         mNames = {
             {Lowercase, "aura"},

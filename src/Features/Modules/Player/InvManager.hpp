@@ -4,6 +4,7 @@
 //
 
 #include <Features/Modules/Module.hpp>
+#include <Utils/MiscUtils/ColorUtils.hpp>
 
 class InvManager : public ModuleBase<InvManager> {
 public:
@@ -32,6 +33,7 @@ public:
     EnumSetting mPreferredPickaxeSlot = EnumSetting("Pickaxe Slot", "The slot where your pickaxe is", 2, mSlots);
     EnumSetting mPreferredAxeSlot = EnumSetting("Axe Slot", "The slot where your axe is", 3, mSlots);
     EnumSetting mPreferredShovelSlot = EnumSetting("Shovel Slot", "The slot where your shovel is", 4, mSlots);
+    BoolSetting mSpoofOpen = BoolSetting("Spoof Open", "Server-sidedly opens your inventory while performing item actions, can bypass some anticheats", false);
 
 
     InvManager() : ModuleBase("InvManager", "Manages your inventory", ModuleCategory::Player, 0, false) {
@@ -42,6 +44,8 @@ public:
         addSetting(&mPreferredPickaxeSlot);
         addSetting(&mPreferredAxeSlot);
         addSetting(&mPreferredShovelSlot);
+        addSetting(&mSpoofOpen);
+
         VISIBILITY_CONDITION(mPreferredSwordSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredPickaxeSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredAxeSlot, mPreferredSlots.mValue);
@@ -56,11 +60,16 @@ public:
         };
     }
 
+    int64_t mLastAction = NOW;
+    int64_t mLastPing = 0;
+    bool mCloseNext = false;
+
     void onEnable() override;
     void onDisable() override;
-    void onBaseTickEvent(class BaseTickEvent& event) const;
+    void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
+    void onPingUpdateEvent(class PingUpdateEvent& event);
     static bool isItemUseless(class ItemStack* item, int slot);
 
     std::string getSettingDisplay() override {

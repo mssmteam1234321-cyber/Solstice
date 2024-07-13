@@ -35,7 +35,7 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
     };
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
 
 void PacketLogger::onPacketInEvent(PacketInEvent& event)
 {

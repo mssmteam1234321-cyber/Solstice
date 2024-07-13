@@ -80,6 +80,8 @@ void Aura::shootBow(Actor* target)
         if (bowSlot != -1 && arrowSlot != -1) break;
     }
 
+    if (mHotbarOnly.mValue && bowSlot > 8) return;
+
     if (bowSlot == -1 || arrowSlot == -1)
     {
         spdlog::info("No bow or arrow found");
@@ -132,6 +134,8 @@ void Aura::throwProjectiles(Actor* target)
                 break;
             }
         }
+
+    if (mHotbarOnly.mValue && snowballSlot > 8) return;
 
     if (snowballSlot == -1)
     {
@@ -245,6 +249,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         player->swing();
         int slot = -1;
         int bestWeapon = ItemUtils::getBestItem(SItemType::Sword);
+        mHotbarOnly.mValue ? slot = bestWeapon : slot = player->getSupplies()->mSelectedSlot;
 
         actor = findObstructingActor(player, actor);
 

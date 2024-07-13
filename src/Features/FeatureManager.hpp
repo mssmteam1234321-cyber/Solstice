@@ -23,12 +23,12 @@ enum struct EventPriorities {
 
 class FeatureManager {
 public:
-    std::unique_ptr<nes::event_dispatcher> mDispatcher;
-    std::unique_ptr<ModuleManager> mModuleManager = nullptr;
-    std::unique_ptr<CommandManager> mCommandManager = nullptr;
+    std::shared_ptr<nes::event_dispatcher> mDispatcher;
+    std::shared_ptr<ModuleManager> mModuleManager = nullptr;
+    std::shared_ptr<CommandManager> mCommandManager = nullptr;
 
     void init();
     void shutdown();
 };
 
-inline std::unique_ptr<FeatureManager> gFeatureManager = nullptr;
+inline std::shared_ptr<FeatureManager> gFeatureManager = nullptr;

@@ -6,9 +6,16 @@
 
 #include <magic_enum.hpp>
 #include <Features/FeatureManager.hpp>
+#include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
+#include <Features/Events/PingUpdateEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
+#include <SDK/Minecraft/Network/Packets/InteractPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/ContainerClosePacket.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
@@ -16,19 +23,64 @@
 void InvManager::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &InvManager::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &InvManager::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &InvManager::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->listen<PingUpdateEvent, &InvManager::onPingUpdateEvent>(this);
 }
 
 void InvManager::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &InvManager::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &InvManager::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &InvManager::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &InvManager::onPingUpdateEvent>(this);
 }
 
-void InvManager::onBaseTickEvent(BaseTickEvent& event) const
+bool gIsOpen = false;
+
+void sendOpen()
+{
+    if (gIsOpen) return;
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    auto interactPacket = MinecraftPackets::createPacket<InteractPacket>();
+    interactPacket->mTargetId = player->getRuntimeID();
+    interactPacket->mPos = *player->getPos();
+    interactPacket->mAction = InteractPacket::Action::OpenInventory;
+    ClientInstance::get()->getPacketSender()->sendToServer(interactPacket.get());
+    gIsOpen = true;
+}
+
+void sendClose()
+{
+    if (!gIsOpen) return;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto closePacket = MinecraftPackets::createPacket<ContainerClosePacket>();
+    closePacket->mContainerId = ContainerID::Inventory;
+    closePacket->mServerInitiatedClose = false;
+
+    ClientInstance::get()->getPacketSender()->sendToServer(closePacket.get());
+    auto closePacket2 = MinecraftPackets::createPacket<ContainerClosePacket>();
+    closePacket2->mContainerId = ContainerID::First;
+    closePacket2->mServerInitiatedClose = false;
+
+    ClientInstance::get()->getPacketSender()->sendToServer(closePacket2.get());
+
+    gIsOpen = false;
+}
+
+void InvManager::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     auto armorContainer = player->getArmorContainer();
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
+
+    if (mCloseNext)
+    {
+        sendClose();
+        mCloseNext = false;
+    }
 
     // Check how many free slots we have
     int freeSlots = 0;
@@ -37,17 +89,19 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
         if (!container->getItem(i)->mItem) freeSlots++;
     }
 
+
     // If we are in a container, don't do anything
     if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0)
     {
+        spdlog::info("Mouse is grabbed");
         return;
     }
 
     std::vector<int> itemsToEquip;
     bool isInstant = mMode.mValue == static_cast<int>(Mode::Instant);
-    static uint64_t lastAction = 0;
-    if (lastAction + static_cast<uint64_t>(mDelay.mValue) > NOW)
+    if (mLastAction + static_cast<uint64_t>(mDelay.mValue) > NOW)
     {
+        spdlog::info("Delaying");
         return;
     }
 
@@ -190,10 +244,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
 
     for (auto& item : itemsToDrop)
     {
+        if (mSpoofOpen.mValue) sendOpen();
         supplies->getContainer()->dropSlot(item);
+        if (mSpoofOpen.mValue) mCloseNext = true;
+
+        mLastAction = NOW;
         if (!isInstant)
         {
-            lastAction = NOW;
             return;
         }
     }
@@ -204,10 +261,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
         {
             if (bestSwordSlot != -1 && bestSwordSlot != mPreferredSwordSlot.mValue - 1)
             {
+                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestSwordSlot, mPreferredSwordSlot.mValue - 1);
+                if (mSpoofOpen.mValue) mCloseNext = true;
+
+                mLastAction = NOW;
                 if (!isInstant)
                 {
-                    lastAction = NOW;
                     return;
                 }
             }
@@ -216,10 +276,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
         {
             if (bestPickaxeSlot != -1 && bestPickaxeSlot != mPreferredPickaxeSlot.mValue - 1)
             {
+                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestPickaxeSlot, mPreferredPickaxeSlot.mValue - 1);
+                if (mSpoofOpen.mValue) mCloseNext = true;
+
+                mLastAction = NOW;
                 if (!isInstant)
                 {
-                    lastAction = NOW;
                     return;
                 }
             }
@@ -228,10 +291,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
         {
             if (bestAxeSlot != -1 && bestAxeSlot != mPreferredAxeSlot.mValue - 1)
             {
+                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestAxeSlot, mPreferredAxeSlot.mValue - 1);
+                if (mSpoofOpen.mValue) mCloseNext = true;
+
+                mLastAction = NOW;
                 if (!isInstant)
                 {
-                    lastAction = NOW;
                     return;
                 }
             }
@@ -240,10 +306,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
         {
             if (bestShovelSlot != -1 && bestShovelSlot != mPreferredShovelSlot.mValue - 1)
             {
+                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestShovelSlot, mPreferredShovelSlot.mValue - 1);
+                if (mSpoofOpen.mValue) mCloseNext = true;
+
+                mLastAction = NOW;
                 if (!isInstant)
                 {
-                    lastAction = NOW;
                     return;
                 }
             }
@@ -257,13 +326,63 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event) const
 
     for (auto& item : itemsToEquip)
     {
+        if (mSpoofOpen.mValue) sendOpen();
         supplies->getContainer()->equipArmor(item);
+        if (mSpoofOpen.mValue) mCloseNext = true;
+        mLastAction = NOW;
         if (!isInstant)
         {
-            lastAction = NOW;
             break;
         }
     }
+}
+
+void InvManager::onPacketInEvent(PacketInEvent& event)
+{
+    if ((event.mPacket->getId() == PacketID::ContainerOpen || event.mPacket->getId() == PacketID::ContainerClose || event.mPacket->getId() == PacketID::Interact) && mSpoofOpen.mValue)
+    {
+        // Return if the LastAction was more than 400ms ago
+        if (mLastAction + 200 + mLastPing < NOW) return;
+
+        if (event.mPacket->getId() == PacketID::ContainerOpen)
+        {
+            auto openPacket = event.getPacket<ContainerOpenPacket>();
+            if (openPacket->mContainerId != ContainerID::Inventory && openPacket->mContainerId != ContainerID::First) return;
+        } else if (event.mPacket->getId() == PacketID::ContainerClose)
+        {
+            auto closePacket = event.getPacket<ContainerClosePacket>();
+            if (closePacket->mContainerId != ContainerID::Inventory && closePacket->mContainerId != ContainerID::First) return;
+        } else if (event.mPacket->getId() == PacketID::Interact)
+        {
+            auto interactPacket = event.getPacket<InteractPacket>();
+            if (interactPacket->mAction != InteractPacket::Action::OpenInventory) return;
+        }
+
+        spdlog::warn("Cancelling packet [in:{}Packet]", std::string(magic_enum::enum_name(event.mPacket->getId())));
+
+        event.cancel();
+    }
+}
+
+void InvManager::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.packet->getId() == PacketID::Interact && mSpoofOpen.mValue)
+    {
+        // Return if the LastAction was more than 400ms+ping ago
+        if (mLastAction + 200 + mLastPing < NOW) return;
+
+        auto packet = event.getPacket<InteractPacket>();
+        if (packet->mAction == InteractPacket::Action::OpenInventory)
+        {
+            spdlog::warn("Cancelling packet [out:InteractPacket]");
+            event.cancel();
+        }
+    }
+}
+
+void InvManager::onPingUpdateEvent(PingUpdateEvent& event)
+{
+    mLastPing = event.mPing;
 }
 
 bool InvManager::isItemUseless(ItemStack* item, int slot)

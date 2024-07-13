@@ -56,6 +56,8 @@ void MidclickAction::onBaseTickEvent(BaseTickEvent& event)
         }
     }
 
+    if (mHotbarOnly.mValue && slot > 8) slot = -1;
+
     if (mThrowNextTick && slot != -1)
     {
         mThrowNextTick = false;
