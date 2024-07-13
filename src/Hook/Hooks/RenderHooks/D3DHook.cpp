@@ -251,6 +251,8 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         gFeatureManager->mDispatcher->trigger(holder);
     }
 
+    lastWindowSize = windowSize;
+
 
 
     igNewFrame();

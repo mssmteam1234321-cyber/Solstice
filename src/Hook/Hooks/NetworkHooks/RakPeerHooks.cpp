@@ -32,7 +32,6 @@ void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled())
     {
-        spdlog::trace("RakNet::RakPeer::RunUpdateCycle cancelled RunUpdateCycle event");
         return;
     }
     spdlog::trace("RakNet::RakPeer::RunUpdateCycle triggered RunUpdateCycle event");

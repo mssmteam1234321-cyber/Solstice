@@ -92,49 +92,46 @@ void D2D::ghostFrameCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd
     }
 
     ImGuiIO& io = ImGui::GetIO();
-    GhostCallbackData* blurData = (GhostCallbackData*)cmd->UserCallbackData;
+    auto displaySize = io.DisplaySize;
+    auto size = sourceBitmap->GetPixelSize();
+    auto rect = D2D1::RectU(0, 0, size.width, size.height);
+    auto destPoint = D2D1::Point2U(0, 0);
+
+    // Static variables to reduce redundant creation/destruction
+    static std::vector<ID2D1Bitmap*> ghostBitmaps;
+    static ID2D1Bitmap* targetBitmap = nullptr;
+    static D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(sourceBitmap->GetPixelFormat());
+
+    if (targetBitmap == nullptr) {
+        d2dDeviceContext->CreateBitmap(size, props, &targetBitmap);
+    }
 
     // Copy the current render target to a bitmap
-    ID2D1Bitmap* targetBitmap = nullptr;
-    D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(sourceBitmap->GetPixelFormat());
-    d2dDeviceContext->CreateBitmap(sourceBitmap->GetPixelSize(), props, &targetBitmap);
-    auto destPoint = D2D1::Point2U(0, 0);
-    auto size = sourceBitmap->GetPixelSize();
-    auto rect = D2D1::RectU(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     targetBitmap->CopyFromBitmap(&destPoint, sourceBitmap.get(), &rect);
 
-    static std::vector<ID2D1Bitmap*> ghostBitmaps;
     int maxFrames = data->maxFrames;
-    /*if (ghostBitmaps.size() >= maxFrames) {
-        auto bitmap = ghostBitmaps[0];
-        ghostBitmaps.erase(ghostBitmaps.begin());
-        bitmap->Release();
-    }*/
+    
+    // Ensure the number of frames does not exceed maxFrames
     while (ghostBitmaps.size() >= maxFrames) {
-        auto bitmap = ghostBitmaps[0];
+        auto bitmap = ghostBitmaps.front();
         ghostBitmaps.erase(ghostBitmaps.begin());
         bitmap->Release();
     }
 
-    // Make a copy of the current render target and store it in the ghostBitmaps vector
+    // Create and copy a new ghost bitmap
     ID2D1Bitmap* ghostBitmap = nullptr;
-    d2dDeviceContext->CreateBitmap(sourceBitmap->GetPixelSize(), props, &ghostBitmap);
+    d2dDeviceContext->CreateBitmap(size, props, &ghostBitmap);
     ghostBitmap->CopyFromBitmap(&destPoint, sourceBitmap.get(), &rect);
     ghostBitmaps.push_back(ghostBitmap);
 
+
     // Draw the ghost frames
-    float alpha = 0.3f;
-    alpha *= data->strength;
-    for (int i = 0; i < ghostBitmaps.size(); i++) {
-        d2dDeviceContext->DrawBitmap(ghostBitmaps[i], D2D1::RectF(0, 0, io.DisplaySize.x, io.DisplaySize.y), alpha, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+    float alpha = 0.3f * data->strength;
+    for (auto& ghostBitmap : ghostBitmaps) {
+        d2dDeviceContext->DrawBitmap(ghostBitmap, D2D1::RectF(0, 0, displaySize.x, displaySize.y), alpha, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
         alpha *= data->strength;
     }
 
-    // free interfaces
-    d2dDeviceContext->Flush();
-
-    // Release the target bitmap
-    targetBitmap->Release();
     // Free the callback data
     for (auto it = ghostCallbacks.begin(); it != ghostCallbacks.end(); it++) {
         if (it->get() == data) {
@@ -142,7 +139,7 @@ void D2D::ghostFrameCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd
             break;
         }
     }
-};
+}
 
 void D2D::addGhostFrame(ImDrawList* drawList, int maxFrames, float strength)
 {
