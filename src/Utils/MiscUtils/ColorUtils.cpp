@@ -30,18 +30,18 @@ ImColor ColorUtils::LerpColors(float seconds, float index, std::vector<ImColor> 
 
 ImColor ColorUtils::getThemedColor(float index, uint64_t ms)
 {
-    auto interface = gFeatureManager->mModuleManager->getModule<Interface>();
-    if (!interface) return { 255, 255, 255, 255 };
+    auto daInterface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (!daInterface) return { 255, 255, 255, 255 };
 
-    auto theme = interface->mMode.mValue;
+    auto theme = daInterface->mMode.mValue;
     auto colors = Interface::ColorThemes[theme];
-    if (theme == Interface::Rainbow) return Rainbow(interface->mColorSpeed.mValue, interface->mSaturation.mValue, 1.f, index);
+    if (theme == Interface::Rainbow) return Rainbow(daInterface->mColorSpeed.mValue, daInterface->mSaturation.mValue, 1.f, index);
     else if (theme == Interface::Custom)
     {
-        colors = interface->getCustomColors();
+        colors = daInterface->getCustomColors();
     }
 
-    return LerpColors(interface->mColorSpeed.mValue, index, colors, ms);
+    return LerpColors(daInterface->mColorSpeed.mValue, index, colors, ms);
 
 }
 

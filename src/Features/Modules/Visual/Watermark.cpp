@@ -4,13 +4,9 @@
 
 #include "Watermark.hpp"
 
-#include <d3d11.h>
-#include <imgui.h>
-#include <Features/Events/RenderEvent.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
 #include <Utils/MiscUtils/MathUtils.hpp>
 
 void Watermark::onEnable()

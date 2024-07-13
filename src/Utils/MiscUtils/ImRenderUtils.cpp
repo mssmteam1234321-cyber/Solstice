@@ -4,7 +4,9 @@
 
 #include "ImRenderUtils.hpp"
 
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
+#include <Utils/ProcUtils.hpp>
 
 #include "D2D.hpp"
 

@@ -4,7 +4,6 @@
 
 #include "Scaffold.hpp"
 
-#include <imgui_internal.h>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -221,8 +220,8 @@ void Scaffold::onRenderEvent(RenderEvent& event)
     int totalBlocks = ItemUtils::getAllPlaceables(mHotbarOnly.mValue);
 
     std::string displayText = "Blocks: ";
-    Interface* interface = gFeatureManager->mModuleManager->getModule<Interface>();
-    if (interface->mNamingStyle.as<NamingStyle>() == NamingStyle::Lowercase || interface->mNamingStyle.as<NamingStyle>() == NamingStyle::LowercaseSpaced)
+    Interface* daInterface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (daInterface->mNamingStyle.as<NamingStyle>() == NamingStyle::Lowercase || daInterface->mNamingStyle.as<NamingStyle>() == NamingStyle::LowercaseSpaced)
     {
         displayText = "blocks: ";
     }

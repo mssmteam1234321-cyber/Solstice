@@ -4,11 +4,6 @@
 
 #pragma once
 
-#include <imgui.h>
-#include <glm/glm.hpp>
-
-
-
 struct Rect {
     union
     {

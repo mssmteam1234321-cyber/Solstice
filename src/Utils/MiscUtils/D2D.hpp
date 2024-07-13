@@ -4,7 +4,6 @@
 //
 #include <d2d1_3.h>
 #include <d3d11on12.h>
-#include <imgui.h>
 #include <memory>
 #include <optional>
 #include <vector>

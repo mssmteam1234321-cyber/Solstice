@@ -231,4 +231,6 @@ target_link_libraries(Solstice PRIVATE spdlog SDL2::SDL2 nlohmann_json glm minho
 set_property(TARGET Solstice nlohmann_json minhook spdlog glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
-
+target_precompile_headers(Solstice PRIVATE
+        "$<$<COMPILE_LANGUAGE:CXX>:<src/pch.hpp$<ANGLE-R>>"
+)

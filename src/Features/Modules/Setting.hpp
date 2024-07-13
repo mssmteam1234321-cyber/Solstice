@@ -1,8 +1,9 @@
 #pragma once
-#include <functional>
+#include <imgui_internal.h>
 #include <imgui.h>
 #include <string>
 #include <nlohmann/json.hpp>
+
 //
 // Created by vastrakai on 6/30/2024.
 //

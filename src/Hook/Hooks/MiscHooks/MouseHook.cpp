@@ -4,8 +4,6 @@
 
 #include "MouseHook.hpp"
 
-#include <imgui.h>
-#include <imgui_internal.h>
 
 #include "Features/Events/MouseEvent.hpp"
 

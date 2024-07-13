@@ -3,12 +3,10 @@
 // Created by vastrakai on 6/29/2024.
 //
 
-#include <Solstice.hpp>
+
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Setting.hpp>
 #include <Utils/MiscUtils/EasingUtil.hpp>
-
-#include "spdlog/spdlog.h"
 
 class ClickGui : public ModuleBase<ClickGui>
 {
@@ -57,5 +55,3 @@ public:
         return mStyle.mValue == Dropdown ? "Dropdown" : "Unknown";
     }
 };
-
-REGISTER_MODULE(ClickGui);

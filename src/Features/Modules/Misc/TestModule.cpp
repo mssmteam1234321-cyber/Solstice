@@ -4,20 +4,16 @@
 
 #include "TestModule.hpp"
 
-#include <imgui.h>
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <SDK/Minecraft/Network/Packets/PlayerListPacket.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
-#include <spdlog/spdlog.h>
 #include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/MemUtils.hpp>
 
 void TestModule::onEnable()
 {

@@ -7,6 +7,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/FontHelper.hpp>

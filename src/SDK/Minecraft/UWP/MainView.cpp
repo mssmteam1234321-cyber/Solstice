@@ -3,8 +3,8 @@
 //
 
 #include "MainView.hpp"
-
 #include <SDK/OffsetProvider.hpp>
+#include <SDK/SigManager.hpp>
 
 class BedrockPlatformUWP* MainView::getBedrockPlatform()
 {

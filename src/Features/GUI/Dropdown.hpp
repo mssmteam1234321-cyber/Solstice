@@ -1,5 +1,4 @@
 #pragma once
-#include <imgui.h>
 #include <vector>
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Setting.hpp>

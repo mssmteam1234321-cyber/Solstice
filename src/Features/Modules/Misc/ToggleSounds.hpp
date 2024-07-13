@@ -3,10 +3,7 @@
 // Created by vastrakai on 6/29/2024.
 //
 
-#include <Solstice.hpp>
 #include <Features/FeatureManager.hpp>
-
-#include "spdlog/spdlog.h"
 
 class ToggleSounds : public ModuleBase<ToggleSounds> {
 public:
@@ -35,5 +32,3 @@ public:
         return mSound.mValue == Sound::Lever ? "Lever" : "Smooth";
     }
 };
-
-REGISTER_MODULE(ToggleSounds);

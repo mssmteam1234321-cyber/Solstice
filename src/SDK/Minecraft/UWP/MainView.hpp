@@ -1,5 +1,4 @@
 #pragma once
-#include <SDK/SigManager.hpp>
 //
 // Created by vastrakai on 6/24/2024.
 //

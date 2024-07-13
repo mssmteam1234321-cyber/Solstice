@@ -1,7 +1,5 @@
 #pragma once
-#include <d3d11.h>
-#include <dxgi.h>
-#include <dxgi1_4.h>
+
 #include <Hook/Hook.hpp>
 #include <Hook/HookManager.hpp>
 #include <SDK/SigManager.hpp>

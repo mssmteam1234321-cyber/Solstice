@@ -1,14 +1,12 @@
 #pragma once
+#include <Features/Events/ActorRenderEvent.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/ModuleStateChangeEvent.hpp>
+
 //
 // Created by vastrakai on 7/1/2024.
 //
 
-#include <Features/FeatureManager.hpp>
-#include <Features/Events/ActorRenderEvent.hpp>
-#include <Features/Modules/Module.hpp>
-#include <Features/Modules/ModuleManager.hpp>
-#include <Features/Modules/Setting.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
 
 class Interface : public ModuleBase<Interface> {
 public:

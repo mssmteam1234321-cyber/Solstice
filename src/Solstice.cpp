@@ -4,24 +4,22 @@
 
 #include "Solstice.hpp"
 
-#include <iostream>
-#include <thread>
-#include <SDK/OffsetProvider.hpp>
-#include <SDK/SigManager.hpp>
-#include <SDK/Minecraft/ClientInstance.hpp>
-#include <SDK/Minecraft/MinecraftGame.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
-#include <Utils/Logger.hpp>
-#include <spdlog/spdlog.h>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/ProcUtils.hpp>
-#include <magic_enum.hpp>
-#include <MinHook.h>
+
 #include <Features/FeatureManager.hpp>
 #include <Features/Configs/ConfigManager.hpp>
 #include <Hook/HookManager.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+#include <SDK/OffsetProvider.hpp>
+
+#include <SDK/SigManager.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/MinecraftGame.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <spdlog/spdlog.h>
 #include <Utils/FileUtils.hpp>
+#include <Utils/Logger.hpp>
+#include <Utils/ProcUtils.hpp>
+#include <Utils/GameUtils/ChatUtils.hpp>
 #include <Utils/MiscUtils/NotifyUtils.hpp>
 #include <Utils/SysUtils/ExceptionHandler.hpp>
 

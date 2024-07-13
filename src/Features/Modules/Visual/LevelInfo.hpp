@@ -1,5 +1,4 @@
 #pragma once
-#include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Modules/Module.hpp>
 //
 // Created by vastrakai on 7/2/2024.

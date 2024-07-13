@@ -1,8 +1,6 @@
 #pragma once
 #include <Features/Modules/Module.hpp>
 #include <Features/Modules/ModuleManager.hpp>
-#include <Solstice.hpp>
-#include "glm/glm.hpp"
 //
 // Created by vastrakai on 6/30/2024.
 //
@@ -37,5 +35,3 @@ public:
         return fmt::format("{:.1f}", mScaleSetting.mValue);
     }
 };
-
-REGISTER_MODULE(AutoScale);

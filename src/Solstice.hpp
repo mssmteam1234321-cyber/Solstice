@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
 #include <Features/Configs/PreferenceManager.hpp>
-
 #include "spdlog/logger.h"
 //
 // Created by vastrakai on 6/24/2024.

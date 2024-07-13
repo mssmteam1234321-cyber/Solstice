@@ -4,17 +4,6 @@
 
 #include "D3DHook.hpp"
 
-#include <d2d1_3.h>
-#include <d3d11.h>
-#include <d3d11on12.h>
-#include <d3d12.h>
-#include <dxgi.h>
-#include <dxgi1_4.h>
-
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 

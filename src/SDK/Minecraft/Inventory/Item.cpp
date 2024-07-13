@@ -4,7 +4,6 @@
 
 #include "Item.hpp"
 
-#include <array>
 
 int Item::getArmorSlot()
 {

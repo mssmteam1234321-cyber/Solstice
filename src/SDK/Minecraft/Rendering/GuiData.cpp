@@ -4,7 +4,6 @@
 
 #include "GuiData.hpp"
 
-#include <string>
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <Utils/MemUtils.hpp>

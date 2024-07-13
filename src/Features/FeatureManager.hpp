@@ -3,20 +3,7 @@
 //
 #pragma once
 
-enum struct EventPriorities {
-    ABSOLUTE_FIRST,
-    VERY_FIRST,
-    FIRST,
-    KINDA_FIRST,
-    NORMAL,
-    KINDA_LAST,
-    LAST,
-    VERY_LAST,
-    ABSOLUTE_LAST,
-};
-#define NES_PRIORITY_TYPE EventPriorities
 
-#include <nes/event_dispatcher.hpp>
 #include "Command/CommandManager.hpp"
 #include "Modules/ModuleManager.hpp"
 

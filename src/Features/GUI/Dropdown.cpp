@@ -37,8 +37,8 @@ ImVec4 DropdownGui::getCenter(ImVec4& vec)
 
 void DropdownGui::render(float animation, float inScale, int& scrollDirection, char* h, float blur, float midclickRounding)
 {
-    static auto interface = gFeatureManager->mModuleManager->getModule<Interface>();
-    bool lowercase = interface->mNamingStyle.mValue == NamingStyle::Lowercase || interface->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
+    static auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
+    bool lowercase = interfaceMod->mNamingStyle.mValue == NamingStyle::Lowercase || interfaceMod->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
 
     ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
     ImVec2 screen = ImRenderUtils::getScreenSize();

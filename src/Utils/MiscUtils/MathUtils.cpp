@@ -2,18 +2,13 @@
 // Created by vastrakai on 6/29/2024.
 //
 
-#include "MathUtils.hpp"
 
-#include <imgui_internal.h>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/MoveInputComponent.hpp>
-
-#include <glm/glm.hpp>
 #include <Utils/Keyboard.hpp>
-
 #include "RenderUtils.hpp"
-#include "spdlog/spdlog.h"
+#include "MathUtils.hpp"
 
 
 float MathUtils::animate(float endPoint, float current, float speed) { // Animate the position

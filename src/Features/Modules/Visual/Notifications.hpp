@@ -3,7 +3,6 @@
 // Created by vastrakai on 7/4/2024.
 //
 
-#include <Solstice.hpp>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/NotifyEvent.hpp>
 

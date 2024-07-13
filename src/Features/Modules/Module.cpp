@@ -6,17 +6,16 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Utils/StringUtils.hpp>
-
 #include "Setting.hpp"
 #include "Visual/Interface.hpp"
 
-static Interface* interface;
+static Interface* interfaceMod;
 
 
 std::string Module::getSettingDisplayText()
 {
-    if (!interface) interface = gFeatureManager->mModuleManager->getModule<Interface>();
-    auto style = static_cast<NamingStyle>(interface->mNamingStyle.mValue);
+    if (!interfaceMod) interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
+    auto style = static_cast<NamingStyle>(interfaceMod->mNamingStyle.mValue);
     if (style == Lowercase || style == LowercaseSpaced)
         return StringUtils::toLower(getSettingDisplay());
     return getSettingDisplay();
@@ -24,8 +23,8 @@ std::string Module::getSettingDisplayText()
 
 std::string& Module::getName()
 {
-    if (!interface) interface = gFeatureManager->mModuleManager->getModule<Interface>();
-    auto style = static_cast<NamingStyle>(interface->mNamingStyle.mValue);
+    if (!interfaceMod) interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
+    auto style = static_cast<NamingStyle>(interfaceMod->mNamingStyle.mValue);
     return mNames[style];
 }
 
