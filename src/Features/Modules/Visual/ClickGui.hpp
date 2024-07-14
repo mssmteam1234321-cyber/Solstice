@@ -6,7 +6,6 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Setting.hpp>
-#include <Utils/MiscUtils/EasingUtil.hpp>
 
 class ClickGui : public ModuleBase<ClickGui>
 {

@@ -19,10 +19,6 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void Aura::onEnable()
 {
@@ -60,10 +56,7 @@ void Aura::shootBow(Actor* target)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (!mAutoBow.mValue)
-    {
-        spdlog::info("Auto bow is disabled");
-    }
+    if (!mAutoBow.mValue) return;
 
     int bowSlot = -1;
     int arrowSlot = -1;

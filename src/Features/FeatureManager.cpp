@@ -6,7 +6,6 @@
 
 #include "Command/CommandManager.hpp"
 #include "Modules/ModuleManager.hpp"
-#include "spdlog/spdlog.h"
 
 void FeatureManager::init()
 {

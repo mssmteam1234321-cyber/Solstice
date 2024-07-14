@@ -6,7 +6,6 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/ConnectionRequestEvent.hpp>
-#include <Utils/StringUtils.hpp>
 
 void DeviceSpoof::onEnable()
 {

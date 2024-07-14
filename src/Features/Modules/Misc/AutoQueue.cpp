@@ -8,13 +8,8 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/CommandUtils.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
-#include <Utils/StringUtils.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 void AutoQueue::queueForGame()
 {

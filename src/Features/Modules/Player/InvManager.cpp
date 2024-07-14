@@ -4,7 +4,6 @@
 
 #include "InvManager.hpp"
 
-#include <magic_enum.hpp>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -16,9 +15,7 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/InteractPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/ContainerClosePacket.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 void InvManager::onEnable()
 {
@@ -37,6 +34,7 @@ void InvManager::onDisable()
 }
 
 bool gIsOpen = false;
+bool gIsChestOpen = false;
 
 void sendOpen()
 {
@@ -51,20 +49,20 @@ void sendOpen()
     gIsOpen = true;
 }
 
-void sendClose()
+void sendClose(bool force = false)
 {
-    if (!gIsOpen) return;
+    if (!gIsOpen && !force) return;
     auto player = ClientInstance::get()->getLocalPlayer();
     auto closePacket = MinecraftPackets::createPacket<ContainerClosePacket>();
     closePacket->mContainerId = ContainerID::Inventory;
     closePacket->mServerInitiatedClose = false;
-
     ClientInstance::get()->getPacketSender()->sendToServer(closePacket.get());
+
     auto closePacket2 = MinecraftPackets::createPacket<ContainerClosePacket>();
     closePacket2->mContainerId = ContainerID::First;
     closePacket2->mServerInitiatedClose = false;
-
     ClientInstance::get()->getPacketSender()->sendToServer(closePacket2.get());
+
 
     gIsOpen = false;
 }
@@ -75,6 +73,12 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     auto armorContainer = player->getArmorContainer();
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
+
+    if (gIsChestOpen && mSpoofOpen.mValue)
+    {
+        spdlog::debug("Chest is open [condition: gIsChestOpen && mSpoofOpen.mValue]");
+        return; // Don't do anything if the chest is open
+    }
 
     if (mCloseNext)
     {
@@ -93,7 +97,6 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     // If we are in a container, don't do anything
     if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0)
     {
-        spdlog::info("Mouse is grabbed");
         return;
     }
 
@@ -101,7 +104,6 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     bool isInstant = mMode.mValue == static_cast<int>(Mode::Instant);
     if (mLastAction + static_cast<uint64_t>(mDelay.mValue) > NOW)
     {
-        spdlog::info("Delaying");
         return;
     }
 
@@ -348,10 +350,12 @@ void InvManager::onPacketInEvent(PacketInEvent& event)
         {
             auto openPacket = event.getPacket<ContainerOpenPacket>();
             if (openPacket->mContainerId != ContainerID::Inventory && openPacket->mContainerId != ContainerID::First) return;
+            if (openPacket->mContainerId == ContainerID::Chest) gIsChestOpen = true;
         } else if (event.mPacket->getId() == PacketID::ContainerClose)
         {
             auto closePacket = event.getPacket<ContainerClosePacket>();
             if (closePacket->mContainerId != ContainerID::Inventory && closePacket->mContainerId != ContainerID::First) return;
+            if (closePacket->mContainerId == ContainerID::Chest) gIsChestOpen = false;
         } else if (event.mPacket->getId() == PacketID::Interact)
         {
             auto interactPacket = event.getPacket<InteractPacket>();
@@ -366,6 +370,11 @@ void InvManager::onPacketInEvent(PacketInEvent& event)
 
 void InvManager::onPacketOutEvent(PacketOutEvent& event)
 {
+    if (event.packet->getId() == PacketID::ContainerClose)
+    {
+        auto packet = event.getPacket<ContainerClosePacket>();
+        if (packet->mContainerId == ContainerID::Chest) gIsChestOpen = false;
+    }
     if (event.packet->getId() == PacketID::Interact && mSpoofOpen.mValue)
     {
         // Return if the LastAction was more than 400ms+ping ago
@@ -376,6 +385,28 @@ void InvManager::onPacketOutEvent(PacketOutEvent& event)
         {
             spdlog::warn("Cancelling packet [out:InteractPacket]");
             event.cancel();
+        }
+    } else if (event.packet->getId() == PacketID::InventoryTransaction && mSpoofOpen.mValue)
+    {
+        auto packet = event.getPacket<InventoryTransactionPacket>();
+        /*std::string actionType = std::string(magic_enum::enum_name(packet->mTransaction->type));
+        spdlog::debug("InventoryTransactionPacket type: {}", actionType);*/
+        if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+        {
+            auto iut = reinterpret_cast<ItemUseInventoryTransaction*>(packet->mTransaction.get());
+            if (iut->actionType == ItemUseInventoryTransaction::ActionType::Use || iut->actionType == ItemUseInventoryTransaction::ActionType::Place)
+            {
+                std::string actionType = std::string(magic_enum::enum_name(iut->actionType));
+                auto block = ClientInstance::get()->getBlockSource()->getBlock(iut->blockPos);
+                std::string name = block->toLegacy()->mName;
+
+                if (name.ends_with("_chest"))
+                {
+                    // Force a close
+                    sendClose(true);
+                }
+
+            }
         }
     }
 }

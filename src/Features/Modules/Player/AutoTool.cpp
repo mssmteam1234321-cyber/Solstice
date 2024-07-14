@@ -11,7 +11,6 @@
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
 
 void AutoTool::onEnable()
 {

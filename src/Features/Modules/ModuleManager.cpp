@@ -3,8 +3,6 @@
 //
 
 #include <Features/Modules/ModuleManager.hpp>
-#include <Utils/StringUtils.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
 
 #include "Combat/Aura.hpp"
 #include "Misc/AutoQueue.hpp"

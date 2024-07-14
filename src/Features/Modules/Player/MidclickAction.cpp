@@ -17,9 +17,6 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 void MidclickAction::onEnable()
 {

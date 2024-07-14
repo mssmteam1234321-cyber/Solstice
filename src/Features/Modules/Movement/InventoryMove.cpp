@@ -7,11 +7,8 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/SigManager.hpp>
-
 #include <SDK/Minecraft/ClientInstance.hpp>
 
-#include <Utils/Keyboard.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void patchFunc(bool enable)
 {

@@ -11,9 +11,6 @@
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 #include <SDK/Minecraft/Inventory/ContainerScreenController.hpp>
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <Utils/MiscUtils/NotifyUtils.hpp>
 
 #include "InvManager.hpp"
 

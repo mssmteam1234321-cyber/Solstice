@@ -6,7 +6,6 @@
 
 #include <Features/FeatureManager.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <Utils/GameUtils/ActorUtils.hpp>
 
 void AntiBot::onEnable()
 {

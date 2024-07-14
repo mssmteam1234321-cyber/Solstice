@@ -7,11 +7,6 @@
 #include <Features/Events/ConnectionRequestEvent.hpp>
 #include <Features/Events/NotifyEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
-#include <Utils/FontHelper.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-
-#include "spdlog/spdlog.h"
 
 void Notifications::onEnable()
 {

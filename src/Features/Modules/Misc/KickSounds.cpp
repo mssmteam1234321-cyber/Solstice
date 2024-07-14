@@ -7,7 +7,6 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
-#include <Utils/MiscUtils/SoundUtils.hpp>
 
 void KickSounds::onEnable()
 {

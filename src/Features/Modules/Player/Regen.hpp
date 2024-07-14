@@ -1,9 +1,5 @@
 #pragma once
 #include <Features/Modules/Module.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
-#include <SDK/Minecraft/World/Block.hpp>
-#include <SDK/Minecraft/World/BlockSource.hpp>
-#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 class Regen : public ModuleBase<Regen> {
 public:

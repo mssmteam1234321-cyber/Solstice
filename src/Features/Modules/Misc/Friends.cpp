@@ -5,7 +5,6 @@
 #include "Friends.hpp"
 
 #include <Solstice.hpp>
-#include <Utils/StringUtils.hpp>
 
 void Friends::onInit()
 {

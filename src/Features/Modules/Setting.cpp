@@ -4,8 +4,6 @@
 
 #include "Setting.hpp"
 
-#include <Utils/StringUtils.hpp>
-
 bool Setting::parse(const std::string& value)
 {
     if (mType == SettingType::Bool)

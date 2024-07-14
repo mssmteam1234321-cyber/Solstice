@@ -8,10 +8,6 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
-#include <Utils/Structs.hpp>
-#include <Utils/MiscUtils/BlockUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void BlockESP::onEnable()
 {

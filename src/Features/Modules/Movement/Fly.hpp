@@ -5,8 +5,6 @@
 
 #include <Features/Modules/Setting.hpp>
 
-#include "../Module.hpp"
-
 class Fly : public ModuleBase<Fly> {
 public:
     enum class Mode {

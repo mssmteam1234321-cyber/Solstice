@@ -11,9 +11,6 @@
 #include <SDK/Minecraft/Actor/Components/StateVectorComponent.hpp>
 #include <SDK/Minecraft/Actor/Components/ActorRotationComponent.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <Utils/Keyboard.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <glm/glm.hpp>
 
 class PlayerAuthInputPacket;
 

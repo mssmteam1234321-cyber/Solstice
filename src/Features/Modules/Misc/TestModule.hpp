@@ -3,11 +3,7 @@
 //
 #pragma once
 
-#include <Features/FeatureManager.hpp>
 #include <Features/Modules/Module.hpp>
-#include <Features/Modules/ModuleManager.hpp>
-#include <spdlog/spdlog.h>
-#include <Solstice.hpp>
 #include <Features/Modules/Setting.hpp>
 
 class TestModule : public ModuleBase<TestModule> {

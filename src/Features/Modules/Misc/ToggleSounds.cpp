@@ -6,7 +6,6 @@
 
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
-#include <Utils/MiscUtils/SoundUtils.hpp>
 
 void ToggleSounds::onEnable()
 {

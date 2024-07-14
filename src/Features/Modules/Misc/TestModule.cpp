@@ -13,7 +13,6 @@
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
 
 void TestModule::onEnable()
 {

@@ -1,6 +1,5 @@
 #pragma once
 #include <Features/Modules/Module.hpp>
-#include <Features/Modules/ModuleManager.hpp>
 //
 // Created by vastrakai on 6/30/2024.
 //

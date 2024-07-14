@@ -8,9 +8,6 @@
 #include <Features/Events/KeyEvent.hpp>
 #include <Features/GUI/Dropdown.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <Utils/MiscUtils/EasingUtil.hpp>
 
 static bool lastMouseState = false;
 static DropdownGui dropdownGui = DropdownGui();

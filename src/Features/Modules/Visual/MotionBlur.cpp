@@ -5,7 +5,6 @@
 #include "MotionBlur.hpp"
 
 #include <Features/FeatureManager.hpp>
-#include <Utils/MiscUtils/D2D.hpp>
 
 void MotionBlur::onEnable()
 {

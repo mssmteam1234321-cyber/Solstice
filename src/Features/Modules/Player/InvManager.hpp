@@ -4,7 +4,6 @@
 //
 
 #include <Features/Modules/Module.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
 
 class InvManager : public ModuleBase<InvManager> {
 public:

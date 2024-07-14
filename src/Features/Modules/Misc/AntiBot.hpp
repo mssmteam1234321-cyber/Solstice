@@ -4,7 +4,6 @@
 //
 #include <Features/Modules/Module.hpp>
 
-
 class AntiBot : public ModuleBase<AntiBot>
 {
 public:

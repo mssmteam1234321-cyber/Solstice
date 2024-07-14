@@ -3,7 +3,6 @@
 // Created by vastrakai on 7/1/2024.
 //
 
-#include <Solstice.hpp>
 #include <Features/Modules/Module.hpp>
 #include <Features/Modules/Setting.hpp>
 

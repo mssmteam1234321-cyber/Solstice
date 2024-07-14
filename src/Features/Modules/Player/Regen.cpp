@@ -11,12 +11,7 @@
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/GameUtils/PacketUtils.hpp>
-#include <Utils/MiscUtils/BlockUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <Utils/MiscUtils/RenderUtils.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 void Regen::initializeRegen() {
     auto player = ClientInstance::get()->getLocalPlayer();

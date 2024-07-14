@@ -5,9 +5,6 @@
 #include "Watermark.hpp"
 
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
-#include <Utils/FontHelper.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void Watermark::onEnable()
 {

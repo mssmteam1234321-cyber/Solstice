@@ -3,8 +3,7 @@
 // Created by vastrakai on 6/29/2024.
 //
 
-#include <Features/FeatureManager.hpp>
-#include <Features/Modules/Setting.hpp>
+#include <Features/Modules/Module.hpp>
 
 class Watermark : public ModuleBase<Watermark> {
 public:

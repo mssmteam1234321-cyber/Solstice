@@ -16,7 +16,6 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 float pYaw;
 float pOldYaw;

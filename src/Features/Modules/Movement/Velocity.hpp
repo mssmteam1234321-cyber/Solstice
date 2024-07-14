@@ -1,6 +1,5 @@
 #pragma once
 #include <Features/Modules/Module.hpp>
-#include <spdlog/spdlog.h>
 //
 // Created by vastrakai on 7/2/2024.
 //

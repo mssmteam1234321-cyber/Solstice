@@ -5,7 +5,6 @@
 #include "Module.hpp"
 
 #include <Features/FeatureManager.hpp>
-#include <Utils/StringUtils.hpp>
 #include "Setting.hpp"
 #include "Visual/Interface.hpp"
 

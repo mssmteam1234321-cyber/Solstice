@@ -4,13 +4,7 @@
 
 #include "Arraylist.hpp"
 
-#include <set>
 #include <Features/FeatureManager.hpp>
-#include <Utils/FontHelper.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/EasingUtil.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void Arraylist::onEnable()
 {

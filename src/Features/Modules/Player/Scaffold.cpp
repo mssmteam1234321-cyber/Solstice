@@ -14,14 +14,6 @@
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <Utils/FontHelper.hpp>
-#include <Utils/Keyboard.hpp>
-#include <Utils/StringUtils.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/MiscUtils/BlockUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/EasingUtil.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void Scaffold::onEnable()
 {

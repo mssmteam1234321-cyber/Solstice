@@ -3,9 +3,7 @@
 // Created by vastrakai on 7/10/2024.
 //
 
-#include <Features/FeatureManager.hpp>
 #include <Features/Modules/Module.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
 
 class Scaffold : public ModuleBase<Scaffold> {
 public:

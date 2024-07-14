@@ -6,8 +6,6 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/PacketInEvent.hpp>
-
-#include "spdlog/spdlog.h"
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 

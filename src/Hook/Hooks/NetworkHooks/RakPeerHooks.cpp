@@ -7,9 +7,7 @@
 #include <Solstice.hpp>
 #include <windows.h>
 #include <Features/FeatureManager.hpp>
-#include <nes/event_dispatcher.hpp>
 #include <SDK/SigManager.hpp>
-#include <Utils/MemUtils.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/RunUpdateCycleEvent.hpp>
 

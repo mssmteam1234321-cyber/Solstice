@@ -4,7 +4,6 @@
 
 #include "Speed.hpp"
 
-#include <SDL_stdinc.h>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
@@ -15,13 +14,6 @@
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
-#include <Utils/Keyboard.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/EasingUtil.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <Utils/MiscUtils/NotifyUtils.hpp>
-
 
 void Speed::onEnable()
 {

@@ -10,9 +10,6 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <Utils/FontHelper.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
 
 void LevelInfo::onEnable()
 {

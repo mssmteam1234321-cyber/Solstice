@@ -8,8 +8,6 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
 
 void AntiCheatDetector::onEnable()
 {

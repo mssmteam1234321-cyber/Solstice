@@ -9,10 +9,6 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <Utils/Structs.hpp>
-#include <Utils/GameUtils/ActorUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
 
 void ESP::onEnable()
 {
