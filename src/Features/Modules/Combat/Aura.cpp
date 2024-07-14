@@ -13,6 +13,8 @@
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
@@ -268,6 +270,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             {
                 supplies->mSelectedSlot = bestWeapon;
             }
+            player->getLevel()->getHitResult()->mType = HitType::ENTITY;
             player->getGameMode()->attack(actor);
             supplies->mSelectedSlot = oldSlot;
         }
