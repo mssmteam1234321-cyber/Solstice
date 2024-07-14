@@ -69,7 +69,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     if (mCurrentBlockFace == -1) mCurrentBlockFace = 0;
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
-    int bestToolSlot = ItemUtils::getBestBreakingTool(block);
+    int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     if (mShouldSpoofSlot) {
         PacketUtils::spoofSlot(bestToolSlot);
@@ -127,7 +127,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering)) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
-        int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock);
+        int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;

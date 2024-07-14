@@ -50,7 +50,7 @@ void AutoTool::onBaseTickEvent(BaseTickEvent& event)
     auto block = blockSource->getBlock(blockPos);
     if (!block) return;
 
-    int bestSlot = ItemUtils::getBestBreakingTool(block);
+    int bestSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
     if (bestSlot == -1) return;
 
     if (mOldSlot == -1)

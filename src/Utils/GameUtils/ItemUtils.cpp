@@ -238,7 +238,7 @@ void ItemUtils::useItem(int slot)
     supplies->mSelectedSlot = currentSlot;
 }
 
-int ItemUtils::getBestBreakingTool(Block* block)
+int ItemUtils::getBestBreakingTool(Block* block, bool hotbarOnly)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return -1;
@@ -260,6 +260,8 @@ int ItemUtils::getBestBreakingTool(Block* block)
             bestSpeed = speed;
             bestSlot = i;
         }
+
+        if (hotbarOnly && i > 8) break;
     }
 
     return bestSlot;

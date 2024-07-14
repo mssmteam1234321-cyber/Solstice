@@ -7,8 +7,11 @@
 
 class AutoTool : public ModuleBase<AutoTool> {
 public:
+    BoolSetting mHotbarOnly = BoolSetting{ "HotbarOnly", "Only switch to tools in the hotbar", false };
     AutoTool() : ModuleBase("AutoTool", "Automatically switches to the fastest tool for the block you're mining", ModuleCategory::Player, 0, false)
     {
+        addSetting(&mHotbarOnly);
+
         mNames = {
               {Lowercase, "autotool"},
                 {LowercaseSpaced, "auto tool"},
