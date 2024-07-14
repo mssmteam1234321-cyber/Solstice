@@ -172,7 +172,7 @@ void Aura::onRenderEvent(RenderEvent& event)
 void Aura::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor; // Local player
-    if (!player || mLastBlockBreak + 50 > NOW) return;
+    if (!player) return;
     auto supplies = player->getSupplies();
 
     static std::vector<std::shared_ptr<InventoryTransactionPacket>> queuedTransactions;
@@ -295,16 +295,6 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
         pkt->mRot = rots;
         pkt->mYHeadRot = rots.y;
-    }else if (event.packet->getId() == PacketID::InventoryTransaction) {
-        if (const auto it = event.getPacket<InventoryTransactionPacket>();
-            it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
-        {
-            if (const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
-                transac->actionType == ItemUseInventoryTransaction::ActionType::Destroy)
-            {
-                mLastBlockBreak = NOW;
-            }
-        }
     }
 
 }

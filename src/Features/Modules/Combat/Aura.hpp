@@ -75,8 +75,6 @@ public:
     bool mRotating = false;
     bool mHasTarget = false;
 
-    uint64_t mLastBlockBreak = 0;
-
     void onEnable() override;
     void onDisable() override;
     void rotate(Actor* target);
