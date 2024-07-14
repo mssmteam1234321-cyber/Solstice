@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 include(cmake/CPM.cmake)
 
+
+
 project(Solstice)
 
 execute_process(COMMAND cmd /c "ld --version > nul 2>&1" RESULT_VARIABLE LD_COMMAND_AVAILABLE)
@@ -57,11 +59,6 @@ set(SDL_EVENTS ON CACHE BOOL "" FORCE)
 set(SDL_FILE ON CACHE BOOL "" FORCE)
 set(SDL_FILESYSTEM ON CACHE BOOL "" FORCE)
 
-
-
-
-
-
 set(CMAKE_CXX_STANDARD 26)
 
 add_compile_definitions(NOMINMAX)
@@ -116,6 +113,10 @@ include_directories(include/ImGui)
 include_directories(include/Kiero)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
+file(GLOB_RECURSE includeFiles "include/*.hpp")
+set_source_files_properties(${sourceFiles} PROPERTIES CXX_SCAN_FOR_MODULES OFF)
+set_source_files_properties(${includeFiles} PROPERTIES CXX_SCAN_FOR_MODULES OFF)
+
 
 # Krazy resource embedding code
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <string>
 #include <span>
 #include <iostream>
@@ -92,7 +92,6 @@ public:
         } else {
             SDL_QueueAudio(deviceId, wavStart, wavLength);
             SDL_PauseAudioDevice(deviceId, 0);
-
 
             std::thread([deviceId, duration]() {
                 SDL_Delay(duration);
