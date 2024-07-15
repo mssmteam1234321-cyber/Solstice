@@ -15,6 +15,10 @@ void ResourceLoader::loadResources() {
     Resources.emplace("sarabun_light", fonts_Sarabun_Light_ttf);
     FontHelper::Fonts.emplace("sarabun_light", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 20));
     FontHelper::Fonts.emplace("sarabun_light_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 42));
+    auto fonts_Tenacity_Icons_ttf = GET_RESOURCE(fonts_Tenacity_Icons_ttf);
+    Resources.emplace("tenacity_icons", fonts_Tenacity_Icons_ttf);
+    FontHelper::Fonts.emplace("tenacity_icons", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 20));
+    FontHelper::Fonts.emplace("tenacity_icons_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 42));
     auto fonts_icons_v1_ttf = GET_RESOURCE(fonts_icons_v1_ttf);
     Resources.emplace("icons_v1", fonts_icons_v1_ttf);
     FontHelper::Fonts.emplace("icons_v1", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 20));
