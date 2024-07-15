@@ -21,6 +21,7 @@
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
+#include "Player/AntiRegen.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
@@ -60,6 +61,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
+    mModules.emplace_back(std::make_shared<AntiRegen>());
     mModules.emplace_back(std::make_shared<Regen>());
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<AutoTool>());
