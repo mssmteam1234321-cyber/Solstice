@@ -61,8 +61,8 @@ void AntiRegen::onDisable()
     miningRedstones.clear();
     
     auto player = ClientInstance::get()->getLocalPlayer();
-    PlayerInventory* supplies = player->getSupplies();
     if (!player) return;
+    PlayerInventory* supplies = player->getSupplies();
 
     if (mPlacedBlock) supplies->mSelectedSlot = mPreviousSlot;
     mPreviousSlot = -1;

@@ -127,7 +127,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     // Return without reset breaking progress
     if (mLastBlockPlace + 250 > NOW) {
-        PacketUtils::spoofSlot(supplies->mSelectedSlot);
+        if(mIsMiningBlock) PacketUtils::spoofSlot(supplies->mSelectedSlot);
         return;
     }
 
