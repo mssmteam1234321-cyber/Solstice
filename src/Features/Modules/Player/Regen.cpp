@@ -120,8 +120,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool maxAbsorption = 10 <= absorption;
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mQueueRedstone.mValue || mLastBlockPlace + 500 > NOW) {
+    if (maxAbsorption && !mQueueRedstone.mValue) {
         initializeRegen();
+        return;
+    }
+
+    // Return without reset breaking progress
+    if (mLastBlockPlace + 250 > NOW) {
+        PacketUtils::spoofSlot(supplies->mSelectedSlot);
         return;
     }
 
