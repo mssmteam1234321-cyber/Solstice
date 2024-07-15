@@ -520,33 +520,25 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 setting->isDragging = false;
                                             } else
                                             {
-                                                const float newValue = std::fmax(
+                                                if (isPressingShift)
+                                                {
+                                                    float newValue = std::fmax(
+                                                   std::fmin(
+                                                       (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
+                                                           max - min) + min, max), min);
+                                                    // Round the value to the nearest value specified by midclickRounding
+                                                    newValue = std::round(newValue / midclickRounding) * midclickRounding;
+                                                    numSetting->mValue = newValue;
+                                                }
+                                                else
+                                                {
+                                                    const float newValue = std::fmax(
                                                     std::fmin(
                                                         (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
                                                             max - min) + min, max), min);
-                                                numSetting->setValue(newValue);
+                                                    numSetting->setValue(newValue);
+                                                }
                                             }
-                                        }
-
-                                        if (ImGui::IsMouseDown(2) && setting->isDragging && isEnabled)
-                                        {
-                                            if (lastDraggedSetting != setting)
-                                            {
-                                                setting->isDragging = false;
-                                            } else
-                                            {
-                                                float newValue = std::fmax(
-                                                    std::fmin(
-                                                        (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
-                                                            max - min) + min, max), min);
-                                                // Round the value to the nearest value specified by midclickRounding
-                                                newValue = std::round(newValue / midclickRounding) * midclickRounding;
-                                                numSetting->mValue = newValue;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            setting->isDragging = false;
                                         }
 
 
