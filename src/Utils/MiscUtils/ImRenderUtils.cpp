@@ -56,12 +56,12 @@ void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text
     drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
 }
 
-void ImRenderUtils::fillRectangle(ImVec4 pos, const ImColor& color, float alpha, float radius, ImDrawList* list)
+void ImRenderUtils::fillRectangle(ImVec4 pos, const ImColor& color, float alpha, float radius, ImDrawList* list, ImDrawFlags flags)
 {
     if (!ImGui::GetCurrentContext())
         return;
 
-    list->AddRectFilled(ImVec2(pos.x, pos.y), ImVec2(pos.z, pos.w), ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), radius);
+    list->AddRectFilled(ImVec2(pos.x, pos.y), ImVec2(pos.z, pos.w), ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), radius, flags);
 }
 
 void ImRenderUtils::fillShadowRectangle(ImVec4 pos, const ImColor& color, float alpha, float thickness,

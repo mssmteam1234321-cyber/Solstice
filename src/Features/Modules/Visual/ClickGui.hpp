@@ -11,13 +11,14 @@ class ClickGui : public ModuleBase<ClickGui>
 {
 public:
     enum ClickGuiStyle {
-        Dropdown
+        Dropdown,
+        Modern
     };
     enum ClickGuiAnimation {
         Zoom,
         Bounce
     };
-    EnumSetting mStyle = EnumSetting("Style", "The style of the ClickGui.", ClickGuiStyle::Dropdown, { "Dropdown" });
+    EnumSetting mStyle = EnumSetting("Style", "The style of the ClickGui.", ClickGuiStyle::Dropdown, { "Dropdown", "Modern" });
     EnumSetting mAnimation = EnumSetting("Animation", "The animation of the ClickGui.", 0, { "Zoom", "Bounce" });
     NumberSetting mBlurStrength = NumberSetting("Blur Strength", "The strength of the blur.", 9.f, 0.f, 20.f, 0.1f);
     NumberSetting mEaseSpeed = NumberSetting("Ease Speed", "The speed of the easing.", 10.5f, 5.f, 15.f, 0.1f);

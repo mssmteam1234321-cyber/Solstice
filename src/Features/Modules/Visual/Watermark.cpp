@@ -77,10 +77,10 @@ void Watermark::onRenderEvent(RenderEvent& event)
             ImGui::GetBackgroundDrawList()->AddShadowCircle(ImVec2(renderPosition.x + (charSize.x / 2), renderPosition.y + (charSize.y / 2)),
                                                             size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim), 100, ImVec2(0.f, 0.f), 0, 12);
         // draw a shadow
-        ImColor shadowColor = ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f);
+        ImColor shadowColor = ImColor(color.Value.x * 0.2f, color.Value.y * 0.2f, color.Value.z * 0.2f, 0.7f);
         ImVec2 shadowPos = renderPosition;
-        shadowPos.x += 1.f;
-        shadowPos.y += 1.f;
+        shadowPos.x += 3.f;
+        shadowPos.y += 3.f;
         ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), size, shadowPos, shadowColor, &c, &c + 1);
 
         // draw the character

@@ -11,6 +11,14 @@ void ResourceLoader::loadResources() {
     Resources.emplace("mojangles", fonts_Mojangles_ttf);
     FontHelper::Fonts.emplace("mojangles", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 20));
     FontHelper::Fonts.emplace("mojangles_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 42));
+    auto fonts_Product_Sans_Bold_ttf = GET_RESOURCE(fonts_Product_Sans_Bold_ttf);
+    Resources.emplace("product_sans_bold", fonts_Product_Sans_Bold_ttf);
+    FontHelper::Fonts.emplace("product_sans_bold", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_Bold_ttf.data2(), fonts_Product_Sans_Bold_ttf.size(), 20));
+    FontHelper::Fonts.emplace("product_sans_bold_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_Bold_ttf.data2(), fonts_Product_Sans_Bold_ttf.size(), 42));
+    auto fonts_Product_Sans_ttf = GET_RESOURCE(fonts_Product_Sans_ttf);
+    Resources.emplace("product_sans", fonts_Product_Sans_ttf);
+    FontHelper::Fonts.emplace("product_sans", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_ttf.data2(), fonts_Product_Sans_ttf.size(), 20));
+    FontHelper::Fonts.emplace("product_sans_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_ttf.data2(), fonts_Product_Sans_ttf.size(), 42));
     auto fonts_Sarabun_Light_ttf = GET_RESOURCE(fonts_Sarabun_Light_ttf);
     Resources.emplace("sarabun_light", fonts_Sarabun_Light_ttf);
     FontHelper::Fonts.emplace("sarabun_light", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 20));

@@ -7,10 +7,13 @@
 #include <Features/Events/MouseEvent.hpp>
 #include <Features/Events/KeyEvent.hpp>
 #include <Features/GUI/Dropdown.hpp>
+#include <Features/GUI/ModernDropdowm.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
 static bool lastMouseState = false;
+static bool isPressingShift = false;
 static DropdownGui dropdownGui = DropdownGui();
+static ModernGui modernGui = ModernGui();
 
 
 void ClickGui::onEnable()
@@ -50,6 +53,14 @@ void ClickGui::onKeyEvent(KeyEvent& event)
     if (event.mKey == VK_ESCAPE) {
         if (!dropdownGui.isBinding && event.mPressed) this->toggle();
         event.mCancelled = true;
+    }
+
+    if (event.mKey == VK_SHIFT && event.mPressed) {
+        isPressingShift = true;
+        event.mCancelled = true;
+    }
+    else {
+        isPressingShift = false;
     }
 }
 
@@ -93,5 +104,13 @@ void ClickGui::onRenderEvent(RenderEvent& event)
         scrollDirection = 0;
     }
 
-    dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue);
+    if (mStyle.mValue == Dropdown)
+    {
+        dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue);
+    }
+
+    if (mStyle.mValue == Modern)
+    {
+        modernGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue, isPressingShift);
+    }
 }
