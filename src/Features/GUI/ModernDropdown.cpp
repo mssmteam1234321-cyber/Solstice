@@ -504,7 +504,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     static float clickAnimation = 1.f;
 
                                     // If left click is down, lerp the alpha to 0.60f;
-                                    if (ImGui::IsMouseDown(0))
+                                    if (ImGui::IsMouseDown(0) && ImRenderUtils::isMouseOver(rect))
                                     {
                                         clickAnimation = MathUtils::animate(0.60f, clickAnimation, ImRenderUtils::getDeltaTime() * 10);
                                     }
@@ -588,7 +588,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             circlePos.x = sliderRect.z + 2.25f;
                                         }
 
-                                        ImRenderUtils::fillCircle(circlePos, 5.5f, rgb, animation, 12);
+                                        ImRenderUtils::fillCircle(circlePos, 5.5f * clickAnimation, rgb, animation, 12);
 
                                         // Push a clip rect to prevent the shadow from going outside the slider bar
                                         ImGui::GetBackgroundDrawList()->PushClipRect(ImVec2(sliderRect.x, sliderRect.y), ImVec2(sliderRect.z, sliderRect.w), true);
