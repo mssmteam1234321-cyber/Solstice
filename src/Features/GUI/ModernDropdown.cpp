@@ -887,8 +887,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                 alpha = MathUtils::animate(1.f, alpha, ImRenderUtils::getDeltaTime() * 10);
             }
 
-            //tooltipRect = tooltipRect.scaleToCenter(alpha);
-            tooltipRect = tooltipRect.scaleToPoint(tooltipRect, alpha);
+            tooltipRect = tooltipRect.scaleToCenter(alpha);
 
             ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation * alpha, 0.f);
             ImRenderUtils::drawText(ImVec2(tooltipRect.x + padding, tooltipRect.y + padding), tooltip,
