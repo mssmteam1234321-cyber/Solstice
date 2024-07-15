@@ -520,6 +520,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 setting->isDragging = false;
                                             } else
                                             {
+                                                // Shift click rounding (y not)
                                                 if (isPressingShift)
                                                 {
                                                     float newValue = std::fmax(
@@ -540,7 +541,6 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 }
                                             }
                                         }
-
 
                                         /* Original code (doesn't animate down when animating out)
                                         ImRenderUtils::fillRectangle(ImVec4(rect.x, (catPositions[i].y + catHeight + moduleY + modHeight) - 3, rect.x + setting->sliderEase, rect.w), rgb, animation);
