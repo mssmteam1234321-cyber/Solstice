@@ -24,6 +24,11 @@ public:
         };
     }
 
+    struct PathFindingResult {
+        glm::ivec3 blockPos;
+        float time;
+    };
+
     glm::ivec3 mCurrentBlockPos = { 0, 0, 0 };
     glm::ivec3 mTargettingBlockPos = { 0, 0, 0 };
     int mCurrentBlockFace = -1;
@@ -36,6 +41,7 @@ public:
     int mToolSlot = -1;
 
     uint64_t mLastBlockPlace = 0;
+    int mLastPlacedBlockSlot = 0;
 
     void onEnable() override;
     void onDisable() override;
@@ -45,6 +51,7 @@ public:
     void initializeRegen();
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly);
+    PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.mValue];

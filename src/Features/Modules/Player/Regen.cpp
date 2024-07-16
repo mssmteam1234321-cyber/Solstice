@@ -79,6 +79,48 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
 
+Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return { glm::ivec3(0, 0, 0), 0 };
+
+    BlockSource* source = ClientInstance::get()->getBlockSource();
+    if (!source) return { glm::ivec3(0, 0, 0), 0 };
+
+    static std::vector<glm::ivec3> offsetList = {
+        glm::ivec3(0, 1, 0),
+        glm::ivec3(0, 0, -1),
+        glm::ivec3(0, 0, 1),
+        glm::ivec3(-1, 0, 0),
+        glm::ivec3(1, 0, 0),
+    };
+
+    float currentBreakingTime = 0;
+    float bestBreakingTime = INT_MAX;
+    glm::ivec3 bestPos = { 0, 0, 0 };
+
+    for (int i = 0; i < 5; i++) {
+        currentBreakingTime = 0;
+        glm::ivec3 pos1 = blockPos + offsetList[i];
+        Block* currentBlock = source->getBlock(pos1);
+        bool isAir = currentBlock->getmLegacy()->isAir();
+        if (!isAir) currentBreakingTime += 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue), currentBlock);
+        for (int i2 = 0; i2 < 5; i2++) {
+            if (-offsetList[i] == offsetList[i2]) continue;
+            glm::ivec3 pos2 = pos1 + offsetList[i2];
+            Block* currentBlock2 = source->getBlock(pos2);
+            bool isAir2 = currentBlock2->getmLegacy()->isAir();
+            if (!isAir2) currentBreakingTime += 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock2, mHotbarOnly.mValue), currentBlock2);
+            if (currentBreakingTime < bestBreakingTime) {
+                bestBreakingTime = currentBreakingTime;
+                if (!isAir2) bestPos = pos2;
+                else bestPos = pos1;
+            }
+        }
+    }
+
+    return { bestPos, bestBreakingTime };
+}
+
 void Regen::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
@@ -126,8 +168,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Return without reset breaking progress
-    if (mLastBlockPlace + 250 > NOW) {
-        if(mIsMiningBlock) PacketUtils::spoofSlot(supplies->mSelectedSlot);
+    if (mLastBlockPlace + 100 > NOW) {
+        if (mIsMiningBlock) PacketUtils::spoofSlot(mLastPlacedBlockSlot);
         return;
     }
 
@@ -142,7 +184,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
 
-        if (!mOldCalculation.mValue) mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mDestroySpeed.mValue);
 
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
@@ -150,13 +192,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         bool finishBreak = true;
         if (maxAbsorption && isRedstone) finishBreak = false;
 
-        if ((mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue  || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
+        if ((mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, BlockUtils::getExposedFace(mCurrentBlockPos));
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
+            PacketUtils::spoofSlot(mPreviousSlot);
             return;
         }
     }
@@ -178,12 +221,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             else continue;
         }
 
-        bool foundBlock = false;
         glm::vec3 playerPos = *player->getPos();
-        glm::ivec3 pos;
-        glm::ivec3 targettingPos;
-        float closestDistance = INT_MAX;
+        glm::ivec3 pos = { 0, 0, 0 };
+        glm::ivec3 targettingPos = { 0, 0, 0 };
         if (!exposedBlockList.empty()) {
+            float closestDistance = INT_MAX;
             for (int i = 0; i < exposedBlockList.size(); i++) {
                 glm::vec3 blockPos = exposedBlockList[i].mPosition;
                 float dist = glm::distance(playerPos, blockPos);
@@ -191,38 +233,32 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     closestDistance = dist;
                     pos = blockPos;
                     targettingPos = blockPos;
-                    foundBlock = true;
                 }
             }
             // queue block
+            mTargettingBlockPos = targettingPos;
+            queueBlock(pos);
+            return;
+        }
+        else if (mUncover && !unexposedBlockList.empty()) {
+            bool foundBlock = false;
+            float fastestTime = INT_MAX;
+            for (int i = 0; i < unexposedBlockList.size(); i++) {
+                glm::ivec3 redstonePos = unexposedBlockList[i].mPosition;
+                PathFindingResult result = getBestPathToBlock(redstonePos);
+                float currentTime = result.time;
+                if (currentTime < fastestTime && isValidBlock(result.blockPos, false, false)) {
+                    fastestTime = currentTime;
+                    pos = result.blockPos;
+                    targettingPos = redstonePos;
+                    foundBlock = true;
+                }
+            }
             if (foundBlock) {
+                mIsUncovering = true;
                 mTargettingBlockPos = targettingPos;
                 queueBlock(pos);
                 return;
-            }
-        }
-        else if (mUncover && !unexposedBlockList.empty()) {
-            for (int i = 1; i <= 2; i++) {
-                for (int i2 = 0; i2 < unexposedBlockList.size(); i2++) {
-                    glm::ivec3 blockPos = unexposedBlockList[i2].mPosition;
-                    blockPos.y += i;
-                    if (BlockUtils::getExposedFace(blockPos) != -1 || i == 2) { // Is exposed
-                        float dist = glm::distance(playerPos, glm::vec3(blockPos));
-                        if (dist < closestDistance) {
-                            closestDistance = dist;
-                            pos = blockPos;
-                            targettingPos = blockPos;
-                            foundBlock = true;
-                        }
-                    }
-                }
-                // queue block
-                if (foundBlock) {
-                    mIsUncovering = true;
-                    mTargettingBlockPos = targettingPos;
-                    queueBlock(pos);
-                    return;
-                }
             }
         }
     }
@@ -274,7 +310,6 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
     if (event.packet->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
-
         if (mShouldRotate)
         {
             const glm::vec3 blockPos = mCurrentBlockPos;
@@ -284,7 +319,8 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
         }
-    }else if (event.packet->getId() == PacketID::InventoryTransaction) {
+    }
+    else if (event.packet->getId() == PacketID::InventoryTransaction) {
         if (const auto it = event.getPacket<InventoryTransactionPacket>();
             it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
@@ -292,6 +328,7 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
                 transac->actionType == ItemUseInventoryTransaction::ActionType::Place)
             {
                 mLastBlockPlace = NOW;
+                mLastPlacedBlockSlot = transac->slot;
             }
         }
     }

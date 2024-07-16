@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/LevelEventPacket.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
@@ -44,10 +45,12 @@ void AntiRegen::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AntiRegen::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AntiRegen::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &AntiRegen::onPacketOutEvent, nes::event_priority::LAST>(this);
 
     miningRedstones.clear();
     mPreviousSlot = -1;
     mPlacedBlock = false;
+    mShouldRotate = false;
     
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -57,6 +60,7 @@ void AntiRegen::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AntiRegen::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &AntiRegen::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AntiRegen::onPacketOutEvent>(this);
 
     miningRedstones.clear();
     
@@ -67,12 +71,14 @@ void AntiRegen::onDisable()
     if (mPlacedBlock) supplies->mSelectedSlot = mPreviousSlot;
     mPreviousSlot = -1;
     mPlacedBlock = false;
+    mShouldRotate = false;
 }
 
 void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
     PlayerInventory* supplies = player->getSupplies();
+    static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
 
     if (mMode.as<Mode>() == Mode::Cover) {
         if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
@@ -81,6 +87,8 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 int exposedFace = BlockUtils::getExposedFace(pos);
                 if (exposedFace == -1 || !isValidRedstone(pos)) continue;
                 glm::ivec3 placePos = pos + offsetList[exposedFace];
+                mCurrentPlacePos = placePos;
+                mShouldRotate = true;
                 mPreviousSlot = supplies->mSelectedSlot;
                 int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
 
@@ -97,7 +105,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
         miningRedstones.clear();
 
         if (mPlacedBlock) {
-            PacketUtils::spoofSlot(mPreviousSlot);
+            if(!regenModule->mEnabled || !regenModule->mIsMiningBlock) PacketUtils::spoofSlot(mPreviousSlot);
             mPlacedBlock = false;
         }
     }
@@ -108,7 +116,19 @@ void AntiRegen::onPacketOutEvent(PacketOutEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    //
+    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    {
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+        if (mShouldRotate)
+        {
+            const glm::vec3 blockPos = mCurrentPlacePos;
+            auto blockAABB = AABB(blockPos, glm::vec3(1, 1, 1));
+            glm::vec2 rotations = MathUtils::getRots(*player->getPos(), blockAABB);
+            paip->mRot = rotations;
+            paip->mYHeadRot = rotations.y;
+            mShouldRotate = false;
+        }
+    }
 }
 
 void AntiRegen::onPacketInEvent(PacketInEvent& event) {

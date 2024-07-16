@@ -25,8 +25,10 @@ public:
     }
 
     std::vector<glm::ivec3> miningRedstones;
+    glm::ivec3 mCurrentPlacePos = { 0, 0, 0 };
     int mPreviousSlot = -1;
     bool mPlacedBlock = false;
+    bool mShouldRotate = false;
 
     std::vector<glm::ivec3> offsetList = {
         glm::ivec3(0, -1, 0),
