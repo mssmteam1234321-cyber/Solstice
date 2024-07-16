@@ -55,7 +55,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
     renderPosition.x = MathUtils::lerp(initialPos, 20.f, anim);
     renderPosition.y = MathUtils::lerp(initialPos, 20.f, anim);
 
-    FontHelper::pushPrefFont(true);
+    FontHelper::pushPrefFont(true, mBold.mValue);
 
     static std::string watermarkText = "solstice";
     static float size = 50;

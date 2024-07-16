@@ -807,25 +807,13 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
             std::string IconStr = "B";
             // TODO: please for the love of god make icon fkery like this into FontHelper.......
-            if (catName == "Combat") {
-                IconStr = "c";
-            }
+            // (also don't forget to check for case u idiot!!!!!!!111!!!!1)
+            if (StringUtils::equalsIgnoreCase(catName, "Combat")) IconStr = "c";
+             else if (StringUtils::equalsIgnoreCase(catName, "Movement")) IconStr = "f";
+             else if (StringUtils::equalsIgnoreCase(catName, "Visual")) IconStr = "d";
+             else if (StringUtils::equalsIgnoreCase(catName, "Player")) IconStr = "e";
+             else if (StringUtils::equalsIgnoreCase(catName, "Misc")) IconStr = "a";
 
-            if (catName == "Movement") {
-                IconStr = "f";
-            }
-
-            if (catName == "Visual") {
-                IconStr = "d";
-            }
-
-            if (catName == "Player") {
-                IconStr = "e";
-            }
-
-            if (catName == "Misc") {
-                IconStr = "a";
-            }
 
             ImGui::PushFont(FontHelper::Fonts["tenacity_icons_large"]);
             // Draw the icon
