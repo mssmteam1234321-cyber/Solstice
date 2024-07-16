@@ -200,7 +200,7 @@ int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool
     return slot;
 }
 
-int ItemUtils::getSwiftnessSpellbook()
+int ItemUtils::getSwiftnessSpellbook(bool hotbarOnly)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return -1;
@@ -217,9 +217,25 @@ int ItemUtils::getSwiftnessSpellbook()
             slot = i;
             break;
         }
+
+        if (hotbarOnly && i > 8) break;
     }
 
     return slot;
+}
+
+int ItemUtils::getEmptyHotbarSlot()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+
+    for (int i = 0; i < 9; i++)
+    {
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
+        if (!stack->mItem) return i;
+    }
+
+    return -1;
 }
 
 void ItemUtils::useItem(int slot)

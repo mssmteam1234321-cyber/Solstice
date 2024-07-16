@@ -51,6 +51,7 @@ public:
     EnumSetting mMode = EnumSetting("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
     EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
+    BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
     NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);
     NumberSetting mSwiftnessFriction = NumberSetting("Swiftness Friction", "The friction to apply when swiftness is active", 0.975, 0, 1, 0.01);
@@ -66,8 +67,9 @@ public:
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
     Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
-        addSettings(&mMode, &mFlareonPreset, &mSwiftness, &mHoldSpace, &mSwiftnessSpeed, &mSwiftnessFriction, &mSpeed, &mFriction, &mTimerBoost, &mTimerSpeed, &mFastFall, &mFallTicks, &mFallSpeed, &mJumpType, &mJumpHeight, &mApplyNetskip);
+        addSettings(&mMode, &mFlareonPreset, &mSwiftness, &mSwiftnessHotbar, &mHoldSpace, &mSwiftnessSpeed, &mSwiftnessFriction, &mSpeed, &mFriction, &mTimerBoost, &mTimerSpeed, &mFastFall, &mFallTicks, &mFallSpeed, &mJumpType, &mJumpHeight, &mApplyNetskip);
 
+        VISIBILITY_CONDITION(mSwiftnessHotbar, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessSpeed, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessFriction, mSwiftness.mValue);
         VISIBILITY_CONDITION(mHoldSpace, mSwiftness.mValue);

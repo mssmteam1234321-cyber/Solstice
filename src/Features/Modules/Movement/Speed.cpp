@@ -12,6 +12,7 @@
 #include <Features/Modules/Player/Scaffold.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
 
@@ -52,6 +53,7 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 
 bool Speed::tickSwiftness()
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
     bool hasSpeed = mEffectTimers.contains(EffectType::Speed);
     for (auto& [effect, time] : mEffectTimers)
     {
@@ -67,19 +69,16 @@ bool Speed::tickSwiftness()
     static bool lastSpace = false;
     bool space = Keyboard::mPressedKeys[VK_SPACE];
 
-    int spellbook = ItemUtils::getSwiftnessSpellbook();
+    int spellbook = ItemUtils::getSwiftnessSpellbook(mSwiftnessHotbar.mValue);
     if (spellbook == -1 && !hasSpeed) return false;
 
     static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
-
 
     if (space && !lastSpace && !hasSpeed && spellbook != -1 && !scaffold->mEnabled)
     {
         ItemUtils::useItem(spellbook);
         NotifyUtils::notify("Using swiftness!", 5.f, Notification::Type::Info);
     }
-
-    auto player = ClientInstance::get()->getLocalPlayer();
 
     if (space && hasSpeed || !mHoldSpace.mValue && hasSpeed)
     {

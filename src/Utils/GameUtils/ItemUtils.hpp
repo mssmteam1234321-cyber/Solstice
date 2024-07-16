@@ -17,7 +17,8 @@ public:
     static std::unordered_map<SItemType, int> getBestItems();
     static int getAllPlaceables(bool hotbarOnly = true);
     static int getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly = true, bool prioHighest = true);
-    static int getSwiftnessSpellbook();
+    static int getSwiftnessSpellbook(bool hotbarOnly = true);
+    static int getEmptyHotbarSlot();
     static void useItem(int slot);
     static int getBestBreakingTool(Block* block, bool hotbarOnly = false);
     static float getDestroySpeed(int slot, const Block* block, float divisor = 1.f);
