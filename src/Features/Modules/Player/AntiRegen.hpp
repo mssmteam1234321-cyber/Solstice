@@ -13,7 +13,7 @@ public:
     BoolSetting mSwing = BoolSetting("Swing", "Swings when placing blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to blocks in the hotbar", true);
 
-    AntiRegen() : ModuleBase("AntiRegen", "Make ur opponent hard to break redstone", ModuleCategory::Player, 0, false) {
+    AntiRegen() : ModuleBase("AntiRegen", "Automatically places blocks to prevent regeneration", ModuleCategory::Player, 0, false) {
         addSettings(&mMode, &mRange, &mSwing, &mHotbarOnly);
 
         mNames = {

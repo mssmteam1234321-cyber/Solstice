@@ -19,4 +19,3 @@ public:
     void init() override;
 };
 
-REGISTER_HOOK(MouseHook);

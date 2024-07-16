@@ -14,6 +14,9 @@ public: \
 static inline type name; \
 private: \
 static void name##_initializer() { \
+    static bool initialized = false; \
+    if (initialized) return; \
+    initialized = true; \
     auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
     if (!result.has_result()) { \
         name = 0; \
@@ -35,6 +38,9 @@ public: \
 static inline int name; \
 private: \
 static void name##_initializer() { \
+    static bool initialized = false; \
+    if (initialized) return; \
+    initialized = true; \
     auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
     if (!result.has_result()) { \
         name = 0; \

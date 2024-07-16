@@ -33,4 +33,3 @@ public:
     static void s_shutdown();
 };
 
-REGISTER_HOOK(D3DHook);

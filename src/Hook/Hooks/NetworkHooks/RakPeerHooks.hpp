@@ -26,4 +26,3 @@ public:
     void shutdown();
 };
 
-REGISTER_HOOK(RakPeerHooks);

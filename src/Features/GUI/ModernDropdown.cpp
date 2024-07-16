@@ -526,7 +526,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         setting->sliderEase = std::clamp(setting->sliderEase, 0.f, rect.getWidth());
 
 #pragma region Slider dragging
-                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                       if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
                                             if (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(2))
@@ -543,26 +543,32 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 setting->isDragging = false;
                                             } else
                                             {
-                                                // Shift click rounding (y not)
-                                                if (isPressingShift)
-                                                {
-                                                    float newValue = std::fmax(
-                                                   std::fmin(
-                                                       (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
-                                                           max - min) + min, max), min);
-                                                    // Round the value to the nearest value specified by midclickRounding
-                                                    newValue = std::round(newValue / midclickRounding) * midclickRounding;
-                                                    numSetting->mValue = newValue;
-                                                }
-                                                else
-                                                {
-                                                    const float newValue = std::fmax(
+                                                const float newValue = std::fmax(
                                                     std::fmin(
                                                         (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
                                                             max - min) + min, max), min);
-                                                    numSetting->setValue(newValue);
-                                                }
+                                                numSetting->setValue(newValue);
                                             }
+                                        }
+                                        else if (ImGui::IsMouseDown(2) && setting->isDragging && isEnabled)
+                                        {
+                                            if (lastDraggedSetting != setting)
+                                            {
+                                                setting->isDragging = false;
+                                            } else
+                                            {
+                                                float newValue = std::fmax(
+                                                    std::fmin(
+                                                        (ImRenderUtils::getMousePos().x - rect.x) / (rect.z - rect.x) * (
+                                                            max - min) + min, max), min);
+                                                // Round the value to the nearest value specified by midclickRounding
+                                                newValue = std::round(newValue / midclickRounding) * midclickRounding;
+                                                numSetting->mValue = newValue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            setting->isDragging = false;
                                         }
 #pragma endregion
 
@@ -691,7 +697,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                             float modIndexY = moduleY + (scaledRect.y - scaledRect.w);
 
                             ImColor rgb2 = ColorUtils::getThemedColor(scaledRect.y + ((scaledRect.z - scaledRect.x)));
-                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, 1.f, 1.f);
+                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation, animation);
                         }
 
                         float cRectCentreX = modRect.x + ((modRect.z - modRect.x) - ImRenderUtils::getTextWidth(
@@ -797,7 +803,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
             ImVec4 lineRect = ImVec4(catRect.x, catRect.w - 0.75f, catRect.z, catRect.w + 0.75f);
 
-            ImRenderUtils::fillGradientOpaqueRectangle(lineRect, rgb, ColorUtils::getThemedColor(catRect.y + ((catRect.z - catRect.x))), 1.f, 1.f);
+            ImRenderUtils::fillGradientOpaqueRectangle(lineRect, rgb, ColorUtils::getThemedColor(catRect.y + ((catRect.z - catRect.x))), animation, animation);
 
 
 

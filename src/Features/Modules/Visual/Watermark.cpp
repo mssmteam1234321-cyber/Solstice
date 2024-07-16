@@ -38,8 +38,8 @@ void Watermark::onRenderEvent(RenderEvent& event)
         {
             D3DHook::loadTextureFromEmbeddedResource(filePath.c_str(), &texture, &width, &height);
             loaded = true;
-            width /= 8;
-            height /= 8;
+            width /= 10;
+            height /= 10;
         }
 
         // Get the exact center-point of the image
@@ -77,10 +77,10 @@ void Watermark::onRenderEvent(RenderEvent& event)
             ImGui::GetBackgroundDrawList()->AddShadowCircle(ImVec2(renderPosition.x + (charSize.x / 2), renderPosition.y + (charSize.y / 2)),
                                                             size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim), 100, ImVec2(0.f, 0.f), 0, 12);
         // draw a shadow
-        ImColor shadowColor = ImColor(color.Value.x * 0.2f, color.Value.y * 0.2f, color.Value.z * 0.2f, 0.7f);
+        ImColor shadowColor = ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.7f);
         ImVec2 shadowPos = renderPosition;
-        shadowPos.x += 1.f; // dont fucking change it next time plz let me be picky
-        shadowPos.y += 1.f;
+        shadowPos.x += 3.f;
+        shadowPos.y += 3.f;
         ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), size, shadowPos, shadowColor, &c, &c + 1);
 
         // draw the character

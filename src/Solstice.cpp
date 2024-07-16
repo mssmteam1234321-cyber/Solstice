@@ -77,11 +77,12 @@ void Solstice::init(HMODULE hModule)
 
     HWND hwnd = ProcUtils::getMinecraftWindow(); // Cache the window handle
 
-    console->info("initializing hooks...");
-    HookManager::init();
-
     gFeatureManager = std::make_shared<FeatureManager>();
     gFeatureManager->init();
+
+    console->info("initializing hooks...");
+    HookManager::init(false);
+
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
@@ -90,9 +91,10 @@ void Solstice::init(HMODULE hModule)
 
     // Create a thead to wait for all futures in hooks then load a default config if any
     static std::thread dfcthread([]() {
-        HookManager::waitForHooks();
         while (!ClientInstance::get()->getLocalPlayer() && !mRequestEject) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         if (mRequestEject) return;
+
+        HookManager::init(true); // Initialize the base tick hook
 
         if (!Prefs->mDefaultConfigName.empty())
         {

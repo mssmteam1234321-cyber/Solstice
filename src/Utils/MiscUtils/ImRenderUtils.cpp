@@ -50,9 +50,9 @@ void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImCol
 void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize)
 {
     ImVec2 shadowPos = pos;
-    shadowPos.x += 1.f;
-    shadowPos.y += 1.f;
-    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f), text.c_str());
+    shadowPos.x += 2.f;
+    shadowPos.y += 2.f;
+    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.9f), text.c_str());
     drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
 }
 

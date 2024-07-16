@@ -6,12 +6,51 @@
 
 #include <MinHook.h>
 
-void HookManager::init()
+#include "Hooks/ActorHooks/IsSlowedByItemUseHook.hpp"
+#include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
+#include "Hooks/MiscHooks/KeyHook.hpp"
+#include "Hooks/MiscHooks/MouseHook.hpp"
+#include "Hooks/NetworkHooks/ConnectionRequestHook.hpp"
+#include "Hooks/NetworkHooks/PacketReceiveHook.hpp"
+#include "Hooks/NetworkHooks/PacketSendHook.hpp"
+#include "Hooks/NetworkHooks/RakPeerHooks.hpp"
+#include "Hooks/RenderHooks/ActorRenderDispatcherHook.hpp"
+#include "Hooks/RenderHooks/D3DHook.hpp"
+#include "Hooks/RenderHooks/SetupAndRenderHook.hpp"
+
+#define ADD_HOOK(hook) hooks.emplace_back(std::make_shared<hook>())
+
+void HookManager::init(bool initLp)
 {
-    // Wait for mFutures
-    for (auto& future : mFutures)
+    if (initLp)
     {
-        future.wait();
+        std::vector<std::shared_ptr<Hook>> hooks;
+        ADD_HOOK(BaseTickHook);
+        for (auto& hook : hooks)
+        {
+            hook->init();
+            mHooks.emplace_back(hook);
+        }
+    }
+    else
+    {
+        std::vector<std::shared_ptr<Hook>> hooks;
+        ADD_HOOK(KeyHook);
+        ADD_HOOK(IsSlowedByItemUseHook);
+        ADD_HOOK(ContainerScreenControllerHook);
+        ADD_HOOK(MouseHook);
+        ADD_HOOK(ConnectionRequestHook);
+        ADD_HOOK(PacketReceiveHook);
+        ADD_HOOK(PacketSendHook);
+        ADD_HOOK(RakPeerHooks);
+        ADD_HOOK(ActorRenderDispatcherHook);
+        ADD_HOOK(D3DHook);
+        ADD_HOOK(SetupAndRenderHook);
+        for (auto& hook : hooks)
+        {
+            hook->init();
+            mHooks.emplace_back(hook);
+        }
     }
 }
 
@@ -26,18 +65,5 @@ void HookManager::shutdown()
     MH_Uninitialize();
 
     mHooks.clear();
-    mFutures.clear();
-    mFutures2.clear();
 }
 
-void HookManager::waitForHooks()
-{
-    for (auto& future : mFutures2)
-    {
-        future.wait();
-    }
-    for (auto& hook : mFutures2)
-    {
-        hook.wait();
-    }
-}

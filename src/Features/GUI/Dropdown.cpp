@@ -668,7 +668,7 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
                             float modIndexY = moduleY + (scaledRect.y - scaledRect.w);
 
                             ImColor rgb2 = ColorUtils::getThemedColor(scaledRect.y + ((scaledRect.z - scaledRect.x)));
-                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, 1.f, 1.f);
+                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation, animation);
                         }
 
                         float cRectCentreX = modRect.x + ((modRect.z - modRect.x) - ImRenderUtils::getTextWidth(

@@ -121,7 +121,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-        if (mLine.mValue == static_cast<int>(Line::Bar))
+        if (mDisplay.mValue == static_cast<int>(Display::Bar))
         {
             textPos.x -= 7;
         }
@@ -135,7 +135,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
-        if (glow) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 1.f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        if (glow && mDisplay.as<Display>() != Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        // Else, only draw glow on bar
 
         pos.y += (textSize.y * mod->mArrayListAnim);
 
@@ -162,7 +163,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
         bool addedPadding = false;
-        if (mLine.mValue == static_cast<int>(Line::Bar))
+        if (mDisplay.mValue == static_cast<int>(Display::Bar))
         {
             textPos.x -= 7;
             addedPadding = true;
@@ -185,11 +186,10 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         backgroundRects.push_back({name, ImVec2(rect.x + (addedPadding ? 7.f : 0.f), rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), color, mod.get()});
 
-        if (mBackground.mValue == static_cast<int>(Background::Opacity))
-        {
-            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.7f), 0.0f);
 
-        }
+        drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, mBackgroundOpacity.mValue), 0.0f);
+
+
 
         ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
 
@@ -212,7 +212,53 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         pos.y += (textSize.y * mod->mArrayListAnim);
     }
 
-    if (mLine.mValue == static_cast<int>(Line::None))
+    if (mDisplay.mValue == static_cast<int>(Display::Bar))
+    {
+        pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 10); // Reset position
+
+        for (auto& mod : module)
+        {
+            if (!mod->mVisibleInArrayList.mValue) continue;
+            if (mVisibility.mValue == static_cast<int>(ModuleVisibility::Bound) && mod->mKey == 0) continue;
+            mod->mArrayListAnim = MathUtils::lerp(mod->mArrayListAnim, mod->mEnabled ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 12.f);
+            mod->mArrayListAnim = MathUtils::clamp(mod->mArrayListAnim, 0.f, 1.f);
+            if (mod->mArrayListAnim < 0.01f) continue;
+
+            ImColor color = ColorUtils::getThemedColor(pos.y * 2);
+
+            std::string name = mod->getName();
+            std::string settingDisplay = mod->getSettingDisplayText();
+            if (!mRenderMode.mValue) settingDisplay = "";
+            if (!settingDisplay.empty()) settingDisplay = " " + settingDisplay;
+            ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
+
+            ImVec2 textPos = ImVec2(pos.x, pos.y);
+
+            if (mDisplay.mValue == static_cast<int>(Display::Bar))
+            {
+                textPos.x -= 7;
+            }
+
+            ImVec2 displaySize = {0, 0};
+            if (!settingDisplay.empty())
+            {
+                displaySize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, settingDisplay.c_str());
+            }
+            float endPos = textPos.x - textSize.x - displaySize.x;
+
+            textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
+            ImVec2 mousePos = ImGui::GetIO().MousePos;
+            constexpr float glowPadding = 0.f;
+            float textX = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x;
+            if (glow && mDisplay.as<Display>() == Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x + textX - glowPadding, textPos.y), ImVec2(textPos.x + textX + glowPadding, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+            // Else, only draw glow on bar
+
+            pos.y += (textSize.y * mod->mArrayListAnim);
+
+        }
+    }
+
+    if (mDisplay.mValue == static_cast<int>(Display::None))
     {
         ImGui::PopFont();
         return;
@@ -250,7 +296,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         bool hasNext = !next.moduleName.empty();
 
 
-        if (mLine.mValue == static_cast<int>(Line::Outline))
+        if (mDisplay.mValue == static_cast<int>(Display::Outline))
         {
             // Side: Right
             lines.push_back({name, ImVec2(end.x + 2, start.y), ImVec2(end.x + 2, end.y), color, mod});
@@ -283,7 +329,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
             }
 
         }
-        else if (mLine.mValue == static_cast<int>(Line::Bar))
+        else if (mDisplay.mValue == static_cast<int>(Display::Bar))
         {
             lines.push_back({name, ImVec2(end.x, start.y), ImVec2(end.x, end.y), color, mod});
         }
@@ -296,7 +342,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         return a.start.x < b.start.x;
     });
 
-    if (mLine.as<Line>() == Line::Outline && backgroundRects.size() > 0)
+    if (mDisplay.as<Display>() == Display::Outline && backgroundRects.size() > 0)
     {
         auto lowest = backgroundRects.front();
         lines.push_back({lowest.moduleName, ImVec2(lowest.start.x, lowest.start.y), ImVec2(startingRect.x + 2, lowest.start.y), lowest.color, lowest.mod});
@@ -305,7 +351,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
     for (auto& line : lines)
     {
-        drawList->AddLine(ImVec2(line.start.x, line.start.y), ImVec2(line.end.x, line.end.y), line.color, mLine.mValue == static_cast<int>(Line::Outline) ? 2.f : 4.f);
+        drawList->AddLine(ImVec2(line.start.x, line.start.y), ImVec2(line.end.x, line.end.y), line.color, mDisplay.mValue == static_cast<int>(Display::Outline) ? 2.f : 4.f);
     }
 
     ImGui::PopFont();

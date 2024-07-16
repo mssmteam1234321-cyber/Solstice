@@ -21,4 +21,3 @@ public:
     void init() override;
 };
 
-REGISTER_LP_HOOK(BaseTickHook);
