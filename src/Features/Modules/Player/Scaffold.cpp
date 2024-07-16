@@ -220,7 +220,7 @@ void Scaffold::onRenderEvent(RenderEvent& event)
     std::string text = displayText + std::to_string(totalBlocks);
     std::string numberText = std::to_string(totalBlocks);
 
-    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+    FontHelper::pushPrefFont(true);
 
     float fontSize = 25.f * anim;
 

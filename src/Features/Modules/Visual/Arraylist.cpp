@@ -79,7 +79,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     static std::vector<std::shared_ptr<Module>> module;
 
     auto drawList = ImGui::GetBackgroundDrawList();
-    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+    FontHelper::pushPrefFont(true);
 
     if (module.empty())
     {

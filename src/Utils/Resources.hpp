@@ -6,6 +6,7 @@
 
 LOAD_RESOURCE(cash_wav);
 LOAD_RESOURCE(fard_wav);
+LOAD_RESOURCE(fonts_Mojangles_Bold_ttf);
 LOAD_RESOURCE(fonts_Mojangles_ttf);
 LOAD_RESOURCE(fonts_Product_Sans_Bold_ttf);
 LOAD_RESOURCE(fonts_Product_Sans_ttf);

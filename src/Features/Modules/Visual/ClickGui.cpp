@@ -7,7 +7,7 @@
 #include <Features/Events/MouseEvent.hpp>
 #include <Features/Events/KeyEvent.hpp>
 #include <Features/GUI/Dropdown.hpp>
-#include <Features/GUI/ModernDropdowm.hpp>
+#include <Features/GUI/ModernDropdown.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
 static bool lastMouseState = false;
@@ -40,6 +40,7 @@ void ClickGui::onDisable()
 void ClickGui::onWindowResizeEvent(WindowResizeEvent& event)
 {
     dropdownGui.onWindowResizeEvent(event);
+    modernGui.onWindowResizeEvent(event); // are you okay in the head 😭
 }
 
 

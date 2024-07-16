@@ -2,7 +2,7 @@
 // Created by Tozic on 7/15/2024.
 //
 
-#include "ModernDropdowm.hpp"
+#include "ModernDropdown.hpp"
 #include <Features/Modules/ModuleCategory.hpp>
 #include <Features/Modules/Visual/ClickGui.hpp>
 #include <Utils/FontHelper.hpp>
@@ -40,7 +40,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
     static auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
     bool lowercase = interfaceMod->mNamingStyle.mValue == NamingStyle::Lowercase || interfaceMod->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
 
-    ImGui::PushFont(FontHelper::Fonts["product_sans_large"]);
+    FontHelper::pushPrefFont(true);
     ImVec2 screen = ImRenderUtils::getScreenSize();
     float deltaTime = ImGui::GetIO().DeltaTime;
     auto drawList = ImGui::GetBackgroundDrawList();
@@ -88,7 +88,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
     if (displayColorPicker && isEnabled)
     {
-        ImGui::PushFont(FontHelper::Fonts["product_sans"]);
+        FontHelper::pushPrefFont(false);
         ColorSetting* colorSetting = lastColorSetting;
         // Display the color picker in the bottom middle of the screen
         ImGui::SetNextWindowPos(ImVec2(screen.x / 2 - 200, screen.y / 2));
@@ -796,14 +796,17 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
             ImRenderUtils::fillGradientOpaqueRectangle(lineRect, rgb, ColorUtils::getThemedColor(catRect.y + ((catRect.z - catRect.x))), 1.f, 1.f);
 
-            ImGui::PushFont(FontHelper::Fonts["product_sans_bold_large"]);
+
+
+            FontHelper::pushPrefFont(true, true);
             // Calculate the centre of the rect
+            float textHeight = ImGui::GetFont()->CalcTextSizeA(textSize * 18, FLT_MAX, -1, catName.c_str()).y;
             float cRectCentreX = catRect.x + ((catRect.z - catRect.x) - ImRenderUtils::getTextWidth(
                 &catName, textSize * 1.15)) / 2;
             float cRectCentreY = catRect.y + ((catRect.w - catRect.y) - textHeight) / 2;
 
             std::string IconStr = "B";
-
+            // TODO: please for the love of god make icon fkery like this into FontHelper.......
             if (catName == "Combat") {
                 IconStr = "c";
             }
@@ -833,7 +836,6 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             // Draw the string
             ImRenderUtils::drawText(ImVec2(cRectCentreX, cRectCentreY), catName, ImColor(255, 255, 255),
                                    textSize * 1.15, animation, true);
-
             ImGui::PopFont();
 
             catPositions[i].x = std::clamp(catPositions[i].x, 0.f, screen.x - catWidth);

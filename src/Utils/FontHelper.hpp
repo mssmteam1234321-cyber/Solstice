@@ -9,4 +9,14 @@ public:
     static inline std::map<std::string, ImFont*> Fonts;
 
     static void load();
+    /// <summary>
+    /// Pushes the preferred font to the ImGui stack.
+    /// </summary>
+    /// <param name="large">Whether to push the large font.</param>
+    static void pushPrefFont(bool large = false, bool bold = false);
+    /// <summary>
+    /// Gets the appropriate font, according to interface settings.
+    /// </summary>
+    /// <param name="large">Whether to get the large font.</param>
+    static ImFont* getFont(bool large = false, bool bold = false);
 };

@@ -71,7 +71,7 @@ void LevelInfo::onRenderEvent(RenderEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (ClientInstance::get()->getMouseGrabbed() && player) return;
 
-    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+    FontHelper::pushPrefFont(true);
 
     ImVec2 pos = { 2, ImGui::GetIO().DisplaySize.y };
     float fontSize = 20.f;

@@ -37,7 +37,7 @@ bool CalcSize(ImVec2& boxSize, float& yOff, float& x, ImVec2 screenSize, Notific
 
 void Notifications::onRenderEvent(RenderEvent& event)
 {
-    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+    FontHelper::pushPrefFont(true);
     ImVec2 displaySize = ImGui::GetIO().DisplaySize;
     auto drawList = ImGui::GetBackgroundDrawList();
     float y = displaySize.y - 10.0f;

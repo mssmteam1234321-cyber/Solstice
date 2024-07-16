@@ -55,7 +55,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
     renderPosition.x = MathUtils::lerp(initialPos, 20.f, anim);
     renderPosition.y = MathUtils::lerp(initialPos, 20.f, anim);
 
-    ImGui::PushFont(FontHelper::Fonts["mojangles_large"]);
+    FontHelper::pushPrefFont(true);
 
     static std::string watermarkText = "solstice";
     static float size = 50;
@@ -79,8 +79,8 @@ void Watermark::onRenderEvent(RenderEvent& event)
         // draw a shadow
         ImColor shadowColor = ImColor(color.Value.x * 0.2f, color.Value.y * 0.2f, color.Value.z * 0.2f, 0.7f);
         ImVec2 shadowPos = renderPosition;
-        shadowPos.x += 3.f;
-        shadowPos.y += 3.f;
+        shadowPos.x += 1.f; // dont fucking change it next time plz let me be picky
+        shadowPos.y += 1.f;
         ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), size, shadowPos, shadowColor, &c, &c + 1);
 
         // draw the character

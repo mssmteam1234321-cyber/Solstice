@@ -7,6 +7,10 @@ void ResourceLoader::loadResources() {
     Resources.emplace("cash.wav", cash_wav);
     auto fard_wav = GET_RESOURCE(fard_wav);
     Resources.emplace("fard.wav", fard_wav);
+    auto fonts_Mojangles_Bold_ttf = GET_RESOURCE(fonts_Mojangles_Bold_ttf);
+    Resources.emplace("mojangles_bold", fonts_Mojangles_Bold_ttf);
+    FontHelper::Fonts.emplace("mojangles_bold", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_Bold_ttf.data2(), fonts_Mojangles_Bold_ttf.size(), 20));
+    FontHelper::Fonts.emplace("mojangles_bold_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_Bold_ttf.data2(), fonts_Mojangles_Bold_ttf.size(), 42));
     auto fonts_Mojangles_ttf = GET_RESOURCE(fonts_Mojangles_ttf);
     Resources.emplace("mojangles", fonts_Mojangles_ttf);
     FontHelper::Fonts.emplace("mojangles", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 20));
