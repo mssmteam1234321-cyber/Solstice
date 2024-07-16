@@ -64,8 +64,6 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
         ImVec4(0, firstheight, screen.x, screen.y),
         shadowRectColor, shadowRectColor, 0.4f * inScale, 0.0f);
 
-
-
     static std::vector<std::string> categories = ModuleCategoryNames;
     static std::vector<std::shared_ptr<Module>>& modules = gFeatureManager->mModuleManager->getModules();
 
@@ -135,6 +133,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
     {
         for (size_t i = 0; i < categories.size(); i++)
         {
+            // Add a clip rect starting just below the category text
             // Mod math stuff
             const float modWidth = catWidth;
             const float modHeight = catHeight;
@@ -244,6 +243,9 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             // Lerp the scrolling cuz smooth
             catPositions[i].yOffset = MathUtils::animate(catPositions[i].scrollEase, catPositions[i].yOffset,
                                                     ImRenderUtils::getDeltaTime() * 10.5);
+
+            ImVec4 clipRect = ImVec4(catRect.x, catRect.y + catHeight, catRect.z, screen.y);
+            drawList->PushClipRect(ImVec2(clipRect.x, clipRect.y), ImVec2(clipRect.z, clipRect.w), true);
 
             for (const auto& mod : modsInCategory)
             {
@@ -762,6 +764,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                     moduleY += modHeight;
                 }
             }
+            drawList->PopClipRect();
 
             if (isBinding)
             {

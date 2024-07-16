@@ -46,19 +46,8 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
         applyNetskip = true;
     }
 
-    static uint64_t lastCall = 0;
-    uint64_t netskipMs = 101;
-
-    // If less than netskipMs has passed since last call, cancel
-    if (applyNetskip && NOW - lastCall < netskipMs)
-    {
-        event.cancel();
-        return;
-    }
-
-    lastCall = NOW;
-
-
+    if (!applyNetskip) return;
+    Sleep(101);
 }
 
 bool Speed::tickSwiftness()
