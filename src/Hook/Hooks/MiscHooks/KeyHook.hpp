@@ -1,8 +1,5 @@
 #pragma once
-#include <Solstice.hpp>
-#include <Features/FeatureManager.hpp>
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 //
 // Created by vastrakai on 6/25/2024.
 //

@@ -3,9 +3,7 @@
 // Created by vastrakai on 6/25/2024.
 //
 
-#include <Solstice.hpp>
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 
 
 

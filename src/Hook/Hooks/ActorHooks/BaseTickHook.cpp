@@ -7,7 +7,8 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
-
+#include <SDK/OffsetProvider.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 

@@ -6,10 +6,8 @@
 
 #include <Solstice.hpp>
 #include <Features/Modules/Visual/ClickGui.hpp>
-#include <Utils/Keyboard.hpp>
-#include <Utils/GameUtils/ActorUtils.hpp>
-#include <Utils/GameUtils/ChatUtils.hpp>
 #include <Features/Events/KeyEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> KeyHook::mDetour = nullptr;
 

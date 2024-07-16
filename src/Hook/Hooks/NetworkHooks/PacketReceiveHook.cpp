@@ -7,6 +7,7 @@
 #include <magic_enum.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <Features/Events/PacketInEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/GameSession.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>

@@ -1,6 +1,5 @@
 #pragma once
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 //
 // Created by vastrakai on 6/29/2024.
 //

@@ -4,7 +4,6 @@
 //
 
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
 
 class PacketReceiveHook : public Hook {

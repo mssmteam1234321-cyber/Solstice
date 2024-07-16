@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 
 class PacketSendHook : public Hook {

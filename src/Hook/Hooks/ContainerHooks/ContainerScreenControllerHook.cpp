@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <Features/Events/ContainerScreenTickEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 
 std::unique_ptr<Detour> ContainerScreenControllerHook::mDetour;

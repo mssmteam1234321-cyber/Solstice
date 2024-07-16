@@ -4,7 +4,6 @@
 //
 
 #include <Hook/Hook.hpp>
-#include <Hook/HookManager.hpp>
 
 class RakPeerHooks : public Hook {
 public:

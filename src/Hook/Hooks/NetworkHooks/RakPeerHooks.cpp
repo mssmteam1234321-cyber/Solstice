@@ -10,6 +10,7 @@
 #include <SDK/SigManager.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/RunUpdateCycleEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> RakPeerHooks::RunUpdateCycleDetour;
 std::unique_ptr<Detour> RakPeerHooks::GetLastPingDetour;
