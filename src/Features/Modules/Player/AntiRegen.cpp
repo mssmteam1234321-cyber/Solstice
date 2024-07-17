@@ -87,6 +87,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 int exposedFace = BlockUtils::getExposedFace(pos);
                 if (exposedFace == -1 || !isValidRedstone(pos)) continue;
                 glm::ivec3 placePos = pos + offsetList[exposedFace];
+                if (ClientInstance::get()->getBlockSource()->getBlock(placePos + glm::ivec3(0, -1, 0))->getmLegacy()->isAir()) continue;
                 mCurrentPlacePos = placePos;
                 mShouldRotate = true;
                 mPreviousSlot = supplies->mSelectedSlot;
@@ -95,7 +96,8 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 supplies->mSelectedSlot = blockSlot;
                 PacketUtils::spoofSlot(blockSlot);
                 if (mSwing.mValue) player->swing();
-                BlockUtils::placeBlock(placePos, exposedFace);
+                
+                BlockUtils::placeBlock(placePos, 1);
                 mPlacedBlock = true;
                 supplies->mSelectedSlot = mPreviousSlot;
                 return;
