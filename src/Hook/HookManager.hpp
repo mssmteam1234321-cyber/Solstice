@@ -1,10 +1,6 @@
 #pragma once
 #include <Hook/Hook.hpp>
 #include <Hook/HookManager.hpp>
-#include <SDK/OffsetProvider.hpp>
-#include <SDK/SigManager.hpp>
-#include <SDK/Minecraft/ClientInstance.hpp>
-#include <Solstice.hpp>
 
 #include "Hook.hpp"
 //

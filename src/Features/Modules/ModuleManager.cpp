@@ -30,6 +30,7 @@
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
 #include "spdlog/spdlog.h"
+#include "Visual/Animations.hpp"
 #include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
 #include "Visual/BlockESP.hpp"
@@ -89,6 +90,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ESP>());
     mModules.emplace_back(std::make_shared<BlockESP>());
     mModules.emplace_back(std::make_shared<MotionBlur>());
+    mModules.emplace_back(std::make_shared<Animations>());
+
 
     for (auto& module : mModules)
     {

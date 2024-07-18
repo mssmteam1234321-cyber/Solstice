@@ -220,7 +220,6 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         {
             if (!mod->mVisibleInArrayList.mValue) continue;
             if (mVisibility.mValue == ModuleVisibility::Bound && mod->mKey == 0) continue;
-            mod->mArrayListAnim = MathUtils::lerp(mod->mArrayListAnim, mod->mEnabled ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 12.f);
             mod->mArrayListAnim = MathUtils::clamp(mod->mArrayListAnim, 0.f, 1.f);
             if (mod->mArrayListAnim < 0.01f) continue;
 

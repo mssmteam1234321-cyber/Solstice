@@ -24,7 +24,12 @@ class Module
 {
 public:
     std::string mName;
-    std::unordered_map<NamingStyle, std::string> mNames;
+    std::unordered_map<NamingStyle, std::string> mNames = {
+        {Lowercase, "unnamed"},
+        {LowercaseSpaced, "unnamed"},
+        {Normal, "Unnamed"},
+        {NormalSpaced, "Unnamed"}
+    };
     std::string mDescription;
     ModuleCategory mCategory;
     bool mEnabled = false;

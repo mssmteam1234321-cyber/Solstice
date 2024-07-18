@@ -4,6 +4,7 @@
 
 #include "ActorRenderDispatcherHook.hpp"
 #include <Features/Events/ActorRenderEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> ActorRenderDispatcherHook::mDetour;
 
