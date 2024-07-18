@@ -43,7 +43,7 @@ bool AntiRegen::isValidRedstone(glm::ivec3 blockPos) {
 
 void AntiRegen::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &AntiRegen::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &AntiRegen::onBaseTickEvent, nes::event_priority::LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AntiRegen::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &AntiRegen::onPacketOutEvent, nes::event_priority::LAST>(this);
 
@@ -81,12 +81,15 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
     static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
 
     if (mMode.as<Mode>() == Mode::Cover) {
+        if (regenModule->mEnabled && regenModule->mShouldRotate) return;
+
         if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
             for (auto& pos : miningRedstones)
             {
                 int exposedFace = BlockUtils::getExposedFace(pos);
                 if (exposedFace == -1 || !isValidRedstone(pos)) continue;
                 glm::ivec3 placePos = pos + offsetList[exposedFace];
+                glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
                 if (ClientInstance::get()->getBlockSource()->getBlock(placePos + glm::ivec3(0, -1, 0))->getmLegacy()->isAir()) continue;
                 mCurrentPlacePos = placePos;
                 mShouldRotate = true;
@@ -96,8 +99,20 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 supplies->mSelectedSlot = blockSlot;
                 PacketUtils::spoofSlot(blockSlot);
                 if (mSwing.mValue) player->swing();
-                
-                BlockUtils::placeBlock(placePos, 1);
+
+                //PlaceBlock without flagged by anticheat
+                HitResult* res = player->getLevel()->getHitResult();
+                bool oldSwinging = player->isSwinging();
+                int oldSwingProgress = player->getSwingProgress();
+                res->mBlockPos = placePos;
+                res->mFacing = 1;
+                res->mType = HitType::BLOCK;
+                res->mIndirectHit = true;
+                res->mRayDir = placePos;
+                res->mPos = placePos;
+                player->getGameMode()->buildBlock(hitPos, 1, true);
+                player->setSwinging(oldSwinging);
+                player->setSwingProgress(oldSwingProgress);
                 mPlacedBlock = true;
                 supplies->mSelectedSlot = mPreviousSlot;
                 return;

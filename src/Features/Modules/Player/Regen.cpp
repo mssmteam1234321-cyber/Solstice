@@ -242,17 +242,28 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
         else if (mUncover && !unexposedBlockList.empty()) {
             bool foundBlock = false;
+            bool isNextToRedstone = false;
             float fastestTime = INT_MAX;
             for (int i = 0; i < unexposedBlockList.size(); i++) {
                 glm::ivec3 redstonePos = unexposedBlockList[i].mPosition;
                 PathFindingResult result = getBestPathToBlock(redstonePos);
                 float currentTime = result.time;
-                if (currentTime < fastestTime && isValidBlock(result.blockPos, false, false)) {
-                    fastestTime = currentTime;
-                    pos = result.blockPos;
-                    targettingPos = redstonePos;
-                    foundBlock = true;
+                if (currentTime >= fastestTime || !isValidBlock(result.blockPos, false, false)) continue;
+                
+                for (auto& [face, offset] : BlockUtils::blockFaceOffsets) {
+                    int ID = source->getBlock(result.blockPos + glm::ivec3(offset))->getmLegacy()->getBlockId();
+                    if (ID == 73 || ID == 74) {
+                        isNextToRedstone = true;
+                        break;
+                    }
                 }
+
+                if (BlockUtils::getExposedFace(result.blockPos) == -1 && isNextToRedstone) continue;
+
+                fastestTime = currentTime;
+                pos = result.blockPos;
+                targettingPos = redstonePos;
+                foundBlock = true;
             }
             if (foundBlock) {
                 mIsUncovering = true;
