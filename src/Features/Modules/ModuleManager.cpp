@@ -18,6 +18,7 @@
 #include "Movement/Fly.hpp"
 #include "Movement/InventoryMove.hpp"
 #include "Movement/NoSlowDown.hpp"
+#include "Movement/SafeWalk.hpp"
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
@@ -56,7 +57,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Sprint>());
     mModules.emplace_back(std::make_shared<Speed>());
     mModules.emplace_back(std::make_shared<InventoryMove>());
-
+    mModules.emplace_back(std::make_shared<SafeWalk>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());

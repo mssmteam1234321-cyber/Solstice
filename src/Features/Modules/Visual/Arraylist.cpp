@@ -135,7 +135,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
-        if (glow && mDisplay.as<Display>() != Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        if (glow && mDisplay.mValue != Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
         // Else, only draw glow on bar
 
         pos.y += (textSize.y * mod->mArrayListAnim);
@@ -249,7 +249,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
             ImVec2 mousePos = ImGui::GetIO().MousePos;
             constexpr float glowPadding = 0.f;
             float textX = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x;
-            if (glow && mDisplay.as<Display>() == Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x + textX - glowPadding, textPos.y), ImVec2(textPos.x + textX + glowPadding, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+            if (glow && mDisplay.mValue == Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x + textX - glowPadding, textPos.y), ImVec2(textPos.x + textX + glowPadding, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
             // Else, only draw glow on bar
 
             pos.y += (textSize.y * mod->mArrayListAnim);
@@ -340,7 +340,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         return a.start.x < b.start.x;
     });
 
-    if (mDisplay.as<Display>() == Display::Outline && backgroundRects.size() > 0)
+    if (mDisplay.mValue == Display::Outline && backgroundRects.size() > 0)
     {
         auto lowest = backgroundRects.front();
         lines.push_back({lowest.moduleName, ImVec2(lowest.start.x, lowest.start.y), ImVec2(startingRect.x + 2, lowest.start.y), lowest.color, lowest.mod});

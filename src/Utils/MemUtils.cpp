@@ -83,3 +83,19 @@ void MemUtils::writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes
     writeBytes(ptr, bytes, bytes.size());
 }
 
+std::vector<unsigned char> MemUtils::readBytes(uintptr_t ptr, size_t size)
+{
+    std::vector<unsigned char> buffer(size);
+    DWORD oldProtect;
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, PAGE_EXECUTE_READWRITE, &oldProtect);
+    memcpy(buffer.data(), reinterpret_cast<void*>(ptr), size);
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, oldProtect, &oldProtect);
+    return buffer;
+}
+
+void MemUtils::setProtection(uintptr_t ptr, size_t size, DWORD protection)
+{
+    DWORD oldProtect;
+    VirtualProtect(reinterpret_cast<void*>(ptr), size, protection, &oldProtect);
+}
+

@@ -90,6 +90,9 @@ public:
     DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 48 8B ? 48 8B ? 48 83 78 18 ? 48 8B", SigType::RefSig, 1);
     DEFINE_SIG(Actor_setNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 8B ? 4C 8B", SigType::Sig, 0);
     DEFINE_SIG(Mob_getCurrentSwingDuration, "E8 ? ? ? ? 80 BB ? ? ? ? ? 74 ? 8B ? ? ? ? ? FF", SigType::RefSig, 1);
-
+    DEFINE_SIG(ItemInHandRenderer_render_bytepatch, "F3 0F ? ? EB ? 0F 57 ? F3 41", SigType::Sig, 0);
+    DEFINE_SIG(SneakMovementSystem_tickSneakMovementSystem, "32 C0 88 43 ? 84 C0", SigType::Sig, 0);
+    DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? ? 41 0F ? ? E8 ? ? ? ? 48 8B", SigType::RefSig, 5);
+    DEFINE_SIG(FluxSwing, "E8 ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? 48 8B ? F3 0F ? ? 48 8B", SigType::Sig, 0);
     static void initialize();
 };

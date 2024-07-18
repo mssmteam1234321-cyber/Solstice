@@ -9,102 +9,6 @@
 // Created by vastrakai on 6/25/2024.
 //
 
-
-/*template<typename T>
-struct SharedCounter {
-    /* volatile ? #1# T* value;
-    std::atomic<int> shared, weak;
-
-    SharedCounter(T* value) : value(value) {}
-
-    void addSharedRef() { ++shared; }
-
-    void addWeakRef() { --shared; }
-
-    bool releaseSharedRef() {
-        if (--shared == 0) {
-            if (value != nullptr) {
-                T* oldValue = value;
-                value = nullptr;
-                delete oldValue;
-            }
-            return (weak == 0);
-        }
-        return false;
-    }
-
-    bool releaseWeakRef() {
-        return (--weak == 0 && value);
-    }
-};
-
-template<typename T>
-struct WeakPtr {
-    SharedCounter<T>* counter = nullptr;
-
-    WeakPtr(T* val = nullptr) {
-        if (val) {
-            counter = new SharedCounter<T>(val);
-            counter->addWeakRef();
-        }
-    }
-
-    WeakPtr(WeakPtr&& ptr) {
-        counter = std::move(ptr.counter);
-        ptr.counter = nullptr;
-    }
-
-    WeakPtr& operator=(WeakPtr const& ptr) {
-        reset();
-        this->counter = ptr.counter;
-        if (counter)
-            counter->addWeakRef();
-        return *this;
-    }
-
-    WeakPtr& operator=(WeakPtr&& ptr) {
-        counter = std::move(ptr.counter);
-        ptr.counter = nullptr;
-        return *this;
-    }
-
-    void reset() {
-        if (counter && counter->releaseWeakRef())
-            delete counter;
-        counter = nullptr;
-    }
-
-    ~WeakPtr() {
-        reset();
-    };
-
-    template <typename... Args>
-    static WeakPtr<T> make(Args&&... args) {
-        return WeakPtr<T>(new T(std::forward(args...)));
-    }
-
-    T& operator*() {
-        return *counter->value;
-    }
-
-    T* operator->() {
-        return counter->value;
-    }
-
-    T* get() {
-        if (!counter)
-            return nullptr;
-        return counter->value;
-    }
-
-    T const* get() const {
-        if (!counter)
-            return nullptr;
-        return counter->value;
-    }
-};*/
-
-
 class MemUtils {
 public:
     template<typename Ret, typename... Args>
@@ -134,8 +38,61 @@ public:
         return reinterpret_cast<Fn>(vtable[index])(_this, args...);
     }
 
+/// <summary>
+/// Defines a function to byte-patch an address with a given byte array
+/// </summary>
+/// <remarks>
+/// This should only be used in .cpp files
+/// </remarks>
+#define DEFINE_PATCH_FUNC(name, addr, bytes) \
+    void name(bool patch) { \
+        static std::vector<unsigned char> ogBytes = { bytes }; \
+        static bool wasPatched = false; \
+           if (patch) { \
+                if (!wasPatched) { \
+                    ogBytes = MemUtils::readBytes(addr, sizeof(bytes)); \
+                    MemUtils::writeBytes(addr, bytes); \
+                    spdlog::info("Patched {} at 0x{:X}", #name, addr); \
+                    wasPatched = true; \
+                } \
+            } else { \
+                if (wasPatched) { \
+                    MemUtils::writeBytes(addr, ogBytes); \
+                    spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
+                    wasPatched = false; \
+                } \
+            } \
+    }
+
+#define DEFINE_NOP_PATCH_FUNC(name, addr, size) \
+    void name(bool patch) { \
+        static std::vector<unsigned char> ogBytes; \
+        static bool wasPatched = false; \
+           if (patch) { \
+                if (!wasPatched) { \
+                    ogBytes = MemUtils::readBytes(addr, size); \
+                    std::vector<unsigned char> bytes(size, 0x90); \
+                    MemUtils::writeBytes(addr, bytes); \
+                    spdlog::info("Patched {} at 0x{:X}", #name, addr); \
+                    wasPatched = true; \
+                } \
+            } else { \
+                if (wasPatched) { \
+                    MemUtils::writeBytes(addr, ogBytes); \
+                    spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
+                    wasPatched = false; \
+                } \
+            } \
+    }
+
+
+
 
 #define AS_FIELD(type, name, fn) __declspec(property(get = fn, put = set##name)) type name
+
+/// <summary>
+/// Defines a field in a class
+/// </summary>
 #define CLASS_FIELD(type, name, offset) \
     AS_FIELD(type, name, get##name); \
     type get##name() const { return *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(this) + offset); } \
@@ -147,7 +104,9 @@ public:
     private: \
         char TOKENPASTE2(padding_, __LINE__) [size]; \
     public:
-
+/// <summary>
+/// Defines a padding field of a given size
+/// </summary>
 #define PADDING(size) char TOKENPASTE2(padding_, __LINE__) [size]
 
     static uintptr_t getAddressByIndex(uintptr_t _this, int index);
@@ -159,6 +118,8 @@ public:
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes, size_t size);
     static void writeBytes(uintptr_t ptr, const void* bytes, size_t size);
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes);
+    static std::vector<unsigned char> readBytes(uintptr_t ptr, size_t size);
+    static void setProtection(uintptr_t ptr, size_t size, DWORD protection);
 };
 
 
