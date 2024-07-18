@@ -42,14 +42,14 @@ public:
     NumberSetting mPlaces = NumberSetting("Places", "The amount of blocks to place per tick", 1, 0, 20, 0.01);
     NumberSetting mRange = NumberSetting("Range", "The range at which to place blocks", 5, 0, 10, 0.01);
     NumberSetting mExtend = NumberSetting("Extend", "The distance to extend the placement", 0, 0, 10, 1);
-    EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Down", "Backwards");
-    EnumSetting mPlacementMode = EnumSetting("Placement", "The mode for block placement", PlacementMode::Normal, "Normal", "Flareon");
-    EnumSetting mSwitchMode = EnumSetting("Switch Mode", "The mode for block switching", SwitchMode::None, "None", "Full");
-    EnumSetting mSwitchPriority = EnumSetting("Switch Prio", "The priority for block switching", SwitchPriority::First, "First", "Highest");
+    EnumSettingT<RotateMode> mRotateMode = EnumSettingT<RotateMode>("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Down", "Backwards");
+    EnumSettingT<PlacementMode> mPlacementMode = EnumSettingT<PlacementMode>("Placement", "The mode for block placement", PlacementMode::Normal, "Normal", "Flareon");
+    EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT<SwitchMode>("Switch Mode", "The mode for block switching", SwitchMode::None, "None", "Full");
+    EnumSettingT<SwitchPriority> mSwitchPriority = EnumSettingT<SwitchPriority>("Switch Prio", "The priority for block switching", SwitchPriority::First, "First", "Highest");
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only place blocks from the hotbar", false);
-    EnumSetting mTowerMode = EnumSetting("Tower Mode", "The mode for tower placement", TowerMode::Vanilla, "Vanilla", "Velocity");
+    EnumSettingT<TowerMode> mTowerMode = EnumSettingT<TowerMode>("Tower Mode", "The mode for tower placement", TowerMode::Vanilla, "Vanilla", "Velocity");
     NumberSetting mTowerSpeed = NumberSetting("Tower Speed", "The speed for tower placement", 8.5, 0, 20, 0.01);
-    EnumSetting mBlockHUDStyle = EnumSetting("HUD Style", "The style for the block HUD", BlockHUDStyle::Solstice, "None", "Solstice");
+    EnumSettingT<BlockHUDStyle> mBlockHUDStyle = EnumSettingT<BlockHUDStyle>("HUD Style", "The style for the block HUD", BlockHUDStyle::Solstice, "None", "Solstice");
     BoolSetting mFallDistanceCheck = BoolSetting("Fall Distance Check", "Whether or not to check fall distance before towering", false);
     BoolSetting mAllowMovement = BoolSetting("Allow Movement", "Whether or not to allow movement while towering", false);
     BoolSetting mFlareonV2Placement = BoolSetting("Flareon V2", "Whether or not to use Flareon V2 placement", false);
@@ -100,7 +100,7 @@ public:
     glm::vec3 getPlacePos(float extend);
 
     std::string getSettingDisplay() override {
-        return mRotateMode.mValues[mRotateMode.mValue];
+        return mRotateMode.mValues[mRotateMode.as<int>()];
     }
 
 

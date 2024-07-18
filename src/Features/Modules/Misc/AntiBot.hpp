@@ -11,15 +11,15 @@ public:
         Simple,
         Custom
     };
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the AntiBot module.", Mode::Simple, "Simple", "Custom");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the AntiBot module.", Mode::Simple, "Simple", "Custom");
     BoolSetting mHitboxCheck = BoolSetting("Hitbox Check", "Whether or not to check the hitbox of the entity.", true);
     BoolSetting mPlayerCheck = BoolSetting("Player Check", "Whether or not to check if the entity is a player.", true);
 
     AntiBot() : ModuleBase("AntiBot", "Filters out bots from the entity list", ModuleCategory::Misc, 0, true) {
         addSettings(&mMode, &mHitboxCheck, &mPlayerCheck);
 
-        VISIBILITY_CONDITION(mHitboxCheck, mMode.mValue == static_cast<int>(Mode::Custom));
-        VISIBILITY_CONDITION(mPlayerCheck, mMode.mValue == static_cast<int>(Mode::Custom));
+        VISIBILITY_CONDITION(mHitboxCheck, mMode.mValue == Mode::Custom);
+        VISIBILITY_CONDITION(mPlayerCheck, mMode.mValue == Mode::Custom);
 
         mNames = {
             {Lowercase, "antibot"},
@@ -37,6 +37,6 @@ public:
     bool isBot(class Actor* actor) const;
 
     std::string getSettingDisplay() override {
-        return mMode.mValues[mMode.mValue];
+        return mMode.mValues[mMode.as<int>()];
     }
 };

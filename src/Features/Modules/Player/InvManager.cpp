@@ -101,7 +101,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     }
 
     std::vector<int> itemsToEquip;
-    bool isInstant = mMode.mValue == static_cast<int>(Mode::Instant);
+    bool isInstant = mMode.mValue == Mode::Instant;
     if (mLastAction + static_cast<uint64_t>(mDelay.mValue) > NOW)
     {
         return;

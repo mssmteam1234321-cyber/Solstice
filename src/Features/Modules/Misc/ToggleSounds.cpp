@@ -21,6 +21,6 @@ void ToggleSounds::onModuleStateChange(ModuleStateChangeEvent& event)
 {
     if (event.isCancelled()) return;
 
-    if (mSound.mValue == Lever) ClientInstance::get()->getMinecraftGame()->playUi("random.lever_click", 1, event.mEnabled ? 0.6f : 0.5f);
-    else if (mSound.mValue == Smooth) SoundUtils::playSoundFromEmbeddedResource(event.mEnabled ? "smooth_on.wav" : "smooth_off.wav", 1);
+    if (mSound.mValue == Sound::Lever) ClientInstance::get()->getMinecraftGame()->playUi("random.lever_click", 1, event.mEnabled ? 0.6f : 0.5f);
+    else if (mSound.mValue == Sound::Smooth) SoundUtils::playSoundFromEmbeddedResource(event.mEnabled ? "smooth_on.wav" : "smooth_off.wav", 1);
 }

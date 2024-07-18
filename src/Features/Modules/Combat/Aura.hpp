@@ -15,15 +15,16 @@ public:
         Switch
     };
 
+    enum class AttackMode {
+        Earliest,
+        Synched
+    };
+
     enum class RotateMode {
         None,
         Normal,
     };
 
-    enum class AttackMode {
-        Earliest,
-        Synched
-    };
 
     enum class SwitchMode
     {
@@ -38,11 +39,11 @@ public:
         FlareonV2
     };
 
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
-    EnumSetting mAttackMode = EnumSetting("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
-    EnumSetting mRotateMode = EnumSetting("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
-    EnumSetting mSwitchMode = EnumSetting("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
-    EnumSetting mAnticheatMode = EnumSetting("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
+    EnumSettingT<AttackMode> mAttackMode = EnumSettingT<AttackMode>("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
+    EnumSettingT<RotateMode> mRotateMode = EnumSettingT<RotateMode>("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
+    EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT<SwitchMode>("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
+    EnumSettingT<AnticheatMode> mAnticheatMode = EnumSettingT<AnticheatMode>("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
@@ -86,6 +87,6 @@ public:
     Actor* findObstructingActor(Actor* player, Actor* target);
 
     std::string getSettingDisplay() override {
-        return mMode.mValues[mMode.mValue];
+        return mMode.mValues[mMode.as<int>()];
     }
 };

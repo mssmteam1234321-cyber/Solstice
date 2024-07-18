@@ -10,16 +10,16 @@
 class ClickGui : public ModuleBase<ClickGui>
 {
 public:
-    enum ClickGuiStyle {
+    enum class ClickGuiStyle {
         Dropdown,
         Modern
     };
-    enum ClickGuiAnimation {
+    enum class ClickGuiAnimation {
         Zoom,
         Bounce
     };
-    EnumSetting mStyle = EnumSetting("Style", "The style of the ClickGui.", ClickGuiStyle::Dropdown, { "Dropdown", "Modern" });
-    EnumSetting mAnimation = EnumSetting("Animation", "The animation of the ClickGui.", 0, { "Zoom", "Bounce" });
+    EnumSettingT<ClickGuiStyle> mStyle = EnumSettingT<ClickGuiStyle>("Style", "The style of the ClickGui.", ClickGuiStyle::Modern, "Dropdown", "Modern");
+    EnumSettingT<ClickGuiAnimation> mAnimation = EnumSettingT<ClickGuiAnimation>("Animation", "The animation of the ClickGui.", ClickGuiAnimation::Zoom, "Zoom", "Bounce");
     NumberSetting mBlurStrength = NumberSetting("Blur Strength", "The strength of the blur.", 9.f, 0.f, 20.f, 0.1f);
     NumberSetting mEaseSpeed = NumberSetting("Ease Speed", "The speed of the easing.", 10.5f, 5.f, 15.f, 0.1f);
     NumberSetting mMidclickRounding = NumberSetting("Midclick Rounding", "The value to round to when middle-clicking a NumberSetting.", 1.f, 0.01f, 1.f, 0.01f);
@@ -52,6 +52,6 @@ public:
     void onRenderEvent(class RenderEvent& event);
 
     std::string getSettingDisplay() override {
-        return mStyle.mValue == Dropdown ? "Dropdown" : "Unknown";
+        return mStyle.mValues[mStyle.as<int>()];
     }
 };

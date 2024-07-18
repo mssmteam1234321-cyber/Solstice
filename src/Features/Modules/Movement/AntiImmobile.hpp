@@ -13,7 +13,7 @@ public:
         Normal,
         Clip
     };
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the module", Mode::Normal, "Normal", "Clip");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the module", Mode::Normal, "Normal", "Clip");
     AntiImmobile() : ModuleBase("AntiImmobile", "Prevents you from being immobile, or clips you to the ground when immobile", ModuleCategory::Movement, 0, false) {
         addSetting(&mMode);
 
@@ -36,6 +36,6 @@ public:
     void onPacketOutEvent(class PacketOutEvent& event);
 
     std::string getSettingDisplay() override {
-        return mMode.mValue == static_cast<int>(Mode::Normal) ? "Normal" : "Clip";
+        return mMode.mValues[mMode.as<int>()];
     }
 };

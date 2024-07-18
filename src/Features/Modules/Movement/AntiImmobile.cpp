@@ -32,7 +32,7 @@ void AntiImmobile::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
 
-    if (mMode.mValue == static_cast<int>(Mode::Normal)) {
+    if (mMode.mValue == Mode::Normal) {
         player->setStatusFlag(ActorFlags::Noai, false);
         return;
     }

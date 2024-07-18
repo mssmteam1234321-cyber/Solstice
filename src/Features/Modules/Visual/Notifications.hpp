@@ -9,7 +9,10 @@
 
 class Notifications : public ModuleBase<Notifications> {
 public:
-    EnumSetting mStyle = EnumSetting("Style", "The style of the notifications", 0, "Solaris");
+    enum class Style {
+        Solaris,
+    };
+    EnumSettingT<Style> mStyle = EnumSettingT<Style>("Style", "The style of the notifications", Style::Solaris, "Solaris");
     BoolSetting mShowOnToggle = BoolSetting("Show on toggle", "Show a notification when a module is toggled", true);
     BoolSetting mShowOnJoin = BoolSetting("Show on join", "Show a notification when you join a server", true);
     BoolSetting mColorGradient = BoolSetting("Color gradient", "Enable a color gradient on the notifications", false);
@@ -46,6 +49,6 @@ public:
     void onNotifyEvent(class NotifyEvent& event);
 
     std::string getSettingDisplay() override {
-        return mStyle.mValue == 0 ? "Solaris" : "Custom";
+        return mStyle.mValues[mStyle.as<int>()];
     }
 };

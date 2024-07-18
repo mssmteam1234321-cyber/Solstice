@@ -48,8 +48,8 @@ public:
     };
 
 
-    EnumSetting mMode = EnumSetting("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
-    EnumSetting mFlareonPreset = EnumSetting("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
+    EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT<FlareonPreset>("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
@@ -62,7 +62,7 @@ public:
     BoolSetting mFastFall = BoolSetting("Fast Fall", "Whether or not to fast fall", false);
     NumberSetting mFallTicks = NumberSetting("Fall Ticks", "The tick to apply down motion at", 5, 0, 20, 1);
     NumberSetting mFallSpeed = NumberSetting("Fall Speed", "The speed to fall down at", 1.00, 0, 10, 1);
-    EnumSetting mJumpType = EnumSetting("Jump Type", "The type of jump to use", JumpType::Vanilla, "Vanilla", "Velocity", "None");
+    EnumSettingT<JumpType> mJumpType = EnumSettingT<JumpType>("Jump Type", "The type of jump to use", JumpType::Vanilla, "Vanilla", "Velocity", "None");
     NumberSetting mJumpHeight = NumberSetting("Jump Height", "The height to jump at", 0.42f, 0, 1, 0.01);
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
@@ -111,6 +111,6 @@ public:
 
     std::string getSettingDisplay() override
     {
-        return mMode.mValues[mMode.mValue];
+        return mMode.mValues[mMode.as<int>()];
     }
 };

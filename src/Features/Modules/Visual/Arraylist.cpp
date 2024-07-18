@@ -106,7 +106,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     for (auto& mod : module)
     {
         if (!mod->mVisibleInArrayList.mValue) continue;
-        if (mVisibility.mValue == static_cast<int>(ModuleVisibility::Bound) && mod->mKey == 0) continue;
+        if (mVisibility.mValue == ModuleVisibility::Bound && mod->mKey == 0) continue;
         mod->mArrayListAnim = MathUtils::lerp(mod->mArrayListAnim, mod->mEnabled ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 12.f);
         mod->mArrayListAnim = MathUtils::clamp(mod->mArrayListAnim, 0.f, 1.f);
         if (mod->mArrayListAnim < 0.01f) continue;
@@ -121,7 +121,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-        if (mDisplay.mValue == static_cast<int>(Display::Bar))
+        if (mDisplay.mValue == Display::Bar)
         {
             textPos.x -= 7;
         }
@@ -149,7 +149,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     for (auto& mod : module)
     {
         if (!mod->mVisibleInArrayList.mValue) continue;
-        if (mVisibility.mValue == static_cast<int>(ModuleVisibility::Bound) && mod->mKey == 0) continue;
+        if (mVisibility.mValue == ModuleVisibility::Bound && mod->mKey == 0) continue;
         if (mod->mArrayListAnim < 0.01f) continue;
 
         ImColor color = ColorUtils::getThemedColor(pos.y * 2);
@@ -163,7 +163,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
         bool addedPadding = false;
-        if (mDisplay.mValue == static_cast<int>(Display::Bar))
+        if (mDisplay.mValue == Display::Bar)
         {
             textPos.x -= 7;
             addedPadding = true;
@@ -212,14 +212,14 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         pos.y += (textSize.y * mod->mArrayListAnim);
     }
 
-    if (mDisplay.mValue == static_cast<int>(Display::Bar))
+    if (mDisplay.mValue == Display::Bar)
     {
         pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 10); // Reset position
 
         for (auto& mod : module)
         {
             if (!mod->mVisibleInArrayList.mValue) continue;
-            if (mVisibility.mValue == static_cast<int>(ModuleVisibility::Bound) && mod->mKey == 0) continue;
+            if (mVisibility.mValue == ModuleVisibility::Bound && mod->mKey == 0) continue;
             mod->mArrayListAnim = MathUtils::lerp(mod->mArrayListAnim, mod->mEnabled ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 12.f);
             mod->mArrayListAnim = MathUtils::clamp(mod->mArrayListAnim, 0.f, 1.f);
             if (mod->mArrayListAnim < 0.01f) continue;
@@ -234,7 +234,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
             ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-            if (mDisplay.mValue == static_cast<int>(Display::Bar))
+            if (mDisplay.mValue == Display::Bar)
             {
                 textPos.x -= 7;
             }
@@ -258,7 +258,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         }
     }
 
-    if (mDisplay.mValue == static_cast<int>(Display::None))
+    if (mDisplay.mValue == Display::None)
     {
         ImGui::PopFont();
         return;
@@ -296,7 +296,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         bool hasNext = !next.moduleName.empty();
 
 
-        if (mDisplay.mValue == static_cast<int>(Display::Outline))
+        if (mDisplay.mValue == Display::Outline)
         {
             // Side: Right
             lines.push_back({name, ImVec2(end.x + 2, start.y), ImVec2(end.x + 2, end.y), color, mod});
@@ -327,9 +327,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
                     lines.push_back({name, ImVec2(start.x, end.y), ImVec2(next.start.x - 1, end.y), color, mod});
                 }
             }
-
         }
-        else if (mDisplay.mValue == static_cast<int>(Display::Bar))
+        else if (mDisplay.mValue == Display::Bar)
         {
             lines.push_back({name, ImVec2(end.x, start.y), ImVec2(end.x, end.y), color, mod});
         }
@@ -351,7 +350,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
     for (auto& line : lines)
     {
-        drawList->AddLine(ImVec2(line.start.x, line.start.y), ImVec2(line.end.x, line.end.y), line.color, mDisplay.mValue == static_cast<int>(Display::Outline) ? 2.f : 4.f);
+        drawList->AddLine(ImVec2(line.start.x, line.start.y), ImVec2(line.end.x, line.end.y), line.color, mDisplay.mValue == Display::Outline ? 2.f : 4.f);
     }
 
     ImGui::PopFont();

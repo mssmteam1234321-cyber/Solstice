@@ -22,8 +22,8 @@ public:
 
     //EnumSetting mBackground = EnumSetting("Background", "Background style", 0, "None", "Opacity");
     NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 0.f, 0.0f, 1.f, 0.01f);
-    EnumSetting mDisplay = EnumSetting("Display", "Outline style", Display::Bar, "Outline", "Bar", "None");
-    EnumSetting mVisibility = EnumSetting("Visibility", "Module visibility", ModuleVisibility::All, "All", "Bound");
+    EnumSettingT<Display> mDisplay = EnumSettingT<Display>("Display", "Outline style", Display::Bar, "Outline", "Bar", "None");
+    EnumSettingT<ModuleVisibility> mVisibility = EnumSettingT<ModuleVisibility>("Visibility", "Module visibility", ModuleVisibility::All, "All", "Bound");
     BoolSetting mRenderMode = BoolSetting("Render Mode", "Renders the module mode next to the module name", true);
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
@@ -48,6 +48,6 @@ public:
 
     void onRenderEvent(class RenderEvent& event);
     std::string getSettingDisplay() override {
-          return mDisplay.mValues[mDisplay.mValue];
+          return mDisplay.mValues[mDisplay.as<int>()];
     }
 };

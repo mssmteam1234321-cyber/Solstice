@@ -13,7 +13,6 @@
 class ModuleManager {
 public:
     std::vector<std::shared_ptr<Module>> mModules;
-    static inline std::vector<std::future<void>> mModuleFutures;
 
     void init();
     void shutdown();
@@ -38,7 +37,7 @@ public:
     std::vector<std::shared_ptr<Module>>& getModulesInCategory(int catId);
     std::unordered_map<std::string, std::shared_ptr<Module>> getModuleCategoryMap();
     void onClientTick();
-    nlohmann::json serialize() const;
+    [[nodiscard]] nlohmann::json serialize() const;
     nlohmann::json serializeModule(Module* module);
     void deserialize(const nlohmann::json& j, bool showMessages = true);
 };

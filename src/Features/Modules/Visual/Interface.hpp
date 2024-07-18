@@ -21,10 +21,10 @@ public:
         ProductSans,
     };
 
-    EnumSetting mNamingStyle = EnumSetting("Naming", "The style of the module names.", Normal, "lowercase", "lower spaced", "Normal", "Spaced");
-    EnumSetting mMode = EnumSetting("Theme", "The mode of the interface.", Trans, "Trans", "Rainbow", "Custom");
+    EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::Normal, "lowercase", "lower spaced", "Normal", "Spaced");
+    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Trans, "Trans", "Rainbow", "Custom");
     // make sure you actually have the fonts u put here lol
-    EnumSetting mFont = EnumSetting("Font", "The font of the interface.", FontType::Mojangles, "Mojangles", "Product Sans");
+    EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::Mojangles, "Mojangles", "Product Sans");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     // Colors will be Fire-themed by default
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);

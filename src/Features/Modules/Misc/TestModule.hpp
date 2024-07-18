@@ -8,13 +8,19 @@
 
 class TestModule : public ModuleBase<TestModule> {
 public:
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the test module.", 0, { "Mode 1", "Mode 2", "Mode 3" });
+    enum class Mode {
+        Mode1,
+        Mode2,
+        Mode3
+    };
+
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the test module.", Mode::Mode1, "Mode1", "Mode2", "Mode3");
     ColorSetting mColor = ColorSetting("Color", "The color of the test module.", 0xFFFFFFFF);
 
     TestModule() : ModuleBase("TestModule", "A module for testing purposes", ModuleCategory::Misc, 0, false) {
         addSetting(&mMode);
         addSetting(&mColor);
-        VISIBILITY_CONDITION(mColor, mMode.mValue == 1);
+        VISIBILITY_CONDITION(mColor, mMode.mValue == Mode::Mode2);
 
         mNames = {
             {Lowercase, "testmodule"},

@@ -85,7 +85,7 @@ void ClickGui::onRenderEvent(RenderEvent& event)
 
     this->mEnabled ? inEase.incrementPercentage(delta * mEaseSpeed.mValue / 10)
     : inEase.decrementPercentage(delta * 2 * mEaseSpeed.mValue / 10);
-    float inScale = getEaseAnim(inEase, mAnimation.mValue);
+    float inScale = getEaseAnim(inEase, mAnimation.as<int>());
     if (inEase.isPercentageMax()) inScale = 0.996;
     if (mAnimation.mValue == ClickGuiAnimation::Zoom) inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
     animation = MathUtils::lerp(0, 1, inEase.easeOutExpo());
@@ -105,12 +105,12 @@ void ClickGui::onRenderEvent(RenderEvent& event)
         scrollDirection = 0;
     }
 
-    if (mStyle.mValue == Dropdown)
+    if (mStyle.mValue == ClickGuiStyle::Dropdown)
     {
         dropdownGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue);
     }
 
-    if (mStyle.mValue == Modern)
+    if (mStyle.mValue == ClickGuiStyle::Modern)
     {
         modernGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue, isPressingShift);
     }

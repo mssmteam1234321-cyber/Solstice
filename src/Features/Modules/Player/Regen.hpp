@@ -3,7 +3,10 @@
 
 class Regen : public ModuleBase<Regen> {
 public:
-    EnumSetting mMode = EnumSetting("Mode", "The regen mode", 0, "Flareon");
+    enum class Mode {
+        Flareon,
+    };
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Flareon, "Flareon");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0, 1, 0.01);
     BoolSetting mOldCalculation = BoolSetting("Old Calculation", "Use the old calculation for breaking blocks", false);
@@ -54,7 +57,7 @@ public:
     PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);
 
     std::string getSettingDisplay() override {
-        return mMode.mValues[mMode.mValue];
+        return mMode.mValues[mMode.as<int>()];
     }
 
 };

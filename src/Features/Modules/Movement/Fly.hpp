@@ -12,15 +12,15 @@ public:
         Elytra
     };
 
-    EnumSetting Mode = EnumSetting("Mode", "The mode of the fly", Mode::Motion,  "Motion", "Elytra");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the fly", Mode::Motion,  "Motion", "Elytra");
     NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 
     Fly() : ModuleBase("Fly", "Allows you to fly", ModuleCategory::Movement, 0, false) {
-        addSetting(&Mode);
+        addSetting(&mMode);
         addSetting(&Speed);
         addSetting(&ApplyGlideFlags);
-        VISIBILITY_CONDITION(ApplyGlideFlags, Mode.mValue == static_cast<int>(Mode::Motion));
+        VISIBILITY_CONDITION(ApplyGlideFlags, mMode.mValue == Mode::Motion);
 
         mNames = {
             {Lowercase, "fly"},
@@ -37,6 +37,6 @@ public:
 
     std::string getSettingDisplay() override
     {
-        return Mode.mValues[Mode.mValue];
+        return mMode.mValues[mMode.as<int>()];
     }
 };

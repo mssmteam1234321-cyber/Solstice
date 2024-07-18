@@ -41,7 +41,7 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 
     bool applyNetskip = false;
 
-    if (mMode.as<Mode>() != Mode::Friction || mApplyNetskip.mValue) {
+    if (mMode.mValue != Mode::Friction || mApplyNetskip.mValue) {
         applyNetskip = true;
     }
 
@@ -122,14 +122,14 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         if (tickSwiftness()) return;
     }
 
-    if (mMode.as<Mode>() == Mode::Friction)
+    if (mMode.mValue == Mode::Friction)
     {
         tickFriction(player);
     }
-    else if (mMode.as<Mode>() == Mode::FlareonV1)
+    else if (mMode.mValue == Mode::FlareonV1)
     {
         FrictionPreset preset = {};
-        switch (mFlareonPreset.as<FlareonPreset>())
+        switch (mFlareonPreset.mValue)
         {
             // float speed, float friction, bool timerBoost, float timerSpeed, bool fastFall, int fallTicks, float fallSpeed, JumpType jumpType, float jumpHeight)
             case FlareonPreset::FastFall:
@@ -226,9 +226,9 @@ void Speed::tickFriction(Actor* player)
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
     bool usingMoveKeys = Keyboard::isUsingMoveKeys();
-    if (usingMoveKeys && mJumpType.as<JumpType>() == JumpType::Vanilla) {
+    if (usingMoveKeys && mJumpType.mValue == JumpType::Vanilla) {
         if (player->isOnGround()) player->jumpFromGround();
-    } else if (usingMoveKeys && mJumpType.as<JumpType>() == JumpType::Velocity) {
+    } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
         }

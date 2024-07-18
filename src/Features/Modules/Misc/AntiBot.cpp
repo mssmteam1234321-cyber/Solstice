@@ -19,7 +19,7 @@ void AntiBot::onDisable()
 
 void AntiBot::onBaseTickEvent(BaseTickEvent& event)
 {
-    if (mMode.mValue == static_cast<int>(Mode::Simple))
+    if (mMode.mValue == Mode::Simple)
     {
         // Set settings to preset values
         mHitboxCheck.mValue = true;

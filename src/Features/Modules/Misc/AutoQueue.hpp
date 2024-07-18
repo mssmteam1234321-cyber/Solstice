@@ -8,7 +8,11 @@
 
 class AutoQueue : public ModuleBase<AutoQueue> {
 public:
-    EnumSetting mMode = EnumSetting("Mode", "The mode", 0, "Hive");
+    enum class Mode {
+        Hive,
+        Custom
+    };
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode", Mode::Hive, "Hive");
     NumberSetting mQueueDelay = NumberSetting("Queue Delay", "The delay between queueing for games (in seconds)", 1.f, 0.f, 5.f, 0.01f);
     BoolSetting mShowInChat = BoolSetting("Show In Chat", "Show the current game in chat", true);
     BoolSetting mQueueOnDeath = BoolSetting("Queue On Death", "Queue for a game when you die", true);
@@ -39,6 +43,6 @@ public:
     void onPacketInEvent(class PacketInEvent& event);
 
     std::string getSettingDisplay() override {
-        return mMode.mValue == 0 ? "Hive" : "?";
+        return mMode.mValues[mMode.as<int>()];
     }
 };

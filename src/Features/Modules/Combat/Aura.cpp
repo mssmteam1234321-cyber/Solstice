@@ -43,7 +43,7 @@ void Aura::onDisable()
 
 void Aura::rotate(Actor* target)
 {
-    if (mRotateMode.as<RotateMode>() == RotateMode::None) return;
+    if (mRotateMode.mValue == RotateMode::None) return;
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
@@ -190,14 +190,14 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     static std::unordered_map<Actor*, int64_t> lastAttacks = {};
 
     // Sort actors by lastAttack if mode is switch
-    if (mMode.as<Mode>() == Mode::Switch)
+    if (mMode.mValue == Mode::Switch)
     {
         std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
         {
             return lastAttacks[a] < lastAttacks[b];
         });
     }
-    else if (mMode.as<Mode>() == Mode::Multi)
+    else if (mMode.mValue == Mode::Multi)
     {
         // Sort actors by distance if mode is multi
         std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
@@ -249,18 +249,18 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         actor = findObstructingActor(player, actor);
 
-        if (mSwitchMode.as<SwitchMode>() == SwitchMode::Full)
+        if (mSwitchMode.mValue == SwitchMode::Full)
         {
             supplies->mSelectedSlot = bestWeapon;
         }
 
-        if (mAttackMode.as<AttackMode>() == AttackMode::Synched)
+        if (mAttackMode.mValue == AttackMode::Synched)
         {
-            std::shared_ptr<InventoryTransactionPacket> attackTransaction = ActorUtils::createAttackTransaction(actor, mSwitchMode.as<SwitchMode>() == SwitchMode::Spoof ? bestWeapon : -1);
+            std::shared_ptr<InventoryTransactionPacket> attackTransaction = ActorUtils::createAttackTransaction(actor, mSwitchMode.mValue == SwitchMode::Spoof ? bestWeapon : -1);
             queuedTransactions.push_back(attackTransaction);
         } else {
             int oldSlot = supplies->mSelectedSlot;
-            if (mSwitchMode.as<SwitchMode>() == SwitchMode::Spoof)
+            if (mSwitchMode.mValue == SwitchMode::Spoof)
             {
                 supplies->mSelectedSlot = bestWeapon;
             }
@@ -271,7 +271,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         lastAttack = now;
         lastAttacks[actor] = now;
-        if (mMode.as<Mode>() == Mode::Single || mMode.as<Mode>() == Mode::Switch) break;
+        if (mMode.mValue == Mode::Single || mMode.mValue == Mode::Switch) break;
     }
 
     if (!foundAttackable) mRotating = false;
@@ -314,12 +314,12 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
         if (distance > 3.f) continue;
 
         std::string id = actor->mEntityIdentifier;
-        if (id == "hivecommon:shadow" && distance < 1.5f && mAnticheatMode.as<AnticheatMode>() == AnticheatMode::FlareonV2)
+        if (id == "hivecommon:shadow" && distance < 1.5f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
         {
             return actor;
         }
 
-        if (id == "minecraft:pig" && distance < 3.f && mAnticheatMode.as<AnticheatMode>() == AnticheatMode::FlareonV1)
+        if (id == "minecraft:pig" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV1)
         {
             return actor;
         }

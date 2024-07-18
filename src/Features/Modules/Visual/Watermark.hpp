@@ -11,7 +11,7 @@ public:
         Solstice,
         SevenDays
     };
-    EnumSetting mStyle = EnumSetting("Style", "The style of the watermark.", 0, "Solstice", "7 Days");
+    EnumSettingT<Style> mStyle = EnumSettingT<Style>("Style", "The style of the watermark.", Style::Solstice, "Solstice", "7 Days");
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     BoolSetting mBold = BoolSetting("Bold", "Enables bold text", false);
     Watermark() : ModuleBase("Watermark", "Displays a watermark on the screen", ModuleCategory::Visual, 0, true) {
@@ -34,6 +34,6 @@ public:
     void onRenderEvent(class RenderEvent& event);
 
     std::string getSettingDisplay() override {
-        return mStyle.mValue == 0 ? "Solstice" : "7 Days";
+        return mStyle.mValues[mStyle.as<int>()];
     }
 };

@@ -26,7 +26,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
     static auto renderPosition = ImVec2(initialPos, initialPos);
 
 
-    if (mStyle.mValue == static_cast<int>(Style::SevenDays))
+    if (mStyle.mValue == Style::SevenDays)
     {
         renderPosition.x = MathUtils::lerp(-200, 20.f, anim);
         renderPosition.y = MathUtils::lerp(-200, 20.f, anim);

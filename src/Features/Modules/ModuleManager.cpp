@@ -108,7 +108,6 @@ void ModuleManager::shutdown()
     }
 
     mModules.clear();
-    mModuleFutures.clear();
 }
 
 void ModuleManager::registerModule(const std::shared_ptr<Module>& module)
@@ -219,46 +218,6 @@ nlohmann::json ModuleManager::serializeModule(Module* module)
 
     return j;
 }
-
-
-
-/*
-nlohmann::json Module::serialize()
-{
-    nlohmann::json j;
-    j["enabled"] = mEnabled;
-    j["key"] = mKey;
-    j["settings"] = nlohmann::json::array();
-    for (const auto setting : mSettings)
-    {
-        if (setting->mType == SettingType::Enum)
-        {
-            auto* enumSetting = reinterpret_cast<EnumSetting*>(setting);
-            // use the serialize() from the enum setting
-            j["settings"].push_back(enumSetting->serialize());
-        }
-        else if (setting->mType == SettingType::Number)
-        {
-            auto* numberSetting = reinterpret_cast<NumberSetting*>(setting);
-            // use the serialize() from the number setting
-            j["settings"].push_back(numberSetting->serialize());
-        }
-        else if (setting->mType == SettingType::Bool)
-        {
-            auto* boolSetting = reinterpret_cast<BoolSetting*>(setting);
-            // use the serialize() from the bool setting
-            j["settings"].push_back(boolSetting->serialize());
-        }
-        else if (setting->mType == SettingType::Color)
-        {
-            auto* colorSetting = reinterpret_cast<ColorSetting*>(setting);
-            // use the serialize() from the color setting
-            j["settings"].push_back(colorSetting->serialize());
-        }
-    }
-    return j;
-}
-*/
 
 void ModuleManager::deserialize(const nlohmann::json& j, bool showMessages)
 {

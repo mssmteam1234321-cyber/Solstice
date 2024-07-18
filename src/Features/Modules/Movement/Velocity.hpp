@@ -11,15 +11,15 @@ public:
         Full,
         Percent,
     };
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the velocity.", Mode::Full, "Full", "Percent");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the velocity.", Mode::Full, "Full", "Percent");
     NumberSetting mHorizontal = NumberSetting("Horizontal", "The multiplier for the horizontal velocity", 0, -2, 2, 0.01);
     NumberSetting mVertical = NumberSetting("Vertical", "The multiplier for the vertical velocity", 0, -2, 2, 0.01);
 
 
     Velocity() : ModuleBase("Velocity", "Allows you to modify your velocity from attacks, explosions, etc.", ModuleCategory::Movement, 0, false) {
         addSettings(&mMode, &mHorizontal, &mVertical);
-        VISIBILITY_CONDITION(mHorizontal, mMode.mValue == static_cast<int>(Mode::Percent));
-        VISIBILITY_CONDITION(mVertical, mMode.mValue == static_cast<int>(Mode::Percent));
+        VISIBILITY_CONDITION(mHorizontal, mMode.mValue == Mode::Percent);
+        VISIBILITY_CONDITION(mVertical, mMode.mValue == Mode::Percent);
 
         mNames = {
             {Lowercase, "velocity"},
@@ -35,6 +35,6 @@ public:
 
     std::string getSettingDisplay() override
     {
-        return mMode.mValue == static_cast<int>(Mode::Full) ? "Full" : fmt::format("{}% {}%", static_cast<int>(mHorizontal.mValue * 100), static_cast<int>(mVertical.mValue * 100));
+        return mMode.mValue == Mode::Full ? "Full" : fmt::format("{}% {}%", static_cast<int>(mHorizontal.mValue * 100), static_cast<int>(mVertical.mValue * 100));
     }
 };

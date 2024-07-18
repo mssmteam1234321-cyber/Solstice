@@ -25,13 +25,26 @@ public:
         "9"
     };
 
-    EnumSetting mMode = EnumSetting("Mode", "The mode of the module", 0, "Instant", "Delayed");
+    enum class SlotPreference {
+        None,
+        Slot1,
+        Slot2,
+        Slot3,
+        Slot4,
+        Slot5,
+        Slot6,
+        Slot7,
+        Slot8,
+        Slot9
+    };
+
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the module", Mode::Instant, "Instant", "Delayed");
     NumberSetting mDelay = NumberSetting("Delay", "The delay, in milliseconds", 50, 0, 500, 1);
     BoolSetting mPreferredSlots = BoolSetting("Preferred Slots", "Use preferred slots", true);
-    EnumSetting mPreferredSwordSlot = EnumSetting("Sword Slot", "The slot where your sword is", 1, mSlots);
-    EnumSetting mPreferredPickaxeSlot = EnumSetting("Pickaxe Slot", "The slot where your pickaxe is", 2, mSlots);
-    EnumSetting mPreferredAxeSlot = EnumSetting("Axe Slot", "The slot where your axe is", 3, mSlots);
-    EnumSetting mPreferredShovelSlot = EnumSetting("Shovel Slot", "The slot where your shovel is", 4, mSlots);
+    EnumSettingT<int> mPreferredSwordSlot = EnumSettingT("Sword Slot", "The slot where your sword is", 1, mSlots);
+    EnumSettingT<int> mPreferredPickaxeSlot = EnumSettingT("Pickaxe Slot", "The slot where your pickaxe is", 2, mSlots);
+    EnumSettingT<int> mPreferredAxeSlot = EnumSettingT("Axe Slot", "The slot where your axe is", 3, mSlots);
+    EnumSettingT<int> mPreferredShovelSlot = EnumSettingT("Shovel Slot", "The slot where your shovel is", 4, mSlots);
     BoolSetting mSpoofOpen = BoolSetting("Spoof Open", "Server-sidedly opens your inventory while performing item actions, can bypass some anticheats", false);
 
 
@@ -49,7 +62,7 @@ public:
         VISIBILITY_CONDITION(mPreferredPickaxeSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredAxeSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredShovelSlot, mPreferredSlots.mValue);
-        VISIBILITY_CONDITION(mDelay, mMode.mValue == static_cast<int>(Mode::Delayed));
+        VISIBILITY_CONDITION(mDelay, mMode.mValue == Mode::Delayed);
 
         mNames = {
             {Lowercase, "invmanager"},
@@ -72,6 +85,6 @@ public:
     static bool isItemUseless(class ItemStack* item, int slot);
 
     std::string getSettingDisplay() override {
-        return mMode.mValue == static_cast<int>(Mode::Instant) ? "Instant" : std::to_string(static_cast<int>(mDelay.mValue));
+        return mMode.mValue == Mode::Instant ? "Instant" : std::to_string(static_cast<int>(mDelay.mValue));
     }
 };

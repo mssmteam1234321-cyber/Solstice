@@ -28,7 +28,7 @@ void Fly::onDisable()
 
 void Fly::onBaseTickEvent(BaseTickEvent& event) const
 {
-    if (Mode.mValue == static_cast<int>(Mode::Motion) || Mode.mValue == static_cast<int>(Mode::Elytra))
+    if (mMode.mValue == Mode::Motion || mMode.mValue == Mode::Elytra)
     {
         auto player = ClientInstance::get()->getLocalPlayer();
         if (player == nullptr)
@@ -65,12 +65,12 @@ void Fly::onPacketOutEvent(PacketOutEvent& event) const
             return;
 
         auto packet = reinterpret_cast<PlayerAuthInputPacket*>(event.packet);
-        if (Mode.mValue == static_cast<int>(Mode::Motion) && ApplyGlideFlags.mValue)
+        if (mMode.mValue == Mode::Motion && ApplyGlideFlags.mValue)
         {
             packet->mInputData |= AuthInputAction::START_GLIDING;
             packet->mInputData &= ~AuthInputAction::STOP_GLIDING;
         }
-        if (Mode.mValue == static_cast<int>(Mode::Elytra))
+        if (mMode.mValue == Mode::Elytra)
         {
             static bool alternating = false;
             alternating = !alternating;

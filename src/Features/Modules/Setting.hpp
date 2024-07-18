@@ -162,6 +162,46 @@ public:
     }
 };
 
+// EnumSetting, but the mValue is a custom type (should always be an enum)
+template <typename T>
+class EnumSettingT : public Setting
+{
+public:
+    T mValue;
+    std::vector<std::string> mValues;
+
+    EnumSettingT(std::string name, std::string description, T index, std::vector<std::string> values)
+        : Setting(std::move(name), std::move(description), SettingType::Enum), mValue(index), mValues(std::move(values))
+    {
+
+    }
+
+    void setValue(T value)
+    {
+        mValue = value;
+    }
+
+    nlohmann::json serialize() override
+    {
+        nlohmann::json j = Setting::serialize();
+        j["enumValue"] = mValue;
+        return j;
+    }
+
+    template <typename... Args>
+    EnumSettingT(std::string name, std::string description, T index, Args... values)
+        : Setting(std::move(name), std::move(description), SettingType::Enum), mValue(index)
+    {
+        mValues = { values... };
+    }
+
+    template <typename type>
+    type as() const
+    {
+        return static_cast<type>(mValue);
+    }
+};
+
 class ColorSetting : public Setting
 {
 public:

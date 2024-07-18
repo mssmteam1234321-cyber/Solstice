@@ -29,7 +29,7 @@ void Velocity::onPacketInEvent(PacketInEvent& event) const
 
         if (packet->mRuntimeID == ClientInstance::get()->getLocalPlayer()->getRuntimeID())
         {
-            if (mMode.mValue == static_cast<int>(Mode::Full))
+            if (mMode.mValue == Mode::Full)
             {
                 event.setCancelled(true);
             }
