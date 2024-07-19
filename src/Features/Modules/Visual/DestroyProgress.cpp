@@ -50,7 +50,7 @@ void DestroyProgress::onRenderEvent(RenderEvent& event)
 
     ImColor cColor = ColorUtils::getThemedColor(0);
     if (mColorMode.mValue == ColorMode::Default) cColor = ImColor((int)(cAnimProgress * 255), (int)((1 - cAnimProgress) * 255), 0);
-    cColor.Value.w = (int)(mOpacity.mValue * 255);
+    cColor.Value.w = static_cast<int>(mOpacity.mValue * 255);
 
 
     std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(boxAABB);

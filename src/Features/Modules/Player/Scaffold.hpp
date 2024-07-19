@@ -14,6 +14,12 @@ public:
         Backwards
     };
 
+    enum class FlickMode {
+        None,
+        Combat,
+        Always
+    };
+
     enum class PlacementMode {
         Normal,
         Flareon
@@ -44,6 +50,7 @@ public:
     NumberSetting mRange = NumberSetting("Range", "The range at which to place blocks", 5, 0, 10, 0.01);
     NumberSetting mExtend = NumberSetting("Extend", "The distance to extend the placement", 0, 0, 10, 1);
     EnumSettingT<RotateMode> mRotateMode = EnumSettingT<RotateMode>("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Down", "Backwards");
+    EnumSettingT<FlickMode> mFlickMode = EnumSettingT<FlickMode>("Flick Mode", "The mode for block flicking", FlickMode::Combat, "None", "Combat", "Always");
     EnumSettingT<PlacementMode> mPlacementMode = EnumSettingT<PlacementMode>("Placement", "The mode for block placement", PlacementMode::Normal, "Normal", "Flareon");
     EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT<SwitchMode>("Switch Mode", "The mode for block switching", SwitchMode::None, "None", "Full", "Fake");
     EnumSettingT<SwitchPriority> mSwitchPriority = EnumSettingT<SwitchPriority>("Switch Prio", "The priority for block switching", SwitchPriority::First, "First", "Highest");
@@ -62,7 +69,7 @@ public:
     BoolSetting mTest = BoolSetting("Test", "Test", false);
 
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
-        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mBlockHUDStyle, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
+        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mFlickMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mBlockHUDStyle, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
 
         VISIBILITY_CONDITION(mSwitchPriority, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
         VISIBILITY_CONDITION(mHotbarOnly, mSwitchMode.as<SwitchMode>() != SwitchMode::None);

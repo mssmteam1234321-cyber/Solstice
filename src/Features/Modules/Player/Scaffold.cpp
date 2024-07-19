@@ -94,7 +94,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     if (mSwitchMode.mValue == SwitchMode::Fake && mLastSlot != -1) player->getSupplies()->mInHandSlot = mLastSlot; // Change the
 
-    if (mPlacementMode.as<PlacementMode>() == PlacementMode::Flareon)
+    if (mPlacementMode.mValue == PlacementMode::Flareon)
     {
         yaw = MathUtils::snapYaw(yaw);
     }
@@ -111,7 +111,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     float fallDistance = player->getFallDistance();
     if (!mFallDistanceCheck.mValue) fallDistance = 0.f;
-    switch (mTowerMode.as<TowerMode>())
+    switch (mTowerMode.mValue)
     {
         default:
             break;
@@ -169,9 +169,9 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     mLastSwitchTime = NOW;
 
     if (mLastSlot == -1) mLastSlot = player->getSupplies()->mSelectedSlot;
-    if (mSwitchMode.as<SwitchMode>() != SwitchMode::None)
+    if (mSwitchMode.mValue != SwitchMode::None)
     {
-        int slot = ItemUtils::getPlaceableItemOnBlock(blockPos, mHotbarOnly.mValue, mSwitchPriority.as<SwitchPriority>() == SwitchPriority::Highest);
+        int slot = ItemUtils::getPlaceableItemOnBlock(blockPos, mHotbarOnly.mValue, mSwitchPriority.mValue == SwitchPriority::Highest);
         if (slot == -1) return false;
         player->getSupplies()->mSelectedSlot = slot;
     }
@@ -188,7 +188,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 void Scaffold::onRenderEvent(RenderEvent& event)
 {
 
-    if (mBlockHUDStyle.as<BlockHUDStyle>() == BlockHUDStyle::None) return;
+    if (mBlockHUDStyle.mValue == BlockHUDStyle::None) return;
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -215,7 +215,7 @@ void Scaffold::onRenderEvent(RenderEvent& event)
 
     std::string displayText = "Blocks: ";
     Interface* daInterface = gFeatureManager->mModuleManager->getModule<Interface>();
-    if (daInterface->mNamingStyle.as<NamingStyle>() == NamingStyle::Lowercase || daInterface->mNamingStyle.as<NamingStyle>() == NamingStyle::LowercaseSpaced)
+    if (daInterface->mNamingStyle.mValue == NamingStyle::Lowercase || daInterface->mNamingStyle.mValue == NamingStyle::LowercaseSpaced)
     {
         displayText = "blocks: ";
     }
@@ -333,22 +333,22 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
             paip->mPos.y = paip->mPos.y - 0.01f;
         }
 
-        if (mShouldRotate && mRotateMode.as<RotateMode>() != RotateMode::None)
+        if (mShouldRotate && mRotateMode.mValue != RotateMode::None)
         {
             glm::vec3 side = BlockUtils::blockFaceOffsets[mLastFace] * 0.5f;
             glm::vec3 target = mLastBlock + side;
 
             glm::vec2 rotations = MathUtils::getRots(*player->getPos(), target);
 
-            if (mRotateMode.as<RotateMode>() == RotateMode::Normal) {
+            if (mRotateMode.mValue == RotateMode::Normal) {
                 rotations.y = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
                 if (rotations.y > 180.f) rotations.y -= 360.f;
                 if (rotations.y < -180.f) rotations.y += 360.f;
                 rotations.x = fmax(82, rotations.x);
             }
 
-            if (mRotateMode.as<RotateMode>() == RotateMode::Down) rotations.x = 89.9f;
-            if (mRotateMode.as<RotateMode>() == RotateMode::Backwards)
+            if (mRotateMode.mValue == RotateMode::Down) rotations.x = 89.9f;
+            if (mRotateMode.mValue == RotateMode::Backwards)
             {
                 rotations.y += 180.f;
                 if (rotations.y > 180.f) rotations.y -= 360.f;
@@ -359,13 +359,20 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
 
             auto auraMod = gFeatureManager->mModuleManager->getModule<Aura>();
 
-            if (auraMod->mHasTarget) flickRotate = true;
+            if (auraMod->mHasTarget && mFlickMode.mValue == FlickMode::Combat || mFlickMode.mValue == FlickMode::Always) flickRotate = true;
 
             if (flickRotate) mShouldRotate = false;
             else
             {
                 // If the last block placed was more than 500ms ago, then ShouldRotate = false
                 if (NOW - mLastSwitchTime > 500) mShouldRotate = false;
+            }
+
+            if (auraMod->mHasTarget && mFlickMode.mValue == FlickMode::None)
+            {
+                mShouldRotate = false;
+                flickRotate = false;
+                return;
             }
 
             paip->mRot = rotations;
@@ -380,7 +387,7 @@ glm::vec3 Scaffold::getRotBasedPos(float extend, float yPos)
     glm::vec2 playerRots = glm::vec2(player->getActorRotationComponent()->mPitch,
                                  player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset());
 
-    if (mPlacementMode.as<PlacementMode>() == PlacementMode::Flareon)
+    if (mPlacementMode.mValue == PlacementMode::Flareon)
     {
         playerRots.y = MathUtils::snapYaw(playerRots.y);
     }
