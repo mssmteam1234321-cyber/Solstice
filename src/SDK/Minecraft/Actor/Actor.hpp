@@ -40,6 +40,7 @@ public:
     bool isSwinging();
     void setSwinging(bool swinging);
     int getSwingProgress();
+    int getOldSwingProgress();
     void setSwingProgress(int progress);
     AABB getAABB();
     bool isPlayer();

@@ -5,12 +5,16 @@
 #include "AnimationHooks.hpp"
 
 #include <Features/Events/SwingDurationEvent.hpp>
+#include <Features/Events/BobHurtEvent.hpp>
 
-std::unique_ptr<Detour> AnimationHooks::mDetour;
+#include <glm/glm.hpp>
+
+std::unique_ptr<Detour> AnimationHooks::mSwingDetour;
+std::unique_ptr<Detour> AnimationHooks::mBobHurtDetour;
 
 int AnimationHooks::getCurrentSwingDuration(Actor* actor)
 {
-    auto original = mDetour->getOriginal<decltype(&getCurrentSwingDuration)>();
+    auto original = mSwingDetour->getOriginal<decltype(&getCurrentSwingDuration)>();
     int result = original(actor);
 
     auto holder = nes::make_holder<SwingDurationEvent>(result);
@@ -20,9 +24,26 @@ int AnimationHooks::getCurrentSwingDuration(Actor* actor)
     return result;
 }
 
+void* AnimationHooks::doBobHurt(void* _this, glm::mat4* matrix)
+{
+    auto original = mBobHurtDetour->getOriginal<decltype(&doBobHurt)>();
+    // Log the address of the matrix
+    auto result = original(_this, matrix);
+
+    auto holder = nes::make_holder<BobHurtEvent>(_this, matrix);
+    gFeatureManager->mDispatcher->trigger(holder);
+
+    return result;
+}
+
 void AnimationHooks::init()
 {
-    auto func = SigManager::Mob_getCurrentSwingDuration;
-    mDetour = std::make_unique<Detour>("Mob::getCurrentSwingDuration", reinterpret_cast<void*>(func), &getCurrentSwingDuration);
-    mDetour->enable();
+    uintptr_t func = SigManager::Mob_getCurrentSwingDuration;
+    mSwingDetour = std::make_unique<Detour>("Mob::getCurrentSwingDuration", reinterpret_cast<void*>(func), &getCurrentSwingDuration);
+    mSwingDetour->enable();
+
+    // TODO: Replace this with a better method of doing matrix translation
+    func = SigManager::BobHurt;
+    mBobHurtDetour = std::make_unique<Detour>("bobHurt", reinterpret_cast<void*>(func), &doBobHurt);
+    mBobHurtDetour->enable();
 }

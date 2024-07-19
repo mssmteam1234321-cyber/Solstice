@@ -42,6 +42,11 @@ int Actor::getSwingProgress()
     return hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4);
 }
 
+int Actor::getOldSwingProgress()
+{
+    return hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x8);
+}
+
 void Actor::setSwingProgress(int progress)
 {
     hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4) = progress;

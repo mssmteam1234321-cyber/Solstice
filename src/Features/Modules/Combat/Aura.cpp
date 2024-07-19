@@ -6,6 +6,7 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/BobHurtEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
@@ -25,6 +26,7 @@ void Aura::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Aura::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BobHurtEvent, &Aura::onBobHurtEvent, nes::event_priority::FIRST>(this);
 }
 
 bool chargingBow = false;
@@ -34,6 +36,7 @@ void Aura::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Aura::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BobHurtEvent, &Aura::onBobHurtEvent>(this);
     mHasTarget = false;
     mRotating = false;
 
@@ -77,11 +80,7 @@ void Aura::shootBow(Actor* target)
 
     if (mHotbarOnly.mValue && bowSlot > 8) return;
 
-    if (bowSlot == -1 || arrowSlot == -1)
-    {
-        spdlog::info("No bow or arrow found");
-        return;
-    }
+    if (bowSlot == -1 || arrowSlot == -1) return;
 
     static int useTicks = 0;
     constexpr int maxUseTicks = 17;
@@ -297,6 +296,14 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
         pkt->mYHeadRot = rots.y;
     }
 
+}
+
+void Aura::onBobHurtEvent(BobHurtEvent& event)
+{
+    if (mHasTarget)
+    {
+        event.mDoBlockAnimation = true;
+    }
 }
 
 Actor* Aura::findObstructingActor(Actor* player, Actor* target)

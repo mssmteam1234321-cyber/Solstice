@@ -7,19 +7,28 @@
 
 class Animations : public ModuleBase<Animations> {
 public:
+    enum class Animation {
+        Default,
+        Blocking,
+        Test
+    };
+    EnumSettingT<Animation> mAnimation = EnumSettingT("Animation", "The animation to use", Animation::Default, "Default", "Blocking", "Test");
     NumberSetting mSwingTime = NumberSetting("Swing Time", "The time it takes to swing your arm", 6.f, 0.f, 20.0f, 1.f);
-    BoolSetting mNoSwitchAnimation = BoolSetting("No Switch Animation", "Disables the switch animation", false);
+    BoolSetting mNoSwitchAnimation = BoolSetting("No Switch Animation", "Disables the switch animation", true);
     BoolSetting mFluxSwing = BoolSetting("Flux Swing", "Flux Client styled swinging", true);
     BoolSetting mCustomSwingAngle = BoolSetting("Custom Swing Angle", "Changes the swing angle", false);
     NumberSetting mSwingAngle = NumberSetting("Swing Angle", "The custom swing angle value. (default: -80)", -80.f, -360.f, 360.f, 0.01f);
+    BoolSetting mSmallItems = BoolSetting("Small Items", "Makes items smaller", false);
 
     Animations() : ModuleBase("Animations", "Change your animations!", ModuleCategory::Visual, 0, false)
     {
+        addSetting(&mAnimation);
         addSetting(&mSwingTime);
         addSetting(&mNoSwitchAnimation);
         addSetting(&mFluxSwing);
         addSetting(&mCustomSwingAngle);
         addSetting(&mSwingAngle);
+        addSetting(&mSmallItems);
 
         VISIBILITY_CONDITION(mSwingAngle, mCustomSwingAngle.mValue);
 
@@ -31,8 +40,12 @@ public:
         };
     }
 
+    int mSwingDuration = 0.f;
+    int mOldSwingDuration = 0.f;
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onSwingDurationEvent(class SwingDurationEvent& event);
+    void onBobHurtEvent(class BobHurtEvent& event);
 };
