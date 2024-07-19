@@ -144,7 +144,19 @@ int ItemUtils::getAllPlaceables(bool hotbarOnly)
         if (hotbarOnly && i > 8) continue;
         if (stack->mBlock)
         {
-            if (std::ranges::find(blacklistedBlocks, stack->mBlock->toLegacy()->mName) != blacklistedBlocks.end()) continue;
+            // If the string contains any of the blacklisted blocks, skip it (compare using StringUtils::containsIgnoreCase
+            bool skip = false;
+
+            for (const auto& blacklistedBlock : blacklistedBlocks)
+            {
+                if (StringUtils::containsIgnoreCase(stack->mBlock->toLegacy()->mName, blacklistedBlock))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) continue;
+
 
             placeables += stack->mCount;
         }
@@ -170,7 +182,19 @@ int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool
         if (hotbarOnly && i > 8) continue;
         if (stack->mBlock)
         {
-            if (std::ranges::find(blacklistedBlocks, stack->mBlock->toLegacy()->mName) != blacklistedBlocks.end()) continue;
+            // If the string contains any of the blacklisted blocks, skip it (compare using StringUtils::containsIgnoreCase
+            bool skip = false;
+
+            for (const auto& blacklistedBlock : blacklistedBlocks)
+            {
+                if (StringUtils::containsIgnoreCase(stack->mBlock->toLegacy()->mName, blacklistedBlock))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) continue;
+
             Block* block = stack->mBlock;
             if (!block->mLegacy->mayPlaceOn(blockPos)) continue;
 
