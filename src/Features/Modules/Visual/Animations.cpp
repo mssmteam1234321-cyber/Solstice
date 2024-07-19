@@ -16,23 +16,20 @@ DEFINE_NOP_PATCH_FUNC(patchFluxSwing, SigManager::FluxSwing, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchDefaultSwing, SigManager::ItemInHandRenderer_renderItem_bytepatch, 0x8);
 DEFINE_NOP_PATCH_FUNC(patchDefaultSwing2, SigManager::ItemInHandRenderer_renderItem_bytepatch+11, 0x8);
 
-
-float* gSwingAngle = nullptr;
-
 void Animations::onEnable()
 {
     gFeatureManager->mDispatcher->listen<SwingDurationEvent, &Animations::onSwingDurationEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Animations::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Animations::onBobHurtEvent>(this);
-    patchNoSwitchAnimation(mNoSwitchAnimation.mValue);
-    patchFluxSwing(mFluxSwing.mValue);
 
-    if (!gSwingAngle)
+    if (!mSwingAngle)
     {
-        gSwingAngle = reinterpret_cast<float*>(SigManager::TapSwingAnim);
-        MemUtils::setProtection(reinterpret_cast<uintptr_t>(gSwingAngle), sizeof(float), PAGE_READWRITE);
+        mSwingAngle = reinterpret_cast<float*>(SigManager::TapSwingAnim);
+        MemUtils::setProtection(reinterpret_cast<uintptr_t>(mSwingAngle), sizeof(float), PAGE_READWRITE);
     }
 
+    patchNoSwitchAnimation(mNoSwitchAnimation.mValue);
+    patchFluxSwing(mFluxSwing.mValue);
     patchDefaultSwing(mAnimation.mValue == Animation::Test);
     patchDefaultSwing2(mAnimation.mValue == Animation::Test);
 }
@@ -45,7 +42,7 @@ void Animations::onDisable()
     patchNoSwitchAnimation(false);
     patchFluxSwing(false);
 
-    if (gSwingAngle) *gSwingAngle = -80.f;
+    if (mSwingAngle) *mSwingAngle = -80.f;
 
     patchDefaultSwing(false);
     patchDefaultSwing2(false);
@@ -59,7 +56,7 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
     patchDefaultSwing(mAnimation.mValue == Animation::Test);
     patchDefaultSwing2(mAnimation.mValue == Animation::Test);
 
-    *gSwingAngle = mCustomSwingAngle.mValue ? mSwingAngle.as<float>() : -80.f;
+    *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
 
     auto player = event.mActor;
 

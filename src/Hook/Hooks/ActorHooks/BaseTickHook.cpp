@@ -9,6 +9,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/OffsetProvider.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
@@ -16,6 +17,11 @@ void BaseTickHook::onBaseTick(Actor* actor)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onBaseTick)>();
     if (actor != ClientInstance::get()->getLocalPlayer()) return oFunc(actor);
+
+    if (auto supplies = actor->getSupplies())
+    {
+        supplies->mInHandSlot = supplies->mSelectedSlot;
+    }
 
     auto holder = nes::make_holder<BaseTickEvent>(actor);
     gFeatureManager->mDispatcher->trigger(holder);

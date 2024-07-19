@@ -53,20 +53,24 @@ public:
         void name(bool patch) { \
             static std::vector<unsigned char> ogBytes = { bytes }; \
             static bool wasPatched = false; \
-               if (patch) { \
-                    if (!wasPatched) { \
-                        ogBytes = MemUtils::readBytes(addr, sizeof(bytes)); \
-                        MemUtils::writeBytes(addr, bytes); \
-                        spdlog::info("Patched {} at 0x{:X}", #name, addr); \
-                        wasPatched = true; \
-                    } \
-                } else { \
-                    if (wasPatched) { \
-                        MemUtils::writeBytes(addr, ogBytes); \
-                        spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
-                        wasPatched = false; \
-                    } \
+            if (addr == 0) { \
+                spdlog::error("Failed to patch {} at 0x{:X} [Invalid address]", #name, addr); \
+                return; \
+            } \
+            if (patch) { \
+                 if (!wasPatched) { \
+                     ogBytes = MemUtils::readBytes(addr, sizeof(bytes)); \
+                     MemUtils::writeBytes(addr, bytes); \
+                     spdlog::info("Patched {} at 0x{:X}", #name, addr); \
+                     wasPatched = true; \
                 } \
+            } else { \
+                if (wasPatched) { \
+                    MemUtils::writeBytes(addr, ogBytes); \
+                    spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
+                    wasPatched = false; \
+                } \
+            } \
         }
 
     /// <summary>
@@ -82,21 +86,25 @@ public:
         void name(bool patch) { \
             static std::vector<unsigned char> ogBytes; \
             static bool wasPatched = false; \
-               if (patch) { \
-                    if (!wasPatched) { \
-                        ogBytes = MemUtils::readBytes(addr, size); \
-                        std::vector<unsigned char> bytes(size, 0x90); \
-                        MemUtils::writeBytes(addr, bytes); \
-                        spdlog::info("Patched {} at 0x{:X}", #name, addr); \
-                        wasPatched = true; \
-                    } \
-                } else { \
-                    if (wasPatched) { \
-                        MemUtils::writeBytes(addr, ogBytes); \
-                        spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
-                        wasPatched = false; \
-                    } \
+            if (addr == 0) { \
+                spdlog::error("Failed to patch {} at 0x{:X} [Invalid address]", #name, addr); \
+                return; \
+            } \
+            if (patch) { \
+                if (!wasPatched) { \
+                    ogBytes = MemUtils::readBytes(addr, size); \
+                    std::vector<unsigned char> bytes(size, 0x90); \
+                    MemUtils::writeBytes(addr, bytes); \
+                    spdlog::info("Patched {} at 0x{:X}", #name, addr); \
+                    wasPatched = true; \
                 } \
+            } else { \
+                if (wasPatched) { \
+                    MemUtils::writeBytes(addr, ogBytes); \
+                    spdlog::info("Unpatched {} at 0x{:X}", #name, addr); \
+                    wasPatched = false; \
+                } \
+            } \
         }
 
 

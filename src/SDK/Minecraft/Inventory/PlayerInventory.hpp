@@ -19,6 +19,7 @@ public:
 class PlayerInventory {
 public:
     CLASS_FIELD(int, mSelectedSlot, 0x10);
+    CLASS_FIELD(int, mInHandSlot, 0x20);
 
     Inventory* getContainer();
 };

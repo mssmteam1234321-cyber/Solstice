@@ -15,7 +15,13 @@ public:
 
     explicit CancelableEvent(bool cancelled = false) : mCancelled(cancelled) {}
 
-    [[nodiscard]] bool isCancelled() const;
-    void setCancelled(bool cancelled);
-    void cancel();
+    [[nodiscard]] bool isCancelled() const {
+        return mCancelled;
+    }
+    void setCancelled(bool cancelled) {
+        mCancelled = cancelled;
+    }
+    void cancel() {
+        setCancelled(true);
+    }
 };

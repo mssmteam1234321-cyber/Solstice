@@ -25,6 +25,9 @@
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
+std::vector<unsigned char> gBpBytes = {0x20};
+DEFINE_PATCH_FUNC(patchInHandSlot, SigManager::ItemInHandRenderer_renderItem_bytepatch2+2, gBpBytes);
+
 void Solstice::init(HMODULE hModule)
 {
     // Not doing this could cause crashes if you inject too soon
@@ -65,6 +68,8 @@ void Solstice::init(HMODULE hModule)
 
     console->info("initializing sigmanager...");
     SigManager::initialize();
+
+    patchInHandSlot(true);
 
     if (!ClientInstance::get())
     {
@@ -147,6 +152,8 @@ void Solstice::init(HMODULE hModule)
     }
 
     mRequestEject = true;
+
+    patchInHandSlot(false);
 
     HookManager::shutdown();
 

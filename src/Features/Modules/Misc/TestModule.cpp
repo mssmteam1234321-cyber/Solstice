@@ -111,6 +111,9 @@ void TestModule::onRenderEvent(RenderEvent& event)
     ImGui::Text("wasOnGround: %d", player->wasOnGround());
     ImGui::Text("isInWater: %d", player->isInWater());
     displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
+    displayCopyableAddress("LocalPlayer", player);
+    displayCopyableAddress("supplies", player->getSupplies());
+
 
     ImGui::End();
 }

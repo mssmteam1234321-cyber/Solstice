@@ -92,6 +92,8 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) == 0) return false;
 
+    if (mSwitchMode.mValue == SwitchMode::Fake && mLastSlot != -1) player->getSupplies()->mInHandSlot = mLastSlot; // Change the
+
     if (mPlacementMode.as<PlacementMode>() == PlacementMode::Flareon)
     {
         yaw = MathUtils::snapYaw(yaw);
@@ -167,7 +169,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     mLastSwitchTime = NOW;
 
     if (mLastSlot == -1) mLastSlot = player->getSupplies()->mSelectedSlot;
-    if (mSwitchMode.as<SwitchMode>() == SwitchMode::Full)
+    if (mSwitchMode.as<SwitchMode>() != SwitchMode::None)
     {
         int slot = ItemUtils::getPlaceableItemOnBlock(blockPos, mHotbarOnly.mValue, mSwitchPriority.as<SwitchPriority>() == SwitchPriority::Highest);
         if (slot == -1) return false;
