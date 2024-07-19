@@ -38,25 +38,25 @@ void DestroyProgress::onRenderEvent(RenderEvent& event)
     lastProgress = cAnimProgress;
     cAnimProgress = MathUtils::clamp(cAnimProgress, 0.f, 1.f);
 
-    if (0 < cProgress) {
-        glm::ivec3 cMiningPos = player->getLevel()->getHitResult()->mBlockPos;
-        auto boxSize = glm::vec3(cAnimProgress, cAnimProgress, cAnimProgress);        
-        glm::vec3 blockPos = cMiningPos;
-        blockPos.x += 0.5f - (cAnimProgress / 2.f);
-        blockPos.y += 0.5f - (cAnimProgress / 2.f);
-        blockPos.z += 0.5f - (cAnimProgress / 2.f);
-        auto boxAABB = AABB(blockPos, boxSize);
+    if (0 >= cProgress) return;
 
-        ImColor cColor = ColorUtils::getThemedColor(0);
-        if (mColorMode.mValue == ColorMode::Default) cColor = ImColor((int)(cAnimProgress * 255), (int)((1 - cAnimProgress) * 255), 0);
-        cColor.Value.w = (int)(mOpacity.mValue * 255);
+    glm::ivec3 cMiningPos = player->getLevel()->getHitResult()->mBlockPos;
+    auto boxSize = glm::vec3(cAnimProgress, cAnimProgress, cAnimProgress);
+    glm::vec3 blockPos = cMiningPos;
+    blockPos.x += 0.5f - (cAnimProgress / 2.f);
+    blockPos.y += 0.5f - (cAnimProgress / 2.f);
+    blockPos.z += 0.5f - (cAnimProgress / 2.f);
+    auto boxAABB = AABB(blockPos, boxSize);
+
+    ImColor cColor = ColorUtils::getThemedColor(0);
+    if (mColorMode.mValue == ColorMode::Default) cColor = ImColor((int)(cAnimProgress * 255), (int)((1 - cAnimProgress) * 255), 0);
+    cColor.Value.w = (int)(mOpacity.mValue * 255);
 
 
-        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(boxAABB);
+    std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(boxAABB);
 
-        auto drawList = ImGui::GetBackgroundDrawList();
+    auto drawList = ImGui::GetBackgroundDrawList();
 
-        if (mFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(cColor.Value.x, cColor.Value.y, cColor.Value.z, mOpacity.mValue));
-        drawList->AddPolyline(imPoints.data(), imPoints.size(), cColor, 0, 2.0f);
-    }
+    if (mFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(cColor.Value.x, cColor.Value.y, cColor.Value.z, mOpacity.mValue));
+    drawList->AddPolyline(imPoints.data(), imPoints.size(), cColor, 0, 2.0f);
 }

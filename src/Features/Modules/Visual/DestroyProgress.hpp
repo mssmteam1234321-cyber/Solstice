@@ -11,7 +11,7 @@ public:
     };
 
     EnumSettingT<ColorMode> mColorMode = EnumSettingT<ColorMode>("Color", "The color mode", ColorMode::Default, "Default", "Theme");
-    NumberSetting mOpacity = NumberSetting("Opacity", "The opacity of box", 1.f, 0.f, 1.f, 0.01f);
+    NumberSetting mOpacity = NumberSetting("Opacity", "The opacity of box", 0.40f, 0.f, 1.f, 0.01f);
     BoolSetting mFilled = BoolSetting("Filled", "Fill box", true);
 
     DestroyProgress() : ModuleBase("DestroyProgress", "Render Destroy Progress", ModuleCategory::Visual, 0, false) {
