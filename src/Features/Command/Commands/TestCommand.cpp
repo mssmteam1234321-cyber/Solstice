@@ -17,7 +17,14 @@ void TestCommand::execute(const std::vector<std::string>& args)
     // get the first argument, if any
     if (args.size() > 1)
     {
-        std::string arg = args[1];
+        const std::string& arg = args[1];
+        if (arg == "showconsole")
+        {
+            Logger::initialize();
+            ChatUtils::displayClientMessage("Console initialized!");
+            return;
+        }
+
         // spdlog::level::trace
         for (std::string_view level : magic_enum::enum_names<spdlog::level::level_enum>())
         {
