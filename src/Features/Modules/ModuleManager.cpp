@@ -36,6 +36,7 @@
 #include "Visual/AutoScale.hpp"
 #include "Visual/BlockESP.hpp"
 #include "Visual/ClickGui.hpp"
+#include "Visual/DestroyProgress.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/LevelInfo.hpp"
 #include "Visual/Notifications.hpp"
@@ -88,6 +89,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Arraylist>());
     mModules.emplace_back(std::make_shared<LevelInfo>());
     mModules.emplace_back(std::make_shared<Notifications>());
+    mModules.emplace_back(std::make_shared<DestroyProgress>());
     mModules.emplace_back(std::make_shared<ESP>());
     mModules.emplace_back(std::make_shared<BlockESP>());
     mModules.emplace_back(std::make_shared<MotionBlur>());

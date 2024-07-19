@@ -8,7 +8,8 @@ public:
     };
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Flareon, "Flareon");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
-    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0, 1, 0.01);
+    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
+    NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
     BoolSetting mOldCalculation = BoolSetting("Old Calculation", "Use the old calculation for breaking blocks", false);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
@@ -17,7 +18,7 @@ public:
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mRange, &mDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mRenderBlock);
+        addSettings(&mMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
@@ -36,6 +37,7 @@ public:
     glm::ivec3 mTargettingBlockPos = { 0, 0, 0 };
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
+    float mCurrentDestroySpeed = 1.f;
     bool mIsMiningBlock = false;
     bool mIsUncovering = false;
     bool mShouldRotate = false;
