@@ -21,11 +21,15 @@ void* peer = nullptr;
 
 void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
 {
-    peer = _this;
+    if (!peer)
+    {
+        peer = _this;
+        uintptr_t getAveragePingAddr = MemUtils::getAddressByIndex(reinterpret_cast<uintptr_t>(peer), 44);
+        init(getAveragePingAddr);
+    }
     auto original = RunUpdateCycleDetour->getOriginal<decltype(&runUpdateCycle)>();
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return original(_this, a2);
-
 
     auto holder = nes::make_holder<RunUpdateCycleEvent>();
     gFeatureManager->mDispatcher->trigger(holder);
@@ -70,15 +74,6 @@ void RakPeerHooks::init()
     mName = "RakPeerHooks";
     RunUpdateCycleDetour = std::make_unique<Detour>("RakNet::RakPeer::RunUpdateCycle", reinterpret_cast<void*>(SigManager::RakNet_RakPeer_runUpdateCycle), &runUpdateCycle);
     RunUpdateCycleDetour->enable();
-    static std::thread t([this]() {
-        while (!peer && !Solstice::mRequestEject) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-        if (Solstice::mRequestEject) return;
-        uintptr_t getAveragePingAddr = MemUtils::getAddressByIndex(reinterpret_cast<uintptr_t>(peer), 44);
-        init(getAveragePingAddr);
-        t.detach();
-    });
 }
 
 void RakPeerHooks::shutdown()

@@ -95,46 +95,14 @@ void Solstice::init(HMODULE hModule)
     ChatUtils::displayClientMessage("Initialized!");
 
     // Create a thead to wait for all futures in hooks then load a default config if any
-    static std::thread dfcthread([]() {
-        while (!ClientInstance::get()->getLocalPlayer() && !mRequestEject) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        if (mRequestEject) return;
-
-        HookManager::init(true); // Initialize the base tick hook
-
-        if (!Prefs->mDefaultConfigName.empty())
-        {
-            if (ConfigManager::configExists(Prefs->mDefaultConfigName))
-            {
-                ConfigManager::loadConfig(Prefs->mDefaultConfigName);
-            }
-            else
-            {
-                console->warn("Default config does not exist! Clearing default config...");
-                NotifyUtils::notify("Default config does not exist! Clearing default config...", 10.0f, Notification::Type::Warning);
-                Prefs->mDefaultConfigName = "";
-            }
-        }
-
-        dfcthread.detach();
-    });
-
     console->info("Press END to eject dll.");
 
     // Create a thread to monitor the mLastTick variable
     mLastTick = NOW;
-    static std::thread tickthread([]() {
-        while (!mRequestEject)
-        {
-            mLastTick = NOW;
-            gFeatureManager->mModuleManager->onClientTick();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-
-        tickthread.detach();
-    });
 
     // Wait for the user to press END
     bool firstCall = true;
+    bool isLpValid = false;
     while (!mRequestEject)
     {
         if (firstCall)
@@ -143,11 +111,31 @@ void Solstice::init(HMODULE hModule)
             firstCall = false;
         }
 
-        if (NOW - mLastTick > 1000)
+        if (!isLpValid && ClientInstance::get()->getLocalPlayer())
         {
-            console->critical("Client tick took too long! ({}ms)", NOW - mLastTick);
+            isLpValid = true;
+            HookManager::init(true); // Initialize the base tick hook
+
+            if (!Prefs->mDefaultConfigName.empty())
+            {
+                if (ConfigManager::configExists(Prefs->mDefaultConfigName))
+                {
+                    ConfigManager::loadConfig(Prefs->mDefaultConfigName);
+                }
+                else
+                {
+                    console->warn("Default config does not exist! Clearing default config...");
+                    NotifyUtils::notify("Default config does not exist! Clearing default config...", 10.0f, Notification::Type::Warning);
+                    Prefs->mDefaultConfigName = "";
+                    PreferenceManager::save(Prefs);
+                }
+            } else {
+                console->warn("No default config set!");
+            }
         }
 
+        mLastTick = NOW;
+        gFeatureManager->mModuleManager->onClientTick();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
@@ -170,18 +158,6 @@ void Solstice::init(HMODULE hModule)
     mInitialized = false;
 
     // wait for threads to finish
-    spdlog::info("Waiting for threads to finish...");
-    if (dfcthread.joinable())
-    {
-        dfcthread.join();
-        spdlog::info("Default config thread finished.");
-    }
-    if (tickthread.joinable())
-    {
-        tickthread.join();
-        spdlog::info("Tick thread finished.");
-    }
-
     Sleep(1000); // Give the user time to read the message
 
     Logger::deinitialize();
