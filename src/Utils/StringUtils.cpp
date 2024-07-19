@@ -159,3 +159,15 @@ std::string StringUtils::join(const std::vector<std::string>& strings, const std
 
     return result;
 }
+
+std::string StringUtils::replaceAll(std::string& string, const std::string& from, const std::string& to)
+{
+    size_t start_pos = 0;
+    while ((start_pos = string.find(from, start_pos)) != std::string::npos)
+    {
+        string.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
+
+    return string;
+}

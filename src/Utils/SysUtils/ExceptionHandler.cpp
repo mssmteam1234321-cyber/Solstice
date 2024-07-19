@@ -34,8 +34,8 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
 
     switch (result)
     {
-    case IDABORT:
-        return EXCEPTION_EXECUTE_HANDLER;
+    case IDABORT:   // Terminates the process
+        exit(1);
     case IDRETRY:
         return EXCEPTION_CONTINUE_EXECUTION;
     case IDIGNORE:

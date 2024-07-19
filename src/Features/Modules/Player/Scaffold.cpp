@@ -246,8 +246,8 @@ void Scaffold::onRenderEvent(RenderEvent& event)
         ImVec2 ptextSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, std::string(1, displayText[i]).c_str());
 
         //Render::RenderText(std::string(1, display[i]), pos, fontSize, ImColor(color.Value.x, color.Value.y, color.Value.z, color.Value.w * inScale), true);
-        ImVec2 shadowPos = ImVec2(pos.x + 1, pos.y + 1);
-        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f), std::string(1, displayText[i]).c_str());
+        ImVec2 shadowPos = ImVec2(pos.x + 2, pos.y + 2);
+        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.9f), std::string(1, displayText[i]).c_str());
         drawList->AddText(ImGui::GetFont(), fontSize, pos, color, std::string(1, displayText[i]).c_str());
         pos.x += ptextSize.x;
     }
@@ -292,8 +292,8 @@ void Scaffold::onRenderEvent(RenderEvent& event)
 
         // Draw the number
         //Render::RenderText(joinedNumbers, daPos, fontSize, ImColor(color.Value.x, color.Value.y, color.Value.z, color.Value.w * AnimationPerc), true);
-        ImVec2 shadowPos = ImVec2(daPos.x + 1, daPos.y + 1);
-        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, 0.9f * anim), joinedNumbers.c_str());
+        ImVec2 shadowPos = ImVec2(daPos.x + 2, daPos.y + 2);
+        drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.9f * anim), joinedNumbers.c_str());
         drawList->AddText(ImGui::GetFont(), fontSize, daPos, color, joinedNumbers.c_str());
         // we will cliprect this later
 

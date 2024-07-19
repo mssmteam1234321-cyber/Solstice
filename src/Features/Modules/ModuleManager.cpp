@@ -13,7 +13,10 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
+#include "Misc/AutoMessage.hpp"
 #include "Misc/Friends.hpp"
+#include "Misc/NoFilter.hpp"
+#include "Misc/NoPacket.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/InventoryMove.hpp"
@@ -80,6 +83,10 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AntiBot>());
     mModules.emplace_back(std::make_shared<AntiCheatDetector>());
     mModules.emplace_back(std::make_shared<Friends>());
+    mModules.emplace_back(std::make_shared<NoPacket>());
+    mModules.emplace_back(std::make_shared<NoFilter>());
+    mModules.emplace_back(std::make_shared<AutoMessage>());
+
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

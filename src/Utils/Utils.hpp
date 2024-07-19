@@ -13,6 +13,7 @@
 #include "Keyboard.hpp"
 #include "FontHelper.hpp"
 #include "FileUtils.hpp"
+#include "MessageTemplate.hpp"
 #include "SysUtils/ExceptionHandler.hpp"
 #include "SysUtils/StackWalker.hpp"
 #include "MiscUtils/SoundUtils.hpp"

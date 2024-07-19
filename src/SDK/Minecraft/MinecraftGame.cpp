@@ -32,6 +32,11 @@ ClientInstance* MinecraftGame::getPrimaryClientInstance()
     return nullptr;
 }
 
+UIProfanityContext* MinecraftGame::getProfanityContext()
+{
+    return hat::member_at<UIProfanityContext*>(this, OffsetProvider::MinecraftGame_mProfanityContext);
+}
+
 void MinecraftGame::playUi(const std::string& soundName, float volume, float pitch)
 {
     int index = OffsetProvider::MinecraftGame_playUi;

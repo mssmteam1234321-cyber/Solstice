@@ -121,7 +121,7 @@ public:
     #define TOKENPASTE2(x, y) TOKENPASTE(x, y)
     #define PAD(size) \
         private: \
-            char TOKENPASTE2(padding_, __LINE__) [size]; \
+            char TOKENPASTE2(padding_, __LINE__) [size] = {0}; \
         public:
     /// <summary>
     /// Defines a padding field of a given size

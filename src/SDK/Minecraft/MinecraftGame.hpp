@@ -9,5 +9,6 @@ class MinecraftGame {
 public:
     static MinecraftGame* getInstance();
     class ClientInstance* getPrimaryClientInstance();
+    class UIProfanityContext* getProfanityContext();
     void playUi(const std::string& soundName, float volume, float pitch);
 };

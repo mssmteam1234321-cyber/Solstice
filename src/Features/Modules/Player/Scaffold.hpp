@@ -71,9 +71,11 @@ public:
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
         addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mFlickMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mBlockHUDStyle, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
 
-        VISIBILITY_CONDITION(mSwitchPriority, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
-        VISIBILITY_CONDITION(mHotbarOnly, mSwitchMode.as<SwitchMode>() != SwitchMode::None);
-        VISIBILITY_CONDITION(mTowerSpeed, mTowerMode.as<TowerMode>() != TowerMode::Vanilla);
+        VISIBILITY_CONDITION(mFlickMode, mRotateMode.mValue != RotateMode::None);
+
+        VISIBILITY_CONDITION(mSwitchPriority, mSwitchMode.mValue != SwitchMode::None);
+        VISIBILITY_CONDITION(mHotbarOnly, mSwitchMode.mValue != SwitchMode::None);
+        VISIBILITY_CONDITION(mTowerSpeed, mTowerMode.mValue != TowerMode::Vanilla);
 
         VISIBILITY_CONDITION(mClutchFallDistance, mFastClutch.mValue);
         VISIBILITY_CONDITION(mCluchPlaces, mFastClutch.mValue);

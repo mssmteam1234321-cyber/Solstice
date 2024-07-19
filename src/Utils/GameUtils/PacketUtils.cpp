@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 
 void PacketUtils::spoofSlot(int slot)
 {
@@ -33,4 +34,18 @@ void PacketUtils::spoofSlot(int slot)
 void PacketUtils::sendToSelf(std::shared_ptr<Packet> packet)
 {
     PacketReceiveHook::handlePacket(packet);
+}
+
+void PacketUtils::sendChatMessage(const std::string& msg)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+    std::shared_ptr<TextPacket> textPacket = MinecraftPackets::createPacket<TextPacket>();
+    textPacket->mLocalize = false;
+    textPacket->mMessage = msg;
+    textPacket->mType = TextPacketType::Chat;
+    textPacket->mAuthor = player->getRawName();
+    //textPacket->mXuid = player->getXuid();
+
+    ClientInstance::get()->getPacketSender()->sendToServer(textPacket.get());
 }

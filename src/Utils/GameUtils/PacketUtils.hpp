@@ -10,4 +10,5 @@ class PacketUtils {
 public:
     static void spoofSlot(int slot);
     static void sendToSelf(std::shared_ptr<Packet> packet);
+    static void sendChatMessage(const std::string& msg);
 };

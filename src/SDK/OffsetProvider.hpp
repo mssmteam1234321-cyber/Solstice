@@ -107,6 +107,8 @@ public:
     DEFINE_INDEX_FIELD(Level_getHitResult, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 4C 8B ? 48 8B ? 4C 8B ? 49 8B ? 4C 8B", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Level_getPlayerList, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 8B 48 ? 39 8E ? ? ? ? 74", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftGame_mProfanityContext, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 90 48 C7 44 24 20", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "38 ? ? 74 ? 38 ? ? ? 75 ? 4C 8D", 2, OffsetType::FieldOffset);
 
     static void initialize();
 };

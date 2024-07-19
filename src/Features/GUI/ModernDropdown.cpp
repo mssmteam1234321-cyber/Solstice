@@ -749,7 +749,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                             else if (ImGui::IsMouseClicked(1))
                             {
                                 // Only show if the module has settings
-                                if (mod->mSettings.size() > 0) mod->showSettings = !mod->showSettings;
+                                if (!mod->mSettings.empty()) mod->showSettings = !mod->showSettings;
                             }
                             else if (ImGui::IsMouseClicked(2))
                             {
@@ -877,8 +877,9 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
         if (!tooltip.empty())
         {
+            ImVec2 toolTipHeight = ImGui::GetFont()->CalcTextSizeA(textSize * 14.4f, FLT_MAX, 0, tooltip.c_str());
             float textWidth = ImRenderUtils::getTextWidth(&tooltip, textSize * 0.8f);
-            float textHeight = ImRenderUtils::getTextHeight(textSize * 0.8f);
+            float textHeight = toolTipHeight.y;
             float padding = 2.5f;
             float offset = 8.f;
 

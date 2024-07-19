@@ -10,6 +10,8 @@
 #include "RenderUtils.hpp"
 #include "MathUtils.hpp"
 
+#include <random>
+
 
 float MathUtils::animate(float endPoint, float current, float speed) { // Animate the position
     if (speed < 0.0) speed = 0.0; // If 0 is less than speed then set speed to 0.
@@ -92,7 +94,11 @@ float MathUtils::random(float min, float max)
 
 int MathUtils::random(int min, int max)
 {
-    return min + (rand() % (max - min + 1));
+    // Use random_device to get a random seed
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_int_distribution<> distr(min, max);
+    return distr(eng);
 }
 
 #define PI IM_PI

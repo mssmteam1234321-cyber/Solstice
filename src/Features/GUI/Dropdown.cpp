@@ -822,8 +822,9 @@ void DropdownGui::render(float animation, float inScale, int& scrollDirection, c
 
         if (!tooltip.empty())
         {
+            ImVec2 toolTipHeight = ImGui::GetFont()->CalcTextSizeA(textSize * 14.4f, FLT_MAX, 0, tooltip.c_str());
             float textWidth = ImRenderUtils::getTextWidth(&tooltip, textSize * 0.8f);
-            float textHeight = ImRenderUtils::getTextHeight(textSize * 0.8f);
+            float textHeight = toolTipHeight.y;
             float padding = 2.5f;
             float offset = 8.f;
 
