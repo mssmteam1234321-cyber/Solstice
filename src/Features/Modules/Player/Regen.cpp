@@ -182,17 +182,19 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
         mToolSlot = bestToolSlot;
 
+        bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
+
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
+        else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
 
         if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
-        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mDestroySpeed.mValue);
-
-        bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
+        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
 
         bool finishBreak = true;
         if (maxAbsorption && isRedstone) finishBreak = false;
 
-        if ((mDestroySpeed.mValue <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
+        if ((mCurrentDestroySpeed <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
@@ -291,7 +293,7 @@ void Regen::onRenderEvent(RenderEvent& event)
         float progress = 1.f;
 
         progress = mBreakingProgress;
-        if (!mOldCalculation.mValue) progress /= mDestroySpeed.mValue;
+        if (!mOldCalculation.mValue) progress /= mCurrentDestroySpeed;
         if (progress < lastProgress) lastProgress = progress;
         progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
         lastProgress = progress;
