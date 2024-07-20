@@ -56,6 +56,9 @@ void AutoTool::onBaseTickEvent(BaseTickEvent& event)
     if (mOldSlot == -1)
     {
         mOldSlot = player->getSupplies()->mSelectedSlot;
+    } else if (mFakeSpoof.mValue)
+    {
+        player->getSupplies()->mInHandSlot = mOldSlot;
     }
 
     player->getSupplies()->mSelectedSlot = bestSlot;

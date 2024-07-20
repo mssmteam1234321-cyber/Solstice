@@ -72,7 +72,7 @@ void Solstice::init(HMODULE hModule)
     console->info("initialized signatures in {}ms", send - sstart);
 
 
-    patchInHandSlot(true);
+
 
     if (!ClientInstance::get())
     {
@@ -137,6 +137,8 @@ void Solstice::init(HMODULE hModule)
                 console->warn("No default config set!");
             }
         }
+
+        patchInHandSlot(ClientInstance::get()->getLocalPlayer() != nullptr);
 
         mLastTick = NOW;
         gFeatureManager->mModuleManager->onClientTick();
