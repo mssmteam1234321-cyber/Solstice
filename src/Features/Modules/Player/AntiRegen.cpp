@@ -38,6 +38,14 @@ bool AntiRegen::isValidRedstone(glm::ivec3 blockPos) {
     // Hit Result Check
     if (player->getLevel()->getHitResult()->mBlockPos == blockPos) return false;
 
+    // Place position check
+    int exposedFace = BlockUtils::getExposedFace(blockPos);
+    if (exposedFace != -1 && regenModule->mEnabled && regenModule->mIsMiningBlock) {
+        glm::ivec3 placePos = blockPos + offsetList[exposedFace];
+        glm::ivec3 deltaPos = regenModule->mCurrentBlockPos - placePos;
+        if (abs(deltaPos.x) + abs(deltaPos.y) + abs(deltaPos.z) <= 1) return false;
+    }
+
     return true;
 }
 
@@ -51,7 +59,7 @@ void AntiRegen::onEnable()
     mPreviousSlot = -1;
     mPlacedBlock = false;
     mShouldRotate = false;
-    
+
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 }
@@ -63,7 +71,7 @@ void AntiRegen::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AntiRegen::onPacketOutEvent>(this);
 
     miningRedstones.clear();
-    
+
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
     PlayerInventory* supplies = player->getSupplies();
@@ -107,7 +115,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 res->mBlockPos = placePos;
                 res->mFacing = 1;
                 res->mType = HitType::BLOCK;
-                res->mIndirectHit = true;
+                res->mIndirectHit = false;
                 res->mRayDir = placePos;
                 res->mPos = placePos;
                 player->getGameMode()->buildBlock(hitPos, 1, true);
@@ -122,7 +130,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
         miningRedstones.clear();
 
         if (mPlacedBlock) {
-            if(!regenModule->mEnabled || !regenModule->mIsMiningBlock) PacketUtils::spoofSlot(mPreviousSlot);
+            if (!regenModule->mEnabled || !regenModule->mIsMiningBlock) PacketUtils::spoofSlot(mPreviousSlot);
             mPlacedBlock = false;
         }
     }

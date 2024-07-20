@@ -15,10 +15,12 @@ public:
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
     BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
+    BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
+    BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mRenderBlock);
+        addSettings(&mMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
@@ -35,6 +37,10 @@ public:
 
     glm::ivec3 mCurrentBlockPos = { 0, 0, 0 };
     glm::ivec3 mTargettingBlockPos = { 0, 0, 0 };
+    glm::ivec3 mEnemyTargettingBlockPos = { 0, 0, 0 };
+    glm::ivec3 mLastEnemyLayerBlockPos = { 0, 0, 0 };
+    bool mCanSteal = false;
+    bool mIsStealing = false;
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
     float mCurrentDestroySpeed = 1.f;
@@ -48,14 +54,24 @@ public:
     uint64_t mLastBlockPlace = 0;
     int mLastPlacedBlockSlot = 0;
 
+    std::vector<glm::ivec3> offsetList = {
+        glm::ivec3(0, -1, 0),
+        glm::ivec3(0, 1, 0),
+        glm::ivec3(0, 0, -1),
+        glm::ivec3(0, 0, 1),
+        glm::ivec3(-1, 0, 0),
+        glm::ivec3(1, 0, 0),
+    };
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
     void initializeRegen();
     void queueBlock(glm::ivec3 blockPos);
-    bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly);
+    bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing = false);
     PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);
 
     std::string getSettingDisplay() override {
