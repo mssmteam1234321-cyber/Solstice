@@ -68,7 +68,5 @@ void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short 
 
 void MouseHook::init()
 {
-    mName = "MouseDevice::feed";
     mDetour = std::make_unique<Detour>("MouseDevice::feed", reinterpret_cast<void*>(SigManager::MouseDevice_feed), &MouseHook::onMouse);
-    mDetour->enable();
 }

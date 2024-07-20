@@ -29,7 +29,7 @@ static void name##_initializer() { \
     } \
 } \
 private: \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
 public:
 
 
@@ -53,7 +53,7 @@ static void name##_initializer() { \
     } \
 } \
 private: \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
 public:
 
 #include <future>
@@ -62,7 +62,7 @@ public:
 class OffsetProvider {
     static hat::scan_result scanSig(hat::signature_view sig, const std::string& name, int offset = 0);
 
-    static inline std::vector<std::future<void>> futures;
+    static inline std::vector<std::function<void()>> mSigInitializers;
     static inline int mSigScanCount;
     static inline uint64_t mSigScanStart;
 public:

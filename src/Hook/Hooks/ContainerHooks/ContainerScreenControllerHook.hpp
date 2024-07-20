@@ -9,7 +9,7 @@
 class ContainerScreenControllerHook : public Hook {
 public:
     ContainerScreenControllerHook() : Hook() {
-
+        mName = "ContainerScreenController::tick";
     }
 
     static std::unique_ptr<Detour> mDetour;

@@ -12,7 +12,7 @@
 void NotifyUtils::notify(std::string message, float duration, Notification::Type type)
 {
     const auto notification = Notification(std::move(message), type, duration);
+    spdlog::info("[NotifyUtils] Notified: {}", notification.mMessage);
     auto holder = nes::make_holder<NotifyEvent>(notification);
     gFeatureManager->mDispatcher->trigger<NotifyEvent>(holder);
-    spdlog::info("[NotifyUtils] Notified: {}", message);
 }

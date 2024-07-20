@@ -8,7 +8,7 @@
 class KeyHook : public Hook {
 public:
     KeyHook() : Hook() {
-
+        mName = "Keyboard::feed";
     }
 
     static std::unique_ptr<Detour> mDetour;

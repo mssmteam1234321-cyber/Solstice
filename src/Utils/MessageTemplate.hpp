@@ -24,12 +24,8 @@ public:
             // Create the file
             createTemplateFile(defaultMessage);
         }
-        spdlog::info("Loaded message template: {}", mTemplateName);
-        spdlog::info("Variables:");
-        for (const auto& [variable, description] : mVariableDescriptions)
-        {
-            spdlog::info("{} - {}", variable, description);
-        }
+
+        spdlog::info("Loaded message template {} with {} variables", templateName, mVariableDescriptions.size());
     }
 
     void createTemplateFile(const std::string& defaultMessage = "") const;

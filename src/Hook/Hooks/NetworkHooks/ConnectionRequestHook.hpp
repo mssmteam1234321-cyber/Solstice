@@ -17,7 +17,10 @@ class ConnectionRequest* result, class PrivateKeyManager* privKeyManager,
 
 class ConnectionRequestHook : public Hook {
 public:
-    ConnectionRequestHook() : Hook() {};
+    ConnectionRequestHook() : Hook()
+    {
+        mName = "ConnectionRequest::create";
+    };
 
     static std::unique_ptr<Detour> mDetour;
 

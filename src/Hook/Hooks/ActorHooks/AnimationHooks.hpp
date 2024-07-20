@@ -8,7 +8,7 @@
 class AnimationHooks : public Hook {
 public:
     AnimationHooks() : Hook() {
-
+        mName = "AnimationHooks";
     }
 
     static std::unique_ptr<Detour> mSwingDetour;

@@ -164,17 +164,20 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
                     gDevice_context11.put(), // the D3D11 device context we get back
                     nullptr // the feature level we get back (we don't care)
             ));
-            spdlog::info("[D3D] D3D11On12 Device acquired");
         }
 
         once = true;
     }
 
-    // Only set transform if we have enough frames
-    while(FrameTransforms.size() > transformDelay)
+    if (FrameTransforms)
+        while(FrameTransforms->size() > transformDelay)
+        {
+            RenderUtils::transform = FrameTransforms->front();
+            FrameTransforms->pop();
+        }
+    else
     {
-        RenderUtils::transform = FrameTransforms.front();
-        FrameTransforms.pop();
+        spdlog::error("FrameTransforms is null");
     }
 
     int count = alreadyRunningD3D11 ? 1 : BUFFER_COUNT;
@@ -311,8 +314,6 @@ void D3DHook::initImGui(ID3D11Device* device, ID3D11DeviceContext* deviceContext
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
 
-    spdlog::info("Initialized ImGui");
-
     imGuiInitialized = true;
 }
 
@@ -354,6 +355,7 @@ void D3DHook::init()
     if (once) return;
     once = true;
     mName = "D3DHook";
+    Solstice::console->info("Initializing D3DHook");
     // Attempt to init on D3D12
     if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
     {
@@ -370,6 +372,7 @@ void D3DHook::init()
         return;
     }
     Solstice::console->error("Failed to initialize kiero");
+    MessageBoxA(NULL, "Failed to initialize kiero", "Solstice", MB_OK | MB_ICONERROR);
 }
 
 void D3DHook::shutdown()
@@ -380,6 +383,7 @@ void D3DHook::shutdown()
 void D3DHook::s_shutdown()
 {
     Solstice::console->info("Shutting down D3DHook");
+    FrameTransforms.reset();
     kiero::unbind(8);
     kiero::unbind(13);
     kiero::unbind(140);

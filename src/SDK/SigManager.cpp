@@ -8,6 +8,8 @@
 #include <Solstice.hpp>
 #include <Utils/Logger.hpp>
 #include <Utils/MemUtils.hpp>
+#include <chrono>
+#include <omp.h>
 
 #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
 
@@ -35,11 +37,13 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
 
 void SigManager::initialize()
 {
-    // Wait for all futures to complete
-    for (auto& future : futures) {
-        future.get();
+    int64_t start = NOW;
+    #pragma omp parallel for
+    for (int i = 0; i < mSigInitializers.size(); i++) {
+        mSigInitializers[i]();
     }
-    futures.clear(); // Clear the futures vector once initialization is complete
+    int64_t end = NOW;
+    int64_t diff = end - start;
 
     for (const auto& sig : mSigs) {
         //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
@@ -50,7 +54,7 @@ void SigManager::initialize()
         if (sig.second == 0) Solstice::console->critical("[signatures] failed to find {}", sig.first);
 
     }
-    Solstice::console->info("[signatures] initialized in {}ms, {} total sigs scanned", NOW - mSigScanStart, mSigScanCount);
+    Solstice::console->info("[signatures] initialized in {}ms, {} total sigs scanned", diff, mSigScanCount);
     mIsInitialized = true;
 }
 

@@ -5,6 +5,7 @@
 #include "Fly.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -28,12 +29,9 @@ void Fly::onDisable()
 
 void Fly::onBaseTickEvent(BaseTickEvent& event) const
 {
+    auto player = event.mActor;
     if (mMode.mValue == Mode::Motion || mMode.mValue == Mode::Elytra)
     {
-        auto player = ClientInstance::get()->getLocalPlayer();
-        if (player == nullptr)
-            return;
-
         glm::vec3 motion = glm::vec3(0, 0, 0);
 
         if (Keyboard::isUsingMoveKeys(true))
@@ -49,6 +47,28 @@ void Fly::onBaseTickEvent(BaseTickEvent& event) const
                 motion.y += Speed.mValue / 10;
             else if (isSneaking)
                 motion.y -= Speed.mValue / 10;
+        }
+
+        player->getStateVectorComponent()->mVelocity = motion;
+    }
+    else if (mMode.mValue == Mode::Pregame)
+    {
+        glm::vec3 motion = glm::vec3(0, -0.0005f, 0);
+
+        if (Keyboard::isUsingMoveKeys(true))
+        {
+            float speed = 0.255;
+            glm::vec2 calc = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, speed);
+            motion.x = calc.x;
+            motion.z = calc.y;
+
+            bool isJumping = player->getMoveInputComponent()->mIsJumping;
+            bool isSneaking = player->getMoveInputComponent()->mIsSneakDown;
+
+            if (isJumping)
+                motion.y += speed;
+            else if (isSneaking)
+                motion.y -= speed;
         }
 
         player->getStateVectorComponent()->mVelocity = motion;

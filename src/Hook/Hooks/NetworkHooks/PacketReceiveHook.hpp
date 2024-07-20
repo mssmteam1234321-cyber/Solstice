@@ -9,7 +9,7 @@
 class PacketReceiveHook : public Hook {
 public:
     PacketReceiveHook() : Hook() {
-
+        mName = "PacketReceiveHook";
     }
 
     static std::unordered_map<PacketID, std::unique_ptr<Detour>> mDetours;

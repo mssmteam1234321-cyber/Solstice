@@ -14,7 +14,7 @@ class Actor;
 class ActorRenderDispatcherHook : public Hook {
 public:
     ActorRenderDispatcherHook() : Hook() {
-
+        mName = "ActorRenderDispatcher::render";
     }
 
     static std::unique_ptr<Detour> mDetour;

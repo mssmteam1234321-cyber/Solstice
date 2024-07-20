@@ -71,9 +71,7 @@ void RakPeerHooks::init(uintptr_t addr)
 
 void RakPeerHooks::init()
 {
-    mName = "RakPeerHooks";
     RunUpdateCycleDetour = std::make_unique<Detour>("RakNet::RakPeer::RunUpdateCycle", reinterpret_cast<void*>(SigManager::RakNet_RakPeer_runUpdateCycle), &runUpdateCycle);
-    RunUpdateCycleDetour->enable();
 }
 
 void RakPeerHooks::shutdown()

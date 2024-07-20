@@ -10,7 +10,7 @@
 class PacketSendHook : public Hook {
 public:
     PacketSendHook() : Hook() {
-
+        mName = "LoopbackPacketSender::send";
     }
 
     static std::unique_ptr<Detour> mDetour;

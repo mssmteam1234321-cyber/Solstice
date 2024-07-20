@@ -31,7 +31,6 @@ void BaseTickHook::onBaseTick(Actor* actor)
 
 void BaseTickHook::init()
 {
-    mName = "Actor::baseTick";
     mDetour = std::make_unique<Detour>("Actor::baseTick", reinterpret_cast<void*>(ClientInstance::get()->getLocalPlayer()->vtable[OffsetProvider::Actor_baseTick]), &BaseTickHook::onBaseTick);
     mDetour->enable();
 }

@@ -11,18 +11,11 @@
 
 #include "spdlog/spdlog.h"
 
-
-/*#define DEFINE(name, str) const hat::signature_view name = ([]() {  \
-    static constexpr auto sig = hat::compile_signature<str>();      \
-    return hat::signature_view{sig};                                \
-})();*/
-
 enum class SigType {
     Sig,
     RefSig
 };
 
-// ik this is kinda aids lol
 #define DEFINE_SIG(name, str, sig_type, offset) \
 public: \
 static inline uintptr_t name; \
@@ -39,7 +32,7 @@ static void name##_initializer() { \
         name = reinterpret_cast<uintptr_t>(result.rel(offset)); \
     } \
 } \
-static inline std::future<void> name##_future = (futures.push_back(std::async(std::launch::async, name##_initializer)), std::future<void>()); \
+static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
 public:
 
 
@@ -47,7 +40,7 @@ public:
 class SigManager {
     static hat::scan_result scanSig(hat::signature_view sig, const std::string& name, int offset = 0);
 
-    static inline std::vector<std::future<void>> futures;
+    static inline std::vector<std::function<void()>> mSigInitializers;
     static inline int mSigScanCount;
     static inline uint64_t mSigScanStart;
 public:

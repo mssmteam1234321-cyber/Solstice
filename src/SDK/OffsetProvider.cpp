@@ -31,13 +31,12 @@ hat::scan_result OffsetProvider::scanSig(hat::signature_view sig, const std::str
 
 void OffsetProvider::initialize()
 {
-    for (auto& future : futures)
+    int64_t start = NOW;
+    #pragma omp parallel for
+    for (int i = 0; i < mSigInitializers.size(); i++)
     {
-        future.get();
+        mSigInitializers[i]();
     }
-
-    futures.clear();
-
     uint64_t end = NOW;
 
     for (const auto& sig : mSigs)
@@ -56,7 +55,7 @@ void OffsetProvider::initialize()
         }
     }
 
-    Solstice::console->info("[offsets] initialized in {}ms, {} total sigs scanned", end - mSigScanStart, mSigScanCount);
+    Solstice::console->info("[offsets] initialized in {}ms, {} total sigs scanned", end - start, mSigScanCount);
     mIsInitialized = true;
 }
 

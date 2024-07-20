@@ -9,7 +9,7 @@
 class IsSlowedByItemUseHook : public Hook {
 public:
     IsSlowedByItemUseHook() : Hook() {
-
+        mName = "ItemUseSlowdownSystem::isSlowedByItemUse";
     }
 
     static std::unique_ptr<Detour> mDetour;

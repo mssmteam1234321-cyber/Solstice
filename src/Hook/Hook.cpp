@@ -8,6 +8,5 @@
 
 void Hook::init()
 {
-    //mDetour->Enable();
 
 }

@@ -29,7 +29,7 @@ void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
         playerPos = player->getRenderPositionComponent()->mPosition;
     }
 
-    D3DHook::FrameTransforms.push({ ci->getViewMatrix(), origin, playerPos });
+    if (D3DHook::FrameTransforms) D3DHook::FrameTransforms->push({ ci->getViewMatrix(), origin, playerPos });
 
     original(screenView, mcuirc);
 }
@@ -40,7 +40,5 @@ void SetupAndRenderHook::init()
     if (initialized) return;
     initialized = true;
 
-    mName = "ScreenView::setupAndRender";
     mDetour = std::make_unique<Detour>("ScreenView::setupAndRender", reinterpret_cast<void*>(SigManager::ScreenView_setupAndRender), &SetupAndRenderHook::onSetupAndRender);
-    mDetour->enable();
 }

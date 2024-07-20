@@ -47,9 +47,8 @@ void D2D::init(IDXGISwapChain* pSwapChain, ID3D11Device* pDevice)
         if (blurEffect == nullptr) {
             return;
         }
-
     }
-    spdlog::info("Initialized D2D.");
+
     initD2D = true;
 }
 

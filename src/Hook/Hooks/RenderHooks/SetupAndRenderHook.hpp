@@ -11,7 +11,7 @@
 class SetupAndRenderHook : public Hook {
 public:
     SetupAndRenderHook() : Hook() {
-
+        mName = "ScreenView::setupAndRender";
     }
 
     static std::unique_ptr<Detour> mDetour;

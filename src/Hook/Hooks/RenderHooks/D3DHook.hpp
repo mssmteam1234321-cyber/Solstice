@@ -16,9 +16,10 @@ class D3DHook : public Hook
 public:
     D3DHook() : Hook() {
         mName = "D3DHook";
+        FrameTransforms = std::make_unique<std::queue<FrameTransform>>();
     }
 
-    static inline std::queue<FrameTransform> FrameTransforms = {};
+    static inline std::unique_ptr<std::queue<FrameTransform>> FrameTransforms = nullptr;
     static inline int transformDelay = 3;
 
     static bool loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);

@@ -40,10 +40,8 @@ void AnimationHooks::init()
 {
     uintptr_t func = SigManager::Mob_getCurrentSwingDuration;
     mSwingDetour = std::make_unique<Detour>("Mob::getCurrentSwingDuration", reinterpret_cast<void*>(func), &getCurrentSwingDuration);
-    mSwingDetour->enable();
 
     // TODO: Replace this with a better method of doing matrix translation
     func = SigManager::BobHurt;
     mBobHurtDetour = std::make_unique<Detour>("bobHurt", reinterpret_cast<void*>(func), &doBobHurt);
-    mBobHurtDetour->enable();
 }

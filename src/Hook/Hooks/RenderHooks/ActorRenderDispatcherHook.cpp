@@ -32,7 +32,5 @@ void ActorRenderDispatcherHook::init()
     if (once) return;
     once = true;
 
-    mName = "ActorRenderDispatcher::render";
     mDetour = std::make_unique<Detour>("ActorRenderDispatcher::render", reinterpret_cast<void*>(SigManager::ActorRenderDispatcher_render), &ActorRenderDispatcherHook::render);
-    mDetour->enable();
 }

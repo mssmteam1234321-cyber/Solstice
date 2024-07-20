@@ -245,7 +245,6 @@ void Actor::setOnGround(bool flag)
 
 void Actor::jumpFromGround()
 {
-    spdlog::info("Jumping from ground");
     auto jumpComponent = getJumpControlComponent();
     bool noJumpDelay = jumpComponent->mNoJumpDelay;
     jumpComponent->mNoJumpDelay = false;

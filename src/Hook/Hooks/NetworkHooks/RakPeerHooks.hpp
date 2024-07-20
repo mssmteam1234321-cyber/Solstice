@@ -9,7 +9,7 @@ class RakPeerHooks : public Hook {
 public:
     RakPeerHooks() : Hook()
     {
-
+        mName = "RakPeerHooks";
     }
 
     static std::unique_ptr<Detour> RunUpdateCycleDetour;

@@ -10,7 +10,7 @@
 class BaseTickHook : public Hook {
 public:
     BaseTickHook() : Hook() {
-
+        mName = "Actor::baseTick";
     }
 
     static std::unique_ptr<Detour> mDetour;

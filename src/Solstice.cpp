@@ -34,12 +34,12 @@ void Solstice::init(HMODULE hModule)
     // Honestly, I don't think this helps much but it's not a bad idea to have it here
     while (ProcUtils::getModuleCount() < 130) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
+    int64_t start = NOW;
+
     mModule = hModule;
     mInitialized = true;
 
-#ifdef __DEBUG__
     Logger::initialize();
-#endif
 
     console = spdlog::stdout_color_mt(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::color_mode::automatic);
 
@@ -64,11 +64,13 @@ void Solstice::init(HMODULE hModule)
 
     Prefs = PreferenceManager::load();
 
-    console->info("initializing offsetprovider...");
+    console->info("initializing signatures...");
+    int64_t sstart = NOW;
     OffsetProvider::initialize();
-
-    console->info("initializing sigmanager...");
     SigManager::initialize();
+    int64_t send = NOW;
+    console->info("initialized signatures in {}ms", send - sstart);
+
 
     patchInHandSlot(true);
 
@@ -89,6 +91,7 @@ void Solstice::init(HMODULE hModule)
     console->info("initializing hooks...");
     HookManager::init(false);
 
+    console->info("initialized in {}ms", NOW - start);
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 

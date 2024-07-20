@@ -90,7 +90,15 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 
     float maxExtend = mExtend.mValue;
 
-    if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) == 0) return false;
+    if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) == 0)
+    {
+        if (mIsTowering)
+        {
+            mIsTowering = false;
+            player->getStateVectorComponent()->mVelocity.y = -5.0f;
+        }
+        return false;
+    }
 
     if (mSwitchMode.mValue == SwitchMode::Fake && mLastSlot != -1) player->getSupplies()->mInHandSlot = mLastSlot; // Change the
 

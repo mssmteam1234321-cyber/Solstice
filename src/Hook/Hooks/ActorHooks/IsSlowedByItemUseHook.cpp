@@ -21,7 +21,5 @@ void* IsSlowedByItemUseHook::onIsSlowedByItemUse(void* a1, void* a2, void* a3)
 
 void IsSlowedByItemUseHook::init()
 {
-    mName = "ItemUseSlowdownSystem::isSlowedByItemUse";
     mDetour = std::make_unique<Detour>("ItemUseSlowdownSystem::isSlowedByItemUse", reinterpret_cast<void*>(SigManager::ItemUseSlowdownSystem_isSlowedByItemUse), &onIsSlowedByItemUse);
-    mDetour->enable();
 }

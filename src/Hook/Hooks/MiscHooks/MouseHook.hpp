@@ -9,7 +9,7 @@ class MouseHook : public Hook
     // MouseDevice *this, char actionButtonId, char buttonData, __int16 x, __int16 y, __int16 dx, __int16 dy, bool forceMotionlessPointer)
 public:
     MouseHook() : Hook() {
-
+        mName = "MouseDevice::feed";
     }
 
     static std::unique_ptr<Detour> mDetour;

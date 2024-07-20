@@ -37,6 +37,8 @@ void HookManager::init(bool initLp)
     {
         std::vector<std::shared_ptr<Hook>> hooks;
         ADD_HOOK(KeyHook);
+        ADD_HOOK(SetupAndRenderHook);
+        ADD_HOOK(D3DHook);
         ADD_HOOK(IsSlowedByItemUseHook);
         ADD_HOOK(ContainerScreenControllerHook);
         ADD_HOOK(MouseHook);
@@ -45,8 +47,6 @@ void HookManager::init(bool initLp)
         ADD_HOOK(PacketSendHook);
         ADD_HOOK(RakPeerHooks);
         ADD_HOOK(ActorRenderDispatcherHook);
-        ADD_HOOK(D3DHook);
-        ADD_HOOK(SetupAndRenderHook);
         ADD_HOOK(AnimationHooks);
 
         for (auto& hook : hooks)
@@ -54,6 +54,8 @@ void HookManager::init(bool initLp)
             hook->init();
             mHooks.emplace_back(hook);
         }
+
+        MH_EnableHook(MH_ALL_HOOKS);
     }
 }
 

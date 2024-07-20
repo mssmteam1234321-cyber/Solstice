@@ -134,6 +134,15 @@ void KeyHook::onKey(uint32_t key, bool isDown)
     Keyboard::mPressedKeys[key] = isDown;
 
     auto holder = nes::make_holder<KeyEvent>(key, isDown);
+    if (!gFeatureManager)
+    {
+        spdlog::critical("FeatureManager is null");
+    }
+    if (!gFeatureManager->mDispatcher)
+    {
+        spdlog::critical("Dispatcher is null");
+    }
+
     gFeatureManager->mDispatcher->trigger<KeyEvent>(holder);
 
     if (holder->mCancelled) return;
@@ -186,7 +195,5 @@ void KeyHook::onKey(uint32_t key, bool isDown)
 
 void KeyHook::init()
 {
-    mName = "Keyboard::feed";
     mDetour = std::make_unique<Detour>("Keyboard::feed", reinterpret_cast<void*>(SigManager::Keyboard_feed), &KeyHook::onKey);
-    mDetour->enable();
 }

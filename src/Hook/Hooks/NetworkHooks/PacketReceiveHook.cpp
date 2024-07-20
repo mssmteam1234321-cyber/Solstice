@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/GameSession.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
+#include <omp.h>
 
 std::unordered_map<PacketID, std::unique_ptr<Detour>> PacketReceiveHook::mDetours;
 
@@ -40,45 +41,42 @@ void PacketReceiveHook::init()
     if (called) return;
     called = true;
 
-    // Go through the enum of PacketID using magic_enum, and hook the packet receive function for each packet
-    // Also do this asynchonously, using futures
-    std::vector<std::future<void>> futures;
-
     auto packetIds = magic_enum::enum_values<PacketID>();
 
-    size_t chunkSize = packetIds.size();
-
-    auto handlePacketChunk = [&](size_t start, size_t end) {
-        for (size_t i = start; i < end; i++) {
-            PacketID packetId = packetIds[i];
-            auto packet = MinecraftPackets::createPacket(packetId);
-            if (!packet) continue;
-            uint64_t packetFunc = packet->mDispatcher->getPacketHandler();
-            std::string name = std::string(magic_enum::enum_name<PacketID>(packet->getId()));
-            name = "PacketHandlerDispatcherInstance<" + name + "Packet,0>::handle";
-            auto detour = std::make_unique<Detour>(name, reinterpret_cast<void*>(packetFunc), &onPacketSend, true);
-            mDetours[packetId] = std::move(detour);
-        }
-    };
-
     uint64_t start = NOW;
+    spdlog::info("Hooking {} packets", packetIds.size());
 
-    for (size_t i = 0; i < packetIds.size(); i += chunkSize) {
-        size_t start = i;
-        size_t end = std::min(i + chunkSize, packetIds.size());
-        futures.push_back(std::async(std::launch::async, handlePacketChunk, start, end));
+    std::vector<std::string> packetNames(packetIds.size());
+    std::vector<uint64_t> packetFuncs(packetIds.size(), 0);
+
+    // Precompute packet names and functions outside of the parallel loop
+#pragma omp parallel for
+    for (int i = 0; i < packetIds.size(); i++) {
+        PacketID packetId = packetIds[i];
+        auto packet = MinecraftPackets::createPacket(packetId);
+        if (!packet) continue;
+
+        packetFuncs[i] = packet->mDispatcher->getPacketHandler();
+        if (packetFuncs[i]) {
+            packetNames[i] = "PacketHandlerDispatcherInstance<" + std::string(magic_enum::enum_name<PacketID>(packet->getId())) + "Packet,0>::handle";
+        } else {
+            spdlog::warn("Failed to hook packet: {}", magic_enum::enum_name<PacketID>(packet->getId()));
+        }
     }
 
-    for (auto& future : futures) {
-        future.get();
+    // Create detours
+#pragma omp parallel for
+    for (int i = 0; i < packetIds.size(); i++) {
+        if (!packetFuncs[i]) continue;
+
+        auto detour = std::make_unique<Detour>(packetNames[i], reinterpret_cast<void*>(packetFuncs[i]), &onPacketSend, true);
+#pragma omp critical
+        {
+            mDetours[packetIds[i]] = std::move(detour);
+        }
     }
 
     uint64_t timeTaken = NOW - start;
-
-    // Enable all the detours
-    for (const auto& detour : mDetours | std::views::values) {
-        detour->enable(true);
-    }
 
     spdlog::info("Successfully hooked {} packets in {}ms", mDetours.size(), timeTaken);
 }

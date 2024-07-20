@@ -9,10 +9,11 @@ class Fly : public ModuleBase<Fly> {
 public:
     enum class Mode {
         Motion,
-        Elytra
+        Elytra,
+        Pregame
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the fly", Mode::Motion,  "Motion", "Elytra");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the fly", Mode::Motion,  "Motion", "Elytra", "Pregame");
     NumberSetting Speed = NumberSetting("Speed", "The speed of the fly", 1.f, 0.f, 20.f, 0.1f);
     BoolSetting ApplyGlideFlags = BoolSetting("Apply Glide Flags", "Applies glide flags to the player", true);
 
@@ -21,6 +22,7 @@ public:
         addSetting(&Speed);
         addSetting(&ApplyGlideFlags);
         VISIBILITY_CONDITION(ApplyGlideFlags, mMode.mValue == Mode::Motion);
+        VISIBILITY_CONDITION(Speed, mMode.mValue != Mode::Pregame);
 
         mNames = {
             {Lowercase, "fly"},

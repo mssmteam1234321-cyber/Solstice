@@ -55,7 +55,5 @@ void* ConnectionRequestHook::createRequestDetourFunc(ConnectionRequest* result, 
 
 void ConnectionRequestHook::init()
 {
-    mName = "ConnectionRequest::create";
     mDetour = std::make_unique<Detour>("ConnectionRequest::create", reinterpret_cast<void*>(SigManager::ConnectionRequest_create), reinterpret_cast<void*>(&createRequestDetourFunc));
-    mDetour->enable();
 }
