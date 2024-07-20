@@ -18,5 +18,5 @@ void MotionBlur::onDisable()
 
 void MotionBlur::onRenderEvent(RenderEvent& event)
 {
-    D2D::addGhostFrame(ImGui::GetBackgroundDrawList(), mMaxFrames.as<int>(), mIntensity.as<float>());
+    D2D::addGhostFrame(ImGui::GetForegroundDrawList(), mMaxFrames.as<int>(), mIntensity.as<float>());
 }
