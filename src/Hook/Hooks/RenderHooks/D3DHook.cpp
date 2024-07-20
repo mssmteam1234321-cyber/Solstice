@@ -145,6 +145,17 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         if (swapChain->GetDevice(__uuidof(ID3D12Device), reinterpret_cast<void **>(&gDevice12)) == S_OK) {
             spdlog::info("[D3D] D3D12 Device acquired");
 
+            if (Solstice::Prefs->mFallbackToD3D11)
+            {
+                ID3D12Device* bad_device;
+                if (SUCCEEDED(swapChain->GetDevice(IID_PPV_ARGS(&bad_device))))
+                {
+                    spdlog::warn("Removing D3D12 device [user requested fallback]");
+                    reinterpret_cast<ID3D12Device5*>(bad_device)->RemoveDevice();
+                    return oPresent(swapChain, syncInterval, flags);
+                }
+            }
+
             UINT deviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED;
 
             ID3D12CommandQueue* pacq = reinterpret_cast<bgfx_d3d12_RendererContextD3D12*>(bgfx_context::get()->getRenderContext())->getCommandQueue();

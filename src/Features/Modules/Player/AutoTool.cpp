@@ -53,13 +53,9 @@ void AutoTool::onBaseTickEvent(BaseTickEvent& event)
     int bestSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
     if (bestSlot == -1) return;
 
-    if (mOldSlot == -1)
-    {
-        mOldSlot = player->getSupplies()->mSelectedSlot;
-    } else if (mFakeSpoof.mValue)
-    {
-        player->getSupplies()->mInHandSlot = mOldSlot;
-    }
+    if (mOldSlot == -1) mOldSlot = player->getSupplies()->mSelectedSlot;
+    else if (mFakeSpoof.mValue) player->getSupplies()->mInHandSlot = mOldSlot;
+
 
     player->getSupplies()->mSelectedSlot = bestSlot;
 }

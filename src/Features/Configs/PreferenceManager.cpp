@@ -43,10 +43,13 @@ std::shared_ptr<Preferences> PreferenceManager::load()
     {
         prefs->mDefaultConfigName = j["DefaultConfigName"];
         prefs->mFriends = j["Friends"].get<std::vector<std::string>>();
+        prefs->mFallbackToD3D11 = j["FallbackToD3D11"];
     }
     catch (std::exception e)
     {
         spdlog::error("Error parsing preferences file: {}", e.what());
+        save(prefs);
+        return prefs;
     }
 
     spdlog::info("Successfully loaded preferences!");
@@ -71,6 +74,7 @@ void PreferenceManager::save(const std::shared_ptr<Preferences>& prefs)
     {
         j["DefaultConfigName"] = prefs->mDefaultConfigName;
         j["Friends"] = prefs->mFriends;
+        j["FallbackToD3D11"] = prefs->mFallbackToD3D11;
     } catch (std::exception& e)
     {
         spdlog::error("Error saving preferences: {}", e.what());
