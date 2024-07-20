@@ -25,8 +25,8 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {
     if (!mOutgoing.mValue) return;
     // Log the packet
-    spdlog::info("[out] Packet: {}", event.packet->getName());
-    if (event.packet->getId() == PacketID::Login)
+    spdlog::info("[out] Packet: {}", event.mPacket->getName());
+    if (event.mPacket->getId() == PacketID::Login)
     {
         auto packet = event.getPacket<Packet>();
         spdlog::info("Packet: {}", "Login");

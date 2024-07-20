@@ -5,6 +5,8 @@
 void ResourceLoader::loadResources() {
     auto cash_wav = GET_RESOURCE(cash_wav);
     Resources.emplace("cash.wav", cash_wav);
+    auto cash_register_sound_wav = GET_RESOURCE(cash_register_sound_wav);
+    Resources.emplace("cash_register_sound.wav", cash_register_sound_wav);
     auto fard_wav = GET_RESOURCE(fard_wav);
     Resources.emplace("fard.wav", fard_wav);
     auto fonts_Mojangles_Bold_ttf = GET_RESOURCE(fonts_Mojangles_Bold_ttf);

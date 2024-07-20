@@ -56,3 +56,29 @@ std::shared_ptr<InventoryTransactionPacket> ActorUtils::createAttackTransaction(
 
     return pkt;
 }
+
+Actor* ActorUtils::getActorFromUniqueId(const int64_t uniqueId)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player == nullptr) return nullptr;
+
+    for (auto &&[_, moduleOwner, ridc, uidc]: player->mContext.mRegistry->view<ActorOwnerComponent, RuntimeIDComponent, ActorUniqueIDComponent>().each())
+    {
+        if (uidc.mUniqueID == uniqueId && moduleOwner.actor) return moduleOwner.actor;
+    }
+
+    return nullptr;
+}
+
+Actor* ActorUtils::getActorFromRuntimeID(int64_t runtimeId)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player == nullptr) return nullptr;
+
+    for (auto &&[_, moduleOwner, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, RuntimeIDComponent>().each())
+    {
+        if (ridc.runtimeID == runtimeId && moduleOwner.actor) return moduleOwner.actor;
+    }
+
+    return nullptr;
+}

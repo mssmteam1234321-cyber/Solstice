@@ -18,6 +18,6 @@ void NoPacket::onDisable()
 
 void NoPacket::onPacketOutEvent(PacketOutEvent& event) const
 {
-    if ((mMoveOnly && (event.packet->getId() == PacketID::MovePlayer || event.packet->getId() == PacketID::PlayerAuthInput)) || !mMoveOnly)
+    if ((mMoveOnly && (event.mPacket->getId() == PacketID::MovePlayer || event.mPacket->getId() == PacketID::PlayerAuthInput)) || !mMoveOnly)
         event.mCancelled = true;
 }

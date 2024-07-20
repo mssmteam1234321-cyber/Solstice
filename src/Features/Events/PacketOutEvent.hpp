@@ -9,15 +9,15 @@
 
 class PacketOutEvent : public CancelableEvent {
 public:
-    Packet* packet;
+    Packet* mPacket;
 
     explicit PacketOutEvent(Packet* packet) : CancelableEvent() {
-        this->packet = packet;
+        this->mPacket = packet;
     }
 
     template <typename T>
     T* getPacket() const
     {
-        return reinterpret_cast<T*>(packet);
+        return reinterpret_cast<T*>(mPacket);
     }
 };

@@ -179,7 +179,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     for (auto& transaction : queuedTransactions)
     {
         player->getLevel()->getHitResult()->mType = HitType::ENTITY;
-        ClientInstance::get()->getPacketSender()->sendToServer(transaction.get());
+        ClientInstance::get()->getPacketSender()->send(transaction.get());
     }
 
     queuedTransactions.clear();
@@ -284,12 +284,12 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (event.packet->getId() == PacketID::PlayerAuthInput) {
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
         auto pkt = event.getPacket<PlayerAuthInputPacket>();
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
         pkt->mRot = rots;
         pkt->mYHeadRot = rots.y;
-    } else if (event.packet->getId() == PacketID::MovePlayer) {
+    } else if (event.mPacket->getId() == PacketID::MovePlayer) {
         auto pkt = event.getPacket<MovePlayerPacket>();
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
         pkt->mRot = rots;

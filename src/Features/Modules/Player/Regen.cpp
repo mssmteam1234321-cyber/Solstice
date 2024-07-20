@@ -320,7 +320,7 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         if (mShouldRotate)
@@ -333,7 +333,7 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             mShouldRotate = false;
         }
     }
-    else if (event.packet->getId() == PacketID::InventoryTransaction) {
+    else if (event.mPacket->getId() == PacketID::InventoryTransaction) {
         if (const auto it = event.getPacket<InventoryTransactionPacket>();
             it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
@@ -345,7 +345,7 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             }
         }
     }
-    else if (event.packet->getId() == PacketID::MobEquipment) {
+    else if (event.mPacket->getId() == PacketID::MobEquipment) {
         auto mpkt = event.getPacket<MobEquipmentPacket>();
         if (mpkt->mSlot != mToolSlot) mShouldSpoofSlot = true;
     }

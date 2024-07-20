@@ -125,7 +125,7 @@ void Interface::onBaseTickEvent(BaseTickEvent& event)
 
 void Interface::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 

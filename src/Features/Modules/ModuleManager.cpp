@@ -15,6 +15,7 @@
 #include "Misc/AntiCheatDetector.hpp"
 #include "Misc/AutoMessage.hpp"
 #include "Misc/Friends.hpp"
+#include "Misc/Killsults.hpp"
 #include "Misc/NoFilter.hpp"
 #include "Misc/NoPacket.hpp"
 #include "Movement/AntiImmobile.hpp"
@@ -86,6 +87,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoPacket>());
     mModules.emplace_back(std::make_shared<NoFilter>());
     mModules.emplace_back(std::make_shared<AutoMessage>());
+    mModules.emplace_back(std::make_shared<Killsults>());
+
 
 
     // Visual

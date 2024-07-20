@@ -178,7 +178,7 @@ void Speed::onPacketInEvent(PacketInEvent& event)
 
 void Speed::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         auto player = ClientInstance::get()->getLocalPlayer();

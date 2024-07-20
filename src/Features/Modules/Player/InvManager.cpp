@@ -370,12 +370,12 @@ void InvManager::onPacketInEvent(PacketInEvent& event)
 
 void InvManager::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.packet->getId() == PacketID::ContainerClose)
+    if (event.mPacket->getId() == PacketID::ContainerClose)
     {
         auto packet = event.getPacket<ContainerClosePacket>();
         if (packet->mContainerId == ContainerID::Chest) gIsChestOpen = false;
     }
-    if (event.packet->getId() == PacketID::Interact && mSpoofOpen.mValue)
+    if (event.mPacket->getId() == PacketID::Interact && mSpoofOpen.mValue)
     {
         // Return if the LastAction was more than 400ms+ping ago
         if (mLastAction + 200 + mLastPing < NOW) return;
@@ -386,7 +386,7 @@ void InvManager::onPacketOutEvent(PacketOutEvent& event)
             spdlog::warn("Cancelling packet [out:InteractPacket]");
             event.cancel();
         }
-    } else if (event.packet->getId() == PacketID::InventoryTransaction && mSpoofOpen.mValue)
+    } else if (event.mPacket->getId() == PacketID::InventoryTransaction && mSpoofOpen.mValue)
     {
         auto packet = event.getPacket<InventoryTransactionPacket>();
         /*std::string actionType = std::string(magic_enum::enum_name(packet->mTransaction->type));

@@ -49,7 +49,7 @@ void AutoMessage::onPacketInEvent(PacketInEvent& event)
             std::string mapName = packet->mMessage;
             // simply replace the §b§l» §r§7You voted for §e with nothing
             mapName = StringUtils::replaceAll(mapName, "§b§l» §r§7You voted for §e", "");
-            mVoteMessageTemplate.setVariableValue("!mapName!", mapName);
+            mVoteMessageTemplate.setVariableValue("mapName", mapName);
             std::string chatMessage = mVoteMessageTemplate.getEntry();
             mQueuedMessages[NOW] = chatMessage;
         }

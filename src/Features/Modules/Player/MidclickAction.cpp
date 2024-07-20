@@ -112,7 +112,7 @@ void MidclickAction::onBaseTickEvent(BaseTickEvent& event)
 
 void MidclickAction::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.packet->getId() == PacketID::PlayerAuthInput && mRotateNextTick)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput && mRotateNextTick)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         auto player = ClientInstance::get()->getLocalPlayer();

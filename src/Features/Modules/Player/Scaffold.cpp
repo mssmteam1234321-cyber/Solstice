@@ -313,7 +313,7 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (event.packet->getId() == PacketID::InventoryTransaction && mFlareonV2Placement.mValue)
+    if (event.mPacket->getId() == PacketID::InventoryTransaction && mFlareonV2Placement.mValue)
     {
         if (const auto it = event.getPacket<InventoryTransactionPacket>(); it->mTransaction->type ==
             ComplexInventoryTransaction::Type::ItemUseTransaction)
@@ -324,7 +324,7 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
         }
     }
 
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 

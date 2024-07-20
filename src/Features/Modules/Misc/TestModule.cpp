@@ -72,7 +72,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
     }
 }

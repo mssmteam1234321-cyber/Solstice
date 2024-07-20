@@ -58,13 +58,13 @@ void Fly::onBaseTickEvent(BaseTickEvent& event) const
 void Fly::onPacketOutEvent(PacketOutEvent& event) const
 {
 
-    if (event.packet->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto player = ClientInstance::get()->getLocalPlayer();
         if (player == nullptr)
             return;
 
-        auto packet = reinterpret_cast<PlayerAuthInputPacket*>(event.packet);
+        auto packet = reinterpret_cast<PlayerAuthInputPacket*>(event.mPacket);
         if (mMode.mValue == Mode::Motion && ApplyGlideFlags.mValue)
         {
             packet->mInputData |= AuthInputAction::START_GLIDING;

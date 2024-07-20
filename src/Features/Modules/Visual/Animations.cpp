@@ -78,9 +78,9 @@ void Animations::onBobHurtEvent(BobHurtEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    auto heldItem = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot);
+    auto heldItem = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mInHandSlot);
     bool isHoldingSword = heldItem && heldItem->mItem && heldItem->getItem()->isSword();
-    if ((!ClientInstance::get()->getMouseGrabbed() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && isHoldingSword || event.mDoBlockAnimation) && mAnimation.mValue != Animation::Default)
+    if ((!ClientInstance::get()->getMouseGrabbed() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && isHoldingSword || event.mDoBlockAnimation && isHoldingSword) && mAnimation.mValue != Animation::Default)
     {
         *matrix = glm::translate(*matrix, glm::vec3(0.4, 0.0, -0.15));
         *matrix = glm::translate(*matrix, glm::vec3(-0.1f, 0.15f, -0.2f));
