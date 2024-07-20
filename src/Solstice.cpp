@@ -25,7 +25,7 @@
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 
-std::vector<unsigned char> gBpBytes = {0x20};
+std::vector<unsigned char> gBpBytes = {0x1c}; // Defines the new offset for mInHandSlot
 DEFINE_PATCH_FUNC(patchInHandSlot, SigManager::ItemInHandRenderer_renderItem_bytepatch2+2, gBpBytes);
 
 void Solstice::init(HMODULE hModule)

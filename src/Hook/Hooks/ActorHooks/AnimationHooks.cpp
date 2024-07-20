@@ -8,6 +8,7 @@
 #include <Features/Events/BobHurtEvent.hpp>
 
 #include <glm/glm.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> AnimationHooks::mSwingDetour;
 std::unique_ptr<Detour> AnimationHooks::mBobHurtDetour;
@@ -29,6 +30,10 @@ void* AnimationHooks::doBobHurt(void* _this, glm::mat4* matrix)
     auto original = mBobHurtDetour->getOriginal<decltype(&doBobHurt)>();
     // Log the address of the matrix
     auto result = original(_this, matrix);
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return result;
+
 
     auto holder = nes::make_holder<BobHurtEvent>(_this, matrix);
     gFeatureManager->mDispatcher->trigger(holder);
