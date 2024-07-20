@@ -3,6 +3,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -11,7 +12,10 @@
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/LevelEventPacket.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
 
 void Regen::initializeRegen() {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -30,10 +34,11 @@ void Regen::initializeRegen() {
     mShouldSpoofSlot = true;
     mIsMiningBlock = false;
     mIsUncovering = false;
+    mIsStealing = false;
     mToolSlot = -1;
 }
 
-bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly) {
+bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing) {
     auto player = ClientInstance::get()->getLocalPlayer();
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     if (!block) return false;
@@ -55,7 +60,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     if (mRange.mValue < glm::distance(closestPos, *player->getPos())) return false;
 
     // Exposed Check
-    if (exposedOnly) {
+    if (exposedOnly && (!isStealing || !isRedstone)) {
         if (BlockUtils::getExposedFace(blockPos) == -1) return false;
     }
 
@@ -126,12 +131,14 @@ void Regen::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Regen::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &Regen::onPacketInEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
     mShouldRotate = false;
     mIsMiningBlock = false;
+    mEnemyTargettingBlockPos = { 0, 0, 0 };
     initializeRegen();
 }
 
@@ -140,6 +147,7 @@ void Regen::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Regen::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Regen::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &Regen::onPacketInEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -160,9 +168,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
+    bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mQueueRedstone.mValue) {
+    if (maxAbsorption && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
         initializeRegen();
         return;
     }
@@ -173,8 +182,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering)) { // Check if current block is valid
+    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing)) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
+        int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
+        if (mIsStealing && !mCanSteal && exposedFace == -1) {
+            initializeRegen();
+            return;
+        }
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
@@ -192,13 +206,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
 
         bool finishBreak = true;
-        if (maxAbsorption && isRedstone) finishBreak = false;
+        if (maxAbsorption && isRedstone && !mIsStealing) finishBreak = false;
 
-        if ((mCurrentDestroySpeed <= mBreakingProgress && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
+        if ((mCurrentDestroySpeed <= mBreakingProgress && (!mIsStealing || exposedFace != -1) && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
-            BlockUtils::destroyBlock(mCurrentBlockPos, BlockUtils::getExposedFace(mCurrentBlockPos));
+            BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace);
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
             PacketUtils::spoofSlot(mPreviousSlot);
@@ -211,6 +225,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
     else { // Find new block
         initializeRegen();
+        if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
+            mTargettingBlockPos = mEnemyTargettingBlockPos;
+            queueBlock(mEnemyTargettingBlockPos);
+            mIsStealing = true;
+            return;
+        }
         std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
         std::vector<BlockInfo> exposedBlockList;
         std::vector<BlockInfo> unexposedBlockList;
@@ -251,7 +271,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 PathFindingResult result = getBestPathToBlock(redstonePos);
                 float currentTime = result.time;
                 if (currentTime >= fastestTime || !isValidBlock(result.blockPos, false, false)) continue;
-                
+
                 for (auto& [face, offset] : BlockUtils::blockFaceOffsets) {
                     int ID = source->getBlock(result.blockPos + glm::ivec3(offset))->getmLegacy()->getBlockId();
                     if (ID == 73 || ID == 74) {
@@ -348,5 +368,30 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
     else if (event.mPacket->getId() == PacketID::MobEquipment) {
         auto mpkt = event.getPacket<MobEquipmentPacket>();
         if (mpkt->mSlot != mToolSlot) mShouldSpoofSlot = true;
+    }
+}
+
+void Regen::onPacketInEvent(class PacketInEvent& event) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (event.mPacket->getId() == PacketID::LevelEvent) {
+        auto levelEvent = event.getPacket<LevelEventPacket>();
+        if (levelEvent->mEventId == 3600) { // Start destroying block
+            if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
+            for (auto& offset : offsetList) {
+                glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
+                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1) {
+                    mEnemyTargettingBlockPos = blockPos;
+                    mLastEnemyLayerBlockPos = levelEvent->mPos;
+                    mCanSteal = true;
+                }
+            }
+        }
+        else if (levelEvent->mEventId == 3601) { // Stop destroying block
+            if (mCanSteal && glm::ivec3(levelEvent->mPos) == mLastEnemyLayerBlockPos) {
+                mCanSteal = false;
+            }
+        }
     }
 }
