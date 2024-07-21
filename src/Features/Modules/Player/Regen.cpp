@@ -381,7 +381,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
             for (auto& offset : offsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
-                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1) {
+                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
                     mEnemyTargettingBlockPos = blockPos;
                     mLastEnemyLayerBlockPos = levelEvent->mPos;
                     mCanSteal = true;
