@@ -32,5 +32,27 @@ namespace mce {
         float g;
         float b;
         float a;
+
+        Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {};
+        Color() : r(0), g(0), b(0), a(0) {};
+    };
+
+    class ResourceLocation {
+    public:
+        uint64_t mType;              //0x0000
+        std::string mFilePath = "";  //0x0008
+
+        ResourceLocation(std::string filePath, bool external) {
+            memset(this, 0, sizeof(ResourceLocation));
+            this->mFilePath = std::move(filePath);
+            if (external)
+                this->mType = 2;
+        };
+    };
+
+    class TexturePtr {
+    public:
+        PAD(0x10);
+        std::shared_ptr<ResourceLocation> mTexture = nullptr;
     };
 }

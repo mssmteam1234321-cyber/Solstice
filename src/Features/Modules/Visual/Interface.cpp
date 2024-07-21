@@ -2,20 +2,23 @@
 // Created by vastrakai on 7/1/2024.
 //
 
-#include "Interface.hpp"
-
 #include <Features/Events/ActorRenderEvent.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/DrawImageEvent.hpp>
 #include <Features/Events/ModuleStateChangeEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
+#include <Features/Events/DrawImageEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
+
+#include <Features/Modules/Visual/Interface.hpp>
 #include <Hook/Hooks/RenderHooks/ActorRenderDispatcherHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-
+#include <SDK/Minecraft/mce.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <glm/glm.hpp>
 
 float pYaw;
 float pOldYaw;
@@ -111,6 +114,25 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
     headRotations->oldHeadRot = realOldHeadRot;
     bodyRotations->yBodyRot = realBodyYaw;
     bodyRotations->yOldBodyRot = realOldBodyYaw;
+}
+
+void Interface::onDrawImageEvent(DrawImageEvent& event)
+{
+    if (!mSlotEasing.mValue) return;
+
+    static glm::vec2 hotbarPos = {};
+    auto path = event.mTexture->mTexture->mFilePath.c_str();
+
+    // textures/ui/selected_hotbar_slot
+    // If the selected hotbar slot is being drawn
+    if (strcmp(path, "textures/ui/selected_hotbar_slot") == 0)
+    {
+        float deltaTime = ImGui::GetIO().DeltaTime;
+        if (hotbarPos.x == 0 || hotbarPos.y == 0) hotbarPos = *event.mPos;
+        hotbarPos.x = MathUtils::lerp(hotbarPos.x, event.mPos->x, deltaTime * mSlotEasingSpeed.mValue);
+        hotbarPos.y = event.mPos->y;
+        *event.mPos = hotbarPos;
+    }
 }
 
 

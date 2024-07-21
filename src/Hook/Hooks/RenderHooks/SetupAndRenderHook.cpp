@@ -4,16 +4,26 @@
 
 #include "SetupAndRenderHook.hpp"
 
+#include <SDK/Minecraft/mce.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Rendering/LevelRenderer.hpp>
+#include <Features/Events/DrawImageEvent.hpp>
 
 #include "D3DHook.hpp"
 
-std::unique_ptr<Detour> SetupAndRenderHook::mDetour;
+std::unique_ptr<Detour> SetupAndRenderHook::mSetupAndRenderDetour;
+std::unique_ptr<Detour> SetupAndRenderHook::mDrawImageDetour;
 
 void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
 {
-    auto original = mDetour->getOriginal<decltype(&onSetupAndRender)>();
+    auto original = mSetupAndRenderDetour->getOriginal<decltype(&onSetupAndRender)>();
+
+    static bool once = false;
+    if (!once)
+    {
+        once = true;
+        initVt(mcuirc);
+    }
 
     auto ci = ClientInstance::get();
     if (!ci) return original(screenView, mcuirc);
@@ -34,11 +44,30 @@ void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
     original(screenView, mcuirc);
 }
 
+void SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv,
+    mce::Color* color)
+{
+    auto original = mDrawImageDetour->getOriginal<decltype(&onDrawImage)>();
+
+    nes::event_holder<DrawImageEvent> holder = nes::make_holder<DrawImageEvent>(context, texture, pos, size, uv, color);
+    gFeatureManager->mDispatcher->trigger(holder);
+    if (holder->isCancelled()) return;
+
+    return original(context, texture, pos, size, uv, color);
+}
+
+void SetupAndRenderHook::initVt(void* ctx)
+{
+    const auto vtable = *static_cast<uintptr_t**>(ctx);
+    mDrawImageDetour = std::make_unique<Detour>("DrawImage", reinterpret_cast<void*>(vtable[7]), &SetupAndRenderHook::onDrawImage);
+    mDrawImageDetour->enable();
+}
+
 void SetupAndRenderHook::init()
 {
     static bool initialized = false;
     if (initialized) return;
     initialized = true;
 
-    mDetour = std::make_unique<Detour>("ScreenView::setupAndRender", reinterpret_cast<void*>(SigManager::ScreenView_setupAndRender), &SetupAndRenderHook::onSetupAndRender);
+    mSetupAndRenderDetour = std::make_unique<Detour>("ScreenView::setupAndRender", reinterpret_cast<void*>(SigManager::ScreenView_setupAndRender), &SetupAndRenderHook::onSetupAndRender);
 }

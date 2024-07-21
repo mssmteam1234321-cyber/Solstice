@@ -133,7 +133,6 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
     {
         for (size_t i = 0; i < categories.size(); i++)
         {
-            // Add a clip rect starting just below the category text
             // Mod math stuff
             const float modWidth = catWidth;
             const float modHeight = catHeight;
@@ -679,8 +678,8 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                     ImRenderUtils::getDeltaTime() * 10);
 
                         // Calculate scaled size based on cScale
-                        float scaledWidth = modRect.getWidth() * mod->cScale;
-                        float scaledHeight = modRect.getHeight() * mod->cScale;
+                        float scaledWidth = modRect.getWidth();
+                        float scaledHeight = modRect.getHeight();
 
                         // Calculate new rectangle based on scaled size and center point
                         ImVec4 scaledRect = ImVec4(center.x - scaledWidth / 2.f,
@@ -697,7 +696,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                             float modIndexY = moduleY + (scaledRect.y - scaledRect.w);
 
                             ImColor rgb2 = ColorUtils::getThemedColor(scaledRect.y + ((scaledRect.z - scaledRect.x)));
-                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation, animation);
+                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation * mod->cScale, animation * mod->cScale);
                         }
 
                         float cRectCentreX = modRect.x + ((modRect.z - modRect.x) - ImRenderUtils::getTextWidth(

@@ -2,7 +2,7 @@
 #include <Features/Events/ActorRenderEvent.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/ModuleStateChangeEvent.hpp>
-
+#include <Features/Events/DrawImageEvent.hpp>
 //
 // Created by vastrakai on 7/1/2024.
 //
@@ -35,6 +35,8 @@ public:
     ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF8B00FF);
     NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 8.f, 0.01f, 20.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
+    BoolSetting mSlotEasing = BoolSetting("Slot Easing", "Eases the selection of slots", true);
+    NumberSetting mSlotEasingSpeed = NumberSetting("Easing Speed", "The speed of the slot easing", 20.f, 0.1f, 20.f, 0.01f);
     //BoolSetting mShowRotations = BoolSetting("Show Rotations", "Shows normally invisible server-sided rotations", false);
 
 
@@ -44,17 +46,10 @@ public:
         gFeatureManager->mDispatcher->listen<ActorRenderEvent, &Interface::onActorRenderEvent, nes::event_priority::FIRST>(this);
         gFeatureManager->mDispatcher->listen<BaseTickEvent, &Interface::onBaseTickEvent>(this);
         gFeatureManager->mDispatcher->listen<PacketOutEvent, &Interface::onPacketOutEvent, nes::event_priority::ABSOLUTE_LAST>(this);
+        gFeatureManager->mDispatcher->listen<DrawImageEvent, &Interface::onDrawImageEvent>(this);
 
-        addSetting(&mNamingStyle);
-        addSetting(&mMode);
-        addSetting(&mFont);
-        addSetting(&mColors);
-        addSetting(&mColor1);
-        addSetting(&mColor2);
-        addSetting(&mColor3);
-        addSetting(&mColor4);
-        addSetting(&mColor5);
-        addSetting(&mColor6);
+        addSettings(&mNamingStyle, &mMode, &mFont, &mColors, &mColor1, &mColor2, &mColor3, &mColor4, &mColor5, &mColor6, &mColorSpeed, &mSaturation, &mSlotEasing, &mSlotEasingSpeed);
+
         VISIBILITY_CONDITION(mColors, mMode.mValue == Custom);
         VISIBILITY_CONDITION(mColor1, mMode.mValue == Custom && mColors.mValue >= 1);
         VISIBILITY_CONDITION(mColor2, mMode.mValue == Custom && mColors.mValue >= 2);
@@ -62,8 +57,8 @@ public:
         VISIBILITY_CONDITION(mColor4, mMode.mValue == Custom && mColors.mValue >= 4);
         VISIBILITY_CONDITION(mColor5, mMode.mValue == Custom && mColors.mValue >= 5);
         VISIBILITY_CONDITION(mColor6, mMode.mValue == Custom && mColors.mValue >= 6);
-        addSetting(&mColorSpeed);
-        addSetting(&mSaturation);
+
+        VISIBILITY_CONDITION(mSlotEasingSpeed, mSlotEasing.mValue);
 
         mNames = {
             {Lowercase, "interface"},
@@ -98,9 +93,9 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onModuleStateChange(ModuleStateChangeEvent& event);
-
     void onRenderEvent(class RenderEvent& event);
-    void onActorRenderEvent(ActorRenderEvent& event);
+    void onActorRenderEvent(class ActorRenderEvent& event);
+    void onDrawImageEvent(class DrawImageEvent& event);
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
 };
