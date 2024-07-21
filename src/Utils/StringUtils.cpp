@@ -5,9 +5,7 @@
 #include "StringUtils.hpp"
 
 #include <algorithm>
-
 #include <windows.h>
-
 #include "spdlog/spdlog.h"
 
 
@@ -170,4 +168,9 @@ std::string StringUtils::replaceAll(std::string& string, const std::string& from
     }
 
     return string;
+}
+
+std::string StringUtils::sha256(const std::string& str)
+{
+    return SHA256::hash(str);
 }

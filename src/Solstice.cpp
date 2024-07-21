@@ -5,6 +5,7 @@
 #include "Solstice.hpp"
 
 
+#include <fstream>
 #include <Features/FeatureManager.hpp>
 #include <Features/Configs/ConfigManager.hpp>
 #include <Hook/HookManager.hpp>
@@ -47,6 +48,7 @@ void Solstice::init(HMODULE hModule)
     console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$%$%#%$] %v");
     console->set_level(spdlog::level::trace);
     spdlog::set_level(spdlog::level::trace);
+
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
         + CC(255, 0, 0) + " [Debug] " + ANSI_COLOR_RESET
@@ -55,12 +57,39 @@ void Solstice::init(HMODULE hModule)
 
     ExceptionHandler::init();
 
+    FileUtils::validateDirectories();
+
+    std::string lastHwidFile = FileUtils::getSolsticeDir() + "lasthwid.txt";
+    if (FileUtils::fileExists(lastHwidFile))
+    {
+        std::ifstream file(lastHwidFile);
+        std::string lastHwid;
+        file >> lastHwid;
+        file.close();
+
+        if (lastHwid != GET_HWID().toString())
+        {
+            console->critical("HWID mismatch! Last HWID: {}, Current HWID: {}", lastHwid, GET_HWID().toString());
+            Sleep(2000);
+            // Delete the file
+            FileUtils::deleteFile(lastHwidFile);
+        } else {
+            console->info("HWID: {}", GET_HWID().toString());
+        }
+    }
+    else
+    {
+        std::ofstream file(lastHwidFile);
+        file << GET_HWID().toString();
+        file.close();
+        console->info("HWID: {}", GET_HWID().toString());
+    }
+
     if (MH_Initialize() != MH_OK)
     {
         console->critical("Failed to initialize MinHook!");
     }
 
-    FileUtils::validateDirectories();
 
     Prefs = PreferenceManager::load();
 
