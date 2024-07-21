@@ -150,10 +150,11 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
                 ID3D12Device* bad_device;
                 if (SUCCEEDED(swapChain->GetDevice(IID_PPV_ARGS(&bad_device))))
                 {
-                    spdlog::warn("Removing D3D12 device [user requested fallback]");
+                    spdlog::warn("Removing D3D12 device [preferred fallback]");
                     reinterpret_cast<ID3D12Device5*>(bad_device)->RemoveDevice();
                     return oPresent(swapChain, syncInterval, flags);
                 }
+
             }
 
             UINT deviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -178,6 +179,32 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         }
 
         once = true;
+    }
+
+    if (forceFallback && !alreadyRunningD3D11)
+    {
+        spdlog::warn("Forcing fallback to D3D11");
+
+        mBackBuffer11Rtv.clear();
+        mBackBuffer11Tex.clear();
+        gContext11->Flush();
+
+        gDevice11on12->Release();
+        gDevice11on12 = nullptr;
+
+        ID3D12Device* bad_device;
+        if (SUCCEEDED(swapChain->GetDevice(IID_PPV_ARGS(&bad_device))))
+        {
+            spdlog::warn("Removing D3D12 device [user requested fallback]");
+            reinterpret_cast<ID3D12Device5*>(bad_device)->RemoveDevice();
+        } else {
+            spdlog::error("Failed to get D3D12 device");
+        }
+
+        forceFallback = false;
+        once = false;
+
+        return oPresent(swapChain, syncInterval, flags);
     }
 
     if (FrameTransforms)
@@ -362,10 +389,12 @@ void D3DHook::igEndFrame()
 
 void D3DHook::init()
 {
-    static bool once = false;
-    if (once) return;
-    once = true;
     mName = "D3DHook";
+    s_init();
+}
+
+void D3DHook::s_init()
+{
     Solstice::console->info("Initializing D3DHook");
     // Attempt to init on D3D12
     if (kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success)
@@ -399,10 +428,17 @@ void D3DHook::s_shutdown()
     kiero::unbind(13);
     kiero::unbind(140);
     kiero::unbind(145);
+    kiero::shutdown();
 
     //if (imGuiInitialized) shutdownImGui();
 
     mBackBuffer11Rtv.clear();
     mBackBuffer11Tex.clear();
     gContext11->Flush();
+
+    alreadyRunningD3D11 = false;
+    d3dInitImGui = false;
+    imGuiInitialized = false;
+
+
 }

@@ -6,6 +6,7 @@
 
 #include <Utils/GameUtils/ChatUtils.hpp>
 #include <magic_enum.hpp>
+#include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 
 void TestCommand::execute(const std::vector<std::string>& args)
 {
@@ -22,6 +23,13 @@ void TestCommand::execute(const std::vector<std::string>& args)
         {
             Logger::initialize();
             ChatUtils::displayClientMessage("Console initialized!");
+            return;
+        }
+
+        if (arg == "fallback")
+        {
+            D3DHook::forceFallback = true;
+            ChatUtils::displayClientMessage("Attempting to force fallback to D3D11!");
             return;
         }
 

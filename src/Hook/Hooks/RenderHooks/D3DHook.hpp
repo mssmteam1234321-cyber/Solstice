@@ -21,6 +21,7 @@ public:
 
     static inline std::unique_ptr<std::queue<FrameTransform>> FrameTransforms = nullptr;
     static inline int transformDelay = 3;
+    static inline bool forceFallback = false;
 
     static bool loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
     static HRESULT present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags);
@@ -30,6 +31,7 @@ public:
     static void igNewFrame();
     static void igEndFrame();
     void init() override;
+    static void s_init();
     void shutdown() override;
     static void s_shutdown();
 };

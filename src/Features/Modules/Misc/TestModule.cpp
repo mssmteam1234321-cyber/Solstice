@@ -6,6 +6,7 @@
 
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
+#include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -101,18 +102,25 @@ void displayCopyableAddress(const std::string& name, void* address)
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
 
     ImGui::Begin("TestModule");
     ImGui::Text("TestModule");
     auto blockSource = ClientInstance::get()->getBlockSource();
+    if (player)
+    {
+        ImGui::Text("isOnGround: %d", player->isOnGround());
+        ImGui::Text("wasOnGround: %d", player->wasOnGround());
+        ImGui::Text("isInWater: %d", player->isInWater());
+        displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
+        displayCopyableAddress("LocalPlayer", player);
+        displayCopyableAddress("supplies", player->getSupplies());
+    }
 
-    ImGui::Text("isOnGround: %d", player->isOnGround());
-    ImGui::Text("wasOnGround: %d", player->wasOnGround());
-    ImGui::Text("isInWater: %d", player->isInWater());
-    displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
-    displayCopyableAddress("LocalPlayer", player);
-    displayCopyableAddress("supplies", player->getSupplies());
+    // Display a button that sets D3DHook::forceFallback to true
+    if (ImGui::Button("Force Fallback"))
+    {
+        D3DHook::forceFallback = true;
+    }
 
 
     ImGui::End();
