@@ -17,6 +17,7 @@
 #include "Hooks/NetworkHooks/RakPeerHooks.hpp"
 #include "Hooks/RenderHooks/ActorRenderDispatcherHook.hpp"
 #include "Hooks/RenderHooks/D3DHook.hpp"
+#include "Hooks/RenderHooks/LookInputHook.hpp"
 #include "Hooks/RenderHooks/SetupAndRenderHook.hpp"
 
 #define ADD_HOOK(hook) hooks.emplace_back(std::make_shared<hook>())
@@ -48,6 +49,8 @@ void HookManager::init(bool initLp)
         ADD_HOOK(RakPeerHooks);
         ADD_HOOK(ActorRenderDispatcherHook);
         ADD_HOOK(AnimationHooks);
+        ADD_HOOK(LookInputHook);
+
 
         for (auto& hook : hooks)
         {

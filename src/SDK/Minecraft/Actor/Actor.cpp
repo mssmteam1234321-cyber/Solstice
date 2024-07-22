@@ -165,6 +165,16 @@ JumpControlComponent* Actor::getJumpControlComponent()
 
 }
 
+CameraComponent* Actor::getCameraComponent()
+{
+    return mContext.getComponent<CameraComponent>();
+}
+
+CameraDirectLookComponent* Actor::getCameraDirectLookComponent()
+{
+    return mContext.getComponent<CameraDirectLookComponent>();
+}
+
 SimpleContainer* Actor::getArmorContainer()
 {
     return mContext.getComponent<ActorEquipmentComponent>()->mArmorContainer;

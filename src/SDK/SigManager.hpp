@@ -83,6 +83,7 @@ public:
     DEFINE_SIG(ItemInHandRenderer_render_bytepatch, "F3 0F ? ? EB ? 0F 57 ? F3 41", SigType::Sig, 0);
     DEFINE_SIG(SneakMovementSystem_tickSneakMovementSystem, "32 C0 88 43 ? 84 C0", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create, "40 ? 53 56 57 41 ? 41 ? 41 ? 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 0F 29 ? ? ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 49 8B ? 48 89 ? ? 48 89", SigType::Sig, 0);
+    DEFINE_SIG(CameraDirectLookSystemUtil_handleLookInput, "48 89 ? ? ? 57 48 83 EC ? F3 41 ? ? ? 49 8B ? F3 41", SigType::Sig, 0);
 
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? ? 41 0F ? ? E8 ? ? ? ? 48 8B", SigType::RefSig, 5);

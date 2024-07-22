@@ -49,6 +49,7 @@
 #include "Visual/Watermark.hpp"
 #include "Visual/ESP.hpp"
 #include "Visual/MotionBlur.hpp"
+#include "Visual/NoCameraClip.hpp"
 
 void ModuleManager::init()
 {
@@ -109,6 +110,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<BlockESP>());
     mModules.emplace_back(std::make_shared<MotionBlur>());
     mModules.emplace_back(std::make_shared<Animations>());
+    mModules.emplace_back(std::make_shared<NoCameraClip>());
+
 
 
     for (auto& module : mModules)

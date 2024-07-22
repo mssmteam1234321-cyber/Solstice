@@ -28,9 +28,5 @@ void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRe
 
 void ActorRenderDispatcherHook::init()
 {
-    static bool once = false;
-    if (once) return;
-    once = true;
-
     mDetour = std::make_unique<Detour>("ActorRenderDispatcher::render", reinterpret_cast<void*>(SigManager::ActorRenderDispatcher_render), &ActorRenderDispatcherHook::render);
 }

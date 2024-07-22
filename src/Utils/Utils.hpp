@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include "HashedString.hpp"
 #include "Structs.hpp"
 #include "StringUtils.hpp"
 #include "Resources.hpp"

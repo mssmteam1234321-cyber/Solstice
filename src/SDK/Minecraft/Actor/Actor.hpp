@@ -19,6 +19,7 @@
 #include "Components/MobBodyRotationComponent.hpp"
 #include "Components/JumpControlComponent.hpp"
 #include "Components/AttributesComponent.hpp"
+#include "Components/CameraComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -60,6 +61,8 @@ public:
     ActorHeadRotationComponent* getActorHeadRotationComponent();
     MobBodyRotationComponent* getMobBodyRotationComponent();
     JumpControlComponent* getJumpControlComponent();
+    CameraComponent* getCameraComponent();
+    CameraDirectLookComponent* getCameraDirectLookComponent();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     class Level* getLevel();
