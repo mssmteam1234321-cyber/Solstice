@@ -32,5 +32,4 @@ void NoCameraClip::onLookInputEvent(LookInputEvent& event)
     event.mFirstPersonCamera->mFov.z = 2500.0f;
     event.mThirdPersonCamera->mFov.z = 2500.0f;
     event.mThirdPersonFrontCamera->mFov.z = 2500.0f;
-
 }
