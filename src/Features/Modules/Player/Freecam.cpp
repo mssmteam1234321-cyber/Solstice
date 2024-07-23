@@ -72,10 +72,13 @@ void Freecam::onDisable()
     player->setFlag<CameraRenderPlayerModel>(false);
     player->setFlag<CameraRenderFirstPersonObjects>(false);
 
-    player->getAABBShapeComponent()->mMin = mAABBMin;
-    player->getAABBShapeComponent()->mMax = mAABBMax;
-    player->getStateVectorComponent()->mPos = mSvPos;
-    player->getStateVectorComponent()->mPosOld = mSvPosOld;
+    if (mMode.mValue == Mode::Normal)
+    {
+        player->getAABBShapeComponent()->mMin = mAABBMin;
+        player->getAABBShapeComponent()->mMax = mAABBMax;
+        player->getStateVectorComponent()->mPos = mSvPos;
+        player->getStateVectorComponent()->mPosOld = mSvPosOld;
+    }
     player->getWalkAnimationComponent()->mWalkAnimSpeed = 1.0f;
 }
 
@@ -177,6 +180,7 @@ void Freecam::onActorRenderEvent(ActorRenderEvent& event)
 
     auto original = event.mDetour->getOriginal<decltype(&ActorRenderDispatcherHook::render)>();
     auto newPos = *event.mPos - *event.mCameraTargetPos - *event.mPos + mOldPos;
+    if (mMode.mValue == Mode::Detached) newPos = *event.mPos - *event.mCameraTargetPos - *event.mPos + player->getRenderPositionComponent()->mPosition;
     original(event._this, event.mEntityRenderContext, event.mEntity, event.mCameraTargetPos, &newPos, event.mRot, event.mIgnoreLighting);
     event.cancel();
 
