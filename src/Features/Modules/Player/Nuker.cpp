@@ -152,14 +152,8 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace);
             supplies->mSelectedSlot = mPreviousSlot;
-            mIsMiningBlock = false;
-            PacketUtils::spoofSlot(mPreviousSlot);
             return;
         }
-    }
-    else if (mIsMiningBlock) { // Lost block
-        reset();
-        return;
     }
     else { // Find new block
         reset();
