@@ -47,7 +47,28 @@ bool Nuker::isValidBlock(glm::ivec3 blockPos) {
     if (mRange.mValue < glm::distance(closestPos, *player->getPos())) return false;
 
     // Exposed check
-    if (BlockUtils::getExposedFace(blockPos) == -1) return false;
+    std::vector<Block*> surroundingBlocks;
+
+    // Go through each side and get the block on it
+
+    bool hasRedstone = false;
+
+    for (int i = 0; i < offsetList.size(); i++) {
+        glm::ivec3 offset = offsetList[i];
+        glm::ivec3 newPos = blockPos + offset;
+        Block* newBlock = ClientInstance::get()->getBlockSource()->getBlock(newPos);
+        if (!newBlock) continue;
+        if (newBlock->getmLegacy()->getBlockId() == 73 || newBlock->getmLegacy()->getBlockId() == 74)
+        {
+            hasRedstone = true;
+        }
+        if (newBlock->getmLegacy()->isAir()) {
+            hasRedstone = false;
+            break;
+        }
+    }
+
+    if (hasRedstone) return false;
 
     return true;
 }

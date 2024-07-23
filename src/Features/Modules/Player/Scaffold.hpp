@@ -57,9 +57,9 @@ public:
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only place blocks from the hotbar", false);
     EnumSettingT<TowerMode> mTowerMode = EnumSettingT<TowerMode>("Tower Mode", "The mode for tower placement", TowerMode::Vanilla, "Vanilla", "Velocity");
     NumberSetting mTowerSpeed = NumberSetting("Tower Speed", "The speed for tower placement", 8.5, 0, 20, 0.01);
-    EnumSettingT<BlockHUDStyle> mBlockHUDStyle = EnumSettingT<BlockHUDStyle>("HUD Style", "The style for the block HUD", BlockHUDStyle::Solstice, "None", "Solstice");
     BoolSetting mFallDistanceCheck = BoolSetting("Fall Distance Check", "Whether or not to check fall distance before towering", false);
     BoolSetting mAllowMovement = BoolSetting("Allow Movement", "Whether or not to allow movement while towering", false);
+    EnumSettingT<BlockHUDStyle> mBlockHUDStyle = EnumSettingT<BlockHUDStyle>("HUD Style", "The style for the block HUD", BlockHUDStyle::Solstice, "None", "Solstice");
     BoolSetting mFlareonV2Placement = BoolSetting("Flareon V2", "Whether or not to use Flareon V2 placement", false);
     BoolSetting mFastClutch = BoolSetting("Fast Clutch", "Whether or not to use fast clutch", false);
     NumberSetting mClutchFallDistance = NumberSetting("Clutch Fall Dist", "The fall distance to clutch at", 3, 0, 20, 0.01);
@@ -69,7 +69,7 @@ public:
     BoolSetting mTest = BoolSetting("Test", "Test", false);
 
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
-        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mFlickMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mBlockHUDStyle, &mFallDistanceCheck, &mAllowMovement, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
+        addSettings(&mPlaces, &mRange, &mExtend, &mRotateMode, &mFlickMode, &mPlacementMode, &mSwitchMode, &mSwitchPriority, &mHotbarOnly, &mTowerMode, &mTowerSpeed, &mFallDistanceCheck, &mAllowMovement, &mBlockHUDStyle, &mFlareonV2Placement, &mFastClutch, &mClutchFallDistance, &mCluchPlaces, &mLockY, &mSwing, &mTest);
 
         VISIBILITY_CONDITION(mFlickMode, mRotateMode.mValue != RotateMode::None);
 
