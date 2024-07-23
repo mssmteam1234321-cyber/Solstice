@@ -17,14 +17,14 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-void Regen::initializeRegen() {
+void Regen::initializeRegen(bool setbackSlot) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
     GameMode* gm = player->getGameMode();
 
     if (mIsMiningBlock) {
-        PacketUtils::spoofSlot(mPreviousSlot);
+        if(setbackSlot) PacketUtils::spoofSlot(mPreviousSlot);
         gm->stopDestroyBlock(mCurrentBlockPos);
     }
     mCurrentBlockPos = { 0, 0, 0 };
@@ -71,6 +71,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 }
 
 void Regen::queueBlock(glm::ivec3 blockPos) {
+    initializeRegen(false);
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
     mCurrentBlockFace = BlockUtils::getExposedFace(blockPos);
@@ -225,10 +226,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
     }
     else { // Find new block
-        initializeRegen();
         if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
-            mTargettingBlockPos = mEnemyTargettingBlockPos;
             queueBlock(mEnemyTargettingBlockPos);
+            mTargettingBlockPos = mEnemyTargettingBlockPos;
             mIsStealing = true;
             return;
         }
@@ -274,8 +274,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 }
             }
             // queue block
-            mTargettingBlockPos = targettingPos;
             queueBlock(pos);
+            mTargettingBlockPos = targettingPos;
             return;
         }
         else if (mUncover && !unexposedBlockList.empty()) {
@@ -304,12 +304,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 foundBlock = true;
             }
             if (foundBlock) {
+                queueBlock(pos);
                 mIsUncovering = true;
                 mTargettingBlockPos = targettingPos;
-                queueBlock(pos);
                 return;
             }
         }
+
+        initializeRegen();
     }
 }
 

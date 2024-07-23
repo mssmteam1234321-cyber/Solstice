@@ -53,7 +53,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
-    void reset();
+    void reset(bool setbackSlot = true);
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos);
 

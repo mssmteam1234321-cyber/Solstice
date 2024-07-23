@@ -15,14 +15,14 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-void Nuker::reset() {
+void Nuker::reset(bool setbackSlot) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
     GameMode* gm = player->getGameMode();
 
     if (mIsMiningBlock) {
-        PacketUtils::spoofSlot(mPreviousSlot);
+        if(setbackSlot) PacketUtils::spoofSlot(mPreviousSlot);
         gm->stopDestroyBlock(mCurrentBlockPos);
     }
     mCurrentBlockPos = { 0, 0, 0 };
@@ -74,6 +74,7 @@ bool Nuker::isValidBlock(glm::ivec3 blockPos) {
 }
 
 void Nuker::queueBlock(glm::ivec3 blockPos) {
+    reset(false);
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
     mCurrentBlockFace = BlockUtils::getExposedFace(blockPos);
@@ -156,7 +157,6 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
         }
     }
     else { // Find new block
-        reset();
         std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
 
         for (int i = 0; i < blockList.size(); i++) {
@@ -164,6 +164,7 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
             queueBlock(blockList[i].mPosition);
             return;
         }
+        reset();
     }
 }
 

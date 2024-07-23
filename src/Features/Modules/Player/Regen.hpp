@@ -74,7 +74,7 @@ public:
     void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
-    void initializeRegen();
+    void initializeRegen(bool setbackSlot = true);
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing = false);
     PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);
