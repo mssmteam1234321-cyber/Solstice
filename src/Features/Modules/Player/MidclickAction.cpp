@@ -4,6 +4,8 @@
 
 #include "MidclickAction.hpp"
 
+#include "Nuker.hpp"
+
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -15,6 +17,7 @@
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 
@@ -95,13 +98,24 @@ void MidclickAction::onBaseTickEvent(BaseTickEvent& event)
 
                 ChatUtils::displayClientMessage(!isFriend ? "§aAdded " + target->getRawName() + " to your friends list!" : "§cRemoved " + target->getRawName() + " from your friends list!");
             }
-        } else if (mThrowPearls.mValue)
+        }
+        else if (hitResult->mType == BLOCK && mSetNukerBlock) {
+            Block* selectedBlock = ClientInstance::get()->getBlockSource()->getBlock(hitResult->mBlockPos);
+            if (selectedBlock->mLegacy->getBlockId() != 0) {
+                static Nuker* nukerModule = gFeatureManager->mModuleManager->getModule<Nuker>();
+                std::string blockName = selectedBlock->mLegacy->getmName();
+                nukerModule->specifiedBlockID = blockName;
+                ChatUtils::displayClientMessage("§aSet block to " + blockName);
+            }
+        }
+        else if (mThrowPearls.mValue)
         {
             if (slot != -1)
             {
                 mThrowNextTick = true;
                 mRotateNextTick = true;
-            } else {
+            }
+            else {
                 NotifyUtils::notify("No pearls found!", 4.f, Notification::Type::Warning);
                 ClientInstance::get()->playUi("note.bass", 0.75f, 0.5);
             }
