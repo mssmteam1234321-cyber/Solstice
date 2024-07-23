@@ -27,6 +27,11 @@ float MathUtils::lerp(float a, float b, float t)
     return a + t * (b - a);
 }
 
+glm::vec3 MathUtils::lerp(glm::vec3& a, glm::vec3& b, float t)
+{
+    return a + t * (b - a);
+}
+
 float MathUtils::getRotationKeyOffset()
 {
     auto player = ClientInstance::get()->getLocalPlayer();

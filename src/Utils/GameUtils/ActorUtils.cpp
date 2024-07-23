@@ -16,25 +16,31 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
+static AntiBot* antibot = nullptr;
 
 std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (player == nullptr) return {};
-    static AntiBot* antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
+
+    if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
 
     std::vector<struct Actor *> actors;
     for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
     {
         if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
 
-        if (type.type == ActorType::Player && playerOnly)
-            actors.push_back(moduleOwner.actor);
-        else if (!playerOnly)
+        if (type.type == ActorType::Player && playerOnly || !playerOnly)
             actors.push_back(moduleOwner.actor);
     }
 
 
     return actors;
+}
+
+bool ActorUtils::isBot(Actor* actor)
+{
+    if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
+    return antibot->isBot(actor);
 }
 
 std::shared_ptr<InventoryTransactionPacket> ActorUtils::createAttackTransaction(Actor* actor, int slot)

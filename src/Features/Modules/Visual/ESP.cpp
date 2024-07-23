@@ -5,6 +5,7 @@
 #include "ESP.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <Features/Events/ActorRenderEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
@@ -30,7 +31,7 @@ void ESP::onRenderEvent(RenderEvent& event)
 
     for (auto actor : actors)
     {
-        if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0) continue;
+        if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0 && !localPlayer->getFlag<RenderCameraFlag>()) continue;
         if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;
@@ -48,16 +49,9 @@ void ESP::onRenderEvent(RenderEvent& event)
 
         AABB aabb = actor->getAABB();
 
-        std::vector<glm::vec2> points = MathUtils::getBoxPoints(aabb);
-        std::vector<ImVec2> imPoints = {};
-        for (auto point : points)
-        {
-            imPoints.emplace_back(point.x, point.y);
-        }
+        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
 
-        // try drawing as convex polygon
-
-        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), points.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
-        drawList->AddPolyline(imPoints.data(), points.size(), themeColor, 0, 2.0f);
+        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
+        drawList->AddPolyline(imPoints.data(), imPoints.size(), themeColor, 0, 2.0f);
     }
 }

@@ -58,7 +58,7 @@ public:
     bool isValidBlock(glm::ivec3 blockPos);
 
     std::string getSettingDisplay() override {
-        return std::to_string(mRange.mValue);
+        return mBlockType.mValues[mBlockType.as<int>()];
     }
 
 };

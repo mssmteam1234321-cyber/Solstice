@@ -15,6 +15,7 @@
 #include <Hook/Hooks/RenderHooks/ActorRenderDispatcherHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 
@@ -51,6 +52,9 @@ void Freecam::onEnable()
     mSvPosOld = player->getStateVectorComponent()->mPos;
     mOldPos = player->getRenderPositionComponent()->mPosition;
     player->getWalkAnimationComponent()->mWalkAnimSpeed = 0.0f;
+
+    mOrigin = mSvPos;
+    mOldOrigin = mSvPosOld;
 }
 
 void Freecam::onDisable()
@@ -101,10 +105,13 @@ void Freecam::onPacketOutEvent(PacketOutEvent& event)
 
 }
 
+
 void Freecam::onBaseTickEvent(BaseTickEvent& event)
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
+    auto player = event.mActor;
     if (!player) return;
+
+    player->getSupplies()->mInHandSlot = -1;
 
     player->setFlag<RenderCameraFlag>(true);
     player->setFlag<CameraRenderPlayerModel>(true);
@@ -114,7 +121,16 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
 
     if (Keyboard::isUsingMoveKeys(true))
     {
-        glm::vec2 calc = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, mSpeed.mValue / 10);
+        glm::vec2 rots = mRotRads;
+        rots = glm::vec2(rots.y, rots.x); // Correct rotation (pitch, yaw)
+        // convert the rots to degrees (-180 to 180 for yaw, -90 to 90 for pitch)
+        rots = glm::degrees(rots);
+        // Invert the yaw
+        rots.y = -rots.y + 180;
+        // Wrap
+        rots.y = MathUtils::wrap(rots.y, -180, 180);
+
+        glm::vec2 calc = MathUtils::getMotion(rots.y, mSpeed.mValue / 10);
         motion.x = calc.x;
         motion.z = calc.y;
 
@@ -127,13 +143,22 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
             motion.y -= mSpeed.mValue / 10;
     }
 
-    player->getStateVectorComponent()->mVelocity = motion;
+    if (mMode.mValue == Mode::Normal) player->getStateVectorComponent()->mVelocity = motion;
+    else if (mMode.mValue == Mode::Detached)
+    {
+        mOldOrigin = mOrigin;
+        mOrigin += motion;
+        player->getStateVectorComponent()->mPos = glm::vec3(0, 0, 0);
+    }
 }
 
 void Freecam::onActorRenderEvent(ActorRenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
+
+    if (event.mEntity != player) return;
+    if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f)) event.cancel(); // Prevents the hand from rendering
 
     auto oldRots = *player->getActorRotationComponent();
     auto oldHeadRots = *player->getActorHeadRotationComponent();
@@ -142,15 +167,25 @@ void Freecam::onActorRenderEvent(ActorRenderEvent& event)
     *player->getActorRotationComponent() = mLastRot;
     *player->getActorHeadRotationComponent() = mLastHeadRot;
     *player->getMobBodyRotationComponent() = mLastBodyRot;
+    if (mMode.mValue == Mode::Detached)
+    {
+        player->getAABBShapeComponent()->mMin = mAABBMin;
+        player->getAABBShapeComponent()->mMax = mAABBMax;
+        player->getStateVectorComponent()->mPos = mSvPos;
+        player->getStateVectorComponent()->mPosOld = mSvPosOld;
+    }
 
     auto original = event.mDetour->getOriginal<decltype(&ActorRenderDispatcherHook::render)>();
     auto newPos = *event.mPos - *event.mCameraTargetPos - *event.mPos + mOldPos;
     original(event._this, event.mEntityRenderContext, event.mEntity, event.mCameraTargetPos, &newPos, event.mRot, event.mIgnoreLighting);
     event.cancel();
 
-    *player->getActorRotationComponent() = oldRots;
-    *player->getActorHeadRotationComponent() = oldHeadRots;
-    *player->getMobBodyRotationComponent() = oldBodyRots;
+    if (mMode.mValue != Mode::Detached)
+    {
+        *player->getActorRotationComponent() = oldRots;
+        *player->getActorHeadRotationComponent() = oldHeadRots;
+        *player->getMobBodyRotationComponent() = oldBodyRots;
+    }
 }
 
 void Freecam::onLookInputEvent(LookInputEvent& event)
@@ -159,4 +194,10 @@ void Freecam::onLookInputEvent(LookInputEvent& event)
     if (!player) return;
 
     ClientInstance::get()->getOptions()->game_thirdperson->value = 0;
+
+    if (mMode.mValue == Mode::Detached)
+    {
+        event.mFirstPersonCamera->mOrigin = getLerpedOrigin();
+    }
+    mRotRads = event.mCameraDirectLookComponent->mRotRads;
 }

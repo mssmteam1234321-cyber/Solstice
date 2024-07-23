@@ -4,17 +4,22 @@
 
 #include "RobloxCamera.hpp"
 
+#include <Features/Events/ActorRenderEvent.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/LookInputEvent.hpp>
 #include <Features/Events/MouseEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/FlagComponent.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 
 void RobloxCamera::onEnable()
 {
     gFeatureManager->mDispatcher->listen<LookInputEvent, &RobloxCamera::onLookInputEvent>(this);
     gFeatureManager->mDispatcher->listen<MouseEvent, &RobloxCamera::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->listen<ActorRenderEvent, &RobloxCamera::onActorRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &RobloxCamera::onBaseTickEvent>(this);
 
     if (auto player = ClientInstance::get()->getLocalPlayer())
     {
@@ -28,6 +33,8 @@ void RobloxCamera::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<LookInputEvent, &RobloxCamera::onLookInputEvent>(this);
     gFeatureManager->mDispatcher->deafen<MouseEvent, &RobloxCamera::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->deafen<ActorRenderEvent, &RobloxCamera::onActorRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &RobloxCamera::onBaseTickEvent>(this);
 
     if (auto player = ClientInstance::get()->getLocalPlayer())
     {
@@ -37,6 +44,18 @@ void RobloxCamera::onDisable()
     }
 
     mCurrentDistance = 0.f;
+}
+
+void RobloxCamera::onActorRenderEvent(ActorRenderEvent& event)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (event.mEntity != player) return;
+    if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f))
+    {
+        event.cancel();
+    }
 }
 
 void RobloxCamera::onMouseEvent(MouseEvent& event)
@@ -60,6 +79,11 @@ void RobloxCamera::onMouseEvent(MouseEvent& event)
     }
 }
 
+void RobloxCamera::onBaseTickEvent(BaseTickEvent& event)
+{
+    auto player = event.mActor;
+    player->getSupplies()->mInHandSlot = -1;
+}
 
 void RobloxCamera::onLookInputEvent(LookInputEvent& event)
 {
@@ -69,6 +93,8 @@ void RobloxCamera::onLookInputEvent(LookInputEvent& event)
     if (!player) return;
 
     player->setFlag<RenderCameraFlag>(true);
+    player->setFlag<CameraRenderPlayerModel>(true);
+    player->setFlag<CameraRenderFirstPersonObjects>(false);
 
     auto camera = event.mFirstPersonCamera;
     glm::vec2 radRot = event.mCameraDirectLookComponent->mRotRads;

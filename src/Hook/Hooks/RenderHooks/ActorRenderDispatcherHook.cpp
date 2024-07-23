@@ -6,6 +6,8 @@
 #include <Features/Events/ActorRenderEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
+#include "D3DHook.hpp"
+
 std::unique_ptr<Detour> ActorRenderDispatcherHook::mDetour;
 
 void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRenderContext* entityRenderContext,
@@ -14,18 +16,13 @@ void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRe
     auto oFunc = mDetour->getOriginal<decltype(&render)>();
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
     if (!localPlayer) return;
-    if (entity != localPlayer)
-    {
-        return oFunc(_this, entityRenderContext, entity, cameraTargetPos, pos, rot, ignoreLighting);
-    }
-
-
-    // If this is true, we are rendering the paperdoll/first person view and we will NOT dispatch the event
-
 
     auto holder = nes::make_holder<ActorRenderEvent>(_this, entityRenderContext, entity, cameraTargetPos, pos, rot, ignoreLighting, mDetour.get());
     gFeatureManager->mDispatcher->trigger(holder);
-    if (holder->isCancelled()) return;
+    if (holder->isCancelled())
+    {
+        return;
+    }
 
     return oFunc(_this, entityRenderContext, entity, cameraTargetPos, pos, rot, ignoreLighting);
 }

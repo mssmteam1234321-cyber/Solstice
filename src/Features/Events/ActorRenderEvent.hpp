@@ -28,4 +28,9 @@ struct ActorRenderEvent : public CancelableEvent {
     void setPlayerPos(const glm::vec3& pos) const {
         *mPos = *mPos - *mCameraTargetPos - *mPos + pos;
     }
+
+    // gets the player's position (world origin)
+    [[nodiscard]] glm::vec3 getPlayerPos() const {
+        return *mCameraTargetPos + *mPos;
+    }
 };

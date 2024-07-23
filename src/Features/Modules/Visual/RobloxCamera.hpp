@@ -14,6 +14,9 @@ public:
     RobloxCamera() : ModuleBase("RobloxCamera", "Change the camera to be like Roblox's camera", ModuleCategory::Visual, 0, false) {
         addSetting(&mRadius);
         addSetting(&mScroll);
+        addSetting(&mScrollIncrement);
+
+        VISIBILITY_CONDITION(mScrollIncrement, mScroll.mValue);
 
         mNames = {
             {Lowercase, "robloxcamera"},
@@ -28,6 +31,8 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void onActorRenderEvent(class ActorRenderEvent& event);
     void onMouseEvent(class MouseEvent& event);
+    void onBaseTickEvent(class BaseTickEvent& event);
     void onLookInputEvent(class LookInputEvent& event);
 };
