@@ -6,10 +6,6 @@
 #include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
-#include <Utils/MiscUtils/MathUtils.hpp>
-#include <Utils/MiscUtils/ImRenderUtils.hpp>
-#include <Utils/MiscUtils/RenderUtils.hpp>
-#include <Utils/MiscUtils/ColorUtils.hpp>
 
 void DestroyProgress::onEnable()
 {

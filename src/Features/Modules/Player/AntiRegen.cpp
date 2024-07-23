@@ -13,14 +13,9 @@
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/LevelEventPacket.hpp>
-#include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
-#include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
-#include <Utils/GameUtils/ItemUtils.hpp>
-#include <Utils/GameUtils/PacketUtils.hpp>
-#include <Utils/MiscUtils/BlockUtils.hpp>
 
 bool AntiRegen::isValidRedstone(glm::ivec3 blockPos) {
     auto player = ClientInstance::get()->getLocalPlayer();
