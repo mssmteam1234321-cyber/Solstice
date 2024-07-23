@@ -9,7 +9,7 @@ public:
     };
     EnumSettingT<BlockType> mBlockType = EnumSettingT<BlockType>("BlockType", "type of block to destroy", BlockType::All, "All", "Specified");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
-    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
+    NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Nuker", 1, 0.01, 1, 0.01);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", true);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
