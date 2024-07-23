@@ -17,10 +17,12 @@ public:
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
+    BoolSetting mAntiSteal = BoolSetting("AntiSteal", "Stop mining if enemy tried to steal ore", false);
+    BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mRenderBlock);
+        addSettings(&mMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
@@ -46,8 +48,11 @@ public:
     float mCurrentDestroySpeed = 1.f;
     bool mIsMiningBlock = false;
     bool mIsUncovering = false;
+    bool mIsConfuserActivated = false;
+    glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;
+    glm::ivec3 mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
     int mPreviousSlot = -1;
     int mToolSlot = -1;
 

@@ -64,6 +64,9 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
         if (BlockUtils::getExposedFace(blockPos) == -1) return false;
     }
 
+    // Anti Steal
+    if (mAntiSteal.mValue && blockPos == mBlackListedOrePos) return false;
+
     return true;
 }
 
@@ -182,7 +185,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing)) { // Check if current block is valid
+    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         if (mIsStealing && !mCanSteal && exposedFace == -1) {
@@ -247,6 +250,21 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         glm::ivec3 pos = { 0, 0, 0 };
         glm::ivec3 targettingPos = { 0, 0, 0 };
         if (!exposedBlockList.empty()) {
+            // Confuser
+            if (mConfuse.mValue) {
+                if (mIsConfuserActivated) {
+                    player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
+                    mIsConfuserActivated = false;
+                }
+                else if(!unexposedBlockList.empty()) {
+                    glm::ivec3 confusePos = unexposedBlockList[0].mPosition + glm::ivec3(0, -1, 0);
+                    BlockUtils::startDestroyBlock(confusePos, 0);
+                    mLastConfusedPos = confusePos;
+                    mIsConfuserActivated = true;
+                    return;
+                }
+            }
+
             float closestDistance = INT_MAX;
             for (int i = 0; i < exposedBlockList.size(); i++) {
                 glm::vec3 blockPos = exposedBlockList[i].mPosition;
@@ -379,6 +397,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
             if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
+            // Steak
             for (auto& offset : offsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
                 if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
@@ -387,10 +406,24 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                     mCanSteal = true;
                 }
             }
+
+            // Anti Steal
+            glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
+            if (pos == mTargettingBlockPos && pos != mCurrentBlockPos) {
+                if (mAntiSteal.mValue) {
+                    mBlackListedOrePos = pos;
+                }
+            }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
             if (mCanSteal && glm::ivec3(levelEvent->mPos) == mLastEnemyLayerBlockPos) {
                 mCanSteal = false;
+            }
+
+            if (glm::ivec3(levelEvent->mPos) == mBlackListedOrePos) {
+                if (mAntiSteal.mValue) {
+                    mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
+                }
             }
         }
     }
