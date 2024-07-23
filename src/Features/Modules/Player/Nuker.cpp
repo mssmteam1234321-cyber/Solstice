@@ -81,11 +81,11 @@ void Nuker::queueBlock(glm::ivec3 blockPos) {
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
-    BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     if (mShouldSpoofSlot) {
         PacketUtils::spoofSlot(bestToolSlot);
         mShouldSpoofSlot = false;
     }
+    BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
 }
 
