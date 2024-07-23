@@ -9,7 +9,7 @@
 std::unique_ptr<Detour> ActorRenderDispatcherHook::mDetour;
 
 void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRenderContext* entityRenderContext,
-    Actor* entity, const glm::vec3* cameraTargetPos, const glm::vec3* pos, const glm::vec2* rot, bool ignoreLighting)
+    Actor* entity, glm::vec3* cameraTargetPos, glm::vec3* pos, glm::vec2* rot, bool ignoreLighting)
 {
     auto oFunc = mDetour->getOriginal<decltype(&render)>();
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
@@ -18,6 +18,10 @@ void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRe
     {
         return oFunc(_this, entityRenderContext, entity, cameraTargetPos, pos, rot, ignoreLighting);
     }
+
+
+    // If this is true, we are rendering the paperdoll/first person view and we will NOT dispatch the event
+
 
     auto holder = nes::make_holder<ActorRenderEvent>(_this, entityRenderContext, entity, cameraTargetPos, pos, rot, ignoreLighting, mDetour.get());
     gFeatureManager->mDispatcher->trigger(holder);

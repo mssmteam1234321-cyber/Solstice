@@ -19,6 +19,7 @@
 #include "Commands/ToggleCommand.hpp"
 #include "Commands/UnbindCommand.hpp"
 #include "Commands/ModuleCommand.hpp"
+#include "Commands/GamemodeCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -34,6 +35,7 @@ void CommandManager::init()
     ADD_COMMAND(SetCommand);
     ADD_COMMAND(ModuleCommand);
     ADD_COMMAND(FriendCommand);
+    ADD_COMMAND(GamemodeCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

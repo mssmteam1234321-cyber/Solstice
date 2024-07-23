@@ -20,6 +20,8 @@
 #include "Components/JumpControlComponent.hpp"
 #include "Components/AttributesComponent.hpp"
 #include "Components/CameraComponent.hpp"
+#include "Components/CameraPresetComponent.hpp"
+#include "Components/ActorWalkAnimationComponent.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
@@ -79,20 +81,25 @@ public:
     bool isDestroying();
     bool isSwinging();
     void setSwinging(bool swinging);
+    int getGameType();
+    void setGameType(int type);
     bool isGameCameraActive();
     void setGameCameraActive(bool active);
     bool isDebugCameraActive();
     void setDebugCameraActive(bool active);
     void setAllowInsideBlockRender(bool allow);
-    DebugCameraComponent* getDebugCameraComponent();
     int getSwingProgress();
     int getOldSwingProgress();
     void setSwingProgress(int progress);
-    AABB getAABB();
+    AABB getAABB(bool normal = false);
+    void setAABB(AABB& aabb);
     bool isPlayer();
     glm::vec3* getPos();
     glm::vec3* getPosPrev();
     class GameMode* getGameMode();
+    ActorWalkAnimationComponent* getWalkAnimationComponent();
+    DebugCameraComponent* getDebugCameraComponent();
+    CameraPresetComponent* getCameraPresetComponent();
     ActorTypeComponent* getActorTypeComponent();
     RenderPositionComponent* getRenderPositionComponent();
     int64_t getRuntimeID();

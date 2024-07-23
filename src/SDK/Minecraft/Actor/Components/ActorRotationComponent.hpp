@@ -11,3 +11,5 @@ public:
     float mOldPitch;
     float mOldYaw;
 };
+
+static_assert(sizeof(ActorRotationComponent) == 0x10);

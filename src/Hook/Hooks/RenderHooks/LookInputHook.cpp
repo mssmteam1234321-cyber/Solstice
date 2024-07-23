@@ -23,11 +23,12 @@ void LookInputHook::_handleLookInput(EntityContext* entityContext, CameraCompone
     auto deathCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 3);
     auto freeCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 4);
 
+
+    original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
+
     auto holder = nes::make_holder<LookInputEvent>(entityContext, &cameraComponent, thirdPersonCamera, thirdPersonFront, deathCamera, freeCamera, &cameraDirectLookComponent, vec2);
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled()) return;
-
-    original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
 }
 
 void LookInputHook::init()

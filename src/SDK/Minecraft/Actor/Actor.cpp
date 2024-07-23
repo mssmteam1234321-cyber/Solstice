@@ -8,6 +8,8 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <Utils/MiscUtils/RenderUtils.hpp>
 
@@ -16,6 +18,8 @@
 #include "Components/RuntimeIDComponent.hpp"
 #include "Components/FlagComponent.hpp"
 #include "Components/FallDistanceComponent.hpp"
+#include "Components/ActorGameTypeComponent.hpp"
+#include <SDK/Minecraft/Network/Packets/SetPlayerGameTypePacket.hpp>
 
 void Actor::swing()
 {
@@ -35,6 +39,19 @@ bool Actor::isSwinging()
 void Actor::setSwinging(bool swinging)
 {
     hat::member_at<bool>(this, OffsetProvider::Actor_mSwinging) = swinging;
+}
+
+int Actor::getGameType()
+{
+    return mContext.getComponent<ActorGameTypeComponent>()->mGameType;
+}
+
+void Actor::setGameType(int type)
+{
+    auto pkt = MinecraftPackets::createPacket<SetPlayerGameTypePacket>();
+    pkt->mPlayerGameType = static_cast<GameType>(type);
+    PacketUtils::sendToSelf(pkt);
+    ClientInstance::get()->getPacketSender()->sendToServer(pkt.get()); // on some servers this can server-side set the gamemode
 }
 
 bool Actor::isGameCameraActive()
@@ -93,12 +110,6 @@ void Actor::setAllowInsideBlockRender(bool allow)
 
 }
 
-DebugCameraComponent* Actor::getDebugCameraComponent()
-{
-    return mContext.try_get<DebugCameraComponent>();
-}
-
-
 int Actor::getSwingProgress()
 {
     return hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4);
@@ -114,8 +125,12 @@ void Actor::setSwingProgress(int progress)
     hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4) = progress;
 }
 
-AABB Actor::getAABB()
+AABB Actor::getAABB(bool normal)
 {
+    if (normal)
+    {
+        return AABB(this->getAABBShapeComponent()->mMin, this->getAABBShapeComponent()->mMax);
+    }
     // Get all components
     auto renderPositionComponent = getRenderPositionComponent();
     if (!renderPositionComponent) return AABB();
@@ -141,6 +156,14 @@ AABB Actor::getAABB()
     return AABB(aabbMin, aabbMax, true);
 }
 
+void Actor::setAABB(AABB& aabb)
+{
+    AABBShapeComponent* aabbShapeComponent = getAABBShapeComponent();
+    if (!aabbShapeComponent) return;
+    aabbShapeComponent->mMin = aabb.mMin;
+    aabbShapeComponent->mMax = aabb.mMax;
+}
+
 
 bool Actor::isPlayer()
 {
@@ -162,6 +185,22 @@ glm::vec3* Actor::getPosPrev()
 GameMode* Actor::getGameMode()
 {
     return hat::member_at<GameMode*>(this, OffsetProvider::Actor_mGameMode);
+}
+
+ActorWalkAnimationComponent* Actor::getWalkAnimationComponent()
+{
+    return mContext.getComponent<ActorWalkAnimationComponent>();
+}
+
+
+DebugCameraComponent* Actor::getDebugCameraComponent()
+{
+    return mContext.try_get<DebugCameraComponent>();
+}
+
+CameraPresetComponent* Actor::getCameraPresetComponent()
+{
+    return mContext.try_get<CameraPresetComponent>();
 }
 
 ActorTypeComponent* Actor::getActorTypeComponent()

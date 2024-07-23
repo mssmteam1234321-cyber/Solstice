@@ -33,6 +33,7 @@ void TestModule::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);
+
 }
 
 Block* gDaBlock = nullptr;
@@ -43,6 +44,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     if (!player) return;
 
 
+    /*
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
     std::vector<std::string> playerNames;
     for (auto& [uuid, entry] : *playerList)
@@ -72,7 +74,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Store the last player list
-    lastPlayerNames = playerNames;
+    lastPlayerNames = playerNames;*/
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
@@ -107,6 +109,9 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
+
+    /*player->setFlag<CameraRenderFirstPersonObjects>(false);
+    player->setFlag<CameraRenderPlayerModel>(true);*/
 
     auto firstPersonCamera = event.mFirstPersonCamera;
     auto thirdPersonCamera = event.mThirdPersonCamera;
@@ -208,10 +213,16 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent, false>());
         ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlag>());
         ImGui::Text("isInWater: %d", player->getFlag<InWaterFlag>());
+        ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraFlag>());
+        ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraFlag>());
+        ImGui::Text("cameraRenderFirstPersonObjects: %d", player->getFlag<CameraRenderFirstPersonObjects>());
+        ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModel>());
+        ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
+        displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
     }
 
     // Display a button that sets D3DHook::forceFallback to true

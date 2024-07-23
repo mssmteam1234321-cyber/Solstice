@@ -83,8 +83,15 @@ void Interface::onRenderEvent(RenderEvent& event)
 
 void Interface::onActorRenderEvent(ActorRenderEvent& event)
 {
+    if (event.isCancelled()) return;
+    if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f)) return;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
     bool firstPerson = ClientInstance::get()->getOptions()->game_thirdperson->value == 0;
-    if (firstPerson) return;
+    if (firstPerson && !player->getFlag<RenderCameraFlag>()) return;
+
+
     const auto actorRotations = event.mEntity->getActorRotationComponent();
     const auto headRotations = event.mEntity->getActorHeadRotationComponent();
     const auto bodyRotations = event.mEntity->getMobBodyRotationComponent();

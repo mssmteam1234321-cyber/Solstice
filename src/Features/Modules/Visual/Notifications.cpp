@@ -63,7 +63,10 @@ void Notifications::onRenderEvent(RenderEvent& event)
         constexpr float fontSize = 20.0f;
 
         const auto size = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, notification.mMessage.c_str()).x;
-        auto boxSize = ImVec2(fmax(200.0f, 50 + size), 50);
+        float sizey = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, notification.mMessage.c_str()).y;
+        // make sure the boxSize accounts for the text's height
+        auto boxSize = ImVec2(fmax(200.0f, 50 + size), sizey + 30.0f);
+
 
         if (CalcSize(boxSize, y, x, displaySize, &notification)) continue;
 

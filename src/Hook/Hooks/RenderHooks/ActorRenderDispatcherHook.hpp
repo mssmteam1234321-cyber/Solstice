@@ -19,7 +19,7 @@ public:
 
     static std::unique_ptr<Detour> mDetour;
 
-    static void render(ActorRenderDispatcher* _this, class BaseActorRenderContext* entityRenderContext, Actor* entity, const glm::vec3* cameraTargetPos, const glm::vec3* pos, const glm::vec2* rot, bool ignoreLighting);
+    static void render(ActorRenderDispatcher* _this, class BaseActorRenderContext* entityRenderContext, Actor* entity, glm::vec3* cameraTargetPos, glm::vec3* pos, glm::vec2* rot, bool ignoreLighting);
     void init() override;
 };
 
