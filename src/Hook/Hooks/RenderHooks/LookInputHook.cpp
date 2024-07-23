@@ -7,6 +7,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <Features/Events/LookInputEvent.hpp>
+#include <SDK/Minecraft/Options.hpp>
 
 std::unique_ptr<Detour> LookInputHook::mDetour;
 
@@ -15,14 +16,18 @@ void LookInputHook::_handleLookInput(EntityContext* entityContext, CameraCompone
 {
     auto original = mDetour->getOriginal<decltype(_handleLookInput)*>();
 
+    if (cameraComponent.mViewName.text == "") return original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
+
     auto thirdPersonCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120);
     auto thirdPersonFront = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 2);
+    auto deathCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 3);
+    auto freeCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 4);
 
-    auto holder = nes::make_holder<LookInputEvent>(entityContext, &cameraComponent, thirdPersonCamera, thirdPersonFront, &cameraDirectLookComponent, vec2);
+    auto holder = nes::make_holder<LookInputEvent>(entityContext, &cameraComponent, thirdPersonCamera, thirdPersonFront, deathCamera, freeCamera, &cameraDirectLookComponent, vec2);
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled()) return;
 
-    return original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
+    original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
 }
 
 void LookInputHook::init()

@@ -31,8 +31,7 @@ void* PacketReceiveHook::onPacketSend(void* _this, void* networkIdentifier, void
 void PacketReceiveHook::handlePacket(std::shared_ptr<Packet> packet)
 {
     if (!NetworkIdentifier) return;
-    auto ofunc = mDetours[packet->getId()]->getOriginal<decltype(&onPacketSend)>();
-    ofunc(packet->mDispatcher, NetworkIdentifier, ClientInstance::get()->getMinecraftSim()->getGameSession()->getEventCallback(), packet);
+    onPacketSend(packet->mDispatcher, NetworkIdentifier, ClientInstance::get()->getMinecraftSim()->getGameSession()->getEventCallback(), packet);
 }
 
 void PacketReceiveHook::init()
@@ -46,35 +45,21 @@ void PacketReceiveHook::init()
     uint64_t start = NOW;
     spdlog::info("Hooking {} packets", packetIds.size());
 
-    std::vector<std::string> packetNames(packetIds.size());
-    std::vector<uint64_t> packetFuncs(packetIds.size(), 0);
-
-    // Precompute packet names and functions outside of the parallel loop
-#pragma omp parallel for
-    for (int i = 0; i < packetIds.size(); i++) {
-        PacketID packetId = packetIds[i];
-        auto packet = MinecraftPackets::createPacket(packetId);
+    for (int i = 0; i < 0x136; i++) { // Fuck magic enum
+        auto id = static_cast<PacketID>(i);
+        auto packet = MinecraftPackets::createPacket(static_cast<PacketID>(i));
         if (!packet) continue;
 
-        packetFuncs[i] = packet->mDispatcher->getPacketHandler();
-        if (packetFuncs[i]) {
-            packetNames[i] = "PacketHandlerDispatcherInstance<" + std::string(magic_enum::enum_name<PacketID>(packet->getId())) + "Packet,0>::handle";
-        } else {
-            spdlog::warn("Failed to hook packet: {}", magic_enum::enum_name<PacketID>(packet->getId()));
+        auto packetFunc = packet->mDispatcher->getPacketHandler();
+        if (!packetFunc) {
+            spdlog::warn("Failed to hook packet: {} (0x{:X})", magic_enum::enum_name<PacketID>(id), i);
+            continue;
         }
-    }
 
-    // Create detours
-#pragma omp parallel for
-    for (int i = 0; i < packetIds.size(); i++) {
-        if (!packetFuncs[i]) continue;
 
-        auto detour = std::make_unique<Detour>(packetNames[i], reinterpret_cast<void*>(packetFuncs[i]), &onPacketSend, true);
-#pragma omp critical
-        {
-            mDetours[packetIds[i]] = std::move(detour);
-        }
-    }
+        auto detour = std::make_unique<Detour>("PacketHandlerDispatcherInstance<" + std::string(magic_enum::enum_name<PacketID>(id)) + "Packet,0>::handle", reinterpret_cast<void*>(packetFunc), &onPacketSend, true);
+        mDetours[id] = std::move(detour);
+    };
 
     uint64_t timeTaken = NOW - start;
 

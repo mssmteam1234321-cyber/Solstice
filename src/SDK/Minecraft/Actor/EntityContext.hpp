@@ -98,10 +98,19 @@ struct EntityContext {
     template<typename component_t>
     auto* assure()
     {
-
         using assure_t = entt::basic_storage<component_t, EntityId>* (__fastcall *)(entt::basic_registry<EntityId>*, uint32_t);
         static auto assure = reinterpret_cast<assure_t>(resolveAssure<component_t>());
 
         return assure(mRegistry, entt::type_hash<component_t>::value());
+    }
+
+    template<typename... type_t>
+    [[nodiscard]] auto try_get() {
+        if constexpr(sizeof...(type_t) == 1u) {
+            auto* pool = assure<std::remove_const_t<type_t>...>();
+            return (pool && pool->contains(mEntityId)) ? std::addressof(pool->get(mEntityId)) : nullptr;
+        } else {
+            return std::make_tuple(try_get<type_t>(mEntityId)...);
+        }
     }
 };

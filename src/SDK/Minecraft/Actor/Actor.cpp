@@ -37,6 +37,68 @@ void Actor::setSwinging(bool swinging)
     hat::member_at<bool>(this, OffsetProvider::Actor_mSwinging) = swinging;
 }
 
+bool Actor::isGameCameraActive()
+{
+    // use da flag component
+    auto storage = mContext.assure<FlagComponent<GameCameraFlag>>();
+    return storage->contains(this->mContext.mEntityId);
+}
+
+void Actor::setGameCameraActive(bool active)
+{
+    auto storage = mContext.assure<FlagComponent<GameCameraFlag>>();
+    bool wasActive = isGameCameraActive();
+    if (active && !wasActive)
+    {
+        storage->emplace(this->mContext.mEntityId);
+    }
+    else if (!active && wasActive)
+    {
+        storage->remove(this->mContext.mEntityId);
+    }
+}
+
+bool Actor::isDebugCameraActive()
+{
+    // use da flag component
+    auto storage = mContext.assure<DebugCameraIsActiveComponent>();
+    return storage->contains(this->mContext.mEntityId);
+}
+
+void Actor::setDebugCameraActive(bool active)
+{
+    auto storage = mContext.assure<DebugCameraIsActiveComponent>();
+    bool wasActive = isDebugCameraActive();
+    if (active && !wasActive)
+    {
+        storage->emplace(this->mContext.mEntityId);
+    }
+    else if (!active && wasActive)
+    {
+        storage->remove(this->mContext.mEntityId);
+    }
+}
+
+void Actor::setAllowInsideBlockRender(bool allow)
+{
+    auto storage = mContext.assure<FlagComponent<AllowInsideBlockRender>>();
+    if (allow)
+    {
+        storage->emplace(this->mContext.mEntityId);
+    }
+    else
+    {
+        storage->remove(this->mContext.mEntityId);
+    }
+
+}
+
+DebugCameraComponent* Actor::getDebugCameraComponent()
+{
+    return mContext.try_get<DebugCameraComponent>();
+}
+
+
 int Actor::getSwingProgress()
 {
     return hat::member_at<int>(this, OffsetProvider::Actor_mSwinging + 0x4);

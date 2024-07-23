@@ -9,6 +9,10 @@
 class PacketUtils {
 public:
     static void spoofSlot(int slot);
-    static void sendToSelf(std::shared_ptr<Packet> packet);
+    template <typename T>
+    static void sendToSelf(const std::shared_ptr<T>& packet) {
+        sendToSelf(std::reinterpret_pointer_cast<Packet>(packet));
+    }
+    static void sendToSelf(const std::shared_ptr<Packet>& packet);
     static void sendChatMessage(const std::string& msg);
 };

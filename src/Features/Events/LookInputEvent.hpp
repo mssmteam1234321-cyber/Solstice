@@ -13,8 +13,11 @@ public:
     CameraComponent* mFirstPersonCamera{};
     CameraComponent* mThirdPersonCamera{};
     CameraComponent* mThirdPersonFrontCamera{};
+    CameraComponent* mDeathCamera{};
+    CameraComponent* mFreeCamera{};
     CameraDirectLookComponent* mCameraDirectLookComponent{};
     glm::vec2 mVec2{};
 
-    explicit LookInputEvent(EntityContext* entityContext, CameraComponent* firstPersonCamera, CameraComponent* thirdPersonCamera, CameraComponent* thirdPersonFrontCamera, CameraDirectLookComponent* cameraDirectLookComponent, glm::vec2 vec2) : mEntityContext(entityContext), mFirstPersonCamera(firstPersonCamera), mThirdPersonCamera(thirdPersonCamera), mThirdPersonFrontCamera(thirdPersonFrontCamera), mCameraDirectLookComponent(cameraDirectLookComponent), mVec2(vec2) {}
+    explicit LookInputEvent(EntityContext* entityContext, CameraComponent* firstPersonCamera, CameraComponent* thirdPersonCamera, CameraComponent* thirdPersonFrontCamera, CameraComponent* deathCamera, CameraComponent* freeCamera, CameraDirectLookComponent* cameraDirectLookComponent, const glm::vec2& vec2)
+        : mEntityContext(entityContext), mFirstPersonCamera(firstPersonCamera), mThirdPersonCamera(thirdPersonCamera), mThirdPersonFrontCamera(thirdPersonFrontCamera), mDeathCamera(deathCamera), mFreeCamera(freeCamera), mCameraDirectLookComponent(cameraDirectLookComponent), mVec2(vec2) {}
 };

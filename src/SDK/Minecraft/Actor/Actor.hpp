@@ -23,9 +23,11 @@
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 #include "Components/ActorTypeComponent.hpp"
+#include "Components/FlagComponent.hpp"
 
 
 #define PLAYER_HEIGHT 1.62f
+#define PLAYER_HEIGHT_VEC glm::vec3(0.f, PLAYER_HEIGHT, 0.f)
 
 class Actor {
 public:
@@ -36,10 +38,53 @@ public:
     virtual bool getStatusFlag(ActorFlags) = 0;
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
+    template<typename flag_t, bool real_flag = true>
+    bool getFlag() {
+        if (real_flag)
+        {
+            auto storage = mContext.assure<FlagComponent<flag_t>>();
+            return storage->contains(this->mContext.mEntityId);
+        }
+
+        auto storage = mContext.assure<flag_t>();
+        return storage->contains(this->mContext.mEntityId);
+    }
+
+    template<typename flag_t, bool real_flag = true>
+    void setFlag(bool value) {
+        if (!real_flag)
+        {
+            auto storage = mContext.assure<flag_t>();
+            bool has = storage->contains(this->mContext.mEntityId);
+            if (value && !has) {
+                storage->emplace(this->mContext.mEntityId);
+            }
+            else if (!value && has) {
+                storage->remove(this->mContext.mEntityId);
+            }
+            return;
+        }
+
+        auto storage = mContext.assure<FlagComponent<flag_t>>();
+        bool has = storage->contains(this->mContext.mEntityId);
+        if (value && !has) {
+            storage->emplace(this->mContext.mEntityId);
+        }
+        else if (!value && has) {
+            storage->remove(this->mContext.mEntityId);
+        }
+    }
+
     void swing();
     bool isDestroying();
     bool isSwinging();
     void setSwinging(bool swinging);
+    bool isGameCameraActive();
+    void setGameCameraActive(bool active);
+    bool isDebugCameraActive();
+    void setDebugCameraActive(bool active);
+    void setAllowInsideBlockRender(bool allow);
+    DebugCameraComponent* getDebugCameraComponent();
     int getSwingProgress();
     int getOldSwingProgress();
     void setSwingProgress(int progress);

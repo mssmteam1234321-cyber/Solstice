@@ -37,6 +37,7 @@
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
 #include "Player/Derp.hpp"
+#include "Player/Freecam.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Animations.hpp"
 #include "Visual/Arraylist.hpp"
@@ -80,7 +81,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoTool>());
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
-
+    mModules.emplace_back(std::make_shared<Freecam>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());

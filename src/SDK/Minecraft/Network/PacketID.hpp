@@ -123,6 +123,8 @@ enum class PacketID : int {
     LevelSoundEvent                   = 0x7B,
     LevelEventGeneric                 = 0x7C,
     LecternUpdate                     = 0x7D,
+    Unk7E                             = 0x7E,
+    Unk7F                             = 0x7F,
     RemoveEntity_Deprecated           = 0x80,
     ClientCacheStatus                 = 0x81,
     OnScreenTextureAnimation          = 0x82,

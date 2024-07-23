@@ -37,7 +37,6 @@ void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
     {
         return;
     }
-    spdlog::trace("RakNet::RakPeer::RunUpdateCycle triggered RunUpdateCycle event");
 
     original(_this, a2);
 }

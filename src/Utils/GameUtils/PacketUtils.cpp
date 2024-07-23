@@ -31,7 +31,7 @@ void PacketUtils::spoofSlot(int slot)
     ClientInstance::get()->getPacketSender()->sendToServer(mep.get());
 }
 
-void PacketUtils::sendToSelf(std::shared_ptr<Packet> packet)
+void PacketUtils::sendToSelf(const std::shared_ptr<Packet>& packet)
 {
     PacketReceiveHook::handlePacket(packet);
 }
