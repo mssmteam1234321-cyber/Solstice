@@ -69,6 +69,7 @@ public:
     int mToolSlot = -1;
 
     uint64_t mLastBlockPlace = 0;
+    uint64_t mLastStealerUpdate = 0;
     int mLastPlacedBlockSlot = 0;
 
     std::vector<glm::ivec3> offsetList = {
@@ -84,7 +85,6 @@ public:
     std::vector<destroySpeedInfo> dynamicSpeeds = {
         { "minecraft:moss_block", 0.57 },
         { "minecraft:hardened_clay", 0.71 },
-        { "minecraft:sand", 0.71 },
         { "minecraft:brown_powder", 0.7 },
         { "minecraft:brown_concrete", 0.7 },
         { "minecraft:green_concrete", 0.7 },

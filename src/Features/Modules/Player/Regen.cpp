@@ -176,6 +176,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool maxAbsorption = 10 <= absorption;
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
 
+    // Stealer Timeout
+    if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
+        mCanSteal = false;
+    }
+
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
     if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
         initializeRegen();
@@ -235,7 +240,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
 
         bool finishBreak = true;
-        if (maxAbsorption && isRedstone && !mIsStealing) finishBreak = false;
+        if (maxAbsorption && isRedstone && !mAlwaysMine.mValue && !mIsStealing) finishBreak = false;
 
         if ((mCurrentDestroySpeed <= mBreakingProgress && (!mIsStealing || exposedFace != -1) && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
@@ -430,6 +435,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                     mEnemyTargettingBlockPos = blockPos;
                     mLastEnemyLayerBlockPos = levelEvent->mPos;
                     mCanSteal = true;
+                    mLastStealerUpdate = NOW;
                 }
             }
 
