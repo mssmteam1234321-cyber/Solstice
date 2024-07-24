@@ -243,7 +243,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             catPositions[i].yOffset = MathUtils::animate(catPositions[i].scrollEase, catPositions[i].yOffset,
                                                     ImRenderUtils::getDeltaTime() * 10.5);
 
-            ImVec4 clipRect = ImVec4(catRect.x, catRect.y + catHeight, catRect.z, screen.y);
+            ImVec4 clipRect = ImVec4(catRect.x, catRect.w, catRect.z, screen.y);
             drawList->PushClipRect(ImVec2(clipRect.x, clipRect.y), ImVec2(clipRect.z, clipRect.w), true);
 
             for (const auto& mod : modsInCategory)

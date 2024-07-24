@@ -40,7 +40,7 @@ void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImCol
 				d->AddText(font, (textSize * 18), textPos + shadowOffsetMinecraft, ImColor(color.Value.x * 0.2f, color.Value.y * 0.2f, color.Value.z * 0.2f, alpha * 0.7f), textStr->c_str());
 			}
 			else {*/
-        d->AddText(font, (textSize * 18), added, ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, alpha * 0.9f), textStr.c_str());
+        d->AddText(font, (textSize * 18), added, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 1.f * alpha), textStr.c_str());
         //}
     }
 
@@ -50,9 +50,10 @@ void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImCol
 void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize)
 {
     ImVec2 shadowPos = pos;
-    shadowPos.x += 2.f;
-    shadowPos.y += 2.f;
-    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.9f), text.c_str());
+    ImVec2 charSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, -1, text.c_str());
+    shadowPos.x += 2.25f;
+    shadowPos.y += 2.25f;
+    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 1.f * color.Value.w), text.c_str());
     drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
 }
 

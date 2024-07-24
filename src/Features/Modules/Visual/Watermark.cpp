@@ -58,7 +58,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
     FontHelper::pushPrefFont(true, mBold.mValue);
 
     static std::string watermarkText = "solstice";
-    static float size = 50;
+    static float size = 45;
 
 
 
@@ -75,12 +75,13 @@ void Watermark::onRenderEvent(RenderEvent& event)
 
         if (mGlow.mValue)
             ImGui::GetBackgroundDrawList()->AddShadowCircle(ImVec2(renderPosition.x + (charSize.x / 2), renderPosition.y + (charSize.y / 2)),
-                                                            size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim), 100, ImVec2(0.f, 0.f), 0, 12);
+                                                            size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim * 0.75f), 100, ImVec2(0.f, 0.f), 0, 12);
         // draw a shadow
-        ImColor shadowColor = ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.7f);
+        ImColor shadowColor = ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.925f);
         ImVec2 shadowPos = renderPosition;
-        shadowPos.x += 3.f;
-        shadowPos.y += 3.f;
+
+        shadowPos.x += charSize.x / 10 - 0.5f;
+        shadowPos.y += charSize.y / 10 - 0.5f;
         ImGui::GetBackgroundDrawList()->AddText(ImGui::GetFont(), size, shadowPos, shadowColor, &c, &c + 1);
 
         // draw the character

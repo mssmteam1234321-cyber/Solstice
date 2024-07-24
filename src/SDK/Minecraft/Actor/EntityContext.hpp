@@ -29,7 +29,7 @@ struct EntityContext {
     template<typename component_t>
     hat::signature_view getAssureSignature() {
         uint32_t hash = entt::type_hash<component_t>::value();
-        auto* bytes = reinterpret_cast<uint8_t*>(&hash);
+        const auto* bytes = reinterpret_cast<uint8_t*>(&hash);
 
         std::stringstream ss;
         ss << "ba"; // mov edx, 0xhash
@@ -46,9 +46,10 @@ struct EntityContext {
     void* resolveAssure() {
         auto assureSig = getAssureSignature<component_t>();
         std::string componentName = typeid(component_t).name();
-        uintptr_t result = reinterpret_cast<uintptr_t>(hat::find_pattern(assureSig).get());
+        auto result = reinterpret_cast<uintptr_t>(hat::find_pattern(assureSig).get());
         if (result == 0) {
             // Include the component Name and the signature
+            spdlog::critical("Failed to resolve component: {}", componentName);
             MessageBoxA(nullptr, ("Failed to resolve component: " + componentName + ".").c_str(), "Error", MB_OK | MB_ICONERROR);
             return nullptr;
         }
@@ -58,7 +59,7 @@ struct EntityContext {
         uint32_t relCallOffset = 0;
         uint64_t assureAddr = 0;
         while (true) {
-            uint8_t byte = *(uint8_t*)result;
+            uint8_t byte = *reinterpret_cast<uint8_t*>(result);
             if (byte != 0xE8 && byte != 0xCC)
             {
                 result += 1;
@@ -69,7 +70,7 @@ struct EntityContext {
             if (byte == 0xE8)
             {
                 //Get the offset
-                relCallOffset = *(uint32_t*)(result + 1);
+                relCallOffset = *reinterpret_cast<uint32_t*>(result + 1);
                 assureAddr = result + 5 + relCallOffset;
                 std::span<std::byte> text = hat::process::get_section_data(hat::process::get_process_module(), ".text");
 
