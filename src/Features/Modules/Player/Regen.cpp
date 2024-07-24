@@ -210,8 +210,26 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-        if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
-        else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+        if (mCalcMode.mValue == CalcMode::Normal) {
+            if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
+            else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+        }
+        else if (mCalcMode.mValue == CalcMode::Dynamic) {
+            std::string blockName = currentBlock->getmLegacy()->getmName();
+            bool found = false;
+            for (auto& c : dynamicSpeeds) {
+                if (c.blockName == blockName) {
+                    mCurrentDestroySpeed = c.destroySpeed;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
+                else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+            }
+        }
+        
 
         if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
