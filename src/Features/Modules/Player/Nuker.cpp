@@ -15,14 +15,13 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-void Nuker::reset(bool setbackSlot) {
+void Nuker::reset() {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
     GameMode* gm = player->getGameMode();
 
     if (mIsMiningBlock) {
-        if(setbackSlot) PacketUtils::spoofSlot(mPreviousSlot);
         gm->stopDestroyBlock(mCurrentBlockPos);
     }
     mCurrentBlockPos = { 0, 0, 0 };
@@ -74,7 +73,6 @@ bool Nuker::isValidBlock(glm::ivec3 blockPos) {
 }
 
 void Nuker::queueBlock(glm::ivec3 blockPos) {
-    reset(false);
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
     mCurrentBlockFace = BlockUtils::getExposedFace(blockPos);
@@ -88,6 +86,7 @@ void Nuker::queueBlock(glm::ivec3 blockPos) {
     }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
+    mShouldSetbackSlot = true;
 }
 
 void Nuker::onEnable()
@@ -153,10 +152,12 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace);
             supplies->mSelectedSlot = mPreviousSlot;
+            mIsMiningBlock = false;
             return;
         }
     }
     else { // Find new block
+        reset();
         std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
 
         for (int i = 0; i < blockList.size(); i++) {
@@ -164,7 +165,11 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
             queueBlock(blockList[i].mPosition);
             return;
         }
-        reset();
+
+        if (mShouldSetbackSlot) {
+            PacketUtils::spoofSlot(mPreviousSlot);
+            mShouldSetbackSlot = false;
+        }
     }
 }
 

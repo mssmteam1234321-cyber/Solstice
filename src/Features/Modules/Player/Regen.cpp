@@ -17,14 +17,13 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-void Regen::initializeRegen(bool setbackSlot) {
+void Regen::initializeRegen() {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
     GameMode* gm = player->getGameMode();
 
     if (mIsMiningBlock) {
-        if(setbackSlot) PacketUtils::spoofSlot(mPreviousSlot);
         gm->stopDestroyBlock(mCurrentBlockPos);
     }
     mCurrentBlockPos = { 0, 0, 0 };
@@ -43,8 +42,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     if (!block) return false;
 
-
-    //
+    // Air Check
     if (block->getmLegacy()->isAir()) return false;
 
     // BlockID Check
@@ -60,18 +58,21 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     if (mRange.mValue < glm::distance(closestPos, *player->getPos())) return false;
 
     // Exposed Check
+    int exposedFace = BlockUtils::getExposedFace(blockPos);
     if (exposedOnly && (!isStealing || !isRedstone)) {
-        if (BlockUtils::getExposedFace(blockPos) == -1) return false;
+        if (exposedFace == -1) return false;
     }
 
+    // Steal
+    if (isStealing && !mCanSteal && exposedFace == -1) return false;
+
     // Anti Steal
-    if (mAntiSteal.mValue && blockPos == mBlackListedOrePos) return false;
+    if (mAntiSteal.mValue && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
 
     return true;
 }
 
 void Regen::queueBlock(glm::ivec3 blockPos) {
-    initializeRegen(false);
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
     mCurrentBlockFace = BlockUtils::getExposedFace(blockPos);
@@ -85,6 +86,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
+    mShouldSetbackSlot = true;
     //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
 
@@ -181,6 +183,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
             mIsConfuserActivated = false;
         }
+
+        if (mShouldSetbackSlot) {
+            PacketUtils::spoofSlot(mPreviousSlot);
+            mShouldSetbackSlot = false;
+        }
         return;
     }
 
@@ -193,10 +200,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
-        if (mIsStealing && !mCanSteal && exposedFace == -1) {
-            initializeRegen();
-            return;
-        }
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
@@ -222,10 +225,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace);
             supplies->mSelectedSlot = mPreviousSlot;
+            mIsMiningBlock = false;
             return;
         }
     }
     else { // Find new block
+        initializeRegen();
         if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
             queueBlock(mEnemyTargettingBlockPos);
             mTargettingBlockPos = mEnemyTargettingBlockPos;
@@ -311,7 +316,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             }
         }
 
-        initializeRegen();
+        if (mShouldSetbackSlot) {
+            PacketUtils::spoofSlot(mPreviousSlot);
+            mShouldSetbackSlot = false;
+        }
     }
 }
 
@@ -397,7 +405,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
             if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
-            // Steak
+            // Steal
             for (auto& offset : offsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
                 if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {

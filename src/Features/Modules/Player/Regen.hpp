@@ -52,6 +52,7 @@ public:
     glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;
+    bool mShouldSetbackSlot = false;
     glm::ivec3 mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
     int mPreviousSlot = -1;
     int mToolSlot = -1;
@@ -74,7 +75,7 @@ public:
     void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
-    void initializeRegen(bool setbackSlot = true);
+    void initializeRegen();
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing = false);
     PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);

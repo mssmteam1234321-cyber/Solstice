@@ -31,6 +31,7 @@ public:
     bool mIsMiningBlock = false;
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;
+    bool mShouldSetbackSlot = false;
     int mPreviousSlot = -1;
     int mToolSlot = -1;
 
@@ -53,7 +54,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
-    void reset(bool setbackSlot = true);
+    void reset();
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos);
 
