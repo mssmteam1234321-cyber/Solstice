@@ -177,7 +177,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
         initializeRegen();
         if (mIsConfuserActivated) {
             player->getGameMode()->stopDestroyBlock(mLastConfusedPos);

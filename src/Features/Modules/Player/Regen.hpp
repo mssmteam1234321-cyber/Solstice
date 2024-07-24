@@ -24,10 +24,11 @@ public:
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
     BoolSetting mAntiSteal = BoolSetting("AntiSteal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
+    BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mRenderBlock);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAlwaysMine, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
