@@ -176,8 +176,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool maxAbsorption = 10 <= absorption;
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
 
+    // Stealer Timeout
+    if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
+        mCanSteal = false;
+    }
+
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
         initializeRegen();
         if (mIsConfuserActivated) {
             player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
@@ -210,14 +215,32 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-        if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
-        else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+        if (mCalcMode.mValue == CalcMode::Normal) {
+            if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
+            else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+        }
+        else if (mCalcMode.mValue == CalcMode::Dynamic) {
+            std::string blockName = currentBlock->getmLegacy()->getmName();
+            bool found = false;
+            for (auto& c : dynamicSpeeds) {
+                if (c.blockName == blockName) {
+                    mCurrentDestroySpeed = c.destroySpeed;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
+                else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+            }
+        }
+        
 
         if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
 
         bool finishBreak = true;
-        if (maxAbsorption && isRedstone && !mIsStealing) finishBreak = false;
+        if (maxAbsorption && isRedstone && !mAlwaysMine.mValue && !mIsStealing) finishBreak = false;
 
         if ((mCurrentDestroySpeed <= mBreakingProgress && (!mIsStealing || exposedFace != -1) && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
             mShouldRotate = true;
@@ -412,6 +435,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                     mEnemyTargettingBlockPos = blockPos;
                     mLastEnemyLayerBlockPos = levelEvent->mPos;
                     mCanSteal = true;
+                    mLastStealerUpdate = NOW;
                 }
             }
 
