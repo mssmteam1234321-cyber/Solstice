@@ -36,6 +36,11 @@ void PacketUtils::sendToSelf(const std::shared_ptr<Packet>& packet)
     PacketReceiveHook::handlePacket(packet);
 }
 
+void PacketUtils::queueSend(std::shared_ptr<Packet> packet)
+{
+    BaseTickHook::mQueuedPackets.emplace_back(packet);
+}
+
 void PacketUtils::sendChatMessage(const std::string& msg)
 {
     auto player = ClientInstance::get()->getLocalPlayer();

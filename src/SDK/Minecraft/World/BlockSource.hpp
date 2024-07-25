@@ -11,5 +11,4 @@ public:
     virtual class Block* getBlock(int, int, int);
     virtual class Block* getBlock(glm::ivec3 const&);
     virtual class Block* getBlock(glm::ivec3 const&, int);
-    void clearBlock(const glm::ivec3&);
 };

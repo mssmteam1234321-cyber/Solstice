@@ -19,7 +19,16 @@
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)
 //#define IM_ASSERT(_EXPR)  ((void)(_EXPR))     // Disable asserts
 
+// assert
 
+#define IM_ASSERT(_EXPR) specialAssert(_EXPR, #_EXPR, __FILE__, __LINE__)
+
+#include "spdlog/spdlog.h"
+inline void specialAssert(const bool expr, std::string expr_str, std::string file, int line) {
+    if (!expr) {
+        spdlog::critical("Assertion failed: {} in file {} on line {}", expr_str, file, line);
+    }
+}
 
 //---- Define attributes of all API symbols declarations, e.g. for DLL under Windows
 // Using Dear ImGui via a shared library is not recommended, because of function call overhead and because we don't guarantee backward nor forward ABI compatibility.

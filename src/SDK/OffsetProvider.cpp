@@ -11,11 +11,6 @@
 
 hat::scan_result OffsetProvider::scanSig(hat::signature_view sig, const std::string& name, int offset)
 {
-    if (mSigScanCount == 0)
-    {
-        mSigScanStart = NOW;
-    }
-
     mSigScanCount++;
     hat::process::module_t minecraft = hat::process::get_module("Minecraft.Windows.exe");
     auto result = hat::find_pattern(sig, ".text", minecraft);

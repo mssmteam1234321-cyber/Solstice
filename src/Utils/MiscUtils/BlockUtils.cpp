@@ -7,10 +7,15 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerActionPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
 
 std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, float r)
 {
@@ -151,9 +156,6 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     res->mIndirectHit = false;
     res->mRayDir = vec;
     res->mPos = blockPos;
-
-
-    return;
 }
 
 void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
@@ -191,52 +193,66 @@ void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
     res->mIndirectHit = false;
     res->mRayDir = vec;
     res->mPos = blockPos;
-
-
-    return;
 }
 
+void BlockUtils::clearBlock(const glm::ivec3& pos)
+{
+    std::shared_ptr<UpdateBlockPacket> p = MinecraftPackets::createPacket<UpdateBlockPacket>();
+    p->mPos = pos;
+    p->mLayer = UpdateBlockPacket::BlockLayer::Standard;
+    p->mUpdateFlags = BlockUpdateFlag::Priority;
+    p->mBlockRuntimeId = 3690217760;
+    PacketUtils::sendToSelf(p);
+}
 
-void BlockUtils::destroyBlock(glm::vec3 pos, int side)
+void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     glm::ivec3 blockPos = pos;
     if (side == -1) side = getBlockPlaceFace(blockPos);
 
-    glm::vec3 vec = blockPos;
+    if (!useTransac)
+    {
+        bool oldSwinging = player->isSwinging();
+        int oldSwingProgress = player->getSwingProgress();
 
-    if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
+        player->getGameMode()->destroyBlock(&blockPos, side);
+        player->getGameMode()->stopDestroyBlock(blockPos);
+        player->setSwinging(oldSwinging);
+        player->setSwingProgress(oldSwingProgress);
+        return;
+    }
 
-    HitResult* res = player->getLevel()->getHitResult();
+    auto actionPkt = MinecraftPackets::createPacket<PlayerActionPacket>();
+    actionPkt->mPos = blockPos;
+    actionPkt->mResultPos = blockPos;
+    actionPkt->mFace = side;
+    actionPkt->mAction = PlayerActionType::StopDestroyBlock;
+    actionPkt->mRuntimeId = player->getRuntimeID();
+    actionPkt->mtIsFromServerPlayerMovementSystem = false;
 
-    vec += blockFaceOffsets[side] * 0.5f;
+    PacketUtils::queueSend(actionPkt);
+    auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
-    res->mBlockPos = vec;
-    res->mFacing = side;
+    auto cit = std::make_unique<ItemUseInventoryTransaction>();
+    cit->actionType = ItemUseInventoryTransaction::ActionType::Destroy;
+    int slot = player->getSupplies()->mSelectedSlot;
+    cit->slot = slot;
+    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->blockPos = blockPos;
+    cit->face = side;
+    cit->targetBlockRuntimeId = 0;
+    cit->playerPos = *player->getPos();
 
-    res->mType = HitType::BLOCK;
-    res->mIndirectHit = false;
-    res->mRayDir = vec;
-    res->mPos = blockPos;
+    BlockInfo block = BlockInfo(ClientInstance::get()->getBlockSource()->getBlock(blockPos), blockPos);
+    AABB blockAABB = block.getAABB();
 
+    cit->clickPos = blockAABB.getClosestPoint(*player->getPos());
+    pkt->mTransaction = std::move(cit);
+    PacketUtils::queueSend(pkt);
 
-    bool oldSwinging = player->isSwinging();
-    int oldSwingProgress = player->getSwingProgress();
-    player->getGameMode()->destroyBlock(&blockPos, side);
-    player->getGameMode()->stopDestroyBlock(blockPos);
-    player->setSwinging(oldSwinging);
-    player->setSwingProgress(oldSwingProgress);
+    // We broke the block, now we need to clear it manually
+    // since were not using GameMode::destroyBlock which does it for us
+    clearBlock(blockPos);
 
-    vec += blockFaceOffsets[side] * 0.5f;
-
-    res->mBlockPos = vec;
-    res->mFacing = side;
-
-    res->mType = HitType::BLOCK;
-    res->mIndirectHit = false;
-    res->mRayDir = vec;
-    res->mPos = blockPos;
-
-
-    return;
 }

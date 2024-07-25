@@ -11,22 +11,16 @@ enum class OffsetType {
 // kinda aids ik stfu
 #define DEFINE_INDEX_FIELD_TYPED(type, name, str, index_offset, offset_type) \
 public: \
-static inline type name; \
+static inline type (name) = 0; \
 private: \
 static void name##_initializer() { \
     static bool initialized = false; \
     if (initialized) return; \
     initialized = true; \
     auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
-    if (!result.has_result()) { \
-        name = 0; \
-        return; \
-    } \
-    if (offset_type == OffsetType::Index) { \
-        name = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
-    } else { \
-        name = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
-    } \
+    if (!result.has_result()) return; \
+    if ((offset_type) == OffsetType::Index) name = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
+    else (name) = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
 } \
 private: \
 static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
@@ -35,22 +29,16 @@ public:
 
 #define DEFINE_INDEX_FIELD(name, str, index_offset, offset_type) \
 public: \
-static inline int name; \
+static inline int (name) = 0; \
 private: \
 static void name##_initializer() { \
     static bool initialized = false; \
     if (initialized) return; \
     initialized = true; \
     auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
-    if (!result.has_result()) { \
-        name = 0; \
-        return; \
-    } \
-    if (offset_type == OffsetType::Index) { \
-        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
-    } else { \
-        name = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
-    } \
+    if (!result.has_result()) return; \
+    if ((offset_type) == OffsetType::Index) (name) = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + (index_offset)) / 8; \
+    else (name) = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + (index_offset)); \
 } \
 private: \
 static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
@@ -64,7 +52,6 @@ class OffsetProvider {
 
     static inline std::vector<std::function<void()>> mSigInitializers;
     static inline int mSigScanCount;
-    static inline uint64_t mSigScanStart;
 public:
     static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;

@@ -10,7 +10,7 @@
 
 class FeatureManager {
 public:
-    std::shared_ptr<nes::event_dispatcher> mDispatcher;
+    std::unique_ptr<nes::event_dispatcher> mDispatcher;
     std::shared_ptr<ModuleManager> mModuleManager = nullptr;
     std::shared_ptr<CommandManager> mCommandManager = nullptr;
 

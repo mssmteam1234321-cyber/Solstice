@@ -150,7 +150,7 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
-            BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace);
+            BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
             return;

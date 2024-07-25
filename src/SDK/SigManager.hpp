@@ -26,11 +26,8 @@ static void name##_initializer() { \
         name = 0; \
         return; \
     } \
-    if (sig_type == SigType::Sig) { \
-        name = reinterpret_cast<uintptr_t>(result.get()); \
-    } else { \
-        name = reinterpret_cast<uintptr_t>(result.rel(offset)); \
-    } \
+    if (sig_type == SigType::Sig) name = reinterpret_cast<uintptr_t>(result.get()); \
+    else name = reinterpret_cast<uintptr_t>(result.rel(offset)); \
 } \
 static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
 public:
@@ -42,14 +39,13 @@ class SigManager {
 
     static inline std::vector<std::function<void()>> mSigInitializers;
     static inline int mSigScanCount;
-    static inline uint64_t mSigScanStart;
 public:
     static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
     DEFINE_SIG(Actor_setPosition, "E8 ? ? ? ? 48 8D ? ? 66 0F ? ? ? ? 48 8B ? 49 8B", SigType::RefSig, 1);
-    DEFINE_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", SigType::RefSig, 1);
-    DEFINE_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", SigType::RefSig, 1);
+    /*DEFINE_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", SigType::RefSig, 1);
+    DEFINE_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", SigType::RefSig, 1);*/
     DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 48 8B ? 48 8B ? 48 83 78 18 ? 48 8B", SigType::RefSig, 1);
     DEFINE_SIG(Actor_setNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 8B ? 4C 8B", SigType::Sig, 0);
     DEFINE_SIG(ActorRenderDispatcher_render, "E8 ? ? ? ? 44 0F ? ? ? ? 4C 8D ? ? ? ? ? ? 41 0F ? ? ? 41 0F ? ? ? 45 0F ? ? ? 45 0F ? ? ? 49 8B", SigType::RefSig, 1);

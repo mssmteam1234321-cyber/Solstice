@@ -13,9 +13,10 @@ public:
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", true);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
+    BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
 
     Nuker() : ModuleBase("Nuker", "Automatically breaks blocks", ModuleCategory::Player, 0, false) {
-        addSettings(&mBlockType, &mRange, &mDestroySpeed, &mSwing, &mHotbarOnly, &mRenderBlock);
+        addSettings(&mBlockType, &mRange, &mDestroySpeed, &mSwing, &mHotbarOnly, &mRenderBlock, &mInfiniteDurability);
 
         mNames = {
             {Lowercase, "nuker"},

@@ -10,6 +10,7 @@
 #include <SDK/OffsetProvider.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
@@ -22,6 +23,13 @@ void BaseTickHook::onBaseTick(Actor* actor)
     {
         supplies->mInHandSlot = supplies->mSelectedSlot;
     }
+
+    for (auto& [mTime, mPacket] : mQueuedPackets)
+    {
+        spdlog::trace("Sending packet with ID: {} [queued {}ms ago]", magic_enum::enum_name(mPacket->getId()), NOW - mTime);
+        ClientInstance::get()->getPacketSender()->sendToServer(mPacket.get());
+    }
+    mQueuedPackets.clear();
 
     auto holder = nes::make_holder<BaseTickEvent>(actor);
     gFeatureManager->mDispatcher->trigger(holder);

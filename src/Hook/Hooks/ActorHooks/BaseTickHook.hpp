@@ -4,14 +4,30 @@
 //
 
 #include <Hook/Hook.hpp>
+#include <SDK/Minecraft/Network/Packets/Packet.hpp>
+#include <Utils/MiscUtils/ColorUtils.hpp>
 
 
+class QueuedPacket
+{
+public:
+    uint64_t mTime;
+    std::shared_ptr<Packet> mPacket;
+
+    QueuedPacket(std::shared_ptr<Packet> packet) : mPacket(packet), mTime(NOW) { }
+};
 
 class BaseTickHook : public Hook {
 public:
     BaseTickHook() : Hook() {
         mName = "Actor::baseTick";
     }
+
+    /// <summary>
+    /// General purpose packet queue.
+    /// Can be used for various purposes, such as delaying packets to match rotation.
+    /// </summary>
+    static inline std::vector<QueuedPacket> mQueuedPackets;
 
     static std::unique_ptr<Detour> mDetour;
 

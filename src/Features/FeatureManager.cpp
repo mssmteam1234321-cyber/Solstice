@@ -12,7 +12,7 @@ void FeatureManager::init()
     spdlog::info("initializing FeatureManager");
 
     spdlog::info("initializing event dispatcher");
-    mDispatcher = std::make_shared<nes::event_dispatcher>();
+    mDispatcher = std::make_unique<nes::event_dispatcher>();
     spdlog::info("Successfully created event dispatcher");
 
     spdlog::info("initializing ModuleManager");

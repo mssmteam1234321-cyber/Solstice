@@ -8,13 +8,3 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
 #include <Utils/GameUtils/PacketUtils.hpp>
-
-void BlockSource::clearBlock(const glm::ivec3& pos)
-{
-    std::shared_ptr<UpdateBlockPacket> p = MinecraftPackets::createPacket<UpdateBlockPacket>();
-    p->mPos = pos;
-    p->mLayer = UpdateBlockPacket::BlockLayer::Standard;
-    p->mUpdateFlags = BlockUpdateFlag::Priority;
-    p->mBlockRuntimeId = 3690217760;
-    PacketUtils::sendToSelf(p);
-}
