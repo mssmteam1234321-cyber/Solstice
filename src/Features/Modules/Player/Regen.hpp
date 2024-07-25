@@ -44,7 +44,7 @@ public:
         float time;
     };
 
-    struct destroySpeedInfo {
+    struct DestroySpeedInfo {
         std::string blockName;
         float destroySpeed;
     };
@@ -83,7 +83,7 @@ public:
     };
 
     // Dynamic Destroy Spped
-    std::vector<destroySpeedInfo> dynamicSpeeds = {
+    std::vector<DestroySpeedInfo> dynamicSpeeds = {
         { "minecraft:moss_block", 0.57 },
         { "minecraft:hardened_clay", 0.71 },
         { "minecraft:brown_powder", 0.7 },
