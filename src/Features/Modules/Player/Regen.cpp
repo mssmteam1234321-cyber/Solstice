@@ -179,6 +179,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
+        if (mDebug.mValue) {
+            ChatUtils::displayClientMessage("Stealer timeouted");
+        }
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
@@ -201,6 +204,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     if (mLastBlockPlace + 100 > NOW) {
         if (mIsMiningBlock) PacketUtils::spoofSlot(mLastPlacedBlockSlot);
         return;
+    }
+
+    // Stolen notify
+    if (mDebug.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
+        ChatUtils::displayClientMessage("Your ore stolen");
     }
 
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
@@ -248,6 +256,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
+            if (mDebug.mValue && mIsStealing) {
+                ChatUtils::displayClientMessage("Stole ore");
+            }
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
             return;
