@@ -26,8 +26,8 @@ void Regen::initializeRegen() {
     if (mIsMiningBlock) {
         gm->stopDestroyBlock(mCurrentBlockPos);
     }
-    mCurrentBlockPos = { 0, 0, 0 };
-    mTargettingBlockPos = { 0, 0, 0 };
+    mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     mCurrentBlockFace = -1;
     mBreakingProgress = 0.f;
     mShouldSpoofSlot = true;
@@ -179,6 +179,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
+        if (mDebug.mValue) {
+            ChatUtils::displayClientMessage("Stealer timeouted");
+        }
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
@@ -193,6 +196,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             PacketUtils::spoofSlot(mPreviousSlot);
             mShouldSetbackSlot = false;
         }
+        mCanSteal = false;
         return;
     }
 
@@ -200,6 +204,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     if (mLastBlockPlace + 100 > NOW) {
         if (mIsMiningBlock) PacketUtils::spoofSlot(mLastPlacedBlockSlot);
         return;
+    }
+
+    // Stolen notify
+    if (mDebug.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
+        ChatUtils::displayClientMessage("Your ore stolen");
     }
 
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
@@ -247,6 +256,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
+            if (mDebug.mValue && mIsStealing) {
+                ChatUtils::displayClientMessage("Stole ore");
+            }
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
             return;
@@ -254,12 +266,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
     else { // Find new block
         initializeRegen();
-        if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
-            queueBlock(mEnemyTargettingBlockPos);
-            mTargettingBlockPos = mEnemyTargettingBlockPos;
-            mIsStealing = true;
-            return;
-        }
         std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
         std::vector<BlockInfo> exposedBlockList;
         std::vector<BlockInfo> unexposedBlockList;
@@ -270,6 +276,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 else unexposedBlockList.push_back(blockList[i]);
             }
             else continue;
+        }
+
+        if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
+            if (mAntiConfuse.mValue && !exposedBlockList.empty()) return;
+            queueBlock(mEnemyTargettingBlockPos);
+            mTargettingBlockPos = mEnemyTargettingBlockPos;
+            mIsStealing = true;
+            return;
         }
 
         glm::vec3 playerPos = *player->getPos();
@@ -427,7 +441,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
-            if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
+            if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress || mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) return;
             // Steal
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
