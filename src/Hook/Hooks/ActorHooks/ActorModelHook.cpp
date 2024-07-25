@@ -11,7 +11,7 @@
 
 std::unique_ptr<Detour> ActorModelHook::mDetour;
 
-
+//void ActorAnimationControllerPlayer::applyToPose(RenderParams&, std::unordered_map<SkeletalHierarchyIndex,std::vector<BoneOrientation>>&, float)
 void ActorModelHook::onActorModel(uintptr_t a1, uintptr_t a2, uintptr_t a3, float a4, int a5)
 {
     auto original = mDetour->getOriginal<decltype(&ActorModelHook::onActorModel)>();
@@ -26,20 +26,20 @@ void ActorModelHook::onActorModel(uintptr_t a1, uintptr_t a2, uintptr_t a3, floa
     auto holder = nes::make_holder<BoneRenderEvent>(bone, partModel, ent);
     gFeatureManager->mDispatcher->trigger(holder);
 
-    // if (bone->mBoneStr == "rightarm")
-    // {
-    //     partModel->mPos.x = -4.041;
-    //     partModel->mPos.y = -2.798;
-    //     partModel->mPos.z = -0.622;
-    //     partModel->mRot.x -= -58.031;
-    //     partModel->mRot.y -= -53.886;
-    //     partModel->mRot.z -= 14.508;
-    // }
+    /*if (bone->mBoneStr == "rightarm")
+    {
+        partModel->mPos.x = -4.041;
+        partModel->mPos.y = -2.798;
+        partModel->mPos.z = -0.622;
+        partModel->mRot.x = -58.031;
+        partModel->mRot.y = -53.886;
+        partModel->mRot.z = 14.508;
+    }*/
 
 
 }
 
 void ActorModelHook::init()
 {
-    mDetour = std::make_unique<Detour>("ActorModel::[unknown]", reinterpret_cast<void*>(SigManager::ActorModel), &ActorModelHook::onActorModel);
+    mDetour = std::make_unique<Detour>("ActorAnimationControllerPlayer::applyToPose", reinterpret_cast<void*>(SigManager::ActorAnimationControllerPlayer_applyToPose), &ActorModelHook::onActorModel);
 }

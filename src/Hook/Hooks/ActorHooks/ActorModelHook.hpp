@@ -9,7 +9,7 @@ class ActorModelHook : public Hook
 {
 public:
     ActorModelHook() : Hook() {
-        mName = "ActorModel::[unknown]";
+        mName = "ActorAnimationControllerPlayer::applyToPose";
     }
 
     static std::unique_ptr<Detour> mDetour;

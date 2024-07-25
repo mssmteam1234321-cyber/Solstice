@@ -11,7 +11,7 @@ public:
         Dynamic
     };
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Flareon, "Flareon");
-    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("CalcMode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
     NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
@@ -22,7 +22,7 @@ public:
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
-    BoolSetting mAntiSteal = BoolSetting("AntiSteal", "Stop mining if enemy tried to steal ore", false);
+    BoolSetting mAntiSteal = BoolSetting("Anti Steal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Prevent stealer confused", false);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
