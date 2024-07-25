@@ -120,86 +120,14 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
     glm::vec2 radRot = event.mCameraDirectLookComponent->mRotRads;
     int perspectiveOption = ClientInstance::get()->getOptions()->game_thirdperson->value;
 
-    /*if (perspectiveOption == 0)
-    {
-        glm::vec3 origin = firstPersonCamera->mOrigin;
-        float distance = mNumber.mValue;
-
-        // Flip the pitch
-        radRot.y = -radRot.y;
-
-        // Calculate direction vector from yaw and pitch
-        float cosYaw = cos(radRot.x);
-        float sinYaw = sin(radRot.x);
-        float cosPitch = cos(radRot.y);
-        float sinPitch = sin(radRot.y);
-
-        // Calculate the new position using spherical coordinates
-        glm::vec3 offset;
-        offset.x = distance * cosPitch * sinYaw;
-        offset.y = distance * sinPitch;
-        offset.z = distance * cosPitch * cosYaw;
-
-        // Calculate the new origin by subtracting the offset from the original position
-        glm::vec3 newOrigin = origin + offset;
-
-        firstPersonCamera->mOrigin = newOrigin;
-    } else if (perspectiveOption == 1)
-    {
-        glm::vec3 origin = thirdPersonCamera->mOrigin;
-        float distance = mNumber.mValue;
-
-        // Flip the pitch
-        radRot.y = -radRot.y;
-
-        // Calculate direction vector from yaw and pitch
-        float cosYaw = cos(radRot.x);
-        float sinYaw = sin(radRot.x);
-        float cosPitch = cos(radRot.y);
-        float sinPitch = sin(radRot.y);
-
-        // Calculate the new position using spherical coordinates
-        glm::vec3 offset;
-        offset.x = distance * cosPitch * sinYaw;
-        offset.y = distance * sinPitch;
-        offset.z = distance * cosPitch * cosYaw;
-
-        // Calculate the new origin by subtracting the offset from the original position
-        glm::vec3 newOrigin = origin + offset;
-
-        thirdPersonCamera->mOrigin = newOrigin;
-    } else if (perspectiveOption == 2)
-    {
-        glm::vec3 origin = thirdPersonFrontCamera->mOrigin;
-        float distance = mNumber.mValue;
-
-        // Flip the pitch
-        radRot.y = -radRot.y;
-
-        // Calculate direction vector from yaw and pitch
-        float cosYaw = cos(radRot.x);
-        float sinYaw = sin(radRot.x);
-        float cosPitch = cos(radRot.y);
-        float sinPitch = sin(radRot.y);
-
-        // Calculate the new position using spherical coordinates
-        glm::vec3 offset;
-        offset.x = distance * cosPitch * sinYaw;
-        offset.y = distance * sinPitch;
-        offset.z = distance * cosPitch * cosYaw;
-
-        // Calculate the new origin by subtracting the offset from the original position
-        glm::vec3 newOrigin = origin + offset;
-
-        thirdPersonFrontCamera->mOrigin = newOrigin;
-    }*/
-
     spdlog::info("firstPersonCamera: 0x{:X}", reinterpret_cast<uintptr_t>(firstPersonCamera));
     spdlog::info("thirdPersonCamera: 0x{:X}", reinterpret_cast<uintptr_t>(thirdPersonCamera));
     spdlog::info("thirdPersonFrontCamera: 0x{:X}", reinterpret_cast<uintptr_t>(thirdPersonFrontCamera));
 
 
 }
+
+
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {

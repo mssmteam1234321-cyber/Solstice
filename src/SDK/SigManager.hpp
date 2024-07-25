@@ -87,6 +87,8 @@ public:
     DEFINE_SIG(BobHurt, "40 ? 56 48 83 EC ? 0F 29 ? ? ? 48 81 C1", SigType::Sig, 0);
     DEFINE_SIG(ItemInHandRenderer_renderItem_bytepatch, "F3 0F ? ? ? ? ? ? 0F 57 ? F3 0F ? ? ? ? ? ? F3 0F ? ? 0F 2F ? 73 ? F3 41", SigType::Sig, 0);
     DEFINE_SIG(ItemInHandRenderer_renderItem_bytepatch2, "8B 52 ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 8B ? EB ? 48 8D ? ? ? ? ? 48 8B ? ? ? ? ? 48 8B", SigType::Sig, 0);
+    DEFINE_SIG(ActorModel, "E8 ? ? ? ? 48 81 C3 ? ? ? ? 48 3B ? 75 ? 48 8B ? ? ? EB", SigType::RefSig, 1);
 
     static void initialize();
 };
+

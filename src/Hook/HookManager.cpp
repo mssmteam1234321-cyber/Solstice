@@ -6,6 +6,7 @@
 
 #include <MinHook.h>
 
+#include "Hooks/ActorHooks/ActorModelHook.hpp"
 #include "Hooks/ActorHooks/AnimationHooks.hpp"
 #include "Hooks/ActorHooks/IsSlowedByItemUseHook.hpp"
 #include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
@@ -50,6 +51,7 @@ void HookManager::init(bool initLp)
         ADD_HOOK(ActorRenderDispatcherHook);
         ADD_HOOK(AnimationHooks);
         ADD_HOOK(LookInputHook);
+        ADD_HOOK(ActorModelHook);
 
 
         for (auto& hook : hooks)

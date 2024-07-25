@@ -96,6 +96,10 @@ public:
     DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftGame_mProfanityContext, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 90 48 C7 44 24 20", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "38 ? ? 74 ? 38 ? ? ? 75 ? 4C 8D", 2, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset);
+
+    // TODO: Identify the correct signature for this (something related to actor bones)
+    DEFINE_INDEX_FIELD_TYPED(uint8_t, Unknown_mActor, "48 8B ? ? 0F 29 ? ? 44 0F ? ? ? E8 ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
 
     static void initialize();
 };
