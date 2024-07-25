@@ -73,7 +73,7 @@ public:
     uint64_t mLastStealerUpdate = 0;
     int mLastPlacedBlockSlot = 0;
 
-    std::vector<glm::ivec3> offsetList = {
+    std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),
         glm::ivec3(0, 1, 0),
         glm::ivec3(0, 0, -1),
@@ -83,7 +83,7 @@ public:
     };
 
     // Dynamic Destroy Spped
-    std::vector<DestroySpeedInfo> dynamicSpeeds = {
+    std::vector<DestroySpeedInfo> mDynamicSpeeds = {
         { "minecraft:moss_block", 0.57 },
         { "minecraft:hardened_clay", 0.71 },
         { "minecraft:brown_powder", 0.7 },

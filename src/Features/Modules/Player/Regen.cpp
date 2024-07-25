@@ -222,7 +222,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else if (mCalcMode.mValue == CalcMode::Dynamic) {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
-            for (auto& c : dynamicSpeeds) {
+            for (auto& c : mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
                     found = true;
@@ -429,7 +429,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
         if (levelEvent->mEventId == 3600) { // Start destroying block
             if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress) return;
             // Steal
-            for (auto& offset : offsetList) {
+            for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
                 if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
                     mEnemyTargettingBlockPos = blockPos;
