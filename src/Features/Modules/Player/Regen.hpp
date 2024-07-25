@@ -24,12 +24,13 @@ public:
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
     BoolSetting mAntiSteal = BoolSetting("AntiSteal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
+    BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Prevent stealer confused", false);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mInfiniteDurability, &mAlwaysMine, &mRenderBlock);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mInfiniteDurability, &mAlwaysMine, &mRenderBlock);
 
         mNames = {
             {Lowercase, "regen"},
@@ -49,10 +50,10 @@ public:
         float destroySpeed;
     };
 
-    glm::ivec3 mCurrentBlockPos = { 0, 0, 0 };
-    glm::ivec3 mTargettingBlockPos = { 0, 0, 0 };
-    glm::ivec3 mEnemyTargettingBlockPos = { 0, 0, 0 };
-    glm::ivec3 mLastEnemyLayerBlockPos = { 0, 0, 0 };
+    glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    glm::ivec3 mEnemyTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    glm::ivec3 mLastEnemyLayerBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     bool mCanSteal = false;
     bool mIsStealing = false;
     int mCurrentBlockFace = -1;
