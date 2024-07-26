@@ -42,6 +42,7 @@ public:
     static float animate(float endPoint, float current, float speed);
     static float lerp(float a, float b, float t);
     static glm::vec3 lerp(glm::vec3& a, glm::vec3& b, float t);
+    static ImVec4 lerp(ImVec4& a, ImVec4& b, float t);
     static float getRotationKeyOffset();
     static glm::vec2 getMotion(float yaw, float speed);
     template <typename T>

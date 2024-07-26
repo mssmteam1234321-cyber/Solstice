@@ -10,5 +10,5 @@ class RenderUtils {
 public:
     static inline FrameTransform transform;
 
-    static void drawOutlinedAABB(const AABB& aabb, bool filled);
+    static void drawOutlinedAABB(const AABB& aabb, bool filled, const ImColor& color = ImColor(255, 255, 255, 255));
 };

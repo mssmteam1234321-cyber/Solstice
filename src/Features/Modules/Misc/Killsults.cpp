@@ -32,11 +32,12 @@ void Killsults::onBaseTickEvent(BaseTickEvent& event)
 
     const int64_t now = NOW;
 
-    if (now - mLastAttacked.begin()->second > 8000)
+
+    if (mLastAttacked.size() > 0 && now - mLastAttacked.begin()->second > 8000)
     {
         mLastAttacked.erase(mLastAttacked.begin());
     }
-    if (now - mLastHurt.begin()->second > 8000)
+    if (mLastHurt.size() > 0 && now - mLastHurt.begin()->second > 8000)
     {
         mLastHurt.erase(mLastHurt.begin());
     }

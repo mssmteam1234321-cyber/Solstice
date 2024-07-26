@@ -29,9 +29,10 @@ public:
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
+    BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mRenderBlock);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mRenderBlock, &mRenderProgressBar);
 
         mNames = {
             {Lowercase, "regen"},
@@ -39,6 +40,8 @@ public:
             {Normal, "Regen"},
             {NormalSpaced, "Regen"}
         };
+
+        gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent, nes::event_priority::LAST>(this);
     }
 
     struct PathFindingResult {
@@ -61,6 +64,7 @@ public:
     float mBreakingProgress = 0.f;
     float mCurrentDestroySpeed = 1.f;
     bool mIsMiningBlock = false;
+    bool mWasMiningBlock = false;
     bool mIsUncovering = false;
     bool mIsConfuserActivated = false;
     glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
@@ -101,6 +105,8 @@ public:
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
+    void renderProgressBar();
+    void renderBlock();
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     void initializeRegen();

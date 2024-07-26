@@ -7,14 +7,12 @@
 #include "ColorUtils.hpp"
 #include "MathUtils.hpp"
 
-void RenderUtils::drawOutlinedAABB(const AABB& aabb, bool filled)
+void RenderUtils::drawOutlinedAABB(const AABB& aabb, bool filled, const ImColor& color)
 {
     std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
 
     auto drawList = ImGui::GetBackgroundDrawList();
 
-    ImColor themeColor = ColorUtils::getThemedColor(0);
-
-    if (filled) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
-    drawList->AddPolyline(imPoints.data(), imPoints.size(), themeColor, 0, 2.0f);
+    if (filled) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.25f));
+    drawList->AddPolyline(imPoints.data(), imPoints.size(), color, 0, 2.0f);
 }

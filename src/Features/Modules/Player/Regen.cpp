@@ -5,6 +5,7 @@
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
@@ -135,7 +136,6 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) {
 void Regen::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Regen::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &Regen::onPacketInEvent>(this);
 
@@ -151,7 +151,6 @@ void Regen::onEnable()
 void Regen::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->deafen<RenderEvent, &Regen::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Regen::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &Regen::onPacketInEvent>(this);
 
@@ -161,11 +160,14 @@ void Regen::onDisable()
     if (mIsMiningBlock) {
         player->getSupplies()->mSelectedSlot = mToolSlot;
         player->getGameMode()->stopDestroyBlock(mCurrentBlockPos);
+        mIsMiningBlock = false;
     }
 }
 
 void Regen::onBaseTickEvent(BaseTickEvent& event)
 {
+    mWasMiningBlock = mIsMiningBlock;
+
     auto player = event.mActor;
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
@@ -208,7 +210,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     // Stolen notify
     if (mDebug.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-        ChatUtils::displayClientMessage("Your ore stolen");
+        ChatUtils::displayClientMessage("Your ore was stolen!");
     }
 
     if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
@@ -243,7 +245,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
             }
         }
-        
+
 
         if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
         else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
@@ -370,33 +372,169 @@ void Regen::onRenderEvent(RenderEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (mRenderBlock.mValue && mIsMiningBlock)
+    if (mRenderBlock.mValue) renderBlock();
+    if (mRenderProgressBar.mValue) renderProgressBar();
+}
+
+void Regen::renderProgressBar()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    static float lastProgress = 0.f;
+    float percentDone = 1.f;
+
+    percentDone = mBreakingProgress;
+    if (!mOldCalculation.mValue) percentDone /= mCurrentDestroySpeed;
+    if (percentDone < lastProgress) lastProgress = percentDone;
+    percentDone = MathUtils::lerp(lastProgress, percentDone, ImGui::GetIO().DeltaTime * 30.f);
+    lastProgress = percentDone;
+    // clamp percentDone
+    percentDone = MathUtils::clamp(percentDone, 0.f, 1.f);
+
+    float delta = ImGui::GetIO().DeltaTime;
+
+    static EasingUtil inEase = EasingUtil();
+    static float anim = 0.f;
+    constexpr float easeSpeed = 10.f;
+    (mEnabled && mWasMiningBlock || mEnabled && mIsMiningBlock) ? inEase.incrementPercentage(delta * easeSpeed / 10)
+    : inEase.decrementPercentage(delta * 2 * easeSpeed / 10);
+    float inScale = inEase.easeOutExpo();
+    if (inEase.isPercentageMax()) inScale = 0.996;
+    inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
+    anim = MathUtils::lerp(0, 1, inEase.easeOutExpo());
+    anim = MathUtils::lerp(anim, (mEnabled && mWasMiningBlock || mEnabled && mIsMiningBlock) ? 1.f : 0.f, delta * 10.f);
+
+
+    if (anim < 0.001f) return;
+
+    auto drawList = ImGui::GetBackgroundDrawList();
+
+    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y / 2.5f);
+    pos.y += pos.y / 2;
+    ImVec2 boxSize = ImVec2(200 * anim, 47 * anim);
+    // Center da progress bar
+    pos.x -= boxSize.x / 2;
+    pos.y -= boxSize.y / 2;
+
+    ImVec2 progressPos = ImVec2(pos.x, pos.y);
+    ImVec2 progressSize = ImVec2(boxSize.x * percentDone, boxSize.y);
+
+    int daPerc = percentDone * 100;
+
+    static std::string text = "Mining [0%]";
+
+    static ImColor color = ImColor(255, 255, 0, 153);
+    ImColor targetColor = ImColor(0, 255, 0, 153);
+
+    bool isMining = mIsMiningBlock && mBreakingProgress > 0.001f; // i hate you.
+
+    auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
+    bool isLowercase = interfaceMod->mNamingStyle.mValue == Lowercase || interfaceMod->mNamingStyle.mValue == LowercaseSpaced;
+
+    if (mCanSteal && mEnabled) // Stealing
     {
-        static float lastProgress = 0.f;
-        float progress = 1.f;
-
-        progress = mBreakingProgress;
-        if (!mOldCalculation.mValue) progress /= mCurrentDestroySpeed;
-        if (progress < lastProgress) lastProgress = progress;
-        progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
-        lastProgress = progress;
-
-        // clamp the progress to 0-1
-        progress = MathUtils::clamp(progress, 0.f, 1.f);
-
-        if (progress < 0.01f) return;
-
-
-        auto size = glm::vec3(progress, progress, progress);
-        glm::vec3 blockPos = mCurrentBlockPos;
-        blockPos.x += 0.5f - (progress / 2.f);
-        blockPos.y += 0.5f - (progress / 2.f);
-        blockPos.z += 0.5f - (progress / 2.f);
-        auto blockAABB = AABB(blockPos, size);
-        RenderUtils::drawOutlinedAABB(blockAABB, ColorUtils::getThemedColor(0)); // TODO: Replace the color with the color of the progress bar as per state (queueing, uncovering, mining, stealing, etc.)
+        targetColor = ImColor(255, 0, 0, 153);
+        if (isLowercase) text = "stealing [" + std::to_string(daPerc) + "%]";
+        else text = "Stealing [" + std::to_string(daPerc) + "%]";
+    }
+    else if (mIsUncovering && mEnabled) // Uncovering
+    {
+        if (isLowercase) text = "uncovering [" + std::to_string(daPerc) + "%]";
+        else text = "Uncovering [" + std::to_string(daPerc) + "%]";
+        targetColor = ImColor(255, 255, 0, 153);
+    }
+    else if (isMining && 10 <= player->getAbsorption() && mEnabled) // Queueing
+    {
+        if (isLowercase) text = "queueing [" + std::to_string(daPerc) + "%]";
+        else text = "Queueing [" + std::to_string(daPerc) + "%]";
+        targetColor = ImColor(0, 255, 255, 153);
+    }
+    else // Mining
+    {
+        if (isLowercase) text = "mining [" + std::to_string(daPerc) + "%]";
+        else text = "Mining [" + std::to_string(daPerc) + "%]";
+        targetColor = ImColor(0, 255, 0, 153);
     }
 
+    color = ImColor(MathUtils::lerp(color.Value, targetColor.Value, ImGui::GetIO().DeltaTime * 7.5f));
+
+    float daPadding = -25.f * anim;
+
+    float max = pos.x + boxSize.x;
+    ImVec2 bgMin = ImVec2(pos.x + boxSize.x * percentDone, pos.y);
+    ImVec2 bgMax = ImVec2(pos.x + boxSize.x, pos.y + (boxSize.y + daPadding));
+    ImVec2 progMax = ImVec2(pos.x + (boxSize.x * percentDone + 6.f), pos.y + (boxSize.y + daPadding));
+    progMax.x = std::clamp(progMax.x, pos.x, max);
+
+    float rounding = 15.f * anim;
+
+    if (percentDone > 0.001f)
+    {
+        drawList->AddShadowRect(ImVec2(pos.x, pos.y), progMax, color, 50.f, ImVec2(), 0, rounding);
+
+        drawList->PushClipRect(ImVec2(pos.x, pos.y), ImVec2(pos.x + (boxSize.x * percentDone), pos.y + (boxSize.y - 10.f)));
+        drawList->AddRectFilled(ImVec2(pos.x, pos.y), progMax, color, rounding);
+        drawList->PopClipRect();
+    }
+
+    drawList->PushClipRect(bgMin, bgMax);
+    drawList->AddRectFilled(ImVec2(pos.x + boxSize.x * percentDone - 6, pos.y), bgMax, ImColor(0.f, 0.f, 0.f, 0.6f), rounding);
+    drawList->PopClipRect();
+
+    FontHelper::pushPrefFont(true, false);
+
+    float fontSize = 20.f * anim;
+    ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, text.c_str());
+    // center da text between
+    ImVec2 textPos = ImVec2(pos.x + (boxSize.x - textSize.x) / 2, pos.y + (2.5f * anim));
+
+    ImRenderUtils::drawShadowText(drawList, text, textPos, ImColor(255, 255, 255, 255), fontSize);
+    FontHelper::popFont();
+
 }
+
+void Regen::renderBlock()
+{
+    if (!mIsMiningBlock || !mEnabled) return;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+
+    static float lastProgress = 0.f;
+    float progress = 1.f;
+
+    progress = mBreakingProgress;
+    if (!mOldCalculation.mValue) progress /= mCurrentDestroySpeed;
+    if (progress < lastProgress) lastProgress = progress;
+    progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
+    lastProgress = progress;
+
+    // clamp the progress to 0-1
+    progress = MathUtils::clamp(progress, 0.f, 1.f);
+
+    if (progress < 0.01f) return;
+
+    auto size = glm::vec3(progress, progress, progress);
+    glm::vec3 blockPos = mCurrentBlockPos;
+    blockPos.x += 0.5f - (progress / 2.f);
+    blockPos.y += 0.5f - (progress / 2.f);
+    blockPos.z += 0.5f - (progress / 2.f);
+    auto blockAABB = AABB(blockPos, size);
+
+    static ImColor color = ImColor(255, 255, 0, 255);
+    ImColor targetColor = ImColor(255, 255, 0, 255);
+
+    if (mCanSteal) targetColor = ImColor(255, 0, 0, 255);
+    else if (mIsUncovering) targetColor = ImColor(255, 255, 0, 255);
+    else if (mIsMiningBlock && 10 <= player->getAbsorption()) targetColor = ImColor(0, 255, 255, 255);
+    else targetColor = ImColor(0, 255, 0, 255);
+
+    // lerping the color
+    color = ImColor(MathUtils::lerp(color.Value, targetColor.Value, ImGui::GetIO().DeltaTime * 10.f));
+
+    RenderUtils::drawOutlinedAABB(blockAABB, true, color);
+};
 
 void Regen::onPacketOutEvent(PacketOutEvent& event)
 {

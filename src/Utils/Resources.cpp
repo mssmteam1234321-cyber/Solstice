@@ -33,6 +33,14 @@ void ResourceLoader::loadResources() {
     Resources.emplace("product_sans", fonts_Product_Sans_ttf);
     FontHelper::Fonts.emplace("product_sans", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_ttf.data2(), fonts_Product_Sans_ttf.size(), 20));
     FontHelper::Fonts.emplace("product_sans_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_ttf.data2(), fonts_Product_Sans_ttf.size(), 84));
+    auto fonts_SF_Pro_Display_Bold_ttf = GET_RESOURCE(fonts_SF_Pro_Display_Bold_ttf);
+    Resources.emplace("sf_pro_display_bold", fonts_SF_Pro_Display_Bold_ttf);
+    FontHelper::Fonts.emplace("sf_pro_display_bold", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_SF_Pro_Display_Bold_ttf.data2(), fonts_SF_Pro_Display_Bold_ttf.size(), 20));
+    FontHelper::Fonts.emplace("sf_pro_display_bold_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_SF_Pro_Display_Bold_ttf.data2(), fonts_SF_Pro_Display_Bold_ttf.size(), 84));
+    auto fonts_SF_Pro_Display_ttf = GET_RESOURCE(fonts_SF_Pro_Display_ttf);
+    Resources.emplace("sf_pro_display", fonts_SF_Pro_Display_ttf);
+    FontHelper::Fonts.emplace("sf_pro_display", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_SF_Pro_Display_ttf.data2(), fonts_SF_Pro_Display_ttf.size(), 20));
+    FontHelper::Fonts.emplace("sf_pro_display_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_SF_Pro_Display_ttf.data2(), fonts_SF_Pro_Display_ttf.size(), 84));
     auto fonts_Sarabun_Light_ttf = GET_RESOURCE(fonts_Sarabun_Light_ttf);
     Resources.emplace("sarabun_light", fonts_Sarabun_Light_ttf);
     FontHelper::Fonts.emplace("sarabun_light", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Sarabun_Light_ttf.data2(), fonts_Sarabun_Light_ttf.size(), 20));

@@ -79,7 +79,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     static std::vector<std::shared_ptr<Module>> module;
 
     auto drawList = ImGui::GetBackgroundDrawList();
-    FontHelper::pushPrefFont(true);
+    FontHelper::pushPrefFont(true, mBoldText.mValue);
 
     if (module.empty())
     {

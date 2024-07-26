@@ -202,7 +202,7 @@ void Nuker::onRenderEvent(RenderEvent& event)
         blockPos.y += 0.5f - (progress / 2.f);
         blockPos.z += 0.5f - (progress / 2.f);
         auto blockAABB = AABB(blockPos, size);
-        RenderUtils::drawOutlinedAABB(blockAABB, ColorUtils::getThemedColor(0)); // TODO: Replace the color with the color of the progress bar as per state (queueing, uncovering, mining, stealing, etc.)
+        RenderUtils::drawOutlinedAABB(blockAABB, true, ColorUtils::getThemedColor(0));
     }
 
 }

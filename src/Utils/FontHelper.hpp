@@ -19,4 +19,8 @@ public:
     /// </summary>
     /// <param name="large">Whether to get the large font.</param>
     static ImFont* getFont(bool large = false, bool bold = false);
+    /// <summary>
+    /// Pops the font from the ImGui stack.
+    /// </summary>
+    static void popFont();
 };

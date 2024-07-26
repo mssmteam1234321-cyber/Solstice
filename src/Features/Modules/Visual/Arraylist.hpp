@@ -27,6 +27,7 @@ public:
     BoolSetting mRenderMode = BoolSetting("Render Mode", "Renders the module mode next to the module name", true);
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
+    BoolSetting mBoldText = BoolSetting("Bold Text", "Makes the text bold", false);
 
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
         addSetting(&mBackgroundOpacity);
@@ -35,6 +36,7 @@ public:
         addSetting(&mRenderMode);
         addSetting(&mGlow);
         addSetting(&mGlowStrength);
+        addSetting(&mBoldText);
 
         mNames = {
             {Lowercase, "arraylist"},
