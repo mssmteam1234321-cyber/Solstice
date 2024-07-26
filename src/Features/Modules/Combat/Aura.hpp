@@ -25,9 +25,7 @@ public:
         Normal,
     };
 
-
-    enum class SwitchMode
-    {
+    enum class SwitchMode {
         None,
         Full,
         Spoof
@@ -39,11 +37,13 @@ public:
         FlareonV2
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
-    EnumSettingT<AttackMode> mAttackMode = EnumSettingT<AttackMode>("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
-    EnumSettingT<RotateMode> mRotateMode = EnumSettingT<RotateMode>("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
-    EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT<SwitchMode>("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
-    EnumSettingT<AnticheatMode> mAnticheatMode = EnumSettingT<AnticheatMode>("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
+    EnumSettingT<AttackMode> mAttackMode = EnumSettingT("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
+    EnumSettingT<RotateMode> mRotateMode = EnumSettingT("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
+    EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
+    EnumSettingT<AnticheatMode> mAnticheatMode = EnumSettingT("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
+    BoolSetting mAutoFireSword = BoolSetting("Auto Fire Sword", "Whether or not to automatically use the fire sword", false);
+    BoolSetting mFireSwordSpoof = BoolSetting("Fire Sword Spoof", "Whether or not to spoof the fire sword", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
@@ -56,8 +56,10 @@ public:
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mHotbarOnly, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
+        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mAutoFireSword/*, &mFireSwordSpoof*/, &mHotbarOnly, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
 
+        VISIBILITY_CONDITION(mAutoFireSword, mSwitchMode.mValue != SwitchMode::None);
+        VISIBILITY_CONDITION(mFireSwordSpoof, mAutoFireSword.mValue == true);
         VISIBILITY_CONDITION(mAPS, mRandomizeAPS.mValue == false);
         VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue == true);
         VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue == true);
@@ -76,6 +78,8 @@ public:
     bool mRotating = false;
     bool mHasTarget = false;
 
+    int getSword(Actor* target);
+    bool shouldUseFireSword(Actor* target);
     void onEnable() override;
     void onDisable() override;
     void rotate(Actor* target);

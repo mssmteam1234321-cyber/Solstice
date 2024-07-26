@@ -21,6 +21,36 @@
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
+int Aura::getSword(Actor* target) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto supplies = player->getSupplies();
+    auto container = supplies->getContainer();
+
+    int bestSword = ItemUtils::getBestItem(SItemType::Sword);
+
+    if (shouldUseFireSword(target))
+    {
+        return ItemUtils::getFireSword(mHotbarOnly.mValue);
+    }
+
+    return bestSword;
+}
+
+bool Aura::shouldUseFireSword(Actor* target)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto supplies = player->getSupplies();
+    auto container = supplies->getContainer();
+
+    int fireSw = ItemUtils::getFireSword(mHotbarOnly.mValue);
+    if (fireSw != -1 && mAutoFireSword.mValue && !target->isOnFire())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void Aura::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
@@ -174,16 +204,6 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     if (!player) return;
     auto supplies = player->getSupplies();
 
-    static std::vector<std::shared_ptr<InventoryTransactionPacket>> queuedTransactions;
-
-    for (auto& transaction : queuedTransactions)
-    {
-        player->getLevel()->getHitResult()->mType = HitType::ENTITY;
-        ClientInstance::get()->getPacketSender()->send(transaction.get());
-    }
-
-    queuedTransactions.clear();
-
     auto actors = ActorUtils::getActorList(false, true);
 
     static std::unordered_map<Actor*, int64_t> lastAttacks = {};
@@ -243,7 +263,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         player->swing();
         int slot = -1;
-        int bestWeapon = ItemUtils::getBestItem(SItemType::Sword);
+        int bestWeapon = getSword(actor);
         mHotbarOnly.mValue ? slot = bestWeapon : slot = player->getSupplies()->mSelectedSlot;
 
         actor = findObstructingActor(player, actor);
@@ -253,17 +273,18 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestWeapon;
         }
 
+        player->getLevel()->getHitResult()->mType = HitType::ENTITY;
         if (mAttackMode.mValue == AttackMode::Synched)
         {
             std::shared_ptr<InventoryTransactionPacket> attackTransaction = ActorUtils::createAttackTransaction(actor, mSwitchMode.mValue == SwitchMode::Spoof ? bestWeapon : -1);
-            queuedTransactions.push_back(attackTransaction);
+            PacketUtils::queueSend(attackTransaction);
         } else {
             int oldSlot = supplies->mSelectedSlot;
             if (mSwitchMode.mValue == SwitchMode::Spoof)
             {
                 supplies->mSelectedSlot = bestWeapon;
             }
-            player->getLevel()->getHitResult()->mType = HitType::ENTITY;
+
             player->getGameMode()->attack(actor);
             supplies->mSelectedSlot = oldSlot;
         }

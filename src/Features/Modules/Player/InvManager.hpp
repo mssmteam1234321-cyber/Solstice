@@ -45,6 +45,8 @@ public:
     EnumSettingT<int> mPreferredPickaxeSlot = EnumSettingT("Pickaxe Slot", "The slot where your pickaxe is", 2, mSlots);
     EnumSettingT<int> mPreferredAxeSlot = EnumSettingT("Axe Slot", "The slot where your axe is", 3, mSlots);
     EnumSettingT<int> mPreferredShovelSlot = EnumSettingT("Shovel Slot", "The slot where your shovel is", 4, mSlots);
+    BoolSetting mDropExtraBows = BoolSetting("Drop Extra Bows", "Drop extra bows when you have more than one", false);
+    BoolSetting mIgnoreFireSword = BoolSetting("Ignore Fire Sword", "Don't drop the fire sword", false);
     BoolSetting mSpoofOpen = BoolSetting("Spoof Open", "Server-sidedly opens your inventory while performing item actions, can bypass some anticheats", false);
 
 
@@ -56,6 +58,8 @@ public:
         addSetting(&mPreferredPickaxeSlot);
         addSetting(&mPreferredAxeSlot);
         addSetting(&mPreferredShovelSlot);
+        addSetting(&mDropExtraBows);
+        addSetting(&mIgnoreFireSword);
         addSetting(&mSpoofOpen);
 
         VISIBILITY_CONDITION(mPreferredSwordSlot, mPreferredSlots.mValue);

@@ -22,4 +22,6 @@ public:
     static void useItem(int slot);
     static int getBestBreakingTool(Block* block, bool hotbarOnly = false);
     static float getDestroySpeed(int slot, const Block* block, float divisor = 1.f);
+    static bool isFireSword(ItemStack* stack);
+    static int getFireSword(bool hotbarOnly = true);
 };

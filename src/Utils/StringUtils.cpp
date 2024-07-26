@@ -174,3 +174,13 @@ std::string StringUtils::sha256(const std::string& str)
 {
     return SHA256::hash(str);
 }
+
+std::string StringUtils::fromBase64(const std::string& str)
+{
+    return Base64::decode(str);
+}
+
+std::string StringUtils::toBase64(const std::string& str)
+{
+    return Base64::encode(str);
+}

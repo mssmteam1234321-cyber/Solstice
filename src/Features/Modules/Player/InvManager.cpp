@@ -130,11 +130,34 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     int equippedLeggingsValue = ItemUtils::getItemValue(armorContainer->getItem(2));
     int equippedBootsValue = ItemUtils::getItemValue(armorContainer->getItem(3));
 
+    int firstBowSlot = -1;
+    int fireSwordSlot = ItemUtils::getFireSword(false);
+
     for (int i = 0; i < 36; i++)
     {
         auto item = container->getItem(i);
         if (!item->mItem) continue;
         auto itemType = item->getItem()->getItemType();
+
+        if (item->getItem()->mName.contains("bow") && firstBowSlot == -1 && mDropExtraBows.mValue)
+        {
+            firstBowSlot = i;
+        } else if (firstBowSlot != -1 && mDropExtraBows.mValue && item->getItem()->mName.contains("bow"))
+        {
+            if (mSpoofOpen.mValue) sendOpen();
+            supplies->getContainer()->dropSlot(i);
+            if (mSpoofOpen.mValue) mCloseNext = true;
+
+            mLastAction = NOW;
+            if (!isInstant)
+            {
+                return;
+            }
+        }
+
+        // This is so that we only ignore the first fire sword we find
+        if (mIgnoreFireSword.mValue && fireSwordSlot != -1 && fireSwordSlot == i) continue;
+
         auto itemValue = ItemUtils::getItemValue(item);
         if (itemType == SItemType::Helmet && itemValue > bestHelmetValue)
         {
@@ -208,6 +231,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     {
         auto item = container->getItem(i);
         if (!item->mItem) continue;
+        if (mIgnoreFireSword.mValue && fireSwordSlot != -1 && fireSwordSlot == i) continue;
         auto itemType = item->getItem()->getItemType();
         auto itemValue = ItemUtils::getItemValue(item);
         if (itemType == SItemType::Sword && i != bestSwordSlot)

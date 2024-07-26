@@ -137,4 +137,5 @@ public:
     float getMaxAbsorption();
     AttributeInstance* getAttribute(AttributeId id);
     AttributeInstance* getAttribute(int id);
+    bool isOnFire();
 };

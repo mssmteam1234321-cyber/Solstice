@@ -236,6 +236,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             for (auto& c : mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
+                    if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
+                    spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(c.destroySpeed * 100));
                     found = true;
                     break;
                 }
@@ -258,9 +260,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
-            if (mDebug.mValue && mIsStealing) {
+            if (mDebug.mValue && mIsStealing)
                 ChatUtils::displayClientMessage("Stole ore");
-            }
+
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
             return;

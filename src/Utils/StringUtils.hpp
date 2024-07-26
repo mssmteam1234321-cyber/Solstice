@@ -26,7 +26,8 @@ public:
 
     // hashing functions
     static std::string sha256(const std::string& str);
-
+    static std::string fromBase64(const std::string& str);
+    static std::string toBase64(const std::string& str);
 };
 
 

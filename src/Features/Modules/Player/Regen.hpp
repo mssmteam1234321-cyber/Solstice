@@ -88,17 +88,36 @@ public:
         glm::ivec3(1, 0, 0),
     };
 
-    // Dynamic Destroy Spped
-    std::vector<DestroySpeedInfo> mDynamicSpeeds = {
-        { "minecraft:moss_block", 0.57 },
-        { "minecraft:hardened_clay", 0.71 },
-        { "minecraft:brown_powder", 0.7 },
-        { "minecraft:brown_concrete", 0.7 },
-        { "minecraft:green_concrete", 0.7 },
-        { "minecraft:lime_concrete", 0.7 },
-        { "minecraft:sandstone", 0.57 },
-        { "minecraft:sandstone_slab", 0.57 },
+    /*
+    61% hardened_clay
+    61% green_concrete
+    61% lime_terracotta
+    61% brown_concrete
+    61% sand
+    61% dirt
+    67% grass_block
+    67% stone
+    70% brown_powder
+    54% sandstone
+    54% sandstone_slab
+    57% moss_block
+    */
 
+
+    // Dynamic Destroy Spped
+    std::vector<DestroySpeedInfo> mDynamicSpeeds = { // make sure to include minecraft: before block names
+        {"minecraft:hardened_clay", 0.61f},
+        {"minecraft:green_concrete", 0.61f},
+        {"minecraft:lime_terracotta", 0.61f},
+        {"minecraft:brown_concrete", 0.61f},
+        {"minecraft:sand", 0.61f},
+        {"minecraft:dirt", 0.61f},
+        {"minecraft:grass_block", 0.67f},
+        {"minecraft:stone", 0.67f},
+        {"minecraft:brown_powder", 0.70f},
+        {"minecraft:sandstone", 0.54f},
+        {"minecraft:sandstone_slab", 0.54f},
+        {"minecraft:moss_block", 0.57f},
     };
 
     void onEnable() override;

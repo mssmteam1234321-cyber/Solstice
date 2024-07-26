@@ -437,3 +437,8 @@ AttributeInstance* Actor::getAttribute(int id)
     }
     return nullptr;
 }
+
+bool Actor::isOnFire()
+{
+    return getFlag<OnFireComponent, false>();
+}

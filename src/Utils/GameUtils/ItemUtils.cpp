@@ -320,3 +320,32 @@ float ItemUtils::getDestroySpeed(const int slot, const Block* block, const float
 
     return result / divisor;
 }
+
+bool ItemUtils::isFireSword(ItemStack* stack)
+{
+    if (!stack->mItem) return false;
+    return StringUtils::containsAnyIgnoreCase(stack->getCustomName(), {"§6Sword of §eEmbers", "§cFire Sword"});
+}
+
+int ItemUtils::getFireSword(bool hotbarOnly)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+
+    int slot = -1;
+
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        if (isFireSword(stack))
+        {
+            slot = i;
+            break;
+        }
+
+        if (hotbarOnly && i > 8) break;
+    }
+
+    return slot;
+}

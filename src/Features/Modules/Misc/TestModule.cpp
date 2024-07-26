@@ -127,10 +127,9 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 
 }
 
-
-
 void TestModule::onRenderEvent(RenderEvent& event)
 {
+    FontHelper::pushPrefFont(false, false);
     auto player = ClientInstance::get()->getLocalPlayer();
 
     ImGui::Begin("TestModule");
@@ -145,6 +144,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraFlag>());
         ImGui::Text("cameraRenderFirstPersonObjects: %d", player->getFlag<CameraRenderFirstPersonObjects>());
         ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModel>());
+        ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent, false>());
+
         ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
         displayCopyableAddress("LocalPlayer", player);
@@ -160,5 +161,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
     }
 
 
+    FontHelper::popFont();
     ImGui::End();
+
 }

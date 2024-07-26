@@ -31,6 +31,25 @@ void PacketUtils::spoofSlot(int slot)
     ClientInstance::get()->getPacketSender()->sendToServer(mep.get());
 }
 
+std::shared_ptr<MobEquipmentPacket> PacketUtils::createMobEquipmentPacket(int slot)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto mep = MinecraftPackets::createPacket<MobEquipmentPacket>();
+
+    auto itemStack = player->getSupplies()->getContainer()->getItem(slot);
+
+    mep->mRuntimeId = player->getRuntimeID();
+    mep->mItem = NetworkItemStackDescriptor(*itemStack);
+    mep->mSlot = slot;
+    mep->mSelectedSlot = slot;
+    mep->mContainerId = MobEquipmentPacket::ContainerID::Inventory;
+    mep->mContainerIdByte = static_cast<unsigned char>(MobEquipmentPacket::ContainerID::Inventory);
+    mep->mSelectedSlotByte = static_cast<unsigned char>(slot);
+    mep->mSlotByte = static_cast<unsigned char>(slot);
+
+    return mep;
+}
+
 void PacketUtils::sendToSelf(const std::shared_ptr<Packet>& packet)
 {
     PacketReceiveHook::handlePacket(packet);
