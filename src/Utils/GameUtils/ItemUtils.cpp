@@ -165,6 +165,40 @@ int ItemUtils::getAllPlaceables(bool hotbarOnly)
     return placeables;
 }
 
+int ItemUtils::getFirstPlaceable(bool hotbarOnly)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+    auto supplies = player->getSupplies();
+
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = supplies->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        Item* item = stack->getItem();
+        if (hotbarOnly && i > 8) continue;
+        if (stack->mBlock)
+        {
+            // If the string contains any of the blacklisted blocks, skip it (compare using StringUtils::containsIgnoreCase
+            bool skip = false;
+
+            for (const auto& blacklistedBlock : blacklistedBlocks)
+            {
+                if (StringUtils::containsIgnoreCase(stack->mBlock->toLegacy()->mName, blacklistedBlock))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) continue;
+
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool prioHighest)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -222,6 +256,12 @@ int ItemUtils::getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly, bool
     }
 
     return slot;
+}
+
+bool ItemUtils::isUsableBlock(ItemStack* stack)
+{
+    if (!stack->mItem) return false;
+    return stack->mBlock && !StringUtils::containsAnyIgnoreCase(stack->mBlock->toLegacy()->mName, std::vector<std::string>(blacklistedBlocks.begin(), blacklistedBlocks.end()));
 }
 
 int ItemUtils::getSwiftnessSpellbook(bool hotbarOnly)

@@ -343,6 +343,42 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
                 }
             }
         }
+        if (mPreferredFireSwordSlot.mValue != 0)
+        {
+            if (fireSwordSlot != -1 && fireSwordSlot != mPreferredFireSwordSlot.mValue - 1 && bestSwordSlot != fireSwordSlot)
+            {
+                if (mSpoofOpen.mValue) sendOpen();
+                supplies->getContainer()->swapSlots(fireSwordSlot, mPreferredFireSwordSlot.mValue - 1);
+                if (mSpoofOpen.mValue) mCloseNext = true;
+
+                mLastAction = NOW;
+                if (!isInstant)
+                {
+                    return;
+                }
+            }
+        }
+        if (mPreferredBlocksSlot.mValue != 0)
+        {
+            ItemStack* item = container->getItem(mPreferredBlocksSlot.mValue - 1);
+            if (!ItemUtils::isUsableBlock(item))
+            {
+                int firstPlaceable = ItemUtils::getFirstPlaceable(false);
+
+                if (firstPlaceable != -1)
+                {
+                    if (mSpoofOpen.mValue) sendOpen();
+                    supplies->getContainer()->swapSlots(firstPlaceable, mPreferredBlocksSlot.mValue - 1);
+                    if (mSpoofOpen.mValue) mCloseNext = true;
+
+                    mLastAction = NOW;
+                    if (!isInstant)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     if (bestHelmetSlot != -1) itemsToEquip.push_back(bestHelmetSlot);
