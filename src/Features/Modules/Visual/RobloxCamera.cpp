@@ -19,7 +19,7 @@ void RobloxCamera::onEnable()
     gFeatureManager->mDispatcher->listen<LookInputEvent, &RobloxCamera::onLookInputEvent>(this);
     gFeatureManager->mDispatcher->listen<MouseEvent, &RobloxCamera::onMouseEvent>(this);
     gFeatureManager->mDispatcher->listen<ActorRenderEvent, &RobloxCamera::onActorRenderEvent>(this);
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &RobloxCamera::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &RobloxCamera::onBaseTickEvent, nes::event_priority::LAST>(this);
 
     if (auto player = ClientInstance::get()->getLocalPlayer())
     {
