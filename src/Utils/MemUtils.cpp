@@ -83,6 +83,18 @@ void MemUtils::writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes
     writeBytes(ptr, bytes, bytes.size());
 }
 
+void MemUtils::copyBytes(uintptr_t dest, uintptr_t src, size_t size)
+{
+    if (dest == 0 || src == 0) {
+        spdlog::error("Failed to copy bytes from 0x{:X} to 0x{:X} [Invalid address]", src, dest);
+        return;
+    }
+    DWORD oldprotect;
+    VirtualProtect(reinterpret_cast<void*>(dest), size, PAGE_EXECUTE_READWRITE, &oldprotect);
+    memcpy(reinterpret_cast<void*>(dest), reinterpret_cast<void*>(src), size);
+    VirtualProtect(reinterpret_cast<void*>(dest), size, oldprotect, &oldprotect);
+}
+
 std::vector<unsigned char> MemUtils::readBytes(uintptr_t ptr, size_t size)
 {
     std::vector<unsigned char> buffer(size);

@@ -108,6 +108,7 @@ public:
         }
 
 
+    #define PATCH_BYTES(addr, bytes) MemUtils::writeBytes(addr, bytes)
 
 
     #define AS_FIELD(type, name, fn) __declspec(property(get = fn, put = set##name)) type name
@@ -138,6 +139,7 @@ public:
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes, size_t size);
     static void writeBytes(uintptr_t ptr, const void* bytes, size_t size);
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes);
+    static void copyBytes(uintptr_t dest, uintptr_t src, size_t size);
     static std::vector<unsigned char> readBytes(uintptr_t ptr, size_t size);
     static void setProtection(uintptr_t ptr, size_t size, DWORD protection);
 };
