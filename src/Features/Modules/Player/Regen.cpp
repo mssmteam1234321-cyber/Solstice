@@ -168,6 +168,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 {
     mWasMiningBlock = mIsMiningBlock;
 
+    bool gaming = false;
+    if (!mIsMiningBlock) gaming = false;
+
     auto player = event.mActor;
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
@@ -236,8 +239,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             for (auto& c : mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
-                    if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
-                    spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(c.destroySpeed * 100));
+                    if (!gaming)
+                    {
+                        if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
+                        spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(c.destroySpeed * 100));
+                        gaming = true;
+                    }
                     found = true;
                     break;
                 }
