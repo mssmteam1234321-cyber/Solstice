@@ -88,6 +88,17 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
     mShouldSetbackSlot = true;
+
+    if (mCalcMode.mValue == CalcMode::Dynamic) {
+        std::string blockName = block->getmLegacy()->getmName();
+        for (auto& c : mDynamicSpeeds) {
+            if (c.blockName == blockName) {
+                if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
+                break;
+            }
+        }
+    }
+
     //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
 
@@ -239,12 +250,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             for (auto& c : mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
-                    if (!gaming)
-                    {
-                        if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
-                        spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(c.destroySpeed * 100));
-                        gaming = true;
-                    }
                     found = true;
                     break;
                 }
@@ -252,6 +257,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (!found) {
                 if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
                 else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+            } else
+            {
+                if (!gaming)
+                {
+                    spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(mCurrentDestroySpeed * 100));
+                    gaming = true;
+                }
             }
         }
 
