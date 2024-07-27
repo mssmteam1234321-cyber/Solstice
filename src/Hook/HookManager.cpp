@@ -18,6 +18,7 @@
 #include "Hooks/NetworkHooks/RakPeerHooks.hpp"
 #include "Hooks/RenderHooks/ActorRenderDispatcherHook.hpp"
 #include "Hooks/RenderHooks/D3DHook.hpp"
+#include "Hooks/RenderHooks/ItemRendererHook.hpp"
 #include "Hooks/RenderHooks/LookInputHook.hpp"
 #include "Hooks/RenderHooks/SetupAndRenderHook.hpp"
 
@@ -52,6 +53,7 @@ void HookManager::init(bool initLp)
         ADD_HOOK(AnimationHooks);
         ADD_HOOK(LookInputHook);
         ADD_HOOK(ActorModelHook);
+        ADD_HOOK(ItemRendererHook);
 
 
         for (auto& hook : hooks)

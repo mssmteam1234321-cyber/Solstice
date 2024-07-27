@@ -80,6 +80,12 @@ public:
     DEFINE_SIG(SneakMovementSystem_tickSneakMovementSystem, "32 C0 88 43 ? 84 C0", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create, "40 ? 53 56 57 41 ? 41 ? 41 ? 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 0F 29 ? ? ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 49 8B ? 48 89 ? ? 48 89", SigType::Sig, 0);
     DEFINE_SIG(CameraDirectLookSystemUtil_handleLookInput, "48 89 ? ? ? 57 48 83 EC ? F3 41 ? ? ? 49 8B ? F3 41", SigType::Sig, 0);
+    DEFINE_SIG(ItemRenderer_render, "48 8B ? 48 89 ? ? 55 56 57 41 ? 41 ? 41 ? 41 ? 48 81 EC ? ? ? ? 0F 29 ? ? 0F 29 ? ? 44 0F ? ? ? 44 0F ? ? ? 49 8B", SigType::Sig, 0);
+    DEFINE_SIG(ItemPositionConst, "F3 0F 10 15 ? ? ? ? F3 0F 59 C2 F3 0F 58 C7", SigType::Sig, 0);
+    DEFINE_SIG(glm_rotate, "40 53 48 83 EC ? F3 0F 59 0D ? ? ? ? 4C 8D 4C 24", SigType::Sig, 0);
+    DEFINE_SIG(glm_rotateRef, "E8 ? ? ? ? 41 BD ? ? ? ? 41 0F B6 46", SigType::Sig, 0);
+    DEFINE_SIG(glm_translateRef, "E8 ? ? ? ? 4C 8D 05 ? ? ? ? 44 0F 28 05", SigType::Sig, 0);
+    DEFINE_SIG(glm_translateRef2, "E8 ? ? ? ? C6 46 ? ? F3 0F 11 74 24 ? F3 0F 10 1D", SigType::Sig, 0);
 
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? ? 41 0F ? ? E8 ? ? ? ? 48 8B", SigType::RefSig, 5);

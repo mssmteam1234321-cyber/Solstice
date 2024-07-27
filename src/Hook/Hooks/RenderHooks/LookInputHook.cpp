@@ -11,9 +11,7 @@
 
 std::unique_ptr<Detour> LookInputHook::mDetour;
 
-void LookInputHook::_handleLookInput(EntityContext* entityContext, CameraComponent& cameraComponent,
-    CameraDirectLookComponent& cameraDirectLookComponent, glm::vec2 const& vec2)
-{
+void LookInputHook::_handleLookInput(EntityContext* entityContext, CameraComponent& cameraComponent, CameraDirectLookComponent& cameraDirectLookComponent, glm::vec2 const& vec2) {
     auto original = mDetour->getOriginal<decltype(_handleLookInput)*>();
 
     if (cameraComponent.mViewName.text == "") return original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
