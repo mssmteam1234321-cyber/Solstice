@@ -6,11 +6,34 @@
 
 #include <random>
 #include <Features/Events/ItemRendererEvent.hpp>
-#include <minhook/src/buffer.h>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/ActorRenderData.hpp>
+#include <windows.h>
+#include <tlhelp32.h>
+#include <limits.h>
+
 static std::unique_ptr<Detour> glm_rotateHook;
+static ItemPhysics* thisMod = nullptr;
+
+// AllocateBuffer def
+void* AllocateBuffer(void* addr) {
+    MEMORY_BASIC_INFORMATION mbi;
+    VirtualQuery(addr, &mbi, sizeof(mbi));
+    void* buffer = VirtualAlloc(nullptr, mbi.RegionSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    if (buffer == nullptr) {
+        return nullptr;
+    }
+    memcpy(buffer, addr, mbi.RegionSize);
+    return buffer;
+}
+
+// FreeBuffer def
+void FreeBuffer(void* buffer) {
+    MEMORY_BASIC_INFORMATION mbi;
+    VirtualQuery(buffer, &mbi, sizeof(mbi));
+    VirtualFree(buffer, mbi.RegionSize, MEM_RELEASE);
+}
 
 static std::array<std::byte, 4> getRipRel(uintptr_t instructionAddress, uintptr_t targetAddress) {
     uintptr_t relAddress = targetAddress - (instructionAddress + 4); // 4 bytes for RIP-relative addressing
@@ -27,7 +50,7 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
     static auto rotateSig = SigManager::glm_rotate;
     using glm_rotate_t = void(__fastcall*)(glm::mat4x4&, float, float, float, float);
     static auto glm_rotate = reinterpret_cast<glm_rotate_t>(rotateSig);
-    static auto thisMod = gFeatureManager->mModuleManager->getModule<ItemPhysics>();
+    static auto thisMod =
     if (thisMod->renderData == nullptr)
         return;
 
@@ -81,6 +104,7 @@ DEFINE_NOP_PATCH_FUNC(patchTranslateRef, SigManager::SigManager::glm_translateRe
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef2, SigManager::SigManager::glm_translateRef2, 0x5);
 
 void ItemPhysics::onEnable() {
+    thisMod = this;
     gFeatureManager->mDispatcher->listen<RenderEvent, &ItemPhysics::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<ItemRendererEvent, &ItemPhysics::onItemRendererEvent>(this);
 
@@ -99,9 +123,9 @@ void ItemPhysics::onEnable() {
     *newPosRel = 0.f;
 
     const auto newRipRel = getRipRel(posAddr, reinterpret_cast<uintptr_t>(newPosRel));
+    glm_rotateHook->enable();
     MemUtils::writeBytes(posAddr, newRipRel.data(), 4);
 
-    glm_rotateHook->enable();
 
     MemUtils::writeBytes(reinterpret_cast<uintptr_t>(rotateAddr), (BYTE*)"\xE8", 1);
 
