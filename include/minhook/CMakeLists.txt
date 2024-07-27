@@ -42,9 +42,9 @@ set(MINHOOK_VERSION ${MINHOOK_MAJOR_VERSION}.${MINHOOK_MINOR_VERSION}.${MINHOOK_
 option(BUILD_SHARED_LIBS "build shared version" OFF)
 
 set(SOURCES_MINHOOK 
-  "src/buffer.c"
-  "src/hook.c"
-  "src/trampoline.c"
+  "src/buffer.cpp"
+  "src/hook.cpp"
+  "src/trampoline.cpp"
 )
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
