@@ -16,11 +16,10 @@ void LookInputHook::_handleLookInput(EntityContext* entityContext, CameraCompone
 
     if (cameraComponent.mViewName.text == "") return original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
 
-    auto thirdPersonCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120);
-    auto thirdPersonFront = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 2);
-    auto deathCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 3);
-    auto freeCamera = reinterpret_cast<CameraComponent*>(reinterpret_cast<uintptr_t>(&cameraComponent) + 0x120 * 4);
-
+    auto thirdPersonCamera = ptr(&cameraComponent).offset(0x120).as<CameraComponent*>();
+    auto thirdPersonFront = ptr(&cameraComponent).offset(0x120 * 2).as<CameraComponent*>();
+    auto deathCamera = ptr(&cameraComponent).offset(0x120 * 3).as<CameraComponent*>();
+    auto freeCamera = ptr(&cameraComponent).offset(0x120 * 4).as<CameraComponent*>();
 
     original(entityContext, cameraComponent, cameraDirectLookComponent, vec2);
 

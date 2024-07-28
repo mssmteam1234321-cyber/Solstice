@@ -18,26 +18,21 @@
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 static AntiBot* antibot = nullptr;
 
-std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots) {
+std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots)
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (player == nullptr) return {};
 
     if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
 
     std::vector<struct Actor *> actors;
-    try
+    for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
     {
-        for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
-        {
 
-            if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
+        if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
 
-            if (type.type == ActorType::Player && playerOnly || !playerOnly)
-                actors.push_back(moduleOwner.actor);
-        }
-    } catch (const std::exception& e)
-    {
-        // Do nothing
+        if (type.type == ActorType::Player && playerOnly || !playerOnly)
+            actors.push_back(moduleOwner.actor);
     }
 
 

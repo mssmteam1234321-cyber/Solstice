@@ -37,11 +37,12 @@ ImVec4 MathUtils::lerp(ImVec4& a, ImVec4& b, float t)
     return ImVec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t));
 }
 
-float MathUtils::getRotationKeyOffset()
+float MathUtils::getRotationKeyOffset(bool raw)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return 0;
     auto moveInput = player->getMoveInputComponent();
+    if (raw) moveInput = reinterpret_cast<MoveInputComponent*>(player->getRawMoveInputComponent());
 
     bool isMoving = moveInput->mForward || moveInput->mBackward || moveInput->mLeft || moveInput->mRight;
     if (!isMoving) return 0;
@@ -75,8 +76,8 @@ float MathUtils::getRotationKeyOffset()
 }
 
 
-glm::vec2 MathUtils::getMotion(float yaw, float speed) {
-    yaw += getRotationKeyOffset() + 90;
+glm::vec2 MathUtils::getMotion(float yaw, float speed, bool raw) {
+    yaw += getRotationKeyOffset(raw) + 90;
 
     float calcYaw = glm::radians(yaw);
 

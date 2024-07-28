@@ -44,6 +44,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
+    player->setFlag<ActorMovementTickNeededFlag>(true);
 
     /*
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
@@ -128,6 +129,8 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 
 }
 
+#define show_flag(flag) ImGui::Text(#flag ": %d", player->getFlag<flag>())
+
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     FontHelper::pushPrefFont(false, false);
@@ -146,6 +149,11 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("cameraRenderFirstPersonObjects: %d", player->getFlag<CameraRenderFirstPersonObjects>());
         ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModel>());
         ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent, false>());
+        ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent, false>());
+
+        //ImGui::Text("ActorMovementTickNeededFlag: %d", player->getFlag<ActorMovementTickNeededFlag>());
+
+        show_flag(ActorMovementTickNeededFlag);
 
         ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("held item", player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot));
@@ -154,6 +162,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("supplies", player->getSupplies());
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
+        displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
     }
 
     // Display a button that sets D3DHook::forceFallback to true

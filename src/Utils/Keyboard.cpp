@@ -23,6 +23,6 @@ bool Keyboard::isUsingMoveKeys(bool includeSpaceShift)
     auto moveInput = player->getMoveInputComponent();
     bool isMoving = moveInput->mForward || moveInput->mBackward || moveInput->mLeft || moveInput->mRight;
     if (includeSpaceShift)
-        return isMoving || moveInput->mIsJumping || moveInput->mIsSneakDown;
+        return isMoving || Keyboard::mPressedKeys[VK_SPACE] || Keyboard::mPressedKeys[VK_SHIFT];
     return isMoving;
 }

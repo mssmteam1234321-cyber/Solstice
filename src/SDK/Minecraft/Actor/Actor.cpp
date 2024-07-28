@@ -223,6 +223,11 @@ MoveInputComponent* Actor::getMoveInputComponent()
     return mContext.getComponent<MoveInputComponent>();
 }
 
+RawMoveInputComponent* Actor::getRawMoveInputComponent()
+{
+    return mContext.getComponent<RawMoveInputComponent>();
+}
+
 ActorRotationComponent* Actor::getActorRotationComponent()
 {
     return mContext.getComponent<ActorRotationComponent>();

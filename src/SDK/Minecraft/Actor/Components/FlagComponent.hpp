@@ -191,6 +191,7 @@ struct WolfFlag {};
 // What in the FHAUCK!?!!??!?!
 struct OnGroundFlagComponent{};
 struct OnFireComponent {};
+struct MoveRequestComponent {};
 struct DebugCameraIsActiveComponent
 {
     int mValue;

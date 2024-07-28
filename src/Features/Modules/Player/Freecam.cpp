@@ -18,6 +18,8 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 
 void Freecam::onEnable()
 {
@@ -80,6 +82,7 @@ void Freecam::onDisable()
         player->getStateVectorComponent()->mPosOld = mSvPosOld;
     }
     player->getWalkAnimationComponent()->mWalkAnimSpeed = 1.0f;
+    player->getMoveInputComponent()->reset( false);
 }
 
 void Freecam::onPacketInEvent(PacketInEvent& event)
@@ -103,7 +106,7 @@ void Freecam::onPacketInEvent(PacketInEvent& event)
 
 void Freecam::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::PlayerAuthInput || event.mPacket->getId() == PacketID::MovePlayer)
+    if ((event.mPacket->getId() == PacketID::PlayerAuthInput || event.mPacket->getId() == PacketID::MovePlayer) && mMode.mValue != Mode::Detached)
         event.mCancelled = true;
 
 }
@@ -133,12 +136,12 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
         // Wrap
         rots.y = MathUtils::wrap(rots.y, -180, 180);
 
-        glm::vec2 calc = MathUtils::getMotion(rots.y, mSpeed.mValue / 10);
+        glm::vec2 calc = MathUtils::getMotion(rots.y, mSpeed.mValue / 10, false);
         motion.x = calc.x;
         motion.z = calc.y;
 
-        bool isJumping = player->getMoveInputComponent()->mIsJumping;
-        bool isSneaking = player->getMoveInputComponent()->mIsSneakDown;
+        bool isJumping = Keyboard::mPressedKeys[VK_SPACE];
+        bool isSneaking = Keyboard::mPressedKeys[VK_SHIFT];
 
         if (isJumping)
             motion.y += mSpeed.mValue / 10;
@@ -172,10 +175,8 @@ void Freecam::onActorRenderEvent(ActorRenderEvent& event)
     *player->getMobBodyRotationComponent() = mLastBodyRot;
     if (mMode.mValue == Mode::Detached)
     {
-        player->getAABBShapeComponent()->mMin = mAABBMin;
-        player->getAABBShapeComponent()->mMax = mAABBMax;
-        player->getStateVectorComponent()->mPos = mSvPos;
-        player->getStateVectorComponent()->mPosOld = mSvPosOld;
+        player->getMoveInputComponent()->reset(true, false);
+        // TODO: Prevent the raycast from updating while in detached mode
     }
 
     auto original = event.mDetour->getOriginal<decltype(&ActorRenderDispatcherHook::render)>();

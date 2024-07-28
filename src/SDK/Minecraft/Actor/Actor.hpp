@@ -22,10 +22,10 @@
 #include "Components/CameraComponent.hpp"
 #include "Components/CameraPresetComponent.hpp"
 #include "Components/ActorWalkAnimationComponent.hpp"
-#include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
-
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/FlagComponent.hpp"
+
+#include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 
 #define PLAYER_HEIGHT 1.62f
@@ -105,6 +105,7 @@ public:
     int64_t getRuntimeID();
     StateVectorComponent* getStateVectorComponent();
     MoveInputComponent* getMoveInputComponent();
+    RawMoveInputComponent* getRawMoveInputComponent();
     ActorRotationComponent* getActorRotationComponent();
     AABBShapeComponent* getAABBShapeComponent();
     BlockMovementSlowdownMultiplierComponent* getBlockMovementSlowdownMultiplierComponent();

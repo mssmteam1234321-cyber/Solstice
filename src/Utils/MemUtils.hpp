@@ -9,6 +9,39 @@
 // Created by vastrakai on 6/25/2024.
 //
 
+// lol
+namespace serenity::utils::ptr {
+
+    using ptr_t = union ptr_data_t {
+        uintptr_t address;
+        void *v_ptr;
+        hat::process::module_t hat_module;
+
+        template <typename pointing_t>
+        pointing_t as() {
+            return reinterpret_cast<pointing_t>(this->v_ptr);
+        }
+
+        [[nodiscard]] ptr_data_t offset(const uintptr_t p_offset) const {
+            return ptr_data_t { .address = this->address + p_offset };
+        }
+    };
+
+    inline ptr_t ptr(const uintptr_t p_address) {
+        ptr_data_t data {};
+        data.address = p_address;
+        return data;
+    }
+
+    template <typename pointing_t>
+    ptr_t ptr(pointing_t p_ptr) {
+        return ptr_data_t { .v_ptr = reinterpret_cast<void*>(p_ptr) };
+    }
+}
+
+using namespace serenity::utils::ptr;
+
+
 class MemUtils {
 public:
     template<typename Ret, typename... Args>
