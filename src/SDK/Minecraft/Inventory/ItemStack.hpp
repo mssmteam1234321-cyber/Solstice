@@ -64,10 +64,15 @@ enum class Enchant : int {
     SWIFT_SNEAK = 37
 };
 
-class ItemStack : public ItemStackBase {
+class ItemStack : public ItemStackBase
+{
 public:
     uint8_t mStackNetId = 0; //0x0088
-    char pad_0089[23]; //0x0089
+    PAD(0x17);
+
+    void reinit(Item* item, int count, int itemData) {
+        MemUtils::callVirtualFunc<void>(1, this, item, count, itemData);
+    }
 
     std::string getCustomName() {
         static auto func = SigManager::ItemStack_getCustomName;
@@ -87,8 +92,14 @@ public:
         return getEnchantValue(static_cast<int>(enchant));
     }
 
-   ItemStack()
+    ItemStack()
     {
         mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
+    }
+
+    ItemStack(Item* item, int count, int itemData) {
+        memset(this, 0x0, sizeof(ItemStack));
+        mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
+        reinit(item, count, itemData);
     }
 };

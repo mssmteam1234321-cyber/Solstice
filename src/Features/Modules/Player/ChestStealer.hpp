@@ -4,10 +4,18 @@
 //
 
 #include <Features/Modules/Module.hpp>
+#include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
 
 class ChestStealer : public ModuleBase<ChestStealer> {
 public:
+    enum class Mode
+    {
+        Normal,
+        Silent
+    };
+
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of the chest stealer", Mode::Normal, "Normal", "Silent");
     BoolSetting mRandomizeDelay = BoolSetting("Randomize Delay", "Randomizes the delay between stealing items", false);
     NumberSetting mDelay = NumberSetting("Delay", "The delay between stealing items (in milliseconds)", 50, 0, 500, 1);
     NumberSetting mRandomizeMin = NumberSetting("Randomize Min", "The minimum delay to randomize", 50, 0, 500, 1);
@@ -17,7 +25,8 @@ public:
 
     ChestStealer() : ModuleBase<ChestStealer>("ChestStealer", "Steals items from chests", ModuleCategory::Player, 0, false)
     {
-        addSettings(&mRandomizeDelay, &mDelay, &mRandomizeMin, &mRandomizeMax, &mIgnoreUseless);
+        addSettings(&mMode, &mRandomizeDelay, &mDelay, &mRandomizeMin, &mRandomizeMax, &mIgnoreUseless);
+
         VISIBILITY_CONDITION(mRandomizeMin, mRandomizeDelay.mValue == true);
         VISIBILITY_CONDITION(mRandomizeMax, mRandomizeDelay.mValue == true);
         VISIBILITY_CONDITION(mDelay, mRandomizeDelay.mValue == false);
@@ -30,10 +39,22 @@ public:
         };
     }
 
+    bool mIsStealing = false;
+    uint64_t mLastItemTaken = 0;
+    bool mIsChestOpen = false;
+    std::vector<NetworkItemStackDescriptor> mItemsToTake = {};
+    ContainerID mCurrentContainerId = ContainerID::None;
+    uint64_t mLastOpen = 0;
+
+    void onContainerScreenTickEvent(class ContainerScreenTickEvent& event) const;
+    void reset();
     void onEnable() override;
     void onDisable() override;
+    void takeItem(int slot, NetworkItemStackDescriptor item);
+    void onBaseTickEvent(class BaseTickEvent& event);
+    bool doDelay();
+    void onPacketInEvent(class PacketInEvent& event);
     uint64_t getDelay() const;
-    void onContainerScreenTickEvent(class ContainerScreenTickEvent& event) const;
 
     std::string getSettingDisplay() override {
         if (mRandomizeDelay.mValue)

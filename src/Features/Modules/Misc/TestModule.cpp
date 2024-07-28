@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
@@ -147,6 +148,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent, false>());
 
         ImGui::Text("gameType: %d", player->getGameType());
+        displayCopyableAddress("held item", player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot));
         displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());

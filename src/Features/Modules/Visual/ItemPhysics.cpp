@@ -84,7 +84,7 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
 }
 
 std::vector<unsigned char> gRtBytes = {0xE8};
-DEFINE_PATCH_FUNC(patchPosAddr, SigManager::glm_rotateRef, gRtBytes, 1);
+DEFINE_PATCH_FUNC(patchPosAddr, SigManager::glm_rotateRef, gRtBytes);
 
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef, SigManager::SigManager::glm_translateRef, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef2, SigManager::SigManager::glm_translateRef2, 0x5);
