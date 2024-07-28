@@ -176,10 +176,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     // Return if regen is mining block
     if (regenModule->mEnabled && (regenModule->mIsMiningBlock || regenModule->mWasMiningBlock)) {
         reset();
-        if (mShouldSetbackSlot) {
-            PacketUtils::spoofSlot(mPreviousSlot);
-            mShouldSetbackSlot = false;
-        }
+        mShouldSetbackSlot = false;
         return;
     }
 
