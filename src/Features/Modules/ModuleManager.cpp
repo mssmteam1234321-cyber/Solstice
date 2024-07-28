@@ -33,6 +33,7 @@
 #include "Player/InvManager.hpp"
 #include "Player/MidclickAction.hpp"
 #include "Player/Nuker.hpp"
+#include "Player/OreMiner.hpp"
 #include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
@@ -80,6 +81,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Regen>());
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<Nuker>());
+    mModules.emplace_back(std::make_shared<OreMiner>());
     mModules.emplace_back(std::make_shared<AutoTool>());
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
