@@ -24,10 +24,16 @@ static std::array<std::byte, 4> getRipRel(uintptr_t instructionAddress, uintptr_
 }
 
 void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, float z) {
+    static auto thisMod = gFeatureManager->mModuleManager->getModule<ItemPhysics>();
     static auto rotateSig = SigManager::glm_rotate;
     using glm_rotate_t = void(__fastcall*)(glm::mat4x4&, float, float, float, float);
     static auto glm_rotate = reinterpret_cast<glm_rotate_t>(rotateSig);
-    static auto thisMod = gFeatureManager->mModuleManager->getModule<ItemPhysics>();
+
+    if (!thisMod->mEnabled)
+    {
+        return;
+    }
+
     if (thisMod->renderData == nullptr)
         return;
 
@@ -83,17 +89,26 @@ DEFINE_PATCH_FUNC(patchPosAddr, SigManager::glm_rotateRef, gRtBytes, 1);
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef, SigManager::SigManager::glm_translateRef, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef2, SigManager::SigManager::glm_translateRef2, 0x5);
 
+std::vector<unsigned char> gOgRtBytes = {};
 void ItemPhysics::onEnable() {
     gFeatureManager->mDispatcher->listen<RenderEvent, &ItemPhysics::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<ItemRendererEvent, &ItemPhysics::onItemRendererEvent>(this);
 
+    static auto rotateAddr = reinterpret_cast<void*>(SigManager::glm_rotateRef);
+    if (gOgRtBytes.empty()) gOgRtBytes = MemUtils::readBytes(reinterpret_cast<uintptr_t>(rotateAddr), 10);
+
     static auto posAddr = SigManager::ItemPositionConst + 4;
     origPosRel = *reinterpret_cast<uint32_t*>(posAddr);
 
-    static auto rotateAddr = reinterpret_cast<void*>(SigManager::glm_rotateRef);
+
 
     if (glm_rotateHook == nullptr)
+    {
         glm_rotateHook = std::make_unique<Detour>("glm_rotate", rotateAddr, glm_rotate);
+    }
+
+    glm_rotateHook->enable();
+    patchPosAddr(true);
 
     static auto translateAddr = reinterpret_cast<void*>(SigManager::glm_translateRef);
     static auto translateAddr2 = reinterpret_cast<void*>(SigManager::glm_translateRef2);
@@ -104,29 +119,25 @@ void ItemPhysics::onEnable() {
     const auto newRipRel = getRipRel(posAddr, reinterpret_cast<uintptr_t>(newPosRel));
     MemUtils::writeBytes(posAddr, newRipRel.data(), 4);
 
-    glm_rotateHook->enable();
-
-    //MemUtils::writeBytes(reinterpret_cast<uintptr_t>(rotateAddr), (BYTE*)"\xE8", 1);
-    patchPosAddr(true);
-
     patchTranslateRef(true);
     patchTranslateRef2(true);
 }
 
+
 void ItemPhysics::onDisable() {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &ItemPhysics::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<ItemRendererEvent, &ItemPhysics::onItemRendererEvent>(this);
-
     static auto posAddr = SigManager::ItemPositionConst + 4;
 
     MemUtils::writeBytes(posAddr, &origPosRel, 4);
-    FreeBuffer(newPosRel);
-
-    patchPosAddr(false);
     patchTranslateRef(false);
     patchTranslateRef2(false);
+    FreeBuffer(newPosRel);
 
+    MemUtils::writeBytes(SigManager::glm_rotateRef, gOgRtBytes);
+    patchPosAddr(false);
     glm_rotateHook->restore();
+
 
     actorData.clear();
 }

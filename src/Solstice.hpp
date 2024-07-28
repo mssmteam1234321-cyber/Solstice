@@ -17,6 +17,7 @@ public:
     static inline std::shared_ptr<spdlog::logger> console;
     static inline std::shared_ptr<Preferences> Prefs;
 
+
     /* Functions */
     static void init(HMODULE hModule);
     static void shutdownThread();

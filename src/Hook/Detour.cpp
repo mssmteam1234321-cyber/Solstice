@@ -72,17 +72,7 @@ void Detour::restore() const
         spdlog::info("Restored detour for {}", mName);
         break;
     default:
-        spdlog::critical("Failed to restore detour for {}", mName);
-        break;
-    }
-    status = MH_RemoveHook(mFunc);
-    switch (status)
-    {
-    case MH_OK:
-        spdlog::info("Removed detour for {}", mName);
-        break;
-    default:
-        spdlog::critical("Failed to remove detour for {}", mName);
+        spdlog::critical("Failed to restore detour for {} [MH_DisableHook returned {}]", mName, magic_enum::enum_name(status));
         break;
     }
 }
