@@ -26,7 +26,7 @@ int Aura::getSword(Actor* target) {
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
-    int bestSword = ItemUtils::getBestItem(SItemType::Sword);
+    int bestSword = ItemUtils::getBestItem(SItemType::Sword, mHotbarOnly.mValue);
 
     if (shouldUseFireSword(target))
     {

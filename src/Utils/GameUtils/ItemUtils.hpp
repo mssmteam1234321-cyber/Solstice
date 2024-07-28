@@ -13,7 +13,7 @@
 class ItemUtils {
 public:
     static int getItemValue(ItemStack* item);
-    static int getBestItem(SItemType type);
+    static int getBestItem(SItemType type, bool hotbarOnly = false);
     static std::unordered_map<SItemType, int> getBestItems();
     static int getAllPlaceables(bool hotbarOnly = true);
     static int getFirstPlaceable(bool hotbarOnly);

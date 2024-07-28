@@ -48,7 +48,7 @@ int ItemUtils::getItemValue(ItemStack* item) {
     return value;
 }
 
-int ItemUtils::getBestItem(SItemType type)
+int ItemUtils::getBestItem(SItemType type, bool hotbarOnly)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     auto supplies = player->getSupplies();
@@ -61,6 +61,8 @@ int ItemUtils::getBestItem(SItemType type)
     {
         auto item = container->getItem(i);
         if (!item->mItem) continue;
+
+        if (hotbarOnly && i > 8) break;
 
         if (item->getItem()->getItemType() == type)
         {
