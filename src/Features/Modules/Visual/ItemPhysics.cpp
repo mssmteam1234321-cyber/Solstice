@@ -71,9 +71,9 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
     const auto& sign = std::get<2>(thisMod->actorData.at(curr));
 
     if (!curr->isOnGround()) {
-        vec.x += static_cast<float>(sign.x) * deltaTime * thisMod->speed * thisMod->xMul;
-        vec.y += static_cast<float>(sign.y) * deltaTime * thisMod->speed * thisMod->yMul;
-        vec.z += static_cast<float>(sign.z) * deltaTime * thisMod->speed * thisMod->zMul;
+        vec.x += static_cast<float>(sign.x) * deltaTime * thisMod->mSpeed.mValue * thisMod->mX.mValue;
+        vec.y += static_cast<float>(sign.y) * deltaTime * thisMod->mSpeed.mValue * thisMod->mY.mValue;
+        vec.z += static_cast<float>(sign.z) * deltaTime * thisMod->mSpeed.mValue * thisMod->mZ.mValue;
     }
 
     mat = translate(mat, {pos.x, pos.y, pos.z});

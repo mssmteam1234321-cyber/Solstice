@@ -8,14 +8,19 @@ class ItemPhysics : public ModuleBase<ItemPhysics> {
     uint32_t origPosRel = 0;
     float* newPosRel = nullptr;
 public:
-    float speed = 8.f;
-    float xMul = 18.f, yMul = 16.f, zMul = 18.f;
-
     std::unordered_map<Actor*, std::tuple<float, glm::vec3, glm::ivec3>> actorData;
     struct ActorRenderData* renderData = nullptr;
 
-    ItemPhysics() : ModuleBase("ItemPhysics", "Physica for items dumabss", ModuleCategory::Visual, 0, false) {
+    NumberSetting mSpeed = NumberSetting("Speed", "Rotation speed", 8.f, 1, 20, 0.01);
+    NumberSetting mX = NumberSetting("X Multiplier", "The intensity of the x rotation", 18.f, 7.f, 30.f, 0.01f);
+    NumberSetting mY = NumberSetting("Y Multiplier", "The intensity of the y rotation", 18.f, 7.f, 30.f, 0.01f);
+    NumberSetting mZ = NumberSetting("Z Multiplier", "The intensity of the z rotation", 18.f, 7.f, 30.f, 0.01f);
 
+    ItemPhysics() : ModuleBase("ItemPhysics", "Physica for items dumabss", ModuleCategory::Visual, 0, false) {
+        addSetting(&mSpeed);
+        addSetting(&mX);
+        addSetting(&mY);
+        addSetting(&mZ);
         mNames = {
             {Lowercase, "itemphysics"},
             {LowercaseSpaced, "item physics"},
