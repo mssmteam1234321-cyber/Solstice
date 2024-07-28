@@ -45,10 +45,10 @@ bool OreMiner::isValidBlock(glm::ivec3 blockPos, bool oreOnly, bool exposedOnly)
     if (!block) return false;
 
     // Air Check
-    if (block->getmLegacy()->isAir()) return false;
+    if (block->mLegacy->isAir()) return false;
 
     // BlockID Check
-    int blockId = block->getmLegacy()->getBlockId();
+    int blockId = block->mLegacy->getBlockId();
     if (oreOnly) {
         bool isOre = false;
         // STUPID CODE
@@ -138,6 +138,7 @@ void OreMiner::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &OreMiner::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &OreMiner::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &OreMiner::onRenderEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -151,6 +152,7 @@ void OreMiner::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &OreMiner::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &OreMiner::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &OreMiner::onRenderEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -196,10 +198,9 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         }
         mToolSlot = bestToolSlot;
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-        mCurrentDestroySpeed = mDestroySpeed.mValue;
         mBreakingProgress += destroySpeed;
 
-        if (mCurrentDestroySpeed <= mBreakingProgress) {
+        if (mDestroySpeed.mValue <= mBreakingProgress) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
@@ -275,119 +276,11 @@ void OreMiner::onRenderEvent(RenderEvent& event)
     if (!player) return;
 
     if (mRenderBlock.mValue) renderBlock();
-    if (mRenderProgressBar.mValue) renderProgressBar();
-}
-
-void OreMiner::renderProgressBar()
-{
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
-
-    static float lastProgress = 0.f;
-    float percentDone = 1.f;
-
-    percentDone = mBreakingProgress;
-    percentDone /= mCurrentDestroySpeed;
-    if (percentDone < lastProgress) lastProgress = percentDone;
-    percentDone = MathUtils::lerp(lastProgress, percentDone, ImGui::GetIO().DeltaTime * 30.f);
-    lastProgress = percentDone;
-    // clamp percentDone
-    percentDone = MathUtils::clamp(percentDone, 0.f, 1.f);
-
-    float delta = ImGui::GetIO().DeltaTime;
-
-    static EasingUtil inEase = EasingUtil();
-    static float anim = 0.f;
-    constexpr float easeSpeed = 10.f;
-    (mEnabled && mWasMiningBlock || mEnabled && mIsMiningBlock) ? inEase.incrementPercentage(delta * easeSpeed / 10)
-        : inEase.decrementPercentage(delta * 2 * easeSpeed / 10);
-    float inScale = inEase.easeOutExpo();
-    if (inEase.isPercentageMax()) inScale = 0.996;
-    inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
-    anim = MathUtils::lerp(0, 1, inEase.easeOutExpo());
-    anim = MathUtils::lerp(anim, (mEnabled && mWasMiningBlock || mEnabled && mIsMiningBlock) ? 1.f : 0.f, delta * 10.f);
-
-
-    if (anim < 0.001f) return;
-
-    auto drawList = ImGui::GetBackgroundDrawList();
-
-    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y / 2.5f);
-    pos.y += pos.y / 2;
-    ImVec2 boxSize = ImVec2(200 * anim, 47 * anim);
-    // Center da progress bar
-    pos.x -= boxSize.x / 2;
-    pos.y -= boxSize.y / 2;
-
-    ImVec2 progressPos = ImVec2(pos.x, pos.y);
-    ImVec2 progressSize = ImVec2(boxSize.x * percentDone, boxSize.y);
-
-    int daPerc = percentDone * 100;
-
-    static std::string text = "Mining [0%]";
-
-    static ImColor color = ImColor(255, 255, 0, 153);
-    ImColor targetColor = ImColor(0, 255, 0, 153);
-
-    bool isMining = mIsMiningBlock && mBreakingProgress > 0.001f; // i hate you.
-
-    auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
-    bool isLowercase = interfaceMod->mNamingStyle.mValue == Lowercase || interfaceMod->mNamingStyle.mValue == LowercaseSpaced;
-
-    if (mIsUncovering && mEnabled) // Uncovering
-    {
-        if (isLowercase) text = "uncovering [" + std::to_string(daPerc) + "%]";
-        else text = "Uncovering [" + std::to_string(daPerc) + "%]";
-        targetColor = ImColor(255, 255, 0, 153);
-    }
-    else // Mining
-    {
-        if (isLowercase) text = "mining [" + std::to_string(daPerc) + "%]";
-        else text = "Mining [" + std::to_string(daPerc) + "%]";
-        targetColor = ImColor(0, 255, 0, 153);
-    }
-
-    color = ImColor(MathUtils::lerp(color.Value, targetColor.Value, ImGui::GetIO().DeltaTime * 7.5f));
-
-    float daPadding = -25.f * anim;
-
-    float max = pos.x + boxSize.x;
-    ImVec2 bgMin = ImVec2(pos.x + boxSize.x * percentDone, pos.y);
-    ImVec2 bgMax = ImVec2(pos.x + boxSize.x, pos.y + (boxSize.y + daPadding));
-    ImVec2 progMax = ImVec2(pos.x + (boxSize.x * percentDone + 6.f), pos.y + (boxSize.y + daPadding));
-    progMax.x = std::clamp(progMax.x, pos.x, max);
-
-    float rounding = 15.f * anim;
-
-    if (percentDone > 0.001f)
-    {
-        drawList->AddShadowRect(ImVec2(pos.x, pos.y), progMax, color, 50.f, ImVec2(), 0, rounding);
-
-        drawList->PushClipRect(ImVec2(pos.x, pos.y), ImVec2(pos.x + (boxSize.x * percentDone), pos.y + (boxSize.y - 10.f)));
-        drawList->AddRectFilled(ImVec2(pos.x, pos.y), progMax, color, rounding);
-        drawList->PopClipRect();
-    }
-
-    drawList->PushClipRect(bgMin, bgMax);
-    drawList->AddRectFilled(ImVec2(pos.x + boxSize.x * percentDone - 6, pos.y), bgMax, ImColor(0.f, 0.f, 0.f, 0.6f), rounding);
-    drawList->PopClipRect();
-
-    FontHelper::pushPrefFont(true, false);
-
-    float fontSize = 20.f * anim;
-    ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, text.c_str());
-    // center da text between
-    ImVec2 textPos = ImVec2(pos.x + (boxSize.x - textSize.x) / 2, pos.y + (2.5f * anim));
-
-    ImRenderUtils::drawShadowText(drawList, text, textPos, ImColor(255, 255, 255, 255), fontSize);
-    FontHelper::popFont();
-
 }
 
 void OreMiner::renderBlock()
 {
-    if (!mIsMiningBlock || !mEnabled) return;
+    if (!mIsMiningBlock) return;
 
     auto player = ClientInstance::get()->getLocalPlayer();
 
@@ -395,7 +288,7 @@ void OreMiner::renderBlock()
     float progress = 1.f;
 
     progress = mBreakingProgress;
-    progress /= mCurrentDestroySpeed;
+    progress /= mDestroySpeed.mValue;
     if (progress < lastProgress) lastProgress = progress;
     progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
     lastProgress = progress;

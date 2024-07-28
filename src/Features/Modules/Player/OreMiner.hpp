@@ -24,10 +24,9 @@ public:
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
-    BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     OreMiner() : ModuleBase("OreMiner", "Automatically breaks ore", ModuleCategory::Player, 0, false) {
-        addSettings(&mUncoverMode, &mRange, &mUncoverRange, &mDestroySpeed, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis, &mSwing, &mHotbarOnly, &mInfiniteDurability, &mRenderBlock, &mRenderProgressBar);
+        addSettings(&mUncoverMode, &mRange, &mUncoverRange, &mDestroySpeed, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis, &mSwing, &mHotbarOnly, &mInfiniteDurability, &mRenderBlock);
         
         mNames = {
             {Lowercase, "oreminer"},
@@ -35,8 +34,6 @@ public:
             {Normal, "OreMiner"},
             {NormalSpaced, "Ore Miner"}
         };
-
-        gFeatureManager->mDispatcher->listen<RenderEvent, &OreMiner::onRenderEvent, nes::event_priority::LAST>(this);
     }
 
     struct PathFindResult {
@@ -48,7 +45,6 @@ public:
     glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
-    float mCurrentDestroySpeed = 1.f;
     bool mIsMiningBlock = false;
     bool mWasMiningBlock = false;
     bool mIsUncovering = false;
