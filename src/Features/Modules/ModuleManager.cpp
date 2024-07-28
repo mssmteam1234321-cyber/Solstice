@@ -117,7 +117,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Animations>());
     mModules.emplace_back(std::make_shared<NoCameraClip>());
     mModules.emplace_back(std::make_shared<RobloxCamera>());
-    //mModules.emplace_back(std::make_shared<ItemPhysics>());
+    mModules.emplace_back(std::make_shared<ItemPhysics>());
 
 
 

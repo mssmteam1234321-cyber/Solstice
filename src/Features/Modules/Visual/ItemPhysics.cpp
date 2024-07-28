@@ -77,6 +77,9 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
     glm_rotate(mat, vec.z, 0.f, 0.f, 1.f);
 }
 
+std::vector<unsigned char> gRtBytes = {0xE8};
+DEFINE_PATCH_FUNC(patchPosAddr, SigManager::glm_rotateRef, gRtBytes, 1);
+
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef, SigManager::SigManager::glm_translateRef, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchTranslateRef2, SigManager::SigManager::glm_translateRef2, 0x5);
 
@@ -103,7 +106,8 @@ void ItemPhysics::onEnable() {
 
     glm_rotateHook->enable();
 
-    MemUtils::writeBytes(reinterpret_cast<uintptr_t>(rotateAddr), (BYTE*)"\xE8", 1);
+    //MemUtils::writeBytes(reinterpret_cast<uintptr_t>(rotateAddr), (BYTE*)"\xE8", 1);
+    patchPosAddr(true);
 
     patchTranslateRef(true);
     patchTranslateRef2(true);
@@ -112,15 +116,17 @@ void ItemPhysics::onEnable() {
 void ItemPhysics::onDisable() {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &ItemPhysics::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<ItemRendererEvent, &ItemPhysics::onItemRendererEvent>(this);
+
     static auto posAddr = SigManager::ItemPositionConst + 4;
 
     MemUtils::writeBytes(posAddr, &origPosRel, 4);
     FreeBuffer(newPosRel);
 
-    glm_rotateHook->restore();
-
+    patchPosAddr(false);
     patchTranslateRef(false);
     patchTranslateRef2(false);
+
+    glm_rotateHook->restore();
 
     actorData.clear();
 }
