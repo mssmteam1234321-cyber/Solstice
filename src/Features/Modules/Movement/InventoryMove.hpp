@@ -16,6 +16,7 @@ public:
         };
     }
 
+    static void patchFunc(bool);
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);

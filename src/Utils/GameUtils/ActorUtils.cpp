@@ -25,12 +25,19 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
     if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
 
     std::vector<struct Actor *> actors;
-    for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+    try
     {
-        if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
+        for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+        {
 
-        if (type.type == ActorType::Player && playerOnly || !playerOnly)
-            actors.push_back(moduleOwner.actor);
+            if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
+
+            if (type.type == ActorType::Player && playerOnly || !playerOnly)
+                actors.push_back(moduleOwner.actor);
+        }
+    } catch (const std::exception& e)
+    {
+        // Do nothing
     }
 
 

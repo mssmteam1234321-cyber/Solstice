@@ -9,21 +9,8 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
-
-void patchFunc(bool enable)
-{
-    static uintptr_t clearInputStateFunc = 0;
-
-    if (clearInputStateFunc == 0) clearInputStateFunc = SigManager::PlayerMovement_clearInputState;
-    if (clearInputStateFunc == 0) return;
-
-    std::vector<uint8_t> ret = { 0xC3 };
-
-    if (enable) ret = { 0xC3 };
-    else ret = { 0x80 };
-
-    MemUtils::writeBytes(clearInputStateFunc, ret, 1);
-}
+std::vector<unsigned char> gClrBytes = { 0xC3 };
+DEFINE_PATCH_FUNC(InventoryMove::patchFunc, SigManager::PlayerMovement_clearInputState, gClrBytes);
 
 void InventoryMove::onEnable()
 {
