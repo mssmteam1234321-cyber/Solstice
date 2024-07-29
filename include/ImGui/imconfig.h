@@ -17,18 +17,8 @@
 //---- Define assertion handler. Defaults to calling assert().
 // If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)
-//#define IM_ASSERT(_EXPR)  ((void)(_EXPR))     // Disable asserts
+#define IM_ASSERT(_EXPR) do { if(!(_EXPR)) { printf("[ImGui] Assertion failed: %s\n", #_EXPR); } } while (0)
 
-// assert
-
-#define IM_ASSERT(_EXPR) specialAssert(_EXPR, #_EXPR, __FILE__, __LINE__)
-
-#include "spdlog/spdlog.h"
-inline void specialAssert(const bool expr, std::string expr_str, std::string file, int line) {
-    if (!expr) {
-        spdlog::critical("Assertion failed: {} in file {} on line {}", expr_str, file, line);
-    }
-}
 
 //---- Define attributes of all API symbols declarations, e.g. for DLL under Windows
 // Using Dear ImGui via a shared library is not recommended, because of function call overhead and because we don't guarantee backward nor forward ABI compatibility.
