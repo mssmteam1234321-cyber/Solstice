@@ -29,8 +29,9 @@
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.UI.Core.h>
+#include <build_info.h>
 
-std::string title = "[" + STRING(SOLSTICE_BUILD_VERSION) + "-" + STRING(SOLSTICE_BUILD_BRANCH) + "]";
+std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 
 void setTitle(std::string title)
 {
