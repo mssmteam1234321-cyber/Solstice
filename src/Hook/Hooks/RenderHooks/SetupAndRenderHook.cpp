@@ -59,15 +59,11 @@ void SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, gl
 void SetupAndRenderHook::initVt(void* ctx)
 {
     const auto vtable = *static_cast<uintptr_t**>(ctx);
-    mDrawImageDetour = std::make_unique<Detour>("DrawImage", reinterpret_cast<void*>(vtable[7]), &SetupAndRenderHook::onDrawImage);
+    mDrawImageDetour = std::make_unique<Detour>("MinecraftUIRenderContext::drawImage", reinterpret_cast<void*>(vtable[7]), &SetupAndRenderHook::onDrawImage);
     mDrawImageDetour->enable();
 }
 
 void SetupAndRenderHook::init()
 {
-    static bool initialized = false;
-    if (initialized) return;
-    initialized = true;
-
     mSetupAndRenderDetour = std::make_unique<Detour>("ScreenView::setupAndRender", reinterpret_cast<void*>(SigManager::ScreenView_setupAndRender), &SetupAndRenderHook::onSetupAndRender);
 }

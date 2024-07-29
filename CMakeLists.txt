@@ -47,6 +47,23 @@ CPMAddPackage(
 
 find_package(OpenMP)
 
+execute_process(
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE "SOLSTICE_BUILD_VERSION"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+        COMMAND git rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE "SOLSTICE_BUILD_BRANCH"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+add_compile_definitions(SOLSTICE_BUILD_VERSION=${SOLSTICE_BUILD_VERSION})
+add_compile_definitions(SOLSTICE_BUILD_BRANCH=${SOLSTICE_BUILD_BRANCH})
+message(STATUS "Latest commit hash: ${SOLSTICE_BUILD_VERSION} on branch ${SOLSTICE_BUILD_BRANCH}")
+
 # config SDL2 (With static linking and audio support)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)

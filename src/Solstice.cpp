@@ -25,6 +25,24 @@
 #include <Utils/SysUtils/ExceptionHandler.hpp>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
+#include <winrt/base.h>
+#include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.ApplicationModel.Core.h>
+#include <winrt/Windows.UI.Core.h>
+
+
+
+#define STRING_EXPAND(s) #s
+#define STRING(s) std::string(STRING_EXPAND(s))
+
+std::string title = "[" + STRING(SOLSTICE_BUILD_VERSION) + "-" + STRING(SOLSTICE_BUILD_BRANCH) + "]";
+
+void setTitle(std::string title)
+{
+    auto w = winrt::Windows::ApplicationModel::Core::CoreApplication::MainView().CoreWindow().Dispatcher().RunAsync(winrt::Windows::UI::Core::CoreDispatcherPriority::Normal, [title]() {
+        winrt::Windows::UI::ViewManagement::ApplicationView::GetForCurrentView().Title(winrt::to_hstring(title));
+    });
+}
 
 std::vector<unsigned char> gBpBytes = {0x1c}; // Defines the new offset for mInHandSlot
 DEFINE_PATCH_FUNC(patchInHandSlot, SigManager::ItemInHandRenderer_renderItem_bytepatch2+2, gBpBytes);
@@ -59,6 +77,13 @@ void Solstice::init(HMODULE hModule)
 
     FileUtils::validateDirectories();
 
+    // Change the window title
+
+
+
+    setTitle(title);
+
+    /*
     std::string lastHwidFile = FileUtils::getSolsticeDir() + "lasthwid.txt";
     if (FileUtils::fileExists(lastHwidFile))
     {
@@ -83,7 +108,7 @@ void Solstice::init(HMODULE hModule)
         file << GET_HWID().toString();
         file.close();
         console->info("HWID: {}", GET_HWID().toString());
-    }
+    }*/
 
     if (MH_Initialize() != MH_OK)
     {
@@ -175,6 +200,8 @@ void Solstice::init(HMODULE hModule)
     }
 
     mRequestEject = true;
+
+    setTitle("");
 
     patchInHandSlot(false);
 
