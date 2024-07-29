@@ -10,6 +10,7 @@
 #include "Hooks/ActorHooks/AnimationHooks.hpp"
 #include "Hooks/ActorHooks/IsSlowedByItemUseHook.hpp"
 #include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
+#include "Hooks/MiscHooks/FireBlockChangedHook.hpp"
 #include "Hooks/MiscHooks/KeyHook.hpp"
 #include "Hooks/MiscHooks/MouseHook.hpp"
 #include "Hooks/NetworkHooks/ConnectionRequestHook.hpp"
@@ -54,7 +55,7 @@ void HookManager::init(bool initLp)
         ADD_HOOK(LookInputHook);
         ADD_HOOK(ActorModelHook);
         ADD_HOOK(ItemRendererHook);
-
+        ADD_HOOK(FireBlockChangedHook);
 
         for (auto& hook : hooks)
         {

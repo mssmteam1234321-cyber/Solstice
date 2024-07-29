@@ -5,6 +5,7 @@
 #include "BlockESP.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <Features/Events/BlockChangedEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
@@ -13,12 +14,14 @@ void BlockESP::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RenderEvent, &BlockESP::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &BlockESP::onBaesTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
 }
 
 void BlockESP::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &BlockESP::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &BlockESP::onBaesTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
 }
 
 struct DaBlock {
@@ -68,6 +71,11 @@ std::unordered_map<int, ImColor> blockColors = {
     { 661, ImColor(0.f, 0.f, 0.f, 1.f) }
 };
 
+bool isValidBlock(int id)
+{
+    return blockColors.find(id) != blockColors.end();
+}
+
 ImColor getColorFromId(int id)
 {
     if (blockColors.find(id) != blockColors.end())
@@ -77,6 +85,26 @@ ImColor getColorFromId(int id)
 
     return ImColor(1.f, 1.f, 1.f, 1.f);
 }
+
+void BlockESP::onBlockChangedEvent(BlockChangedEvent& event)
+{
+    auto dabl = BlockInfo(event.mNewBlock, event.mBlockPos);
+    if (dabl.getDistance(*ClientInstance::get()->getLocalPlayer()->getPos()) > mRadius.mValue) return;
+
+    if (isValidBlock(event.mNewBlock->mLegacy->getBlockId()))
+    {
+        std::lock_guard<std::mutex> lock(blockMutex);
+        blocks.push_back({ dabl.getAABB(), getColorFromId(dabl.mBlock->toLegacy()->getBlockId()) });
+        spdlog::debug("event.mNewBlock->mLegacy->mName: {} event.mOldBlock->mLegacy->mName: {}", event.mNewBlock->mLegacy->mName, event.mOldBlock->mLegacy->mName);
+    }
+    else
+    {
+        std::lock_guard<std::mutex> lock(blockMutex);
+        std::erase_if(blocks, [&](DaBlock& block) {
+            return block.mBlock == dabl.getAABB();
+        });
+    }
+};
 
 void BlockESP::onBaesTickEvent(BaseTickEvent& event) const
 {

@@ -191,6 +191,8 @@ void Solstice::init(HMODULE hModule)
     ChatUtils::displayClientMessage("§cEjected!");
 
     mInitialized = false;
+    SigManager::deinitialize();
+    OffsetProvider::deinitialize();
 
     // wait for threads to finish
     Sleep(1000); // Give the user time to read the message

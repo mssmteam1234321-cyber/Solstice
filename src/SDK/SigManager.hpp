@@ -86,6 +86,7 @@ public:
     DEFINE_SIG(glm_rotateRef, "E8 ? ? ? ? 41 BD ? ? ? ? 41 0F B6 46", SigType::Sig, 0);
     DEFINE_SIG(glm_translateRef, "E8 ? ? ? ? 4C 8D 05 ? ? ? ? 44 0F 28 05", SigType::Sig, 0);
     DEFINE_SIG(glm_translateRef2, "E8 ? ? ? ? C6 46 ? ? F3 0F 11 74 24 ? F3 0F 10 1D", SigType::Sig, 0);
+    DEFINE_SIG(BlockSource_fireBlockChanged, "4C 8B ? 45 89 ? ? 49 89 ? ? 53", SigType::Sig, 0);
 
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? ? 41 0F ? ? E8 ? ? ? ? 48 8B", SigType::RefSig, 5);
@@ -96,5 +97,6 @@ public:
     DEFINE_SIG(ActorAnimationControllerPlayer_applyToPose, "E8 ? ? ? ? 48 81 C3 ? ? ? ? 48 3B ? 75 ? 48 8B ? ? ? EB", SigType::RefSig, 1);
 
     static void initialize();
+    static void deinitialize();
 };
 

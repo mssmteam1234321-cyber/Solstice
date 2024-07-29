@@ -131,6 +131,11 @@ struct AABB {
         result.z = point.z < mMin.z ? mMin.z : (point.z > mMax.z ? mMax.z : point.z);
         return result;
     }
+
+    // ==
+    bool operator==(const AABB& other) const {
+        return this->mMin == other.mMin && this->mMax == other.mMax;
+    }
 };
 
 struct FrameTransform {
@@ -138,3 +143,5 @@ struct FrameTransform {
     glm::vec3 mOrigin    {};
     glm::vec3 mPlayerPos {};
 };
+
+using BlockPos = glm::ivec3;

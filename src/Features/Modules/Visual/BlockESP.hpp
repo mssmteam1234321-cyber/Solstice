@@ -6,7 +6,6 @@
 #include <Features/Modules/Module.hpp>
 
 
-
 class BlockESP : public ModuleBase<BlockESP>
 {
 public:
@@ -34,6 +33,7 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void onBlockChangedEvent(class BlockChangedEvent& event);
     void onBaesTickEvent(class BaseTickEvent& event) const;
     void onRenderEvent(class RenderEvent& event);
 };

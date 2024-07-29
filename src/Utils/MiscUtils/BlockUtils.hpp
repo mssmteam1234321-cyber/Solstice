@@ -15,6 +15,11 @@ struct BlockInfo {
         return AABB(mPosition, glm::vec3(1, 1, 1));
     }
 
+    float getDistance(glm::vec3 pos) {
+        glm::vec3 closest = getAABB().getClosestPoint(pos);
+        return glm::distance(closest, pos);
+    }
+
     BlockInfo(Block* block, glm::ivec3 position) : mBlock(block), mPosition(position) {}
 };
 

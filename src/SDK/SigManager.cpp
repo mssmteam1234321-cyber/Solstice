@@ -54,4 +54,11 @@ void SigManager::initialize()
     mIsInitialized = true;
 }
 
+void SigManager::deinitialize()
+{
+    spdlog::info("[signatures] deinitializing...");
+    mSigInitializers.clear();
+    mSigs.clear();
 
+    mIsInitialized = false;
+}

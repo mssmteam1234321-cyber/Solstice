@@ -54,3 +54,13 @@ void OffsetProvider::initialize()
     mIsInitialized = true;
 }
 
+void OffsetProvider::deinitialize()
+{
+    spdlog::info("[offsets] deinitializing...");
+
+    mSigInitializers.clear();
+    mSigs.clear();
+
+    mIsInitialized = false;
+}
+

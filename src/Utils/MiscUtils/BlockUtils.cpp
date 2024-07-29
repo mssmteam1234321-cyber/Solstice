@@ -4,6 +4,7 @@
 
 #include "BlockUtils.hpp"
 
+#include <Features/Events/BlockChangedEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
@@ -197,12 +198,18 @@ void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
 
 void BlockUtils::clearBlock(const glm::ivec3& pos)
 {
+    Block* oldBlock = ClientInstance::get()->getBlockSource()->getBlock(pos);
     std::shared_ptr<UpdateBlockPacket> p = MinecraftPackets::createPacket<UpdateBlockPacket>();
     p->mPos = pos;
     p->mLayer = UpdateBlockPacket::BlockLayer::Standard;
     p->mUpdateFlags = BlockUpdateFlag::Priority;
     p->mBlockRuntimeId = 3690217760;
     PacketUtils::sendToSelf(p);
+    Block* newBlock = ClientInstance::get()->getBlockSource()->getBlock(pos);
+
+    // Fire a block update event because sendToSelf doesn't trigger it
+    auto holder = nes::make_holder<BlockChangedEvent>(pos, newBlock, oldBlock, 0, ClientInstance::get()->getLocalPlayer());
+    gFeatureManager->mDispatcher->trigger(holder);
 }
 
 void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)

@@ -102,4 +102,5 @@ public:
     DEFINE_INDEX_FIELD_TYPED(uint8_t, Unknown_mActor, "48 8B ? ? 0F 29 ? ? 44 0F ? ? ? E8 ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
 
     static void initialize();
+    static void deinitialize();
 };
