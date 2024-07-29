@@ -102,3 +102,33 @@ std::vector<std::wstring> ProcUtils::getModulePaths()
 
     return modulePaths;
 }
+
+// gets the version from the current process's file version info
+std::string ProcUtils::getVersion()
+{
+    char path[MAX_PATH];
+    GetModuleFileNameA(nullptr, path, MAX_PATH);
+
+    DWORD dwDummy;
+    DWORD dwFVISize = GetFileVersionInfoSizeA(path, &dwDummy);
+    if (dwFVISize == 0)
+    {
+        return "Unknown";
+    }
+
+    std::vector<char> versionInfo(dwFVISize);
+    if (!GetFileVersionInfoA(path, 0, dwFVISize, versionInfo.data()))
+    {
+        return "Unknown";
+    }
+
+    VS_FIXEDFILEINFO* pFileInfo;
+    UINT uLen;
+    if (!VerQueryValueA(versionInfo.data(), "\\", reinterpret_cast<void**>(&pFileInfo), &uLen))
+    {
+        return "Unknown";
+    }
+
+    return fmt::format("{}.{}.{}.{}", HIWORD(pFileInfo->dwFileVersionMS), LOWORD(pFileInfo->dwFileVersionMS),
+                       HIWORD(pFileInfo->dwFileVersionLS), LOWORD(pFileInfo->dwFileVersionLS));
+}

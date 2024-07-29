@@ -17,6 +17,7 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
@@ -28,7 +29,7 @@ void Freecam::onEnable()
 
     player->setFlag<RenderCameraFlag>(true);
     player->setFlag<CameraRenderPlayerModel>(true);
-    player->setFlag<CameraRenderFirstPersonObjects>(false);
+    player->setFlag<RedirectCameraInput>(true);
 
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Freecam::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<LookInputEvent, &Freecam::onLookInputEvent>(this);
@@ -53,7 +54,8 @@ void Freecam::onEnable()
     mSvPos = player->getStateVectorComponent()->mPos;
     mSvPosOld = player->getStateVectorComponent()->mPos;
     mOldPos = player->getRenderPositionComponent()->mPosition;
-    player->getWalkAnimationComponent()->mWalkAnimSpeed = 0.0f;
+    if (mMode.mValue != Mode::Detached)
+        player->getWalkAnimationComponent()->mWalkAnimSpeed = 0.0f;
 
     mOrigin = mSvPos;
     mOldOrigin = mSvPosOld;
@@ -72,7 +74,7 @@ void Freecam::onDisable()
 
     player->setFlag<RenderCameraFlag>(false);
     player->setFlag<CameraRenderPlayerModel>(false);
-    player->setFlag<CameraRenderFirstPersonObjects>(false);
+    player->setFlag<RedirectCameraInput>(false);
 
     if (mMode.mValue == Mode::Normal)
     {
@@ -87,7 +89,6 @@ void Freecam::onDisable()
 
 void Freecam::onPacketInEvent(PacketInEvent& event)
 {
-    if (!mDisableOnLagback.mValue) return;
 
     if (event.mPacket->getId() == PacketID::MovePlayer)
     {
@@ -98,8 +99,29 @@ void Freecam::onPacketInEvent(PacketInEvent& event)
         auto mpp = event.getPacket<MovePlayerPacket>();
         if (mpp->mPlayerID == player->getRuntimeID())
         {
-            NotifyUtils::notify("Lagback detected!", 5.f, Notification::Type::Warning);
-            setEnabled(false);
+            if (mDisableOnLagback.mValue)
+            {
+                NotifyUtils::notify("Lagback detected!", 5.f, Notification::Type::Warning);
+                setEnabled(false);
+                return;
+            }
+            glm::vec2 pktRot = mpp->mRot;
+            float headRot = mpp->mYHeadRot;
+            mLastRot.mYaw = pktRot.x;
+            mLastRot.mPitch = pktRot.y;
+            mLastHeadRot.headRot = headRot;
+            mLastBodyRot.yBodyRot = pktRot.x;
+
+            mLastRot.mOldYaw = pktRot.x;
+            mLastRot.mOldPitch = pktRot.y;
+            mLastHeadRot.oldHeadRot = headRot;
+            mLastBodyRot.yOldBodyRot = pktRot.x;
+
+
+            player->setPosition(mpp->mPos);
+            mOrigin = mpp->mPos;
+            mOldOrigin = mpp->mPos;
+            spdlog::debug("[Freecam] Listening to lagback, setting position to {}, {}, {}", mpp->mPos.x, mpp->mPos.y, mpp->mPos.z);
         }
     }
 }
@@ -108,6 +130,22 @@ void Freecam::onPacketOutEvent(PacketOutEvent& event)
 {
     if ((event.mPacket->getId() == PacketID::PlayerAuthInput || event.mPacket->getId() == PacketID::MovePlayer) && mMode.mValue != Mode::Detached)
         event.mCancelled = true;
+
+    if ((event.mPacket->getId() == PacketID::PlayerAuthInput) && mMode.mValue == Mode::Detached)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+
+        paip->mRot = { mLastRot.mYaw, mLastRot.mPitch };
+        paip->mYHeadRot = mLastHeadRot.headRot;
+
+        // Clamp the rot to -180 to 180 and -90 to 90 respectively
+        paip->mRot.x = MathUtils::wrap(paip->mRot.x, -180, 180);
+        paip->mRot.y = MathUtils::clamp(paip->mRot.y, -90, 90);
+        paip->mYHeadRot = MathUtils::wrap(paip->mYHeadRot, -180, 180);
+
+    }
 
 }
 
@@ -121,7 +159,7 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
 
     player->setFlag<RenderCameraFlag>(true);
     player->setFlag<CameraRenderPlayerModel>(true);
-    player->setFlag<CameraRenderFirstPersonObjects>(false);
+    //player->setFlag<CameraRenderFirstPersonObjects>(false);
 
     glm::vec3 motion = glm::vec3(0, 0, 0);
 
@@ -154,7 +192,6 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
     {
         mOldOrigin = mOrigin;
         mOrigin += motion;
-        player->getStateVectorComponent()->mPos = glm::vec3(0, 0, 0);
     }
 }
 

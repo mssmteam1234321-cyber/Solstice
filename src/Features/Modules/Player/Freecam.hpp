@@ -50,6 +50,7 @@ public:
     glm::vec3 mOldOrigin;
     glm::vec2 mRotRads;
 
+
     glm::vec3 getLerpedOrigin()
     {
         return MathUtils::lerp(mOldOrigin, mOrigin, ClientInstance::get()->getMinecraftSim()->getGameSim()->mDeltaTime);

@@ -52,6 +52,21 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
     {
         if (args.size() < 3)
         {
+            // Save the current config
+            if (ConfigManager::LastLoadedConfig.empty())
+            {
+                ChatUtils::displayClientMessage("§cNo config loaded. Please load a config first.");
+                return;
+            }
+
+            ConfigManager::saveConfig(ConfigManager::LastLoadedConfig);
+            ChatUtils::displayClientMessage("§aSaved config as §6" + ConfigManager::LastLoadedConfig + "§a.");
+            return;
+        }
+
+        // return an error if name is blank
+        if (args[2].empty())
+        {
             ChatUtils::displayClientMessage("§c" + getUsage());
             return;
         }

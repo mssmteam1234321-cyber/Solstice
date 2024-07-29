@@ -16,12 +16,18 @@ void HelpCommand::execute(const std::vector<std::string>& args)
         {
             if (command->name == args[1])
             {
-                ChatUtils::displayClientMessage("§6Command: §e" + command->name + " §7- " + command->getUsage());
+                ChatUtils::displayClientMessage("§6Command: §e{}", command->name);
+                ChatUtils::displayClientMessage("§6- §7{}", command->getDescription());
+                ChatUtils::displayClientMessage("§6- §7{}", command->getUsage());
+                if (!command->getAliases().empty())
+                {
+                    ChatUtils::displayClientMessage("§6- §7Aliases: §e{}", fmt::join(command->getAliases(), "§7, §e"));
+                }
                 return;
             }
         }
 
-        ChatUtils::displayClientMessage("§cThe command §6'" + args[1] + "'§c does not exist!");
+        ChatUtils::displayClientMessage("§cThe command §6'{}'§c does not exist!", args[1]);
         return;
     }
 
@@ -29,7 +35,7 @@ void HelpCommand::execute(const std::vector<std::string>& args)
 
     for (const auto& command : commands)
     {
-        ChatUtils::displayClientMessage("§6- §e" + command->name + "§7: " + command->getDescription());
+        ChatUtils::displayClientMessage("§6- §e{} §7- {}", command->name, command->getDescription());
     }
 
     ChatUtils::displayClientMessage("§6Use §e.help <command> §6for more information on a specific command.");
@@ -37,12 +43,12 @@ void HelpCommand::execute(const std::vector<std::string>& args)
 
 std::vector<std::string> HelpCommand::getAliases() const
 {
-    return {};
+    return {"?"};
 }
 
 std::string HelpCommand::getDescription() const
 {
-    return "The help command";
+    return "Displays a list of available commands";
 }
 
 std::string HelpCommand::getUsage() const

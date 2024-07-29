@@ -16,28 +16,43 @@ void TestCommand::execute(const std::vector<std::string>& args)
         + std::to_string(gFeatureManager->mCommandManager->mCommands.size()) + " commands are currently loaded.");
 
     // get the first argument, if any
-    if (args.size() > 1)
+    if (args.size() <= 1)
     {
-        const std::string& arg = args[1];
-        if (arg == "showconsole")
+        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug");
+        return;
+    }
+
+    const std::string& arg = args[1];
+
+    if (arg == "showconsole")
+    {
+        Logger::initialize();
+        ChatUtils::displayClientMessage("Console initialized!");
+        return;
+    }
+
+    if (arg == "fallback")
+    {
+        D3DHook::forceFallback = true;
+        ChatUtils::displayClientMessage("Attempting to force fallback to D3D11!");
+        return;
+    }
+
+    // spdlog::level::trace
+    if (arg == "setloglevel")
+    {
+        if (args.size() < 3)
         {
-            Logger::initialize();
-            ChatUtils::displayClientMessage("Console initialized!");
+            ChatUtils::displayClientMessage("Usage: .test setloglevel [log level]");
             return;
         }
 
-        if (arg == "fallback")
-        {
-            D3DHook::forceFallback = true;
-            ChatUtils::displayClientMessage("Attempting to force fallback to D3D11!");
-            return;
-        }
+        const std::string& arg2 = args[2];
 
-        // spdlog::level::trace
         for (std::string_view level : magic_enum::enum_names<spdlog::level::level_enum>())
         {
             spdlog::info("Checking level {}", level);
-            if (level == arg)
+            if (level == arg2)
             {
                 spdlog::info("Setting log level to {}", level);
                 spdlog::set_level(spdlog::level::from_str(level.data()));
@@ -45,6 +60,15 @@ void TestCommand::execute(const std::vector<std::string>& args)
                 return;
             }
         }
+        return;
+    }
+
+    if (arg == "enforcedebug")
+    {
+        Solstice::Prefs->mEnforceDebugging = !Solstice::Prefs->mEnforceDebugging;
+        PreferenceManager::save(Solstice::Prefs);
+        ChatUtils::displayClientMessage("Enforce debugging set to {}", Solstice::Prefs->mEnforceDebugging ? "true" : "false");
+        ChatUtils::displayClientMessage("You may need to reinject for this to take effect.");
     }
 }
 

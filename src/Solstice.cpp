@@ -30,11 +30,6 @@
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.UI.Core.h>
 
-
-
-#define STRING_EXPAND(s) #s
-#define STRING(s) std::string(STRING_EXPAND(s))
-
 std::string title = "[" + STRING(SOLSTICE_BUILD_VERSION) + "-" + STRING(SOLSTICE_BUILD_BRANCH) + "]";
 
 void setTitle(std::string title)
@@ -60,6 +55,7 @@ void Solstice::init(HMODULE hModule)
 
     Logger::initialize();
 
+
     console = spdlog::stdout_color_mt(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::color_mode::automatic);
 
     spdlog::set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%^%l%$%$%#%$] %v");
@@ -67,11 +63,14 @@ void Solstice::init(HMODULE hModule)
     console->set_level(spdlog::level::trace);
     spdlog::set_level(spdlog::level::trace);
 
+
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
         + CC(255, 0, 0) + " [Debug] " + ANSI_COLOR_RESET
 #endif
 );
+
+    spdlog::info("Minecraft version: {}", ProcUtils::getVersion());
 
     ExceptionHandler::init();
 
@@ -118,6 +117,20 @@ void Solstice::init(HMODULE hModule)
 
     Prefs = PreferenceManager::load();
 
+    HWND hwnd = ProcUtils::getMinecraftWindow(); // Cache the window handle
+
+#ifdef __DEBUG__
+    if (Prefs->mEnforceDebugging)
+    {
+        while (!IsDebuggerPresent())
+        {
+            MessageBoxA(nullptr, "Please attach a debugger to continue.\nThis message is being shown because of your preference settings.", "Solstice", MB_OK | MB_ICONERROR);
+            spdlog::info("Waiting for debugger...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+#endif
+
     console->info("initializing signatures...");
     int64_t sstart = NOW;
     OffsetProvider::initialize();
@@ -137,7 +150,6 @@ void Solstice::init(HMODULE hModule)
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
     console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
 
-    HWND hwnd = ProcUtils::getMinecraftWindow(); // Cache the window handle
 
     gFeatureManager = std::make_shared<FeatureManager>();
     gFeatureManager->init();

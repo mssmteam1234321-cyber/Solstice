@@ -21,18 +21,38 @@ static AntiBot* antibot = nullptr;
 std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
-    if (player == nullptr) return {};
+    if (player == nullptr)
+    {
+        //spdlog::warn("ActorUtils::getActorList called when player is nullptr");
+        return {};
+    }
 
     if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
-
     std::vector<struct Actor *> actors;
-    for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+
+    try
     {
+        for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+        {
+            if (!moduleOwner.actor)
+            {
+                spdlog::debug("Found null actor pointer for entity!");
+                continue;
+            };
+            // Continue if the actor is a bot and we want to exclude bots
+            if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
 
-        if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
-
-        if (type.type == ActorType::Player && playerOnly || !playerOnly)
-            actors.push_back(moduleOwner.actor);
+            if (type.type == ActorType::Player && playerOnly || !playerOnly)
+                actors.push_back(moduleOwner.actor);
+        }
+    } catch (std::exception &e)
+    {
+        spdlog::error("Error in ActorUtils::getActorList: {}", e.what());
+        return {};
+    } catch (...)
+    {
+        spdlog::error("Error in ActorUtils::getActorList: Unknown error");
+        return {};
     }
 
 

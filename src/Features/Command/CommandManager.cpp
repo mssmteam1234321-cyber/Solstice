@@ -10,6 +10,7 @@
 #include <Utils/StringUtils.hpp>
 
 #include "Commands/BindCommand.hpp"
+#include "Commands/BuildInfoCommand.hpp"
 #include "Commands/ConfigCommand.hpp"
 #include "Commands/FriendCommand.hpp"
 #include "Commands/HelpCommand.hpp"
@@ -36,6 +37,8 @@ void CommandManager::init()
     ADD_COMMAND(ModuleCommand);
     ADD_COMMAND(FriendCommand);
     ADD_COMMAND(GamemodeCommand);
+    ADD_COMMAND(BuildInfoCommand);
+
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

@@ -117,6 +117,8 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    if (player->getFlag<RedirectCameraInput>()) return;
+
     if (mSwiftness.mValue)
     {
         if (tickSwiftness()) return;

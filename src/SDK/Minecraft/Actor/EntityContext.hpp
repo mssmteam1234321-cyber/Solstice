@@ -97,10 +97,14 @@ struct EntityContext {
     }
 
     template<typename component_t>
-    auto* assure()
+    entt::basic_storage<component_t, EntityId>* assure()
     {
         using assure_t = entt::basic_storage<component_t, EntityId>* (__fastcall *)(entt::basic_registry<EntityId>*, uint32_t);
         static auto assure = reinterpret_cast<assure_t>(resolveAssure<component_t>());
+        if (assure == nullptr) {
+            assure = reinterpret_cast<assure_t>(resolveAssure<component_t>());
+            return nullptr;
+        }
 
         return assure(mRegistry, entt::type_hash<component_t>::value());
     }

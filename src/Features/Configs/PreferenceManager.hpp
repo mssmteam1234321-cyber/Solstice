@@ -9,6 +9,7 @@ struct Preferences
     std::string mDefaultConfigName;
     std::vector<std::string> mFriends;
     bool mFallbackToD3D11 = false;
+    bool mEnforceDebugging = false;
 };
 
 class PreferenceManager {
