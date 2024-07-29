@@ -16,6 +16,7 @@ public:
     class Block* mBlock;
     short mAuxValue;
     int8_t mCount;
+    bool valid;
     PAD(0x60);
 
     Item* getItem() {
@@ -67,11 +68,12 @@ enum class Enchant : int {
 class ItemStack : public ItemStackBase
 {
 public:
-    uint8_t mStackNetId = 0; //0x0088
-    PAD(0x17);
+    uint8_t mStackNetId; //0x0088
+    PAD(0x10);
 
     void reinit(Item* item, int count, int itemData) {
-        MemUtils::callVirtualFunc<void>(1, this, item, count, itemData);
+        mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
+        MemUtils::callVirtualFunc<void>(3, this, item, count, itemData);
     }
 
     std::string getCustomName() {
@@ -99,7 +101,6 @@ public:
 
     ItemStack(Item* item, int count, int itemData) {
         memset(this, 0x0, sizeof(ItemStack));
-        mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
         reinit(item, count, itemData);
     }
 };
