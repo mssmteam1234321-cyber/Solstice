@@ -47,52 +47,17 @@ CPMAddPackage(
 
 find_package(OpenMP)
 
-execute_process(
-        COMMAND git rev-parse --short HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE "SOLSTICE_BUILD_VERSION"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-        COMMAND git rev-parse --abbrev-ref HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE "SOLSTICE_BUILD_BRANCH"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-        COMMAND git log -1 --pretty=%B
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE "SOLSTICE_BUILD_COMMIT_MESSAGE"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-        COMMAND git diff --name-only HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE "SOLSTICE_FILES_CHANGED"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+# Add custom target to generate build info header
+add_custom_target(generate_build_info
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/GenerateBuildInfo.cmake
+        COMMENT "Generating build info [${CMAKE_BINARY_DIR}/build_info.h]"
 )
 
-# get the current pc username
-execute_process(
-        COMMAND whoami
-        OUTPUT_VARIABLE "SOLSTICE_PC_USERNAME"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+# Ensure the custom target runs before compiling
 
-string(REPLACE "\\" "/" SOLSTICE_PC_USERNAME ${SOLSTICE_PC_USERNAME})
 
-# count how many files were changed
-string(LENGTH "${SOLSTICE_FILES_CHANGED}" SOLSTICE_FILES_CHANGED_LENGTH)
-string(REGEX REPLACE "\n" ";" SOLSTICE_FILES_CHANGED_LIST "${SOLSTICE_FILES_CHANGED}")
-list(LENGTH SOLSTICE_FILES_CHANGED_LIST SOLSTICE_FILES_CHANGED_COUNT)
+include_directories(${CMAKE_BINARY_DIR})
 
-add_compile_definitions(SOLSTICE_BUILD_VERSION=${SOLSTICE_BUILD_VERSION})
-add_compile_definitions(SOLSTICE_BUILD_BRANCH=${SOLSTICE_BUILD_BRANCH})
-add_compile_definitions(SOLSTICE_BUILD_COMMIT_MESSAGE="${SOLSTICE_BUILD_COMMIT_MESSAGE}")
-add_compile_definitions(SOLSTICE_FILES_CHANGED_COUNT=${SOLSTICE_FILES_CHANGED_COUNT})
-add_compile_definitions(SOLSTICE_PC_USERNAME=${SOLSTICE_PC_USERNAME})
-message(STATUS "Latest commit: ${SOLSTICE_BUILD_VERSION} on branch ${SOLSTICE_BUILD_BRANCH} with message: ${SOLSTICE_BUILD_COMMIT_MESSAGE}")
-message(STATUS "Files changed: ${SOLSTICE_FILES_CHANGED_COUNT}")
 
 # config SDL2 (With static linking and audio support)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
@@ -196,6 +161,7 @@ endforeach()
 add_resources(resource_files ${resource_files})
 
 add_library(Solstice SHARED ${sourceFiles} ${resource_files})
+add_dependencies(${PROJECT_NAME} generate_build_info)
 
 set(RESOURCE_HEADER_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Utils/Resources.hpp")
 set(RESOURCE_SOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Utils/Resources.cpp")

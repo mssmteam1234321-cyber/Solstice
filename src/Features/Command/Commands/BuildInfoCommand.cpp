@@ -4,6 +4,8 @@
 
 #include "BuildInfoCommand.hpp"
 
+#include <build_info.h>
+
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
 {
     ChatUtils::displayClientMessage("§6Solstice build info");
