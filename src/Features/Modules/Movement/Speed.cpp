@@ -135,16 +135,16 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         {
             // float speed, float friction, bool timerBoost, float timerSpeed, bool fastFall, int fallTicks, float fallSpeed, JumpType jumpType, float jumpHeight)
             case FlareonPreset::FastFall:
-                preset = FrictionPreset(3.75, 0.98, true, 20.20, true, 4, 3.00, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.75, 0.98, true, 20.20, FastfallMode::Predict, 4, 3.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Normal:
-                preset = FrictionPreset(3.66, 0.98, false, 20.20, true, 5, 1.00, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.66, 0.98, false, 20.20, FastfallMode::Predict, 5, 1.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Low1:
-                preset = FrictionPreset(3.78, 0.98, true, 20.30, true, 1, 2.00, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.78, 0.98, true, 20.30, FastfallMode::Predict, 1, 2.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Low2:
-                preset = FrictionPreset(3.75, 0.98, true, 21.00, true, 4, 1.00, JumpType::Velocity, 0.29f);
+                preset = FrictionPreset(3.75, 0.98, true, 21.00, FastfallMode::Predict, 4, 1.00, false, 0, 0, JumpType::Velocity, 0.29f);
                 break;
         }
         tickFrictionPreset(preset);
@@ -210,7 +210,8 @@ void Speed::tickFriction(Actor* player)
         tick++;
     }
 
-    if (mFastFall.mValue)
+    // Predicts the next y velocity and applies it
+    if (mFastFall.mValue == FastfallMode::Predict)
     {
         if (tick == mFallTicks.as<int>())
         {
@@ -221,6 +222,30 @@ void Speed::tickFriction(Actor* player)
                 stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
             }
         }
+        if (mFastFall2.mValue && tick == mFallTicks2.as<int>())
+        {
+            auto fallSpeed = mFallSpeed2.as<float>();
+            auto stateVector = player->getStateVectorComponent();
+            for (int i = 0; i < fallSpeed; i++)
+            {
+                stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
+            }
+        }
+    } // Sets the velocity directly
+    else if (mFastFall.mValue == FastfallMode::SetVel)
+    {
+        if (tick == mFallTicks.as<int>())
+        {
+            auto fallSpeed = mFallSpeed.as<float>() / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
+        if (mFastFall2.mValue && tick == mFallTicks2.as<int>())
+        {
+            auto fallSpeed = mFallSpeed2.as<float>() / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
     }
 
     glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (mSpeed.as<float>() / 10) * friction);
@@ -229,7 +254,11 @@ void Speed::tickFriction(Actor* player)
 
     bool usingMoveKeys = Keyboard::isUsingMoveKeys();
     if (usingMoveKeys && mJumpType.mValue == JumpType::Vanilla) {
-        if (player->isOnGround()) player->jumpFromGround();
+        if (player->isOnGround())
+        {
+            player->jumpFromGround();
+            player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+        }
     } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
@@ -246,9 +275,12 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
     float timerSpeedSetting = preset.timerSpeed;
     float frictionSetting = preset.friction;
     float speedSetting = preset.speed;
-    bool fastFallSetting = preset.fastFall;
+    FastfallMode fastFallSetting = preset.fastFall;
     int fallTicksSetting = preset.fallTicks;
     float fallSpeedSetting = preset.fallSpeed;
+    bool fastFall2Setting = preset.fastFall2;
+    int fallTicks2Setting = preset.fallTicks2;
+    float fallSpeed2Setting = preset.fallSpeed2;
     JumpType jumpTypeSetting = preset.jumpType;
     float jumpHeightSetting = preset.jumpHeight;
 
@@ -269,7 +301,8 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
         tick++;
     }
 
-    if (fastFallSetting)
+    // Predicts the next y velocity and applies it
+    if (fastFallSetting == FastfallMode::Predict)
     {
         if (tick == fallTicksSetting)
         {
@@ -280,6 +313,30 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
                 stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
             }
         }
+        if (fastFall2Setting && tick == fallTicks2Setting)
+        {
+            auto fallSpeed = fallSpeed2Setting;
+            auto stateVector = player->getStateVectorComponent();
+            for (int i = 0; i < fallSpeed; i++)
+            {
+                stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
+            }
+        }
+    } // Sets the velocity directly
+    else if (fastFallSetting == FastfallMode::SetVel)
+    {
+        if (tick == fallTicksSetting)
+        {
+            auto fallSpeed = fallSpeedSetting / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
+        if (fastFall2Setting && tick == fallTicks2Setting)
+        {
+            auto fallSpeed = fallSpeed2Setting / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
     }
 
     glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (speedSetting / 10) * friction);
@@ -288,7 +345,11 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
 
     bool usingMoveKeys = Keyboard::isUsingMoveKeys();
     if (usingMoveKeys && jumpTypeSetting == JumpType::Vanilla) {
-        if (player->isOnGround()) player->jumpFromGround();
+        if (player->isOnGround())
+        {
+            player->jumpFromGround();
+            player->getStateVectorComponent()->mVelocity.y = jumpHeightSetting;
+        }
     } else if (usingMoveKeys && jumpTypeSetting == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = jumpHeightSetting;
