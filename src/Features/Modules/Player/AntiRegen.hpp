@@ -4,11 +4,10 @@
 class AntiRegen : public ModuleBase<AntiRegen> {
 public:
     enum class Mode {
-        Cover,
-        Slab
+        Cover
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The antiregen mode", Mode::Cover, "Cover", "Slab");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The antiregen mode", Mode::Cover, "Cover");
     NumberSetting mRange = NumberSetting("Range", "The max range for placing blocks", 5, 0, 10, 0.01);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when placing blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to blocks in the hotbar", true);

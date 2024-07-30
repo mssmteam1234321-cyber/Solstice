@@ -65,7 +65,10 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     }
 
     // Steal
-    if (isStealing && !mCanSteal && exposedFace == -1) return false;
+    if (isStealing && !mCanSteal && exposedFace == -1) {
+        if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent stopped uncovering");
+        return false;
+    }
 
     // Anti Steal
     if (mAntiSteal.mValue && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
@@ -227,7 +230,24 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         ChatUtils::displayClientMessage("Your ore was stolen!");
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos) { // Check if current block is valid
+    bool shouldChangeOre = false;
+    if (mStealPriority.mValue == StealPriority::Steal && mCanSteal && !mIsStealing) {
+        if (mAntiConfuse.mValue) {
+            std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
+            std::vector<BlockInfo> exposedBlockList;
+
+            for (int i = 0; i < blockList.size(); i++) {
+                if (isValidBlock(blockList[i].mPosition, true, true)) {
+                    exposedBlockList.push_back(blockList[i]);
+                }
+                else continue;
+            }
+            if (exposedBlockList.empty()) shouldChangeOre = true;
+        }
+        else shouldChangeOre = true;
+    }
+
+    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
@@ -302,11 +322,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
 
         if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
-            if (mAntiConfuse.mValue && !exposedBlockList.empty()) return;
-            queueBlock(mEnemyTargettingBlockPos);
-            mTargettingBlockPos = mEnemyTargettingBlockPos;
-            mIsStealing = true;
-            return;
+            if (!mAntiConfuse.mValue || exposedBlockList.empty()) {
+                queueBlock(mEnemyTargettingBlockPos);
+                mTargettingBlockPos = mEnemyTargettingBlockPos;
+                mIsStealing = true;
+                return;
+            }
         }
 
         glm::vec3 playerPos = *player->getPos();
@@ -600,7 +621,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
-            if (player->getLevel()->getHitResult()->mBlockPos == glm::ivec3(levelEvent->mPos) && 0 < player->getGameMode()->mBreakProgress || mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) return;
+            if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos)) return;
             // Steal
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
