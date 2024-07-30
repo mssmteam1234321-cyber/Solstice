@@ -13,9 +13,15 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eBuild time§7: {}", __TIME__);
     ChatUtils::displayClientMessage("§6- §eSolstice version§7: {}", std::string(SOLSTICE_VERSION));
     ChatUtils::displayClientMessage("§6- §eMinecraft version§7: v{}", ProcUtils::getVersion());
+    ChatUtils::displayClientMessage("§6- §eIntended Minecraft version§7: v{}", std::string(SOLSTICE_INTENDED_VERSION));
     ChatUtils::displayClientMessage("§6- §eCommit message§7: {}", std::string(SOLSTICE_BUILD_COMMIT_MESSAGE));
     ChatUtils::displayClientMessage("§6- §eCommit hash§7: {}", std::string(SOLSTICE_BUILD_VERSION));
     ChatUtils::displayClientMessage("§6- §eCompiled by§7: {}", std::string(SOLSTICE_PC_USERNAME));
+#ifdef __DEBUG__
+    ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
+#else
+    ChatUtils::displayClientMessage("§6- §eBuild type§7: Release");
+#endif
     ChatUtils::displayClientMessage("§e{}§6 files changed locally compared to the last commit", STRING(SOLSTICE_FILES_CHANGED_COUNT));
 }
 
