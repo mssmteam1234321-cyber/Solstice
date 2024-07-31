@@ -27,9 +27,9 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: RunDevCmd cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
 
-    - name: Setup Ninja
+    #- name: Setup Ninja
       # Set up Ninja as the build tool for CMake on Windows.
-      run: RunDevCmd cmake -E env CMAKE_MAKE_PROGRAM=ninja cmake -B ${{github.workspace}}/cmake-build-release -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    #  run: RunDevCmd cmake -E env CMAKE_MAKE_PROGRAM=ninja cmake -B ${{github.workspace}}/cmake-build-release -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
       # Make sure to build Solstice using ninja, which is the default generator for CMake on Windows.
