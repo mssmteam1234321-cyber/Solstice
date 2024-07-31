@@ -136,7 +136,18 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
         if (glow && mDisplay.mValue != Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+
         // Else, only draw glow on bar
+        ImVec4 rect = {textPos.x, textPos.y, textPos.x + textSize.x + displaySize.x, textPos.y + textSize.y};
+        rect.x -= 3; // Padding
+        rect.z += 1;
+        rect.z += 3; // Padding
+
+        if (mBackground.mValue == BackgroundStyle::Shadow || mBackground.mValue == BackgroundStyle::Both)
+        {
+            drawList->AddShadowRect(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(0.f, 0.f, 0.f, 1.f * mBackgroundOpacity.mValue), 200.f, ImVec2(0.f, 0.f), 0, 12);
+            //drawList->AddRect(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(1.f, 0.f, 0.f, 1.f));
+        }
 
         pos.y += (textSize.y * mod->mArrayListAnim);
 
@@ -188,7 +199,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         backgroundRects.push_back({name, ImVec2(rect.x + (addedPadding ? 7.f : 0.f), rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), color, mod.get()});
 
 
-        drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, mBackgroundOpacity.mValue), 0.0f);
+        if (mBackground.mValue == BackgroundStyle::Opacity || mBackground.mValue == BackgroundStyle::Both)
+            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * 0.03f, color.Value.y * 0.03f, color.Value.z * 0.03f, mBackgroundOpacity.mValue), 0.0f);
 
 
 
