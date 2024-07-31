@@ -56,14 +56,19 @@ CPMAddPackage(
 set(SHADER_DIR ${CMAKE_CURRENT_LIST_DIR}/src/Utils/Shaders)
 set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/SolsticeShaders)
 
-add_custom_target(SolsticeShaders ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/SolsticeShaders COMMENT "Creating shader output directory")
 set(HLSL_FILES_VS ${SHADER_DIR}/BlockInstanceVS.hlsl)
 set(HLSL_FILES_PS ${SHADER_DIR}/DefaultPS.hlsl)
+# count how many shaders we have
+list(LENGTH HLSL_FILES_VS HLSL_FILES_VS_COUNT)
+list(LENGTH HLSL_FILES_PS HLSL_FILES_PS_COUNT)
+math(EXPR HLSL_FILES_COUNT "${HLSL_FILES_VS_COUNT} + ${HLSL_FILES_PS_COUNT}")
+
+add_custom_target(SolsticeShaders ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/SolsticeShaders COMMENT "Building ${HLSL_FILES_COUNT} shaders" VERBATIM)
 
 foreach(FILE ${HLSL_FILES_VS})
     get_filename_component(FILE_WE ${FILE} NAME_WE)
     add_custom_command(TARGET SolsticeShaders
-            COMMAND fxc.exe /nologo /Evertex_main /T vs_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE}
+            COMMAND cmd /c fxc.exe /nologo /Evertex_main /T vs_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE} > nul
             DEPENDS ${FILE}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Building shader ${FILE}"
@@ -74,7 +79,7 @@ endforeach(FILE)
 foreach(FILE ${HLSL_FILES_PS})
     get_filename_component(FILE_WE ${FILE} NAME_WE)
     add_custom_command(TARGET SolsticeShaders
-            COMMAND fxc.exe /nologo /Epixel_main /T ps_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE}
+            COMMAND cmd /c fxc.exe /nologo /Epixel_main /T ps_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE} > nul
             DEPENDS ${FILE}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Building shader ${FILE}"
