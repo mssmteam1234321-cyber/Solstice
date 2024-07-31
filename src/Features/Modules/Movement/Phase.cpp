@@ -61,29 +61,35 @@ void Phase::onDisable()
 void Phase::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
+    AABBShapeComponent* aabb = player->getAABBShapeComponent();
 
     if (mMode.mValue == Mode::Horizontal) {
-        player->getAABBShapeComponent()->mMax.y = player->getAABBShapeComponent()->mMin.y;
+        aabb->mMax.y = aabb->mMin.y;
     }
     else if (mMode.mValue == Mode::Vertical) {
         auto moveInput = player->getMoveInputComponent();
+        auto stateVector = player->getStateVectorComponent();
         bool isJumping = moveInput->mIsJumping;
         bool isSneaking = moveInput->mIsSneakDown;
-        glm::vec3 moveVector = { 0, 0, 0 };
-        if (isJumping || isSneaking) player->getAABBShapeComponent()->mMax.y = 0.f;
-        else player->getAABBShapeComponent()->mMax.y = player->getAABBShapeComponent()->mMin.y + player->getAABBShapeComponent()->mHeight;
+        glm::vec3 motion = { 0, 0, 0 };
 
         std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks();
 
-        if ((isJumping || isSneaking) && !collidingBlocks.empty()) {
-            player->getStateVectorComponent()->mVelocity.y = isJumping ? mSpeed.mValue / 10 : -(mSpeed.mValue / 10);
-        }
-        else if(collidingBlocks.empty()) {
-            if (player->getStateVectorComponent()->mVelocity.y <= 0) moveVector.y = player->getStateVectorComponent()->mVelocity.y;
-        }
+        if (!collidingBlocks.empty()) {
+            if ((isJumping || isSneaking)) motion.y = isJumping ? mSpeed.mValue / 10 : -(mSpeed.mValue / 10);
+            aabb->mMax.y = 0.f;
+            stateVector->mVelocity = motion;
 
-        glm::vec3 belowBlockPos = *player->getPos();
-        belowBlockPos.y -= (PLAYER_HEIGHT + 0.1f);
-        player->setOnGround(!ClientInstance::get()->getBlockSource()->getBlock(belowBlockPos)->mLegacy->isAir());
+            glm::vec3 belowBlockPos = *player->getPos();
+            belowBlockPos.y -= (PLAYER_HEIGHT + 0.1f);
+            player->setOnGround(!ClientInstance::get()->getBlockSource()->getBlock(belowBlockPos)->mLegacy->isAir());
+        }
+        else {
+            if (0 < stateVector->mVelocity.y) stateVector->mVelocity.y = 0.f;
+
+            if (aabb->mMax.y != aabb->mMin.y + aabb->mHeight) {
+                aabb->mMax.y = aabb->mMin.y + aabb->mHeight;
+            }
+        }
     }
 }
