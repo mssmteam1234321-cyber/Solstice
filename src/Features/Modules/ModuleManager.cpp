@@ -23,6 +23,7 @@
 #include "Movement/InventoryMove.hpp"
 #include "Movement/NoJumpDelay.hpp"
 #include "Movement/NoSlowDown.hpp"
+#include "Movement/Phase.hpp"
 #include "Movement/SafeWalk.hpp"
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
@@ -72,6 +73,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<InventoryMove>());
     mModules.emplace_back(std::make_shared<SafeWalk>());
     mModules.emplace_back(std::make_shared<NoJumpDelay>());
+    mModules.emplace_back(std::make_shared<Phase>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
