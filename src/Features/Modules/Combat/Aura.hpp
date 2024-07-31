@@ -89,6 +89,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void onBobHurtEvent(class BobHurtEvent& event);
+    void onBoneRenderEvent(class BoneRenderEvent& event);
     Actor* findObstructingActor(Actor* player, Actor* target);
 
     std::string getSettingDisplay() override {

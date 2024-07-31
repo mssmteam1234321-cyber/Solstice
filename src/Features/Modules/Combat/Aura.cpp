@@ -7,6 +7,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/BobHurtEvent.hpp>
+#include <Features/Events/BoneRenderEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
@@ -57,6 +58,7 @@ void Aura::onEnable()
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Aura::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Aura::onBobHurtEvent, nes::event_priority::FIRST>(this);
+    gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Aura::onBoneRenderEvent, nes::event_priority::FIRST>(this);
 }
 
 bool chargingBow = false;
@@ -320,6 +322,14 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
 }
 
 void Aura::onBobHurtEvent(BobHurtEvent& event)
+{
+    if (mHasTarget)
+    {
+        event.mDoBlockAnimation = true;
+    }
+}
+
+void Aura::onBoneRenderEvent(BoneRenderEvent& event)
 {
     if (mHasTarget)
     {

@@ -6,9 +6,11 @@
 
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/BobHurtEvent.hpp>
+#include <Features/Events/BoneRenderEvent.hpp>
 #include <Features/Events/SwingDurationEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
+#include <SDK/Minecraft/Actor/ActorPartModel.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 
 DEFINE_NOP_PATCH_FUNC(patchNoSwitchAnimation, SigManager::ItemInHandRenderer_render_bytepatch, 0x4);
@@ -20,6 +22,7 @@ void Animations::onEnable()
 {
     gFeatureManager->mDispatcher->listen<SwingDurationEvent, &Animations::onSwingDurationEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Animations::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Animations::onBoneRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Animations::onBobHurtEvent>(this);
 
     if (!mSwingAngle)
@@ -38,6 +41,7 @@ void Animations::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<SwingDurationEvent, &Animations::onSwingDurationEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Animations::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BoneRenderEvent, &Animations::onBoneRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BobHurtEvent, &Animations::onBobHurtEvent>(this);
     patchNoSwitchAnimation(false);
     patchFluxSwing(false);
@@ -83,6 +87,44 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
 void Animations::onSwingDurationEvent(SwingDurationEvent& event)
 {
     event.mSwingDuration = mSwingTime.as<int>();
+}
+
+void Animations::onBoneRenderEvent(BoneRenderEvent& event)
+{
+    auto ent = event.mActor;
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto bone = event.mBone;
+    auto partModel = event.mPartModel;
+
+    if (ent != ClientInstance::get()->getLocalPlayer()) return;
+
+    if (bone->mBoneStr == "rightarm")
+    {
+        auto heldItem = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mInHandSlot);
+        bool isHoldingSword = heldItem && heldItem->mItem && heldItem->getItem()->isSword();
+        if ((!ClientInstance::get()->getMouseGrabbed() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && isHoldingSword || event.mDoBlockAnimation && isHoldingSword) && mAnimation.mValue != Animation::Default)
+        {
+            float xRot = mXRot.mValue;
+            float yRot = mYRot.mValue;
+            float zRot = mZRot.mValue;
+
+            Actor* player = ClientInstance::get()->getLocalPlayer();
+
+            if (player->getSwingProgress() > 0) {
+                xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
+                yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
+            }
+            else {
+                xRot = MathUtils::animate(-65, xRot, ImRenderUtils::getDeltaTime() * 3.f);
+                yRot = MathUtils::animate(-17, yRot, ImRenderUtils::getDeltaTime() * 3.f);
+            }
+
+            partModel->mRot.x = xRot;
+            partModel->mRot.y = yRot;
+            partModel->mRot.z = zRot;
+            partModel->mSize.z = 0.9177761;
+        }
+    }
 }
 
 void Animations::onBobHurtEvent(BobHurtEvent& event)

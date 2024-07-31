@@ -13,5 +13,8 @@ public:
     class ActorPartModel* mPartModel;
     class Actor* mActor;
 
+    // only used internally if mActor == localPlayer
+    bool mDoBlockAnimation = false;
+
     explicit BoneRenderEvent(Bone* bone, ActorPartModel* partModel, Actor* actor) : mBone(bone), mPartModel(partModel), mActor(actor) {}
 };

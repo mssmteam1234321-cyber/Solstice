@@ -25,50 +25,8 @@ void ActorModelHook::onActorModel(uintptr_t a1, uintptr_t a2, uintptr_t a3, floa
     const auto bone = reinterpret_cast<Bone*>(a3);
     const auto partModel = bone->getActorPartModel();
 
-    if (ent == ClientInstance::get()->getLocalPlayer() && ClientInstance::get())
-    {
-        if (bone->mBoneStr == "rightarm")
-        {
-            static auto animMod = gFeatureManager->mModuleManager->getModule<Animations>();
-            if (animMod->mThirdPersonBlock && animMod->mShouldBlock)
-            {
-                static float xRot = -65.f;
-                static float yRot = -17.f;
-                static float zRot = 57.f;
-
-                Actor* player = ClientInstance::get()->getLocalPlayer();
-
-                if (player->getSwingProgress() > 0) {
-                    xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-                else {
-                    xRot = MathUtils::animate(-65, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(-17, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-
-                partModel->mRot.x = xRot;
-                partModel->mRot.y = yRot;
-                partModel->mRot.z = zRot;
-                partModel->mSize.z = 0.9177761;
-            }
-        }
-    }
-
     auto holder = nes::make_holder<BoneRenderEvent>(bone, partModel, ent);
     gFeatureManager->mDispatcher->trigger(holder);
-
-    /*if (bone->mBoneStr == "rightarm")
-    {
-        partModel->mPos.x = -4.041;
-        partModel->mPos.y = -2.798;
-        partModel->mPos.z = -0.622;
-        partModel->mRot.x = -58.031;
-        partModel->mRot.y = -53.886;
-        partModel->mRot.z = 14.508;
-    }*/
-
-
 }
 
 void ActorModelHook::init()
