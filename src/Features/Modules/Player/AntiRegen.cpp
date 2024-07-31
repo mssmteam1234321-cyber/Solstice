@@ -30,8 +30,8 @@ bool AntiRegen::isValidRedstone(glm::ivec3 blockPos) {
     // BlockPos Check
     if (mRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == regenModule->mTargettingBlockPos) return false;
 
-    // Hit Result Check
-    if (player->getLevel()->getHitResult()->mBlockPos == blockPos) return false;
+    // IsMiningPosition Check
+    if (BlockUtils::isMiningPosition(blockPos)) return false;
 
     // Place position check
     int exposedFace = BlockUtils::getExposedFace(blockPos);

@@ -51,5 +51,6 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
     static void startDestroyBlock(glm::vec3 pos, int side);
     static void clearBlock(const glm::ivec3& pos);
     static void destroyBlock(glm::vec3 pos, int side, bool useTransac = false);
+    static bool isMiningPosition(glm::ivec3 blockPos);
 
 };
