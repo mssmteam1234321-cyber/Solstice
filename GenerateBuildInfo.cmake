@@ -55,23 +55,30 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-string(REPLACE "\\" "/" MC_INSTALL_LOC ${MC_INSTALL_LOC})
-string(REGEX REPLACE ".*\n" "" MC_INSTALL_LOC ${MC_INSTALL_LOC})
-set(MC_INSTALL_LOC "${MC_INSTALL_LOC}/Minecraft.Windows.exe")
+if (${MC_INSTALL_LOC} STREQUAL "")
+    set(MC_INSTALL_LOC "Unknown")
+    set(SOLSTICE_INTENDED_VERSION, "Unknown")
+    message(WARNING "Minecraft not found")
+else()
+    string(REPLACE "\\" "/" MC_INSTALL_LOC ${MC_INSTALL_LOC})
+    string(REGEX REPLACE ".*\n" "" MC_INSTALL_LOC ${MC_INSTALL_LOC})
+    set(MC_INSTALL_LOC "${MC_INSTALL_LOC}/Minecraft.Windows.exe")
 
-message(STATUS "Minecraft install location: ${MC_INSTALL_LOC}")
+    message(STATUS "Minecraft install location: ${MC_INSTALL_LOC}")
 
-execute_process(
-        COMMAND powershell -Command "(Get-Command \"${MC_INSTALL_LOC}\").Version"
-        OUTPUT_VARIABLE "MC_VERSION"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+    execute_process(
+            COMMAND powershell -Command "(Get-Command \"${MC_INSTALL_LOC}\").Version"
+            OUTPUT_VARIABLE "MC_VERSION"
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 
-# stupid fucking string processing i hate cmake
-string(REGEX REPLACE ".*\n" "" MC_VERSION ${MC_VERSION})
-string(REGEX REPLACE " +" "." MC_VERSION ${MC_VERSION})
-set(SOLSTICE_INTENDED_VERSION ${MC_VERSION})
-message(STATUS "Intended version: ${SOLSTICE_INTENDED_VERSION}")
+    # stupid fucking string processing i hate cmake
+    string(REGEX REPLACE ".*\n" "" MC_VERSION ${MC_VERSION})
+    string(REGEX REPLACE " +" "." MC_VERSION ${MC_VERSION})
+    set(SOLSTICE_INTENDED_VERSION ${MC_VERSION})
+    message(STATUS "Intended version: ${SOLSTICE_INTENDED_VERSION}")
+endif()
+
 
 file(APPEND "${CMAKE_BINARY_DIR}/build_info.h" "#define SOLSTICE_INTENDED_VERSION \"${SOLSTICE_INTENDED_VERSION}\"\n")
 message(STATUS "Generated build info")
