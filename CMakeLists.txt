@@ -143,6 +143,8 @@ add_compile_options($<$<CONFIG:Release>:/MT>) # use static multithreaded runtime
 add_compile_options($<$<CONFIG:Release>:/Ob2>) # inline any suitable function
 add_compile_options($<$<CONFIG:Release>:/Ot>) # favor fast code
 add_compile_options($<$<CONFIG:Release>:/Oy->) # omit frame pointers
+add_compile_options($<$<CONFIG:Release>:/MD>) # use dynamic multithreaded runtime
+
 
 
 
