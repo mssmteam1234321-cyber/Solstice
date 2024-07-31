@@ -51,12 +51,27 @@ void Animations::onDisable()
 
 void Animations::onBaseTickEvent(BaseTickEvent& event)
 {
+    auto localPlayer = ClientInstance::get()->getLocalPlayer();
+    if (!localPlayer) return;
+
     patchNoSwitchAnimation(mNoSwitchAnimation.mValue);
     patchFluxSwing(mFluxSwing.mValue);
     patchDefaultSwing(mAnimation.mValue == Animation::Test);
     patchDefaultSwing2(mAnimation.mValue == Animation::Test);
 
-    *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
+    if (mOnlyOnBlock.mValue) // I am sorry emily but the animations is aids for me :(
+    {
+        if (mShouldBlock)
+        {
+            *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
+        } else
+        {
+            *mSwingAngle = -80.f;
+        }
+    } else
+    {
+        *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
+    }
 
     auto player = event.mActor;
 
@@ -82,6 +97,8 @@ void Animations::onBobHurtEvent(BobHurtEvent& event)
     bool isHoldingSword = heldItem && heldItem->mItem && heldItem->getItem()->isSword();
     if ((!ClientInstance::get()->getMouseGrabbed() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && isHoldingSword || event.mDoBlockAnimation && isHoldingSword) && mAnimation.mValue != Animation::Default)
     {
+        mShouldBlock = true;
+
         *matrix = glm::translate(*matrix, glm::vec3(0.4, 0.0, -0.15));
         *matrix = glm::translate(*matrix, glm::vec3(-0.1f, 0.15f, -0.2f));
         *matrix = glm::translate(*matrix, glm::vec3(-0.24F, 0.25f, -0.20F));
@@ -91,6 +108,9 @@ void Animations::onBobHurtEvent(BobHurtEvent& event)
         *matrix = glm::translate(*matrix, glm::vec3(0.0f, -0.1f, 0.15f));
         *matrix = glm::translate(*matrix, glm::vec3(0.08f, 0.0f, 0.0f));
         *matrix = glm::scale(*matrix, glm::vec3(1.05f, 1.05f, 1.05f));
+    } else
+    {
+        mShouldBlock = false;
     }
 
 
