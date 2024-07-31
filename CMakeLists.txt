@@ -18,12 +18,6 @@ elseif (NOT LD_COMMAND)
     message(STATUS "ld found using find_program")
 endif ()
 
-# if not found, check for a environment variable 'LD_COMMAND'
-
-if (NOT LD_COMMAND)
-    message(FATAL_ERROR "The ld command is not available on your system. \nPlease install using `pacman -S mingw-w64-x86_64-binutils` in MSYS2, then add the bin directory to your PATH.\nAfter that, restart your IDE and CMake should be able to find the ld command.")
-endif ()
-
 execute_process(COMMAND ${LD_COMMAND} --version OUTPUT_VARIABLE LD_COMMAND_AVAILABLE)
 
 message(STATUS "ld found at ${LD_COMMAND}")
