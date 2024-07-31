@@ -55,10 +55,11 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-if (${MC_INSTALL_LOC} STREQUAL "")
+if ("${MC_INSTALL_LOC}" STREQUAL "")
     set(MC_INSTALL_LOC "Unknown")
     set(SOLSTICE_INTENDED_VERSION, "Unknown")
-    message(WARNING "Minecraft not found")
+    message(WARNING "Minecraft install location: Unknown")
+    message(WARNING "Intended version: Unknown")
 else()
     string(REPLACE "\\" "/" MC_INSTALL_LOC ${MC_INSTALL_LOC})
     string(REGEX REPLACE ".*\n" "" MC_INSTALL_LOC ${MC_INSTALL_LOC})
