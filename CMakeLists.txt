@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
 include(cmake/CPM.cmake)
 project(Solstice)
-set(CMAKE_GENERATOR_PLATFORM x64)
 
+# throw error if building for x86
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    message(FATAL_ERROR "Solstice only supports x64 builds.")
+endif ()
 
 find_program(LD_COMMAND ld)
 
