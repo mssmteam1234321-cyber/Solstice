@@ -288,7 +288,7 @@ add_subdirectory(include/Kiero)
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)
 
-target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib)
+target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 version.lib nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib)
 
 set_property(TARGET Solstice nlohmann_json minhook spdlog DirectXTK glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 

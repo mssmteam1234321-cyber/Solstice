@@ -25,7 +25,7 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-release -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
+      run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
 
     #- name: Setup Ninja
       # Set up Ninja as the build tool for CMake on Windows.
@@ -33,7 +33,7 @@ jobs:
 
     - name: Build
       # Make sure to build Solstice using ninja, which is the default generator for CMake on Windows.
-      run: RunDevCmd cmake --build ${{github.workspace}}/cmake-build-release --config ${{env.BUILD_TYPE}} --target Solstice
+      run: RunDevCmd cmake --build ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}} --target Solstice
 
       # D:\a\Solstice\Solstice\build\Release\Solstice.dll
     - name: Upload artifact
