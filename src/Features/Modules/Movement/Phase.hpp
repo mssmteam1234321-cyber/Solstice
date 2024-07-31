@@ -15,10 +15,12 @@ public:
     };
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the module", Mode::Horizontal, "Horizontal", "Vertical");
     NumberSetting mSpeed = NumberSetting("Speed", "The speed of the vertical phase", 1.f, 0.f, 10.f, 0.1f);
+    BoolSetting mBlink = BoolSetting("Blink", "Blink when phasing", false);
     Phase() : ModuleBase("Phase", "Allows you to phase through walls", ModuleCategory::Movement, 0, false) {
-        addSettings(&mMode, &mSpeed);
+        addSettings(&mMode, &mSpeed, &mBlink);
 
         VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Vertical);
+        VISIBILITY_CONDITION(mBlink, mMode.mValue == Mode::Vertical);
 
         mNames = {
             {Lowercase, "phase"},
@@ -28,9 +30,12 @@ public:
         };
     }
 
+    bool mMoving = false;
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onRunUpdateCycleEvent(class RunUpdateCycleEvent& event);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.as<int>()];

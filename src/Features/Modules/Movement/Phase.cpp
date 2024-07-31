@@ -6,6 +6,7 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/RunUpdateCycleEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
@@ -44,11 +45,13 @@ std::vector<glm::ivec3> getCollidingBlocks()
 void Phase::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Phase::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<RunUpdateCycleEvent, &Phase::onRunUpdateCycleEvent>(this);
 }
 
 void Phase::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Phase::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RunUpdateCycleEvent, &Phase::onRunUpdateCycleEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -56,6 +59,8 @@ void Phase::onDisable()
     if (aabb->mMax.y != aabb->mMin.y + aabb->mHeight) {
         aabb->mMax.y = aabb->mMin.y + aabb->mHeight;
     }
+
+    mMoving = false;
 }
 
 void Phase::onBaseTickEvent(BaseTickEvent& event)
@@ -91,5 +96,15 @@ void Phase::onBaseTickEvent(BaseTickEvent& event)
                 aabb->mMax.y = aabb->mMin.y + aabb->mHeight;
             }
         }
+
+        mMoving = 0 < abs(motion.y);
     }
+}
+
+void Phase::onRunUpdateCycleEvent(RunUpdateCycleEvent& event) 
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if(mMoving && mBlink.mValue) event.mCancelled = true;
 }
