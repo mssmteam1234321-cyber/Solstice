@@ -45,16 +45,50 @@ CPMAddPackage(
         GIT_TAG release-2.30.5
 )
 
+# DirectXTK
+CPMAddPackage(
+        NAME DirectXTK
+        GITHUB_REPOSITORY microsoft/DirectXTK
+        GIT_TAG main
+)
+
+
+set(SHADER_DIR ${CMAKE_CURRENT_LIST_DIR}/src/Utils/Shaders)
+set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/SolsticeShaders)
+
+add_custom_target(SolsticeShaders ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/SolsticeShaders COMMENT "Creating shader output directory")
+set(HLSL_FILES_VS ${SHADER_DIR}/BlockInstanceVS.hlsl)
+set(HLSL_FILES_PS ${SHADER_DIR}/DefaultPS.hlsl)
+
+foreach(FILE ${HLSL_FILES_VS})
+    get_filename_component(FILE_WE ${FILE} NAME_WE)
+    add_custom_command(TARGET SolsticeShaders
+            COMMAND fxc.exe /nologo /Evertex_main /T vs_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE}
+            DEPENDS ${FILE}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            COMMENT "Building shader ${FILE}"
+            VERBATIM
+    )
+endforeach(FILE)
+
+foreach(FILE ${HLSL_FILES_PS})
+    get_filename_component(FILE_WE ${FILE} NAME_WE)
+    add_custom_command(TARGET SolsticeShaders
+            COMMAND fxc.exe /nologo /Epixel_main /T ps_5_0 /Zi /Fh ${SHADER_BIN_DIR}/${FILE_WE}.inc /Fd ${CMAKE_BINARY_DIR}/${FILE_WE}.pdb ${FILE}
+            DEPENDS ${FILE}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            COMMENT "Building shader ${FILE}"
+            VERBATIM
+    )
+endforeach(FILE)
+
+include_directories(${SHADER_BIN_DIR})
 find_package(OpenMP)
 
-# Add custom target to generate build info header
 add_custom_target(generate_build_info
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/GenerateBuildInfo.cmake
         COMMENT "Generating build info [${CMAKE_BINARY_DIR}/build_info.h]"
 )
-
-# Ensure the custom target runs before compiling
-
 
 include_directories(${CMAKE_BINARY_DIR})
 
@@ -161,7 +195,7 @@ endforeach()
 add_resources(resource_files ${resource_files})
 
 add_library(Solstice SHARED ${sourceFiles} ${resource_files})
-add_dependencies(${PROJECT_NAME} generate_build_info)
+add_dependencies(${PROJECT_NAME} generate_build_info SolsticeShaders)
 
 set(RESOURCE_HEADER_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Utils/Resources.hpp")
 set(RESOURCE_SOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Utils/Resources.cpp")
@@ -239,9 +273,9 @@ add_subdirectory(include/Kiero)
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)
 
-target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX spdlog SDL2::SDL2 nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib)
+target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib)
 
-set_property(TARGET Solstice nlohmann_json minhook spdlog glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+set_property(TARGET Solstice nlohmann_json minhook spdlog DirectXTK glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
 target_precompile_headers(Solstice PRIVATE
