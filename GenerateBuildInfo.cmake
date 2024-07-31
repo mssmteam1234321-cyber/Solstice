@@ -62,7 +62,7 @@ set(MC_INSTALL_LOC "${MC_INSTALL_LOC}/Minecraft.Windows.exe")
 message(STATUS "Minecraft install location: ${MC_INSTALL_LOC}")
 
 execute_process(
-        COMMAND powershell -Command "(Get-Command ${MC_INSTALL_LOC}).Version"
+        COMMAND powershell -Command "(Get-Command \"${MC_INSTALL_LOC}\").Version"
         OUTPUT_VARIABLE "MC_VERSION"
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
