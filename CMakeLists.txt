@@ -58,10 +58,8 @@ CPMAddPackage(
 
 set(SHADER_DIR ${CMAKE_CURRENT_LIST_DIR}/src/Utils/Shaders)
 set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/SolsticeShaders)
-
 set(HLSL_FILES_VS ${SHADER_DIR}/BlockInstanceVS.hlsl)
 set(HLSL_FILES_PS ${SHADER_DIR}/DefaultPS.hlsl)
-# count how many shaders we have
 list(LENGTH HLSL_FILES_VS HLSL_FILES_VS_COUNT)
 list(LENGTH HLSL_FILES_PS HLSL_FILES_PS_COUNT)
 math(EXPR HLSL_FILES_COUNT "${HLSL_FILES_VS_COUNT} + ${HLSL_FILES_PS_COUNT}")
@@ -100,8 +98,7 @@ add_custom_target(generate_build_info
 
 include_directories(${CMAKE_BINARY_DIR})
 
-
-# config SDL2 (With static linking and audio support)
+# config SDL2
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_STATIC_PIC ON CACHE BOOL "" FORCE)
