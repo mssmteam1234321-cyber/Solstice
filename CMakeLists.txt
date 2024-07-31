@@ -6,12 +6,8 @@ include(cmake/CPM.cmake)
 
 project(Solstice)
 
-# Attempt to find the loc of the ld command
-# first, look for ld in the PATH
 find_program(LD_COMMAND ld)
 
-
-# if ld is not found, try to find it in the mingw bin directory
 if (NOT LD_COMMAND)
     find_program(LD_COMMAND ld HINTS "C:/msys64/mingw64/bin")
 elseif (NOT LD_COMMAND)
