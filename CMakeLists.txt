@@ -27,33 +27,37 @@ CPMAddPackage(
         GITHUB_REPOSITORY gabime/spdlog
         VERSION 1.9.2
 )
+
 CPMAddPackage(
         NAME magic_enum
         GITHUB_REPOSITORY Neargye/magic_enum
         VERSION 0.9.5
 )
+
 CPMAddPackage(
         NAME nuvola_event_system
         GITHUB_REPOSITORY DisabledMallis/NuvolaEventSystem
         VERSION 1.1.0
 )
+
 CPMAddPackage(
         NAME glm
         GITHUB_REPOSITORY g-truc/glm
         GIT_TAG 1.0.1
 )
+
 CPMAddPackage(
         NAME nlohmann_json
         GITHUB_REPOSITORY nlohmann/json
         VERSION 3.11.3
 )
+
 CPMAddPackage(
         NAME SDL2
         GITHUB_REPOSITORY libsdl-org/SDL
         GIT_TAG release-2.30.5
 )
 
-# DirectXTK
 CPMAddPackage(
         NAME DirectXTK
         GITHUB_REPOSITORY microsoft/DirectXTK
