@@ -36,7 +36,7 @@ public:
             {NormalSpaced, "Notifications"}
         };
 
-        gFeatureManager->mDispatcher->listen<RenderEvent, &Notifications::onRenderEvent>(this);
+        gFeatureManager->mDispatcher->listen<RenderEvent, &Notifications::onRenderEvent, nes::event_priority::VERY_LAST>(this);
     }
 
     std::vector<Notification> mNotifications;

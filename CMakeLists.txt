@@ -6,12 +6,29 @@ include(cmake/CPM.cmake)
 
 project(Solstice)
 
-execute_process(COMMAND cmd /c "ld --version > nul 2>&1" RESULT_VARIABLE LD_COMMAND_AVAILABLE)
+# Attempt to find the loc of the ld command
+# first, look for ld in the PATH
+find_program(LD_COMMAND ld)
 
-if (NOT ${LD_COMMAND_AVAILABLE} EQUAL 0)
+
+# if ld is not found, try to find it in the mingw bin directory
+if (NOT LD_COMMAND)
+    find_program(LD_COMMAND ld HINTS "C:/msys64/mingw64/bin")
+elseif (NOT LD_COMMAND)
+    message(STATUS "ld found using find_program")
+endif ()
+
+# if not found, check for a environment variable 'LD_COMMAND'
+
+if (NOT LD_COMMAND)
     message(FATAL_ERROR "The ld command is not available on your system. \nPlease install using `pacman -S mingw-w64-x86_64-binutils` in MSYS2, then add the bin directory to your PATH.\nAfter that, restart your IDE and CMake should be able to find the ld command.")
-else ()
-    message(STATUS "ld command is available on the system.")
+endif ()
+
+execute_process(COMMAND ${LD_COMMAND} --version OUTPUT_VARIABLE LD_COMMAND_AVAILABLE)
+
+message(STATUS "ld found at ${LD_COMMAND}")
+if (NOT LD_COMMAND_AVAILABLE)
+    message(FATAL_ERROR "The ld command is not available on your system. \nPlease install using `pacman -S mingw-w64-x86_64-binutils` in MSYS2, then add the bin directory to your PATH.\nAfter that, restart your IDE and CMake should be able to find the ld command.")
 endif ()
 
 CPMAddPackage(
@@ -178,7 +195,7 @@ function(add_resources out_var)
         file(RELATIVE_PATH src_f ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${in_f})
         set(out_f "${PROJECT_BINARY_DIR}/${in_f}.o")
         add_custom_command(OUTPUT ${out_f}
-                COMMAND ld -r -b binary -o ${out_f} ${src_f}
+                COMMAND ${LD_COMMAND} -r -b binary -o ${out_f} ${src_f}
                 DEPENDS ${in_f}
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 COMMENT "Building object ${out_f}"
