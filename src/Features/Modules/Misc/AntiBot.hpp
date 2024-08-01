@@ -14,12 +14,16 @@ public:
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the AntiBot module.", Mode::Simple, "Simple", "Custom");
     BoolSetting mHitboxCheck = BoolSetting("Hitbox Check", "Whether or not to check the hitbox of the entity.", true);
     BoolSetting mPlayerCheck = BoolSetting("Player Check", "Whether or not to check if the entity is a player.", true);
+    BoolSetting mInvisibleCheck = BoolSetting("Invisible Check", "Whether or not to check if the entity is invisible.", true);
+    BoolSetting mNameCheck = BoolSetting("Name Check", "Whether or not to check if the entity name has more than one line.", true);
 
     AntiBot() : ModuleBase("AntiBot", "Filters out bots from the entity list", ModuleCategory::Misc, 0, true) {
-        addSettings(&mMode, &mHitboxCheck, &mPlayerCheck);
+        addSettings(&mMode, &mHitboxCheck, &mPlayerCheck, &mInvisibleCheck, &mNameCheck);
 
         VISIBILITY_CONDITION(mHitboxCheck, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mPlayerCheck, mMode.mValue == Mode::Custom);
+        VISIBILITY_CONDITION(mInvisibleCheck, mMode.mValue == Mode::Custom);
+        VISIBILITY_CONDITION(mNameCheck, mMode.mValue == Mode::Custom);
 
         mNames = {
             {Lowercase, "antibot"},

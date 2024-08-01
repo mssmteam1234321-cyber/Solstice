@@ -24,6 +24,8 @@ void AntiBot::onBaseTickEvent(BaseTickEvent& event)
         // Set settings to preset values
         mHitboxCheck.mValue = true;
         mPlayerCheck.mValue = true;
+        mInvisibleCheck.mValue = true;
+        mNameCheck.mValue = true;
     }
 
     /*auto actors = ActorUtils::getActorList(true);
@@ -55,6 +57,15 @@ bool AntiBot::isBot(Actor* actor) const
     float hitboxHeight = aabbShapeComponent->mHeight;
     // Return if the hitbox dimensions are incorrect
     if (mHitboxCheck.mValue && (hitboxWidth < NORMAL_PLAYER_WIDTH_MIN || hitboxWidth > NORMAL_PLAYER_WIDTH_MAX || hitboxHeight < NORMAL_PLAYER_HEIGHT_MIN || hitboxHeight > NORMAL_PLAYER_HEIGHT_MAX)) return true;
+
+    if (mInvisibleCheck.mValue && actor->getStatusFlag(ActorFlags::Invisible)) return true;
+
+    if (mNameCheck.mValue) {
+        std::string nameTagString = actor->getNameTag();
+        if (std::ranges::count(nameTagString, '\n') > 0) {
+            return true;
+        }
+    }
 
     return false;
 }
