@@ -90,6 +90,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
+    mLastHoldingItemID = ClientInstance::get()->getLocalPlayer()->getSupplies()->getContainer()->getItem(mToolSlot)->getItem()->mItemId;
     mShouldSetbackSlot = true;
 
     if (mCalcMode.mValue == CalcMode::Dynamic) {
@@ -251,11 +252,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
+        mToolSlot = bestToolSlot;
+        short currentHoldingItemID = ClientInstance::get()->getLocalPlayer()->getSupplies()->getContainer()->getItem(mToolSlot)->getItem()->mItemId;
+        if (mLastHoldingItemID != currentHoldingItemID) mShouldSpoofSlot = true;
+        mLastHoldingItemID = currentHoldingItemID;
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;
         }
-        mToolSlot = bestToolSlot;
 
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
