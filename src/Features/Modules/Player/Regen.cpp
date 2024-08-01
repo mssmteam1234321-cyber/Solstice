@@ -204,7 +204,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal)) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai)) {
         initializeRegen();
         if (mIsConfuserActivated) {
             player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
