@@ -84,6 +84,8 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
+    float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, block);
+    if (mCurrentDestroySpeed <= destroySpeed) mShouldRotate = true;
     PacketUtils::spoofSlot(bestToolSlot);
     mShouldSpoofSlot = false;
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
