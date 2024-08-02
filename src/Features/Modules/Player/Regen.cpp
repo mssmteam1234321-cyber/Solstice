@@ -31,6 +31,7 @@ void Regen::initializeRegen() {
     mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     mCurrentBlockFace = -1;
     mBreakingProgress = 0.f;
+    mShouldSpoofSlot = true;
     mIsMiningBlock = false;
     mIsUncovering = false;
     mIsStealing = false;
@@ -83,10 +84,8 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
-    if (mShouldSpoofSlot) {
-        PacketUtils::spoofSlot(bestToolSlot);
-        mShouldSpoofSlot = false;
-    }
+    PacketUtils::spoofSlot(bestToolSlot);
+    mShouldSpoofSlot = false;
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
     mShouldSetbackSlot = true;
@@ -100,8 +99,6 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
             }
         }
     }
-
-    //mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, block);
 }
 
 Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) {
