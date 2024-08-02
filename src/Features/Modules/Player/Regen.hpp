@@ -85,7 +85,6 @@ public:
     uint64_t mLastBlockPlace = 0;
     uint64_t mLastStealerUpdate = 0;
     int mLastPlacedBlockSlot = 0;
-    short mLastHoldingItemID = 0;
 
     std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),

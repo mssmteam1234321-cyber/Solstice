@@ -31,10 +31,10 @@ void Regen::initializeRegen() {
     mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     mCurrentBlockFace = -1;
     mBreakingProgress = 0.f;
-    mShouldSpoofSlot = true;
     mIsMiningBlock = false;
     mIsUncovering = false;
     mIsStealing = false;
+    mShouldSpoofSlot = false;
     mToolSlot = -1;
 }
 
@@ -84,13 +84,10 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
-    if (mShouldSpoofSlot) {
-        PacketUtils::spoofSlot(bestToolSlot);
-        mShouldSpoofSlot = false;
-    }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
-    mLastHoldingItemID = ClientInstance::get()->getLocalPlayer()->getSupplies()->getContainer()->getItem(mToolSlot)->getItem()->mItemId;
+    PacketUtils::spoofSlot(bestToolSlot);
+    mShouldSpoofSlot = false;
     mShouldSetbackSlot = true;
 
     if (mCalcMode.mValue == CalcMode::Dynamic) {
@@ -222,7 +219,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
     // Return without reset breaking progress
     if (mLastBlockPlace + 100 > NOW) {
-        if (mIsMiningBlock) PacketUtils::spoofSlot(mLastPlacedBlockSlot);
+        if (mIsMiningBlock) {
+            PacketUtils::spoofSlot(mLastPlacedBlockSlot);
+            mShouldSpoofSlot = true;
+        }
         return;
     }
 
@@ -253,9 +253,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         mToolSlot = bestToolSlot;
-        short currentHoldingItemID = ClientInstance::get()->getLocalPlayer()->getSupplies()->getContainer()->getItem(mToolSlot)->getItem()->mItemId;
-        if (mLastHoldingItemID != currentHoldingItemID) mShouldSpoofSlot = true;
-        mLastHoldingItemID = currentHoldingItemID;
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;
@@ -612,9 +609,10 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             }
         }
     }
-    else if (event.mPacket->getId() == PacketID::MobEquipment) {
-        auto mpkt = event.getPacket<MobEquipmentPacket>();
-        if (mpkt->mSlot != mToolSlot) mShouldSpoofSlot = true;
+    else if (event.mPacket->getId() == PacketID::MobEquipment)
+    {
+        auto mp = event.getPacket<MobEquipmentPacket>();
+        if (mp->mSlot != mToolSlot) mShouldSpoofSlot = true;
     }
 }
 
