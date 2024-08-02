@@ -29,20 +29,8 @@ Press Y on this prompt:
 ![image](https://github.com/VastraKai/Prax/assets/95504366/d94a560d-3e18-4ad6-8027-1cbedf4667d9)
 
 Then, once that is done, you can close that window.<br>
-Now you need to set up an Environment Variable for this in your PATH.<br>
-Go open this:<br>
+From there, CMake should automatically locate the dependency it needs, <br>
+and your setup for the dependencies are ready!<br>
 
-![image](https://github.com/VastraKai/Prax/assets/95504366/ad815b57-40ca-46be-887a-4c1deca0c3bb)
-
-Then, in that window, click:<br>
-
-![image](https://github.com/VastraKai/Prax/assets/95504366/eff0ef9e-192c-44e9-9f60-20bc74f4d2d1)
-
-In that window, locate the highlighted PATH variable, then click Edit like so:<br>
-
-![image](https://github.com/VastraKai/Prax/assets/95504366/79296a09-0d5a-4deb-9437-6e9fbdfdd4db)
-
-Now, you can click New, paste ```C:\msys64\mingw64\bin``` into there, then click OK.<br>
-![image](https://github.com/VastraKai/Prax/assets/95504366/c2e41646-29aa-4505-82e8-b6f93798e6f6)
-
-Once you do that, your setup for the dependencies should be ready!
+### Note
+You may need to reload cmake twice before building for the first time to get cmake to build SDL2 (sound lib) correctly.
