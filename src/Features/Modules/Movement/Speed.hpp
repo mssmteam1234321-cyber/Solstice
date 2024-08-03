@@ -68,6 +68,8 @@ public:
     BoolSetting mDamageBoost = BoolSetting("Damage Boost", "Whether or not to boost speed when taking damage", false);
     NumberSetting mDamageBoostSpeed = NumberSetting("Damage Boost Speed", "The speed to boost when taking damage", 3, 1, 10, 0.01);
     NumberSetting mDamageBoostSlowdown = NumberSetting("Damage Boost Slowdown", "The friction to apply when taking damage", 0.15, 0, 1, 0.01);
+    BoolSetting mDamageTimer = BoolSetting("Damage Timer", "Whether or not to boost timer speed when taking damage", false);
+    NumberSetting mDamageTimerSpeed = NumberSetting("Damage Timer Speed", "The speed to boost timer by when taking damage", 20, 0, 40, 0.1);
 
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
@@ -97,6 +99,8 @@ public:
             &mDamageBoost,
             &mDamageBoostSpeed,
             &mDamageBoostSlowdown,
+            &mDamageTimer,
+            &mDamageTimerSpeed,
             &mSpeed,
             &mFriction,
             &mTimerBoost,
@@ -119,6 +123,8 @@ public:
 
         VISIBILITY_CONDITION(mDamageBoostSpeed, mDamageBoost.mValue);
         VISIBILITY_CONDITION(mDamageBoostSlowdown, mDamageBoost.mValue);
+        VISIBILITY_CONDITION(mDamageTimer, mDamageBoost.mValue);
+        VISIBILITY_CONDITION(mDamageTimerSpeed, mDamageBoost.mValue && mDamageTimer.mValue);
 
         VISIBILITY_CONDITION(mFlareonPreset, mMode.mValue == Mode::FlareonV1);
         VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Friction);
@@ -147,6 +153,7 @@ public:
 
     std::map<EffectType, uint64_t> mEffectTimers = {};
     float mDamageBoostVal = 0.f;
+    bool mDamageTimerApplied = false;
 
     void onEnable() override;
     void onDisable() override;

@@ -121,6 +121,11 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
     float dmgSlowdown = mDamageBoostSlowdown.as<float>();
     mDamageBoostVal = MathUtils::lerp(mDamageBoostVal, 1.f, dmgSlowdown);
 
+    if (mDamageTimer.mValue && mDamageBoostVal > 1.04f)
+    {
+        mDamageTimerApplied = true;
+        ClientInstance::get()->getMinecraftSim()->setSimTimer(mDamageTimerSpeed.as<float>());
+    } else mDamageTimerApplied = false;
     if (player->getFlag<RedirectCameraInput>()) return;
 
     if (mSwiftness.mValue)
@@ -208,8 +213,11 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
 
 void Speed::tickFriction(Actor* player)
 {
-    if (mTimerBoost.mValue) ClientInstance::get()->getMinecraftSim()->setSimTimer(mTimerSpeed.as<float>());
-    else ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    if (!mDamageTimerApplied)
+    {
+        if (mTimerBoost.mValue) ClientInstance::get()->getMinecraftSim()->setSimTimer(mTimerSpeed.as<float>());
+        else ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    }
 
     static auto friction = mFriction.as<float>();
     static int tick = 0;
@@ -299,8 +307,11 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
     JumpType jumpTypeSetting = preset.jumpType;
     float jumpHeightSetting = preset.jumpHeight;
 
-    if (timerBoostSettting) ClientInstance::get()->getMinecraftSim()->setSimTimer(timerSpeedSetting);
-    else ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    if (!mDamageTimerApplied)
+    {
+        if (timerBoostSettting) ClientInstance::get()->getMinecraftSim()->setSimTimer(timerSpeedSetting);
+        else ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    }
 
     static float friction = frictionSetting;
     static int tick = 0;
