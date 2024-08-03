@@ -48,12 +48,13 @@ void AntiRegen::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AntiRegen::onBaseTickEvent, nes::event_priority::LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AntiRegen::onPacketInEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &AntiRegen::onPacketOutEvent, nes::event_priority::LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &AntiRegen::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
 
     miningRedstones.clear();
     mPreviousSlot = -1;
     mPlacedBlock = false;
     mShouldRotate = false;
+    mShouldCancelAttack = false;
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -75,6 +76,7 @@ void AntiRegen::onDisable()
     mPreviousSlot = -1;
     mPlacedBlock = false;
     mShouldRotate = false;
+    mShouldCancelAttack = false;
 }
 
 void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
@@ -84,6 +86,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
     static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
 
     if (mMode.as<Mode>() == Mode::Cover) {
+        mShouldCancelAttack = false;
         if (regenModule->mEnabled && regenModule->mShouldRotate) return;
 
         if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
@@ -119,6 +122,7 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 player->setSwinging(oldSwinging);
                 player->setSwingProgress(oldSwingProgress);
                 mPlacedBlock = true;
+                if (mCancelHit.mValue) mShouldCancelAttack = true;
                 supplies->mSelectedSlot = mPreviousSlot;
                 return;
             }
@@ -148,7 +152,22 @@ void AntiRegen::onPacketOutEvent(PacketOutEvent& event)
             glm::vec2 rotations = MathUtils::getRots(*player->getPos(), blockAABB);
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
+            if (mInputSpoof.mValue) paip->mInputMode = InputMode::Touch;
             mShouldRotate = false;
+        }
+    }
+    else if (event.mPacket->getId() == PacketID::InventoryTransaction) {
+        if (const auto it = event.getPacket<InventoryTransactionPacket>();
+            it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseOnEntityTransaction)
+        {
+            if (const auto transac = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(it->mTransaction.get());
+                transac->actionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+            {
+                if (mShouldCancelAttack) {
+                    event.mCancelled = true;
+                    mShouldCancelAttack = false;
+                }
+            }
         }
     }
 }
