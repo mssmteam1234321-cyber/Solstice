@@ -24,8 +24,10 @@
 #include "Components/ActorWalkAnimationComponent.hpp"
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/FlagComponent.hpp"
+#include "Components/MaxAutoStepComponent.hpp"
 
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
+#include <SDK/Minecraft/World/Chunk/ChunkSource.hpp>
 
 
 #define PLAYER_HEIGHT 1.62f
@@ -94,6 +96,7 @@ public:
     AABB getAABB(bool normal = false);
     void setAABB(AABB& aabb);
     bool isPlayer();
+    ChunkPos getChunkPos();
     glm::vec3* getPos();
     glm::vec3* getPosPrev();
     class GameMode* getGameMode();
@@ -116,6 +119,7 @@ public:
     JumpControlComponent* getJumpControlComponent();
     CameraComponent* getCameraComponent();
     CameraDirectLookComponent* getCameraDirectLookComponent();
+    MaxAutoStepComponent* getMaxAutoStepComponent();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     class Level* getLevel();

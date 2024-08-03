@@ -16,9 +16,11 @@
 #include "Misc/AutoMessage.hpp"
 #include "Misc/Friends.hpp"
 #include "Misc/Killsults.hpp"
+#include "Misc/NetSkip.hpp"
 #include "Misc/NoFilter.hpp"
 #include "Misc/NoPacket.hpp"
 #include "Movement/AntiImmobile.hpp"
+#include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/InventoryMove.hpp"
 #include "Movement/NoJumpDelay.hpp"
@@ -28,6 +30,7 @@
 #include "Movement/Sprint.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
+#include "Movement/Step.hpp"
 #include "Player/AntiRegen.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
@@ -74,6 +77,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<SafeWalk>());
     mModules.emplace_back(std::make_shared<NoJumpDelay>());
     mModules.emplace_back(std::make_shared<Phase>());
+    mModules.emplace_back(std::make_shared<FastStop>());
+    mModules.emplace_back(std::make_shared<Step>());
+
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
@@ -103,8 +109,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoFilter>());
     mModules.emplace_back(std::make_shared<AutoMessage>());
     mModules.emplace_back(std::make_shared<Killsults>());
-
-
+    mModules.emplace_back(std::make_shared<NetSkip>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

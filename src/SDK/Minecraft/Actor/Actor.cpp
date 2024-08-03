@@ -172,6 +172,15 @@ bool Actor::isPlayer()
     return actorType->type == ActorType::Player;
 }
 
+ChunkPos Actor::getChunkPos()
+{
+    glm::vec3 pos = *getPos();
+    pos.x = static_cast<int>(floor(pos.x));
+    pos.y = static_cast<int>(floor(pos.y - (float)2.0f));
+    pos.z = static_cast<int>(floor(pos.z));
+    return ChunkPos(pos);
+}
+
 glm::vec3* Actor::getPos()
 {
     return &getStateVectorComponent()->mPos;
@@ -279,6 +288,11 @@ CameraComponent* Actor::getCameraComponent()
 CameraDirectLookComponent* Actor::getCameraDirectLookComponent()
 {
     return mContext.getComponent<CameraDirectLookComponent>();
+}
+
+MaxAutoStepComponent* Actor::getMaxAutoStepComponent()
+{
+    return mContext.getComponent<MaxAutoStepComponent>();
 }
 
 SimpleContainer* Actor::getArmorContainer()
