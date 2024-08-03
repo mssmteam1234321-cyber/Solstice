@@ -94,6 +94,8 @@ void AntiRegen::onBaseTickEvent(BaseTickEvent& event)
                 glm::ivec3 placePos = pos + offsetList[exposedFace];
                 glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
                 if (ClientInstance::get()->getBlockSource()->getBlock(placePos + glm::ivec3(0, -1, 0))->getmLegacy()->isAir()) continue;
+                if (player->getPos()->y < placePos.y) continue;
+
                 mCurrentPlacePos = placePos;
                 mShouldRotate = true;
                 mPreviousSlot = supplies->mSelectedSlot;

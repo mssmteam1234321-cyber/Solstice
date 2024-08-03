@@ -66,7 +66,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 
     // Steal
     if (isStealing && !mCanSteal && exposedFace == -1) {
-        if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent stopped uncovering");
+        if (mDebug.mValue) ChatUtils::displayClientMessage("Steal cancelled");
         return false;
     }
 
@@ -96,7 +96,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
         std::string blockName = block->getmLegacy()->getmName();
         for (auto& c : mDynamicSpeeds) {
             if (c.blockName == blockName) {
-                if (mDebug.mValue) ChatUtils::displayClientMessage("gaming");
+                if (mFastOreNotify.mValue) ChatUtils::displayClientMessage("gaming");
                 break;
             }
         }
@@ -640,6 +640,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos) {
                 if (mAntiSteal.mValue) {
                     mBlackListedOrePos = pos;
+                    if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
             }
         }
