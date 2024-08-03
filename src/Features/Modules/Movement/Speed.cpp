@@ -15,6 +15,7 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/SetActorMotionPacket.hpp>
 
 void Speed::onEnable()
 {
@@ -117,6 +118,9 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    float dmgSlowdown = mDamageBoostSlowdown.as<float>();
+    mDamageBoostVal = MathUtils::lerp(mDamageBoostVal, 1.f, dmgSlowdown);
+
     if (player->getFlag<RedirectCameraInput>()) return;
 
     if (mSwiftness.mValue)
@@ -153,6 +157,17 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
 
 void Speed::onPacketInEvent(PacketInEvent& event)
 {
+    if (event.mPacket->getId() == PacketID::SetActorMotion && mDamageBoost.mValue)
+    {
+        auto sam = event.getPacket<SetActorMotionPacket>();
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+
+        if (sam->mRuntimeID == player->getRuntimeID())
+        {
+            mDamageBoostVal = mDamageBoostSpeed.as<float>();
+        }
+    }
     if (event.mPacket->getId() == PacketID::MobEffect)
     {
         auto player = ClientInstance::get()->getLocalPlayer();
@@ -248,7 +263,7 @@ void Speed::tickFriction(Actor* player)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (mSpeed.as<float>() / 10) * friction);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((mSpeed.as<float>() * mDamageBoostVal) / 10) * friction);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
@@ -339,7 +354,7 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (speedSetting / 10) * friction);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 

@@ -65,6 +65,10 @@ public:
     NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);
     NumberSetting mSwiftnessFriction = NumberSetting("Swiftness Friction", "The friction to apply when swiftness is active", 0.975, 0, 1, 0.01);
 
+    BoolSetting mDamageBoost = BoolSetting("Damage Boost", "Whether or not to boost speed when taking damage", false);
+    NumberSetting mDamageBoostSpeed = NumberSetting("Damage Boost Speed", "The speed to boost when taking damage", 3, 1, 10, 0.01);
+    NumberSetting mDamageBoostSlowdown = NumberSetting("Damage Boost Slowdown", "The friction to apply when taking damage", 0.15, 0, 1, 0.01);
+
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
     BoolSetting mTimerBoost = BoolSetting("Timer Boost", "Whether or not to boost timer speed", false);
@@ -82,13 +86,39 @@ public:
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
     Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
-        addSettings(&mMode, &mFlareonPreset, &mSwiftness, &mSwiftnessHotbar, &mSwiftnessSpeed, &mSwiftnessFriction, &mHoldSpace, &mSpeed, &mFriction, &mTimerBoost, &mTimerSpeed, &mFastFall, &mFallTicks, &mFallSpeed, &mFastFall2, &mFallTicks2, &mFallSpeed2, &mJumpType, &mJumpHeight, &mApplyNetskip);
+        addSettings(
+            &mMode,
+            &mFlareonPreset,
+            &mSwiftness,
+            &mSwiftnessHotbar,
+            &mSwiftnessSpeed,
+            &mSwiftnessFriction,
+            &mHoldSpace,
+            &mDamageBoost,
+            &mDamageBoostSpeed,
+            &mDamageBoostSlowdown,
+            &mSpeed,
+            &mFriction,
+            &mTimerBoost,
+            &mTimerSpeed,
+            &mFastFall,
+            &mFallTicks,
+            &mFallSpeed,
+            &mFastFall2,
+            &mFallTicks2,
+            &mFallSpeed2,
+            &mJumpType,
+            &mJumpHeight,
+            &mApplyNetskip
+        );
 
         VISIBILITY_CONDITION(mSwiftnessHotbar, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessSpeed, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessFriction, mSwiftness.mValue);
         VISIBILITY_CONDITION(mHoldSpace, mSwiftness.mValue);
 
+        VISIBILITY_CONDITION(mDamageBoostSpeed, mDamageBoost.mValue);
+        VISIBILITY_CONDITION(mDamageBoostSlowdown, mDamageBoost.mValue);
 
         VISIBILITY_CONDITION(mFlareonPreset, mMode.mValue == Mode::FlareonV1);
         VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Friction);
@@ -116,6 +146,7 @@ public:
     }
 
     std::map<EffectType, uint64_t> mEffectTimers = {};
+    float mDamageBoostVal = 0.f;
 
     void onEnable() override;
     void onDisable() override;

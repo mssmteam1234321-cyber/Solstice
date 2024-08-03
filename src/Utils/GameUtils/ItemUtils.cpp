@@ -78,6 +78,12 @@ int ItemUtils::getBestItem(SItemType type, bool hotbarOnly)
     return bestSlot;
 }
 
+bool ItemUtils::hasItemType(ItemStack* item)
+{
+    if (!item->mItem) return false;
+    return item->getItem()->getItemType() != SItemType::None;
+}
+
 std::unordered_map<SItemType, int> ItemUtils::getBestItems()
 {
     std::unordered_map<SItemType, int> bestItemsResult;

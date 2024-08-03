@@ -45,6 +45,7 @@ public:
     BoolSetting mAutoFireSword = BoolSetting("Auto Fire Sword", "Whether or not to automatically use the fire sword", false);
     BoolSetting mFireSwordSpoof = BoolSetting("Fire Sword Spoof", "Whether or not to spoof the fire sword", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
+    BoolSetting mFistFriends = BoolSetting("Fist Friends", "Whether or not to fist friends", false);
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
@@ -56,7 +57,7 @@ public:
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mAutoFireSword/*, &mFireSwordSpoof*/, &mHotbarOnly, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
+        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mAutoFireSword/*, &mFireSwordSpoof*/, &mHotbarOnly, &mFistFriends, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
 
         VISIBILITY_CONDITION(mAutoFireSword, mSwitchMode.mValue != SwitchMode::None);
         VISIBILITY_CONDITION(mFireSwordSpoof, mAutoFireSword.mValue == true);

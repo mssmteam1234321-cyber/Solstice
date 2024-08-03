@@ -27,6 +27,51 @@ int Aura::getSword(Actor* target) {
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
+    if (gFriendManager->isFriend(target) && mFistFriends.mValue)
+    {
+        // Look for a TROPICAL_FISH in the hotbar
+        int fishSlot = -1;
+        for (int i = 0; i < 36; i++)
+        {
+            if (mHotbarOnly.mValue && i > 8) break;
+            auto item = container->getItem(i);
+            if (!item->mItem) continue;
+            if (item->getItem()->mItemId == 267)
+            {
+                fishSlot = i;
+                break;
+            }
+        }
+
+        if (fishSlot != -1)
+        {
+            return fishSlot;
+        }
+
+        // Find a empty sot, OR an innert item
+        for (int i = 0; i < 36; i++)
+        {
+            if (mHotbarOnly.mValue && i > 8) break;
+            auto item = container->getItem(i);
+            if (!item->mItem || item->getItem()->mItemId == 0)
+            {
+                return i;
+            }
+        }
+
+        for (int i = 0; i < 36; i++)
+        {
+            if (mHotbarOnly.mValue && i > 8) break;
+            auto item = container->getItem(i);
+            if (item->mItem && !ItemUtils::hasItemType(item))
+            {
+                return i;
+            }
+        }
+
+        return player->getSupplies()->mSelectedSlot;
+    }
+
     int bestSword = ItemUtils::getBestItem(SItemType::Sword, mHotbarOnly.mValue);
 
     if (shouldUseFireSword(target))
@@ -249,7 +294,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         if (actor->isPlayer() && gFriendManager->mEnabled)
         {
-            if (gFriendManager->isFriend(actor))
+            if (gFriendManager->isFriend(actor) && !mFistFriends.mValue)
             {
                 continue;
             }
