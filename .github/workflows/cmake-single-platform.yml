@@ -22,15 +22,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Configure CMake
-      run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
+    #- name: Configure CMake
+    #  run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
 
-    - name: Reconfigure CMake
+    #- name: Reconfigure CMake
       # Necessary for SDL2 to be built properly
-      run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
+    #  run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
 
-    - name: Build
-      run: RunDevCmd cmake --build ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}} --target Solstice
+    #- name: Build
+    #  run: RunDevCmd cmake --build ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}} --target Solstice
+
+    - name: Run build script
+      run: C:\solstice\build.bat
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
