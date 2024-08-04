@@ -52,7 +52,7 @@ void LongJump::onBaseTickEvent(BaseTickEvent& event)
 
 void LongJump::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput && mApplyJumpFlags.mValue)
     {
         auto player = ClientInstance::get()->getLocalPlayer();
         if (!player) return;
