@@ -18,6 +18,6 @@ public:
         sendToSelf(std::reinterpret_pointer_cast<Packet>(packet));
     }
     static void sendToSelf(const std::shared_ptr<Packet>& packet);
-    static void queueSend(std::shared_ptr<Packet> packet);
+    static void queueSend(std::shared_ptr<Packet> packet, bool bypassHook = true);
     static void sendChatMessage(const std::string& msg);
 };

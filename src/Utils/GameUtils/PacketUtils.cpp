@@ -55,9 +55,9 @@ void PacketUtils::sendToSelf(const std::shared_ptr<Packet>& packet)
     PacketReceiveHook::handlePacket(packet);
 }
 
-void PacketUtils::queueSend(std::shared_ptr<Packet> packet)
+void PacketUtils::queueSend(std::shared_ptr<Packet> packet, bool bypassHook)
 {
-    BaseTickHook::mQueuedPackets.emplace_back(packet);
+    BaseTickHook::mQueuedPackets.emplace_back(packet, bypassHook);
 }
 
 void PacketUtils::sendChatMessage(const std::string& msg)

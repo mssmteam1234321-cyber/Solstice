@@ -13,8 +13,11 @@ class QueuedPacket
 public:
     uint64_t mTime;
     std::shared_ptr<Packet> mPacket;
+    bool mBypssHook = true;
 
-    QueuedPacket(std::shared_ptr<Packet> packet) : mPacket(packet), mTime(NOW) { }
+    QueuedPacket(std::shared_ptr<Packet> packet, bool bypassHook = true) : mPacket(packet), mBypssHook(bypassHook) {
+        mTime = NOW;
+    }
 };
 
 class BaseTickHook : public Hook {

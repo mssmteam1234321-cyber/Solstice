@@ -324,7 +324,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         if (mAttackMode.mValue == AttackMode::Synched)
         {
             std::shared_ptr<InventoryTransactionPacket> attackTransaction = ActorUtils::createAttackTransaction(actor, mSwitchMode.mValue == SwitchMode::Spoof ? bestWeapon : -1);
-            PacketUtils::queueSend(attackTransaction);
+            PacketUtils::queueSend(attackTransaction, true);
         } else {
             int oldSlot = supplies->mSelectedSlot;
             if (mSwitchMode.mValue == SwitchMode::Spoof)

@@ -24,10 +24,11 @@ void BaseTickHook::onBaseTick(Actor* actor)
         supplies->mInHandSlot = supplies->mSelectedSlot;
     }
 
-    for (auto& [mTime, mPacket] : mQueuedPackets)
+    for (auto& [mTime, mPacket, mBypassHook] : mQueuedPackets)
     {
         spdlog::trace("Sending packet with ID: {} [queued {}ms ago]", magic_enum::enum_name(mPacket->getId()), NOW - mTime);
-        ClientInstance::get()->getPacketSender()->sendToServer(mPacket.get());
+        if (mBypassHook) ClientInstance::get()->getPacketSender()->sendToServer(mPacket.get());
+        else ClientInstance::get()->getPacketSender()->send(mPacket.get());
     }
     mQueuedPackets.clear();
 
