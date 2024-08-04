@@ -13,11 +13,13 @@
 void NetSkip::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RunUpdateCycleEvent, &NetSkip::onRunUpdateCycleEvent, nes::event_priority::FIRST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &NetSkip::onPacketInEvent>(this);
 }
 
 void NetSkip::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RunUpdateCycleEvent, &NetSkip::onRunUpdateCycleEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &NetSkip::onPacketInEvent>(this);
 }
 
 void NetSkip::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
