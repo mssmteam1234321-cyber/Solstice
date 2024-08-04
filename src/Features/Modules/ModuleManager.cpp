@@ -23,6 +23,7 @@
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/InventoryMove.hpp"
+#include "Movement/LongJump.hpp"
 #include "Movement/NoJumpDelay.hpp"
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Phase.hpp"
@@ -78,6 +79,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Phase>());
     mModules.emplace_back(std::make_shared<FastStop>());
     mModules.emplace_back(std::make_shared<Step>());
+    mModules.emplace_back(std::make_shared<LongJump>());
 
 
     // Player

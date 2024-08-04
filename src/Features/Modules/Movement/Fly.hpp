@@ -53,7 +53,7 @@ public:
             &mTimerBoostValue
         );
         VISIBILITY_CONDITION(mApplyGlideFlags, mMode.mValue == Mode::Motion);
-        VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Motion || mMode.mValue == Mode::Jump);
+        VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Motion || mMode.mValue == Mode::Jump || mMode.mValue == Mode::Elytra);
 
         VISIBILITY_CONDITION(mHeightLoss, mMode.mValue == Mode::Jump);
         VISIBILITY_CONDITION(mJumpDelay, mMode.mValue == Mode::Jump);
