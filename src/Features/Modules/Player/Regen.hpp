@@ -31,17 +31,28 @@ public:
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
+    BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
+    NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
+    BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
+    BoolSetting mCoverNotify = BoolSetting("Cover Notify", "Send message in chat when you covered ore", false);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mFastOreNotify, &mRenderBlock, &mRenderProgressBar);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mRenderBlock, &mRenderProgressBar);
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
+
+        VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
+
+        // Debug
+        VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mCoverNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
 
         mNames = {
             {Lowercase, "regen"},

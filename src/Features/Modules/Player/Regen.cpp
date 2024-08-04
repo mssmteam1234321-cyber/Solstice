@@ -60,13 +60,15 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 
     // Exposed Check
     int exposedFace = BlockUtils::getExposedFace(blockPos);
-    if (exposedOnly && (!isStealing || !isRedstone)) {
+    bool canSkipExposedCheck = false;
+    canSkipExposedCheck = mIsMiningBlock && !mIsUncovering && blockPos == mCurrentBlockPos && mAntiCover.mValue && mCompensation.mValue <= (mBreakingProgress / mCurrentDestroySpeed);
+    if (exposedOnly && (!isStealing || !isRedstone) && !canSkipExposedCheck) {
         if (exposedFace == -1) return false;
     }
 
     // Steal
     if (isStealing && !mCanSteal && exposedFace == -1) {
-        if (mDebug.mValue) ChatUtils::displayClientMessage("Steal cancelled");
+        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Steal cancelled");
         return false;
     }
 
@@ -122,7 +124,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
         std::string blockName = block->getmLegacy()->getmName();
         for (auto& c : mDynamicSpeeds) {
             if (c.blockName == blockName) {
-                if (mFastOreNotify.mValue) ChatUtils::displayClientMessage("gaming");
+                if (mDebug.mValue && mFastOreNotify.mValue) ChatUtils::displayClientMessage("gaming");
                 break;
             }
         }
@@ -223,7 +225,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
-        if (mDebug.mValue) {
+        if (mDebug.mValue && mStealNotify.mValue) {
             ChatUtils::displayClientMessage("Stealer timeouted");
         }
     }
@@ -249,6 +251,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 PacketUtils::spoofSlot(blockSlot);
                 if (mSwing.mValue) player->swing();
                 BlockUtils::placeBlock(placePos, 1);
+                if (mDebug.mValue && mCoverNotify.mValue) ChatUtils::displayClientMessage("Covered ore");
                 mShouldSetbackSlot = true;
                 mShouldSpoofSlot = true;
                 supplies->mSelectedSlot = mPreviousSlot;
@@ -285,7 +288,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Stolen notify
-    if (mDebug.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
+    if (mDebug.mValue && mStealNotify.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
         ChatUtils::displayClientMessage("Your ore was stolen!");
     }
 
@@ -359,7 +362,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
-            if (mDebug.mValue && mIsStealing)
+            if (mDebug.mValue && mStealNotify.mValue && mIsStealing)
                 ChatUtils::displayClientMessage("Stole ore");
 
             supplies->mSelectedSlot = mPreviousSlot;
@@ -535,7 +538,7 @@ void Regen::renderProgressBar()
     auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
     bool isLowercase = interfaceMod->mNamingStyle.mValue == Lowercase || interfaceMod->mNamingStyle.mValue == LowercaseSpaced;
 
-    if (mCanSteal && mEnabled) // Stealing
+    if (mIsStealing && mEnabled) // Stealing
     {
         targetColor = ImColor(255, 0, 0, 153);
         if (isLowercase) text = "stealing [" + std::to_string(daPerc) + "%]";
@@ -699,7 +702,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
                 if (mAntiSteal.mValue) {
                     mBlackListedOrePos = pos;
-                    if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
+                    if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
             }
 
