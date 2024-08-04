@@ -183,6 +183,7 @@ void Regen::onEnable()
     mShouldRotate = false;
     mIsMiningBlock = false;
     mEnemyTargettingBlockPos = { 0, 0, 0 };
+    miningRedstones.clear();
     initializeRegen();
 }
 
@@ -228,7 +229,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Ore Blocker
-    if (!miningRedstones.empty()) {
+    if (mBlockOre.mValue && !miningRedstones.empty()) {
         if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
             for (auto& pos : miningRedstones)
             {
@@ -703,7 +704,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
 
             // Ore Blocker
-            if (isValidRedstone(levelEvent->mPos)) {
+            if (mBlockOre.mValue && isValidRedstone(levelEvent->mPos)) {
                 miningRedstones.push_back(levelEvent->mPos);
             }
         }
