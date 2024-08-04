@@ -4,10 +4,7 @@
 
 #include "NetSkip.hpp"
 
-int64_t NetSkip::getDelay() const
-{
-    return mRandomizeDelay.mValue ? MathUtils::random(mRandomizeMin.as<int>(), mRandomizeMax.as<int>()) : mDelay.as<int64_t>();
-}
+#include <Features/Events/RunUpdateCycleEvent.hpp>
 
 void NetSkip::onEnable()
 {
@@ -21,5 +18,20 @@ void NetSkip::onDisable()
 
 void NetSkip::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 {
-    Sleep(getDelay());
+    if (mMode.mValue == Mode::Milliseconds)
+    {
+        Sleep(mRandomizeDelayMs.mValue ? MathUtils::random(mRandomizeMinMs.as<int>(), mRandomizeMaxMs.as<int>()) : mDelayMs.as<int64_t>());
+        return;
+    }
+
+    if (mCurrentTick < mTickDelay)
+    {
+        mCurrentTick++;
+        event.cancel();
+        return;
+    }
+
+    mCurrentTick = 0;
+    mTickDelay = mRandomizeTicks.mValue ? MathUtils::random(mTicksMin.as<int>(), mTicksMax.as<int>()) : mTicks.as<int>();
+
 }
