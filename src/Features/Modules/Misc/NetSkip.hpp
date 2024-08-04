@@ -32,24 +32,31 @@ public:
     NetSkip() : ModuleBase<NetSkip>("NetSkip", "Skips packets", ModuleCategory::Misc, 0, false) {
         addSettings(
             &mMode,
+
             &mRandomizeTicks,
             &mTicks,
             &mTicksMin,
             &mTicksMax,
+
             &mRandomizeDelayMs,
             &mDelayMs,
             &mRandomizeMinMs,
             &mRandomizeMaxMs,
+
             &mDamageOnly,
             &mDamageTime
         );
 
-        VISIBILITY_CONDITION(mTicks, mMode.mValue == Mode::Ticks && !mRandomizeTicks.mValue);
+        VISIBILITY_CONDITION(mTicks, mMode.mValue == Mode::Ticks);
         VISIBILITY_CONDITION(mTicksMin, mMode.mValue == Mode::Ticks && mRandomizeTicks.mValue);
         VISIBILITY_CONDITION(mTicksMax, mMode.mValue == Mode::Ticks && mRandomizeTicks.mValue);
-        VISIBILITY_CONDITION(mDelayMs, mMode.mValue == Mode::Milliseconds && !mRandomizeDelayMs.mValue);
+        VISIBILITY_CONDITION(mRandomizeTicks, mMode.mValue == Mode::Ticks);
+
+        VISIBILITY_CONDITION(mDelayMs, mMode.mValue == Mode::Milliseconds);
         VISIBILITY_CONDITION(mRandomizeMinMs, mMode.mValue == Mode::Milliseconds && mRandomizeDelayMs.mValue);
         VISIBILITY_CONDITION(mRandomizeMaxMs, mMode.mValue == Mode::Milliseconds && mRandomizeDelayMs.mValue);
+        VISIBILITY_CONDITION(mRandomizeDelayMs, mMode.mValue == Mode::Milliseconds);
+
         VISIBILITY_CONDITION(mDamageTime, mDamageOnly.mValue);
 
         mNames = {
