@@ -30,6 +30,8 @@ void Speed::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Speed::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<RunUpdateCycleEvent, &Speed::onRunUpdateCycleEvent>(this);
     ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    mDamageBoostVal = 1.f;
+    mDamageTimerApplied = false;
 }
 
 void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)

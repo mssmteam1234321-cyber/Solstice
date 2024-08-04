@@ -152,7 +152,7 @@ public:
     }
 
     std::map<EffectType, uint64_t> mEffectTimers = {};
-    float mDamageBoostVal = 0.f;
+    float mDamageBoostVal = 1.f;
     bool mDamageTimerApplied = false;
 
     void onEnable() override;
