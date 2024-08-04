@@ -36,6 +36,8 @@ void Speed::onDisable()
 
 void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 {
+    if (event.isCancelled() || event.mApplied) return;
+
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 

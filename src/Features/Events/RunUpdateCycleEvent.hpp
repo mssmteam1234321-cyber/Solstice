@@ -7,5 +7,6 @@
 #include <Features/Events/Event.hpp>
 
 class RunUpdateCycleEvent : public CancelableEvent {
-
+public:
+    bool mApplied = false;
 };

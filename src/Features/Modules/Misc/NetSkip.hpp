@@ -26,6 +26,9 @@ public:
     NumberSetting mRandomizeMinMs = NumberSetting("Delay Min", "The minimum delay to randomize", 0, 0, 1000, 1);
     NumberSetting mRandomizeMaxMs = NumberSetting("Delay Max", "The maximum delay to randomize", 100, 0, 1000, 1);
 
+    BoolSetting mDamageOnly = BoolSetting("Damage Only", "Only skip when taking damage", false);
+    NumberSetting mDamageTime = NumberSetting("Damage Time", "The amount of time to keep skipping after taking damage (milliseconds)", 0, 0, 10000, 1);
+
     NetSkip() : ModuleBase<NetSkip>("NetSkip", "Skips packets", ModuleCategory::Misc, 0, false) {
         addSettings(
             &mMode,
@@ -36,7 +39,9 @@ public:
             &mRandomizeDelayMs,
             &mDelayMs,
             &mRandomizeMinMs,
-            &mRandomizeMaxMs
+            &mRandomizeMaxMs,
+            &mDamageOnly,
+            &mDamageTime
         );
 
         VISIBILITY_CONDITION(mTicks, mMode.mValue == Mode::Ticks && !mRandomizeTicks.mValue);
@@ -45,7 +50,7 @@ public:
         VISIBILITY_CONDITION(mDelayMs, mMode.mValue == Mode::Milliseconds && !mRandomizeDelayMs.mValue);
         VISIBILITY_CONDITION(mRandomizeMinMs, mMode.mValue == Mode::Milliseconds && mRandomizeDelayMs.mValue);
         VISIBILITY_CONDITION(mRandomizeMaxMs, mMode.mValue == Mode::Milliseconds && mRandomizeDelayMs.mValue);
-
+        VISIBILITY_CONDITION(mDamageTime, mDamageOnly.mValue);
 
         mNames = {
             {Lowercase, "netskip"},
@@ -57,10 +62,12 @@ public:
 
     int mCurrentTick = 0;
     int mTickDelay = 0;
+    int64_t mLastDamage = 0;
 
     void onEnable() override;
     void onDisable() override;
     void onRunUpdateCycleEvent(class RunUpdateCycleEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.as<int>()];
