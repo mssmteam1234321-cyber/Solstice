@@ -30,6 +30,7 @@ public:
     BoolSetting mAntiSteal = BoolSetting("Anti Steal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
+    BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
@@ -38,7 +39,7 @@ public:
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mFastOreNotify, &mRenderBlock, &mRenderProgressBar);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mInfiniteDurability, &mAlwaysMine, &mDebug, &mFastOreNotify, &mRenderBlock, &mRenderProgressBar);
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
 
@@ -82,6 +83,9 @@ public:
     glm::ivec3 mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
     int mPreviousSlot = -1;
     int mToolSlot = -1;
+
+    std::vector<glm::ivec3> miningRedstones;
+    glm::ivec3 mCurrentPlacePos = { INT_MAX, INT_MAX, INT_MAX };
 
     uint64_t mLastBlockPlace = 0;
     uint64_t mLastStealerUpdate = 0;
@@ -139,6 +143,7 @@ public:
     void initializeRegen();
     void queueBlock(glm::ivec3 blockPos);
     bool isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing = false);
+    bool isValidRedstone(glm::ivec3 blockPos);
     PathFindingResult getBestPathToBlock(glm::ivec3 blockPos);
 
     std::string getSettingDisplay() override {

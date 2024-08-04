@@ -76,6 +76,32 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     return true;
 }
 
+bool Regen::isValidRedstone(glm::ivec3 blockPos) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return false;
+
+    int blockID = ClientInstance::get()->getBlockSource()->getBlock(blockPos)->getmLegacy()->getBlockId();
+
+    // BlockID Check
+    if (blockID != 73 && blockID != 74) return false;
+
+    // BlockPos Check
+    if (mRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == mTargettingBlockPos) return false;
+
+    // IsMiningPosition Check
+    if (BlockUtils::isMiningPosition(blockPos)) return false;
+
+    // Place position check
+    int exposedFace = BlockUtils::getExposedFace(blockPos);
+    if (exposedFace != -1 && mIsMiningBlock) {
+        glm::ivec3 placePos = blockPos + mOffsetList[exposedFace];
+        glm::ivec3 deltaPos = mCurrentBlockPos - placePos;
+        if (abs(deltaPos.x) + abs(deltaPos.y) + abs(deltaPos.z) <= 1) return false;
+    }
+
+    return true;
+}
+
 void Regen::queueBlock(glm::ivec3 blockPos) {
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
@@ -147,7 +173,7 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) {
 
 void Regen::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Regen::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &Regen::onPacketInEvent>(this);
 
@@ -199,6 +225,37 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         if (mDebug.mValue) {
             ChatUtils::displayClientMessage("Stealer timeouted");
         }
+    }
+
+    // Ore Blocker
+    if (!miningRedstones.empty()) {
+        if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
+            for (auto& pos : miningRedstones)
+            {
+                int exposedFace = BlockUtils::getExposedFace(pos);
+                if (exposedFace == -1 || !isValidRedstone(pos)) continue;
+                glm::ivec3 placePos = pos + mOffsetList[exposedFace];
+                glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
+                if (ClientInstance::get()->getBlockSource()->getBlock(placePos + glm::ivec3(0, -1, 0))->getmLegacy()->isAir()) continue;
+                if (player->getPos()->y < placePos.y) continue;
+
+                mCurrentPlacePos = placePos;
+                mShouldRotate = true;
+                mPreviousSlot = supplies->mSelectedSlot;
+                int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
+
+                supplies->mSelectedSlot = blockSlot;
+                PacketUtils::spoofSlot(blockSlot);
+                if (mSwing.mValue) player->swing();
+                BlockUtils::placeBlock(placePos, 1);
+                mShouldSetbackSlot = true;
+                mShouldSpoofSlot = true;
+                supplies->mSelectedSlot = mPreviousSlot;
+            }
+        }
+
+        miningRedstones.clear();
+        return;
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
@@ -256,6 +313,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;
+            return;
         }
 
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
@@ -637,11 +695,16 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 
             // Anti Steal
             glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
-            if (pos == mTargettingBlockPos && pos != mCurrentBlockPos) {
+            if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
                 if (mAntiSteal.mValue) {
                     mBlackListedOrePos = pos;
                     if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
+            }
+
+            // Ore Blocker
+            if (isValidRedstone(levelEvent->mPos)) {
+                miningRedstones.push_back(levelEvent->mPos);
             }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
