@@ -295,6 +295,11 @@ MaxAutoStepComponent* Actor::getMaxAutoStepComponent()
     return mContext.getComponent<MaxAutoStepComponent>();
 }
 
+MobHurtTimeComponent* Actor::getMobHurtTimeComponent()
+{
+    return mContext.getComponent<MobHurtTimeComponent>();
+}
+
 SimpleContainer* Actor::getArmorContainer()
 {
     return mContext.getComponent<ActorEquipmentComponent>()->mArmorContainer;

@@ -22,6 +22,8 @@ void Speed::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Speed::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Speed::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<RunUpdateCycleEvent, &Speed::onRunUpdateCycleEvent>(this);
+    mDamageBoostVal = 1.f;
+    mDamageTimerApplied = false;
 }
 
 void Speed::onDisable()
@@ -208,10 +210,10 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         auto player = ClientInstance::get()->getLocalPlayer();
-        if (Keyboard::isUsingMoveKeys()) paip->mInputData |= AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN;
-        if (!player->isOnGround() && player->wasOnGround() && Keyboard::isUsingMoveKeys()) {
-            paip->mInputData |= AuthInputAction::START_JUMPING;
-        }
+            if (Keyboard::isUsingMoveKeys()) paip->mInputData |= AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN;
+            if (!player->isOnGround() && player->wasOnGround() && Keyboard::isUsingMoveKeys()) {
+                paip->mInputData |= AuthInputAction::START_JUMPING;
+            }
     }
 }
 

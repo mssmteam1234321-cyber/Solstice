@@ -25,6 +25,7 @@
 #include "Components/ActorTypeComponent.hpp"
 #include "Components/FlagComponent.hpp"
 #include "Components/MaxAutoStepComponent.hpp"
+#include "Components/MobHurtTimeComponent.hpp"
 
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 #include <SDK/Minecraft/World/Chunk/ChunkSource.hpp>
@@ -120,6 +121,7 @@ public:
     CameraComponent* getCameraComponent();
     CameraDirectLookComponent* getCameraDirectLookComponent();
     MaxAutoStepComponent* getMaxAutoStepComponent();
+    MobHurtTimeComponent* getMobHurtTimeComponent();
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     class Level* getLevel();

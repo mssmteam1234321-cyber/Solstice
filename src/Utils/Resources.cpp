@@ -53,6 +53,8 @@ void ResourceLoader::loadResources() {
     Resources.emplace("icons_v1", fonts_icons_v1_ttf);
     FontHelper::Fonts.emplace("icons_v1", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 20));
     FontHelper::Fonts.emplace("icons_v1_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 84));
+    auto notch_png = GET_RESOURCE(notch_png);
+    Resources.emplace("notch.png", notch_png);
     auto seven_days_png = GET_RESOURCE(seven_days_png);
     Resources.emplace("seven_days.png", seven_days_png);
     auto smooth_off_wav = GET_RESOURCE(smooth_off_wav);

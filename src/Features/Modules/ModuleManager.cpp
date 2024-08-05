@@ -59,6 +59,7 @@
 #include "Visual/MotionBlur.hpp"
 #include "Visual/NoCameraClip.hpp"
 #include "Visual/RobloxCamera.hpp"
+#include "Visual/TargetHUD.hpp"
 
 void ModuleManager::init()
 {
@@ -127,6 +128,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoCameraClip>());
     mModules.emplace_back(std::make_shared<RobloxCamera>());
     mModules.emplace_back(std::make_shared<ItemPhysics>());
+    mModules.emplace_back(std::make_shared<TargetHUD>());
+
 
 
 

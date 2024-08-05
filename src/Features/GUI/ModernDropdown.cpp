@@ -325,7 +325,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         }
 
                                         setting->boolScale = MathUtils::animate(
-                                            boolSetting->mValue ? 1 : 1, setting->boolScale,
+                                            boolSetting->mValue ? 1 : 0, setting->boolScale,
                                             ImRenderUtils::getDeltaTime() * 10);
 
                                         float scaledWidth = rect.getWidth();
@@ -343,12 +343,13 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             smoothScaledRect.getCenter().x, smoothScaledRect.getCenter().y);
 
                                         ImRenderUtils::fillCircle(circleRect, 5,
-                                                                 boolSetting->mValue
-                                                                     ? rgb
-                                                                     : ImColor(15, 15, 15), animation, 12.f);
+                                                                 ImColor(15, 15, 15), animation, 12.f);
+                                        ImRenderUtils::fillCircle(circleRect, 5 * boolSetting->boolScale, rgb,
+                                                                 animation  * boolSetting->boolScale, 40);
+
 
                                         if (boolSetting->mValue) ImRenderUtils::fillShadowCircle(
-                                            circleRect, 5, boolSetting->mValue ? rgb : ImColor(15, 15, 15),
+                                            circleRect, 5 * boolSetting->boolScale, boolSetting->mValue ? rgb : ImColor(15, 15, 15),
                                             animation, 40, 0);
 
                                         float cSetRectCentreX = rect.x + ((rect.z - rect.x) -

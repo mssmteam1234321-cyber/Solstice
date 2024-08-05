@@ -129,6 +129,8 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 
 }
 
+
+
 #define show_flag(flag) ImGui::Text(#flag ": %d", player->getFlag<flag>())
 
 void TestModule::onRenderEvent(RenderEvent& event)
@@ -163,6 +165,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
+        displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
     }
 
     // Display a button that sets D3DHook::forceFallback to true

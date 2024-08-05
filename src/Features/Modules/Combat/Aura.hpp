@@ -77,7 +77,8 @@ public:
 
     AABB mTargetedAABB = AABB();
     bool mRotating = false;
-    bool mHasTarget = false;
+    static inline bool sHasTarget = false;
+    static inline Actor* sTarget = nullptr;
 
     int getSword(Actor* target);
     bool shouldUseFireSword(Actor* target);

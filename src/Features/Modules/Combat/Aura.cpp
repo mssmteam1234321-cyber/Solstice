@@ -114,7 +114,8 @@ void Aura::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Aura::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BobHurtEvent, &Aura::onBobHurtEvent>(this);
-    mHasTarget = false;
+    sHasTarget = false;
+    sTarget = nullptr;
     mRotating = false;
 
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -302,6 +303,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         rotate(actor);
         foundAttackable = true;
+        sTarget = actor;
 
         throwProjectiles(actor);
         shootBow(actor);
@@ -341,8 +343,12 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         if (mMode.mValue == Mode::Single || mMode.mValue == Mode::Switch) break;
     }
 
-    if (!foundAttackable) mRotating = false;
-    mHasTarget = foundAttackable;
+    if (!foundAttackable)
+    {
+        mRotating = false;
+        sTarget = nullptr;
+    }
+    sHasTarget = foundAttackable;
 }
 
 void Aura::onPacketOutEvent(PacketOutEvent& event)
@@ -368,7 +374,7 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
 
 void Aura::onBobHurtEvent(BobHurtEvent& event)
 {
-    if (mHasTarget)
+    if (sHasTarget)
     {
         event.mDoBlockAnimation = true;
     }
@@ -376,7 +382,7 @@ void Aura::onBobHurtEvent(BobHurtEvent& event)
 
 void Aura::onBoneRenderEvent(BoneRenderEvent& event)
 {
-    if (mHasTarget)
+    if (sHasTarget)
     {
         event.mDoBlockAnimation = true;
     }

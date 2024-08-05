@@ -174,6 +174,9 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     if (!BlockUtils::isValidPlacePos(blockPos)) return false;
     if (!BlockUtils::isAirBlock(blockPos)) return false;
     int side = BlockUtils::getBlockPlaceFace(blockPos);
+
+    if (mAvoidUnderplace.mValue && side == 0) return false;
+
     mLastSwitchTime = NOW;
 
     if (mLastSlot == -1) mLastSlot = player->getSupplies()->mSelectedSlot;
@@ -367,7 +370,7 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
 
             auto auraMod = gFeatureManager->mModuleManager->getModule<Aura>();
 
-            if (auraMod->mHasTarget && mFlickMode.mValue == FlickMode::Combat || mFlickMode.mValue == FlickMode::Always) flickRotate = true;
+            if (auraMod->sHasTarget && mFlickMode.mValue == FlickMode::Combat || mFlickMode.mValue == FlickMode::Always) flickRotate = true;
 
             if (flickRotate) mShouldRotate = false;
             else
@@ -376,7 +379,7 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
                 if (NOW - mLastSwitchTime > 500) mShouldRotate = false;
             }
 
-            if (auraMod->mHasTarget && mFlickMode.mValue == FlickMode::None)
+            if (auraMod->sHasTarget && mFlickMode.mValue == FlickMode::None)
             {
                 mShouldRotate = false;
                 flickRotate = false;
