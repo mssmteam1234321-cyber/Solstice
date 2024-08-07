@@ -41,7 +41,9 @@ public:
     bool isDragging = false;
 
     bool enumExtended = false;
+    bool colourExtended = false; // I am a fucking sigma
     float enumSlide = 0;
+    float colourSlide = 0; // to lerp it 🤤🤤
 
     virtual nlohmann::json serialize()
     {

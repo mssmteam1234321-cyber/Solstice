@@ -28,6 +28,7 @@ public:
 
     const float catWidth = 193.f;
     const float catHeight = 32.5f;
+    const float colorPickerHeight = 90;
 
     ImColor moduleBackgroundColor = ImColor(40, 40, 40);
     ImColor settingsBackgroundColor = ImColor(24, 24, 24);

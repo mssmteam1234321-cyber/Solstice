@@ -188,6 +188,11 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                     case SettingType::Color:
                         {
                             settingsHeight = MathUtils::lerp(settingsHeight, settingsHeight + modHeight, mod->cAnim);
+
+                            if (setting->colourSlide > 0.01)
+                            {
+                                settingsHeight = MathUtils::lerp(settingsHeight, settingsHeight + colorPickerHeight, setting->colourSlide); // Sigma king tozic
+                            }
                             break;
                         }
                     }
@@ -546,7 +551,7 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                 {
                                     ColorSetting* colorSetting = reinterpret_cast<ColorSetting*>(setting);
                                     ImColor color = colorSetting->getAsImColor();
-                                    ImVec4 rgb = color.Value;
+                                    static ImVec4 rgb = color.Value;
                                     std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
 
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
@@ -559,15 +564,38 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                                            modRect.z, screen.y / 2),
                                             inScale);
 
+                                    // Change of plans THIS LOOKS HORRIBLE when Sliding so I am removing the slide animations
+
+                                    float targetAnim = setting->colourExtended && mod->showSettings ? 1.f : 0.f;
+                                    setting->colourSlide = targetAnim;
+                                    /*setting->colourSlide = MathUtils::animate(
+                                        targetAnim, setting->colourSlide, ImRenderUtils::getDeltaTime() * 10);
+                                    setting->colourSlide = MathUtils::clamp(setting->colourSlide, 0.f, 1.f);*/
+
+                                    if (setting->colourSlide > 0.001)
+                                    {
+                                        moduleY = MathUtils::lerp(moduleY, moduleY + colorPickerHeight, setting->colourSlide);
+
+                                        ImVec4 colourRect = ImVec4(
+                                                    rect.x + 4, rect.w + 4, 185.f,
+                                                    61.f);
+
+
+                                        if (colourRect.y > catRect.y + 0.5f)
+                                        {
+                                            ImRenderUtils::drawColorPicker(rgb, colourRect);
+                                            colorSetting->setColor(rgb.x, rgb.y, rgb.z, rgb.w);
+                                        }
+                                    }
+
                                     if (rect.y > catRect.y + 0.5f)
                                     {
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0))
+                                            if (ImGui::IsMouseClicked(1))
                                             {
-                                                displayColorPicker = !displayColorPicker;
-                                                lastColorSetting = colorSetting;
+                                                setting->colourExtended = !setting->colourExtended;
                                             }
                                         }
 
