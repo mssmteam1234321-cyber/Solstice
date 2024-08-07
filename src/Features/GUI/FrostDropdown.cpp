@@ -448,7 +448,7 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
 
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
 
-                                    ImVec4 rect = ImVec4(
+                                    ImVec4 backGroundRect = ImVec4(
                                             modRect.x, (catPositions[i].y + catHeight + moduleY), modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
@@ -456,15 +456,38 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                                            modRect.z, screen.y / 2),
                                             inScale);
 
-                                    if (rect.y > catRect.y + 0.5f)
+                                    ImVec4 rect = ImVec4(
+                                            modRect.x + 7, (catPositions[i].y + catHeight + moduleY), modRect.z - 7,
+                                            catPositions[i].y + catHeight + moduleY + modHeight)
+                                        .scaleToPoint(
+                                            ImVec4(modRect.x, screen.y / 2,
+                                                           modRect.z, screen.y / 2),
+                                            inScale);
+
+                                    static float clickAnimation = 1.f;
+
+                                    // If left click is down, lerp the alpha to 0.60f;
+                                    if (ImGui::IsMouseDown(0) && ImRenderUtils::isMouseOver(rect))
                                     {
+                                        clickAnimation = MathUtils::animate(0.60f, clickAnimation, ImRenderUtils::getDeltaTime() * 10);
+                                    }
+                                    else
+                                    {
+                                        clickAnimation = MathUtils::animate(1.f, clickAnimation, ImRenderUtils::getDeltaTime() * 10);
+                                    }
+
+                                    if (backGroundRect.y > catRect.y + 0.5f)
+                                    {
+                                        //ImRenderUtils::fillRectangle(backGroundRect, ImColor(30, 30, 30), animation);
+
                                         const float sliderPos = (value - min) / (max - min) * (rect.z - rect.x);
 
                                         setting->sliderEase = MathUtils::animate(
                                             sliderPos, setting->sliderEase, ImRenderUtils::getDeltaTime() * 10);
                                         setting->sliderEase = std::clamp(setting->sliderEase, 0.f, rect.getWidth());
 
-                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+#pragma region Slider dragging
+                                       if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
                                             if (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(2))
@@ -508,8 +531,9 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                         {
                                             setting->isDragging = false;
                                         }
+#pragma endregion
 
-
+                                        // "doesn't animate down when animating out" cuz its made by a 11 yr old smart nerd :yum:
                                         /* Original code (doesn't animate down when animating out)
                                         ImRenderUtils::fillRectangle(ImVec4(rect.x, (catPositions[i].y + catHeight + moduleY + modHeight) - 3, rect.x + setting->sliderEase, rect.w), rgb, animation);
                                         ImRenderUtils::fillShadowRectangle(ImVec4(rect.x, (catPositions[i].y + catHeight + moduleY + modHeight) - 3, rect.x + setting->sliderEase, rect.w), rgb, animation, 50.f, 0);*/
@@ -520,28 +544,33 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                         ImVec2 sliderBarMax = ImVec2(rect.x + (setting->sliderEase * inScale), rect.w);
                                         sliderBarMin.y = sliderBarMax.y - 4 * inScale;
 
-
+                                        ImVec4 sliderRect = ImVec4(sliderBarMin.x, sliderBarMin.y - 4.5f, sliderBarMax.x, sliderBarMax.y - 6.5f);
 
                                         // The slider bar
-                                        ImRenderUtils::fillRectangle(
-                                            ImVec4(sliderBarMin.x, sliderBarMin.y, sliderBarMax.x,
-                                                           sliderBarMax.y - 1.5f), rgb, animation);
-                                        // Push a clip rect to prevent the shadow from going outside the slider bar
-                                        ImGui::GetBackgroundDrawList()->PushClipRect(
-                                            ImVec2(sliderBarMin.x, rect.y), ImVec2(sliderBarMax.x, sliderBarMax.y),
-                                            true);
+                                        ImRenderUtils::fillRectangle(sliderRect, rgb, animation, 15);
 
-                                        ImRenderUtils::fillShadowRectangle(
-                                            ImVec4(sliderBarMin.x, sliderBarMin.y, sliderBarMax.x,
-                                                           sliderBarMax.y - 1.5f), rgb, animation, 50.f, 0);
+                                        // Circle (I am not sure)
+                                        ImVec2 circlePos = ImVec2(sliderRect.z - 2.25f, sliderRect.getCenter().y);
+
+                                        if (value <= min + 0.83f)
+                                        {
+                                            circlePos.x = sliderRect.z + 2.25f;
+                                        }
+
+                                        ImRenderUtils::fillCircle(circlePos, 5.5f * clickAnimation, rgb, animation, 12);
+
+                                        // Push a clip rect to prevent the shadow from going outside the slider bar
+                                        ImGui::GetBackgroundDrawList()->PushClipRect(ImVec2(sliderRect.x, sliderRect.y), ImVec2(sliderRect.z, sliderRect.w), true);
+
+                                        ImRenderUtils::fillShadowRectangle(sliderRect, rgb, animation * 0.75f, 15.f, 0);
 
                                         ImGui::GetBackgroundDrawList()->PopClipRect();
 
                                         auto ValueLen = ImRenderUtils::getTextWidth(&valueName, textSize);
                                         ImRenderUtils::drawText(
-                                            ImVec2((rect.z - 5.f) - ValueLen, rect.y + 2.5f), valueName,
+                                            ImVec2((backGroundRect.z - 5.f) - ValueLen, backGroundRect.y + 2.5f), valueName,
                                             ImColor(170, 170, 170), textSize, animation, true);
-                                        ImRenderUtils::drawText(ImVec2(rect.x + 5.f, rect.y + 2.5f),
+                                        ImRenderUtils::drawText(ImVec2(backGroundRect.x + 5.f, backGroundRect.y + 2.5f),
                                                                setName, ImColor(255, 255, 255), textSize,
                                                                animation, true);
                                     }
