@@ -8,12 +8,14 @@
 #include <Features/Events/KeyEvent.hpp>
 #include <Features/GUI/Dropdown.hpp>
 #include <Features/GUI/ModernDropdown.hpp>
+#include <Features/GUI/FrostDropdown.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
 static bool lastMouseState = false;
 static bool isPressingShift = false;
 static DropdownGui dropdownGui = DropdownGui();
 static ModernGui modernGui = ModernGui();
+static FrostGui frostGui = FrostGui();
 
 
 void ClickGui::onEnable()
@@ -41,6 +43,7 @@ void ClickGui::onWindowResizeEvent(WindowResizeEvent& event)
 {
     dropdownGui.onWindowResizeEvent(event);
     modernGui.onWindowResizeEvent(event); // are you okay in the head 😭
+    frostGui.onWindowResizeEvent((event));
 }
 
 
@@ -113,5 +116,10 @@ void ClickGui::onRenderEvent(RenderEvent& event)
     if (mStyle.mValue == ClickGuiStyle::Modern)
     {
         modernGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue, isPressingShift);
+    }
+
+    if (mStyle.mValue == ClickGuiStyle::Frost)
+    {
+        frostGui.render(animation, inScale, scrollDirection, h, mBlurStrength.mValue, mMidclickRounding.mValue);
     }
 }

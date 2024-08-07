@@ -20,8 +20,10 @@ public:
 	static void fillShadowCircle(ImVec2 pos, float radius, const ImColor& color, float alpha, float thickness, ImDrawFlags flags, float segments = 12.f);
 	static void drawRoundRect(ImVec4 pos, const ImDrawFlags& flags, float radius, const ImColor& color, float alpha, float lineWidth);
 	static void fillGradientOpaqueRectangle(ImVec4 pos, const ImColor& firstColor, const ImColor& secondColor, float firstAlpha, float secondAlpha);
-	static void fillRoundedGradientRectangle(ImVec4 pos, const ImColor& firstColor, const ImColor& secondColor, float radius, float firstAlpha, float secondAlpha);
+	static void fillRoundedGradientRectangle(ImVec4 pos, const ImColor& firstColor, const ImColor& secondColor, float radius, float firstAlpha, float secondAlpha, ImDrawFlags flags = 0);
+	static void drawCheckMark(ImVec2 pos, float size, const ImColor& color, float alpha, float thickness = 2.0f);
 	static void fillCircle(ImVec2 center, float radius, const ImColor& color, float alpha, int segments);
+	static void drawColorPicker(ImVec4& color, ImVec4 canvas_pos);
 	static ImVec2 getScreenSize();
 	static bool isFullScreen();
 	static float getTextHeightStr(std::string* textStr, float textSize);

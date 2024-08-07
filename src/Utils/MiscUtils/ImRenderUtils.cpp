@@ -114,22 +114,124 @@ void ImRenderUtils::fillGradientOpaqueRectangle(ImVec4 pos, const ImColor& first
 }
 
 void ImRenderUtils::fillRoundedGradientRectangle(ImVec4 pos, const ImColor& firstColor, const ImColor& secondColor,
-    float radius, float firstAlpha, float secondAlpha)
+    float radius, float firstAlpha, float secondAlpha, ImDrawFlags flags)
 {
-    if (!ImGui::GetCurrentContext())
-        return;
+	if (!ImGui::GetCurrentContext())
+		return;
 
-    ImDrawList* list = ImGui::GetBackgroundDrawList();
+	ImDrawList* list = ImGui::GetBackgroundDrawList();
 
-    ImVec2 topLeft = ImVec2(pos.x, pos.y);
-    ImVec2 bottomRight = ImVec2(pos.z, pos.w);
+	ImVec2 topLeft = ImVec2(pos.x, pos.y);
+	ImVec2 bottomRight = ImVec2(pos.z, pos.w);
 
-    list->AddRectFilledMultiColor(topLeft, bottomRight,
-                                  ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, secondAlpha),
-                                  ImColor(secondColor.Value.x, secondColor.Value.y, secondColor.Value.z, secondAlpha),
-                                  ImColor(secondColor.Value.x, secondColor.Value.y, secondColor.Value.z, firstAlpha),
-                                  ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, firstAlpha));
+	int startBufferSize = list->VtxBuffer.Size;
+	list->AddRectFilled(topLeft, bottomRight, ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, firstAlpha), radius, flags);
+	int endBufferSize = list->VtxBuffer.Size;
+	list->AddRectFilled(topLeft, bottomRight, ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, firstAlpha), radius, flags);
+	int endBufferSize2 = list->VtxBuffer.Size;
+
+	ImGui::ShadeVertsLinearColorGradientKeepAlpha(list, startBufferSize, endBufferSize, topLeft, bottomRight, ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, firstAlpha), ImColor(secondColor.Value.x, secondColor.Value.y, secondColor.Value.z, secondAlpha));
+	ImGui::ShadeVertsLinearColorGradientKeepAlpha(list, endBufferSize, endBufferSize2, topLeft, bottomRight, ImColor(firstColor.Value.x, firstColor.Value.y, firstColor.Value.z, firstAlpha), ImColor(secondColor.Value.x, secondColor.Value.y, secondColor.Value.z, secondAlpha));
 }
+
+void ImRenderUtils::drawCheckMark(ImVec2 pos, float size, const ImColor& color, float alpha, float thickness)
+{
+    ImVec2 end1 = ImVec2(pos.x + (3 * size), pos.y + (3 * size));
+    ImVec2 end2 = ImVec2(pos.x + (7 * size), pos.y - (3 * size));
+
+    ImGui::GetForegroundDrawList()->AddLine(ImVec2(pos.x, pos.y), end1, ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), thickness);
+    ImGui::GetForegroundDrawList()->AddLine(end1, end2, ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), thickness);
+}
+
+void ImRenderUtils::drawColorPicker(ImVec4& color, ImVec4 canvas_pos) // Hard coded sorry emily
+{
+	static float hue = 0.0f;
+	static float saturation = 0.0f;
+	static float value = 0.0f;
+
+	// Color to HSV shit
+	ImGui::ColorConvertRGBtoHSV(color.x, color.y, color.z, hue, saturation, value);
+
+	ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
+	//ImVec2 canvas_size = ImVec2(70, 40);
+	float hue_picker_thickness = 14.0f;
+
+	ImVec2 sv_picker_pos = ImVec2(canvas_pos.x, canvas_pos.y);
+	ImVec2 hue_picker_pos = ImVec2(canvas_pos.x, canvas_pos.y + canvas_pos.w + 10.0f);
+
+	// Draw SV Square
+	for (int y = 0; y < canvas_pos.w; y++)
+	{
+		for (int x = 0; x < canvas_pos.z; x++)
+		{
+			float s = (float)x / canvas_pos.z;
+			float v = 1.0f - (float)y / canvas_pos.w;
+			ImU32 col = ImColor::HSV(hue, s, v);
+			draw_list->AddRectFilled(
+				ImVec2(sv_picker_pos.x + x, sv_picker_pos.y + y),
+				ImVec2(sv_picker_pos.x + x + 1, sv_picker_pos.y + y + 1),
+				col
+			);
+		}
+	}
+
+	// Draw the circle at the current saturation and value
+	ImVec2 sv_cursor_pos = ImVec2(
+		sv_picker_pos.x + saturation * canvas_pos.z,
+		sv_picker_pos.y + (1.0f - value) * canvas_pos.w
+	);
+	draw_list->AddCircle(sv_cursor_pos, 5.0f, IM_COL32(255, 255, 255, 255), 12, 2.0f);
+
+	// Draw Hue Bar
+	for (int i = 0; i < canvas_pos.z; i++)
+	{
+		float h = (float)i / canvas_pos.z;
+		ImU32 col = ImColor::HSV(h, 1.0f, 1.0f);
+		draw_list->AddRectFilled(
+			ImVec2(hue_picker_pos.x + i, hue_picker_pos.y),
+			ImVec2(hue_picker_pos.x + i + 1, hue_picker_pos.y + hue_picker_thickness),
+			col
+		);
+	}
+
+	// renders the line on the hue(colour) selecter
+	ImVec2 hue_cursor_pos = ImVec2(hue_picker_pos.x + hue * canvas_pos.z, hue_picker_pos.y);
+	draw_list->AddLine(
+		ImVec2(hue_cursor_pos.x, hue_cursor_pos.y),
+		ImVec2(hue_cursor_pos.x, hue_cursor_pos.y + hue_picker_thickness),
+		IM_COL32(255, 255, 255, 255),
+		2.0f
+	);
+
+	// Handle Mouse Input for SV Square 😎
+	ImGuiIO& io = ImGui::GetIO();
+	if (ImRenderUtils::isMouseOver(ImVec4(sv_picker_pos.x, sv_picker_pos.y, sv_picker_pos.x + canvas_pos.z, sv_picker_pos.y + canvas_pos.w)))
+	{
+		if (ImGui::IsMouseDown(0))
+		{
+			ImVec2 mouse_pos_in_canvas = ImVec2(io.MousePos.x - sv_picker_pos.x, io.MousePos.y - sv_picker_pos.y);
+			saturation = mouse_pos_in_canvas.x / canvas_pos.z;
+			value = 1.0f - (mouse_pos_in_canvas.y / canvas_pos.w);
+			color = ImColor::HSV(hue, saturation, value);
+		}
+	}
+
+	// Handle Mouse Input for Hue Bar :s
+	if (ImRenderUtils::isMouseOver(ImVec4(hue_picker_pos.x, hue_picker_pos.y, hue_picker_pos.x + canvas_pos.z, hue_picker_pos.y + hue_picker_thickness)))
+	{
+		if (ImGui::IsMouseDown(0))
+		{
+			ImVec2 mouse_pos_in_canvas = ImVec2(io.MousePos.x - hue_picker_pos.x, io.MousePos.y - hue_picker_pos.y);
+			hue = mouse_pos_in_canvas.x / canvas_pos.z;
+			color = ImColor::HSV(hue, saturation, value);
+		}
+	}
+
+	// Show the selected color don't mind shit frost code :P
+	//ImVec2 color_preview_pos = ImVec2(canvas_pos.x, hue_picker_pos.y + hue_picker_thickness + 10.0f);
+	//draw_list->AddRectFilled(color_preview_pos, ImVec2(color_preview_pos.x + canvas_pos.z, color_preview_pos.y + 20.0f), ImColor(color));
+}
+
 
 void ImRenderUtils::fillCircle(ImVec2 center, float radius, const ImColor& color, float alpha, int segments)
 {
