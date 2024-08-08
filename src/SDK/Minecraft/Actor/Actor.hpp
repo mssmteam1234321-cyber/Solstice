@@ -136,7 +136,7 @@ public:
     void setOnGround(bool);
     void jumpFromGround();
     float getFallDistance();
-    const std::string& getRawName();
+    std::string getRawName();
     const std::string& getNameTag();
     void setNametag(const std::string& name);
     AttributesComponent* getAttributesComponent();

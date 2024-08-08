@@ -97,6 +97,7 @@ public:
     DEFINE_INDEX_FIELD(MinecraftGame_mProfanityContext, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 90 48 C7 44 24 20", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "38 ? ? 74 ? 38 ? ? ? 75 ? 4C 8D", 2, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Actor_mHurtTimeComponent, "48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 89 ? ? ? 48 8B ? 8B 38", 3, OffsetType::FieldOffset);
 
     // Just in case if its needed, these arent actually implemented yet
     DEFINE_INDEX_FIELD(ClientInstance_mHMDState, "48 8D ? ? ? ? ? 48 8B ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 C6 86 38 08 00 00", 3, OffsetType::FieldOffset);

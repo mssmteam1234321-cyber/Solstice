@@ -8,6 +8,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/BobHurtEvent.hpp>
 #include <Features/Events/BoneRenderEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
@@ -21,6 +22,7 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/RemoveActorPacket.hpp>
 
 int Aura::getSword(Actor* target) {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -101,6 +103,7 @@ void Aura::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &Aura::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Aura::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Aura::onBobHurtEvent, nes::event_priority::FIRST>(this);
     gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Aura::onBoneRenderEvent, nes::event_priority::FIRST>(this);
@@ -112,6 +115,7 @@ void Aura::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Aura::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Aura::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &Aura::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Aura::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BobHurtEvent, &Aura::onBobHurtEvent>(this);
     sHasTarget = false;
@@ -308,7 +312,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         throwProjectiles(actor);
         shootBow(actor);
 
-        if (now - lastAttack < delay) return;
+        if (now - lastAttack < delay) break;
 
         player->swing();
         int slot = -1;
@@ -370,6 +374,20 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
         pkt->mYHeadRot = rots.y;
     }
 
+}
+
+void Aura::onPacketInEvent(PacketInEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::RemoveActor)
+    {
+        auto packet = event.getPacket<RemoveActorPacket>();
+        if (sTarget && sTarget->getRuntimeID() == packet->mRuntimeID)
+        {
+            spdlog::critical("Active target was removed from world!! This may lead to a crash!");
+            sHasTarget = false;
+            sTarget = nullptr;
+        }
+    }
 }
 
 void Aura::onBobHurtEvent(BobHurtEvent& event)

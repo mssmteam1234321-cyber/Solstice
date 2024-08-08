@@ -14,7 +14,10 @@
 #include "EntityId.hpp"
 #include "spdlog/spdlog.h"
 
-class EntityRegistry;
+class EntityRegistry
+{
+    entt::basic_registry<EntityId>* mRegistry;
+};
 
 struct EntityContext {
     EntityRegistry* mEntityRegistry;
@@ -23,6 +26,7 @@ struct EntityContext {
 
     template <typename T>
     T* getComponent() {
+        if (!this->mRegistry) return nullptr;
         return const_cast<T*>(mRegistry->try_get<T>(mEntityId));
     }
 

@@ -297,7 +297,7 @@ MaxAutoStepComponent* Actor::getMaxAutoStepComponent()
 
 MobHurtTimeComponent* Actor::getMobHurtTimeComponent()
 {
-    return mContext.getComponent<MobHurtTimeComponent>();
+    return hat::member_at<MobHurtTimeComponent*>(this, OffsetProvider::Actor_mHurtTimeComponent);
 }
 
 SimpleContainer* Actor::getArmorContainer()
@@ -395,10 +395,29 @@ float Actor::getFallDistance()
     return mContext.getComponent<FallDistanceComponent>()->mFallDistance;
 }
 
-const std::string& Actor::getRawName()
+std::string Actor::getRawName()
 {
+    auto actorType = getActorTypeComponent();
+    if (!actorType)
+    {
+        spdlog::warn("Actor::getRawName: No ActorTypeComponent found");
+        return "Unknown?";
+    }
+    auto actorUniqueID = getActorUniqueIDComponent();
+    if (!actorUniqueID)
+    {
+        spdlog::warn("Actor::getRawName: No ActorUniqueIDComponent found");
+        return "What?";
+    }
+
+    if (actorType->type != ActorType::Player)
+    {
+        // mEntityIdentifier will be used as fallback
+        return mEntityIdentifier;
+    }
     auto player = ClientInstance::get()->getLocalPlayer();
-    int64_t uniqueId = getActorUniqueIDComponent()->mUniqueID;
+    uint64_t uniqueId = actorUniqueID->mUniqueID;
+
     for (auto& [id, entry] : *player->getLevel()->getPlayerList())
     {
         if (entry.id == uniqueId)
@@ -430,22 +449,30 @@ AttributesComponent* Actor::getAttributesComponent()
 
 float Actor::getMaxHealth()
 {
-    return getAttribute(Health)->maximumValue;
+    auto health = getAttribute(Health);
+    if (!health) return 0;
+    return health->maximumValue;
 }
 
 float Actor::getHealth()
 {
-    return getAttribute(Health)->currentValue;
+    auto health = getAttribute(Health);
+    if (!health) return 0;
+    return health->currentValue;
 }
 
 float Actor::getAbsorption()
 {
-    return getAttribute(Absorption)->currentValue;
+    auto absorption = getAttribute(Absorption);
+    if (!absorption) return 0;
+    return absorption->currentValue;
 }
 
 float Actor::getMaxAbsorption()
 {
-    return getAttribute(Absorption)->maximumValue;
+    auto absorption = getAttribute(Absorption);
+    if (!absorption) return 0;
+    return absorption->maximumValue;
 }
 
 AttributeInstance* Actor::getAttribute(AttributeId id)
@@ -455,8 +482,13 @@ AttributeInstance* Actor::getAttribute(AttributeId id)
 
 AttributeInstance* Actor::getAttribute(int id)
 {
+    auto component = getAttributesComponent();
+    if (!component) {
+        spdlog::critical("Actor::getAttribute: No AttributesComponent found");
+        return nullptr;
+    }
     // Directly access the map
-    auto& map = getAttributesComponent()->baseAttributeMap.attributes;
+    auto& map = component->baseAttributeMap.attributes;
     auto it = map.find(id);
     if (it != map.end()) {
         return &it->second;
