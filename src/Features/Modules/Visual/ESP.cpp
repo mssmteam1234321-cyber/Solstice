@@ -23,6 +23,8 @@ void ESP::onDisable()
 
 void ESP::onRenderEvent(RenderEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) return;
+
     auto actors = ActorUtils::getActorList(false, true);
 
     auto drawList = ImGui::GetBackgroundDrawList();

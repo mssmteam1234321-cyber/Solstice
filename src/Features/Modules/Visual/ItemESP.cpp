@@ -21,6 +21,8 @@ void ItemESP::onDisable()
 
 void ItemESP::onRenderEvent(RenderEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) return;
+
     auto ci = ClientInstance::get();
     auto player = ci->getLocalPlayer();
     if (!player) return;
