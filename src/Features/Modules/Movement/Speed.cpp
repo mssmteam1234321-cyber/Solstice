@@ -277,7 +277,7 @@ void Speed::tickFriction(Actor* player)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((mSpeed.as<float>() * mDamageBoostVal) / 10) * friction);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((mSpeed.as<float>() * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
@@ -371,7 +371,7 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction, false, mStrafe.mValue);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 

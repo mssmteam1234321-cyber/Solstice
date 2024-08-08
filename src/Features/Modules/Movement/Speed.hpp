@@ -57,8 +57,9 @@ public:
     };
 
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
-    EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT<FlareonPreset>("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
+    EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
+    BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to allow strafing", true);
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
@@ -76,14 +77,14 @@ public:
     BoolSetting mTimerBoost = BoolSetting("Timer Boost", "Whether or not to boost timer speed", false);
     NumberSetting mTimerSpeed = NumberSetting("Timer Speed", "The speed to boost timer by", 20, 0, 40, 0.1);
 
-    EnumSettingT<FastfallMode> mFastFall = EnumSettingT<FastfallMode>("Fast Fall", "The mode of fast fall", FastfallMode::None, "None", "Predict", "Set Vel");
+    EnumSettingT<FastfallMode> mFastFall = EnumSettingT("Fast Fall", "The mode of fast fall", FastfallMode::None, "None", "Predict", "Set Vel");
     NumberSetting mFallTicks = NumberSetting("Fall Ticks", "The tick to apply down motion at", 5, 0, 20, 1);
     NumberSetting mFallSpeed = NumberSetting("Fall Speed", "The speed to fall down at", 1.00, 0, 10, 0.01);
     BoolSetting mFastFall2 = BoolSetting("Fast Fall 2", "Whether or not to fast fall again", false);
     NumberSetting mFallTicks2 = NumberSetting("Fall Ticks 2", "The tick to apply down motion at", 5, 0, 20, 1);
     NumberSetting mFallSpeed2 = NumberSetting("Fall Speed 2", "The speed to fall down at", 1.00, 0, 10, 0.01);
 
-    EnumSettingT<JumpType> mJumpType = EnumSettingT<JumpType>("Jump Type", "The type of jump to use", JumpType::Vanilla, "Vanilla", "Velocity", "None");
+    EnumSettingT<JumpType> mJumpType = EnumSettingT("Jump Type", "The type of jump to use", JumpType::Vanilla, "Vanilla", "Velocity", "None");
     NumberSetting mJumpHeight = NumberSetting("Jump Height", "The height to jump at", 0.42f, 0, 1, 0.01);
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
@@ -91,6 +92,7 @@ public:
         addSettings(
             &mMode,
             &mFlareonPreset,
+            &mStrafe,
             &mSwiftness,
             &mSwiftnessHotbar,
             &mSwiftnessSpeed,

@@ -37,7 +37,7 @@ ImVec4 MathUtils::lerp(ImVec4& a, ImVec4& b, float t)
     return ImVec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t));
 }
 
-float MathUtils::getRotationKeyOffset(bool raw)
+float MathUtils::getRotationKeyOffset(bool raw, bool allowStrafe)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return 0;
@@ -53,21 +53,21 @@ float MathUtils::getRotationKeyOffset(bool raw)
     bool d = moveInput->mRight;
 
     float yawOffset = 0;
-    if (w && a)
+    if (w && a && allowStrafe)
         yawOffset = -45;
-    else if (w && d)
+    else if (w && d && allowStrafe)
         yawOffset = 45;
-    else if (s && a)
+    else if (s && a && allowStrafe)
         yawOffset = -135;
-    else if (s && d)
+    else if (s && d && allowStrafe)
         yawOffset = 135;
     else if (w)
         yawOffset = 0;
-    else if (a)
+    else if (a && allowStrafe)
         yawOffset = -90;
     else if (s)
         yawOffset = -180;
-    else if (d)
+    else if (d && allowStrafe)
         yawOffset = 90;
     else
         yawOffset = 0;
@@ -76,8 +76,8 @@ float MathUtils::getRotationKeyOffset(bool raw)
 }
 
 
-glm::vec2 MathUtils::getMotion(float yaw, float speed, bool raw) {
-    yaw += getRotationKeyOffset(raw) + 90;
+glm::vec2 MathUtils::getMotion(float yaw, float speed, bool raw, bool allowStrafe) {
+    yaw += getRotationKeyOffset(raw, allowStrafe) + 90;
 
     float calcYaw = glm::radians(yaw);
 
