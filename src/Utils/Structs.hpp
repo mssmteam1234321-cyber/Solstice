@@ -139,9 +139,10 @@ struct AABB {
 };
 
 struct FrameTransform {
-    glmatrixf mMatrix  {};
+    glmatrixf mMatrix    {};
     glm::vec3 mOrigin    {};
     glm::vec3 mPlayerPos {};
+    glm::vec2 mFov       {};
 };
 
 using BlockPos = glm::ivec3;

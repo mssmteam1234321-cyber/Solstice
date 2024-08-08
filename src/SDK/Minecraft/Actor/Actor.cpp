@@ -328,8 +328,10 @@ void Actor::setPosition(glm::vec3 pos)
 
 float Actor::distanceTo(Actor* actor)
 {
-    glm::vec3 closestPoint = getAABB().getClosestPoint(*actor->getPos());
-    return distance(closestPoint, *actor->getPos());
+    glm::vec3* actorPos = actor->getPos();
+    if (!actorPos) return -1;
+    glm::vec3 closestPoint = getAABB().getClosestPoint(*actorPos);
+    return distance(closestPoint, *actorPos);
 }
 
 bool Actor::wasOnGround()

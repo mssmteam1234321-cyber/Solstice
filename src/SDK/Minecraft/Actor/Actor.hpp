@@ -36,6 +36,8 @@
 
 class Actor {
 public:
+    unsigned char filler[1096 - 8]; // From levilamina
+
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
     CLASS_FIELD(std::string, mEntityIdentifier, 0x2B8)

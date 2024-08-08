@@ -39,7 +39,7 @@ void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
         playerPos = player->getRenderPositionComponent()->mPosition;
     }
 
-    if (D3DHook::FrameTransforms) D3DHook::FrameTransforms->push({ ci->getViewMatrix(), origin, playerPos });
+    if (D3DHook::FrameTransforms) D3DHook::FrameTransforms->push({ ci->getViewMatrix(), origin, playerPos, ci->getFov() });
 
     original(screenView, mcuirc);
 }

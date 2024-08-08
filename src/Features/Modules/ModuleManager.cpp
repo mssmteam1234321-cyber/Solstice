@@ -55,6 +55,7 @@
 #include "Visual/Notifications.hpp"
 #include "Visual/Watermark.hpp"
 #include "Visual/ESP.hpp"
+#include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
 #include "Visual/MotionBlur.hpp"
 #include "Visual/NoCameraClip.hpp"
@@ -129,6 +130,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<RobloxCamera>());
     mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<TargetHUD>());
+    mModules.emplace_back(std::make_shared<ItemESP>());
+
 
 
 

@@ -59,6 +59,45 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
     return actors;
 }
 
+std::vector<Actor*> ActorUtils::getActorsOfType(ActorType type)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player == nullptr)
+    {
+        //spdlog::warn("ActorUtils::getActorList called when player is nullptr");
+        return {};
+    }
+
+    if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();
+    std::vector<Actor*> actors;
+
+    try
+    {
+        for (auto &&[_, moduleOwner, typeComponent]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent>().each())
+        {
+            if (!moduleOwner.actor)
+            {
+                spdlog::debug("Found null actor pointer for entity!");
+                continue;
+            };
+            // do NOT exclude bots as we are specifically requesting a type
+
+            if (typeComponent.type == type)
+                actors.push_back(moduleOwner.actor);
+        }
+    } catch (std::exception &e)
+    {
+        spdlog::error("Error in ActorUtils::getActorsOfType: {}", e.what());
+        return {};
+    } catch (...)
+    {
+        spdlog::error("Error in ActorUtils::getActorsOfType: Unknown error");
+        return {};
+    }
+
+    return actors;
+}
+
 bool ActorUtils::isBot(Actor* actor)
 {
     if (!antibot) antibot = gFeatureManager->mModuleManager->getModule<AntiBot>();

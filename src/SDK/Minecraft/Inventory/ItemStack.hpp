@@ -104,3 +104,5 @@ public:
         reinit(item, count, itemData);
     }
 };
+
+static_assert(sizeof(ItemStack) == 0xA0, "ItemStack size invalid");

@@ -374,7 +374,7 @@ void D3DHook::igNewFrame()
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
 
-    MathUtils::fov = ClientInstance::get()->getFov();
+    MathUtils::fov = RenderUtils::transform.mFov;
     MathUtils::displaySize = ClientInstance::get()->getGuiData()->resolution;
     MathUtils::origin = RenderUtils::transform.mOrigin;
 

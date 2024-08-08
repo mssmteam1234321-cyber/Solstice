@@ -47,12 +47,15 @@ void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImCol
     d->AddText(font, (textSize * 18), textPos, ImColor(color.Value.x, color.Value.y, color.Value.z, alpha), textStr.c_str());
 }
 
-void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize)
+void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text, ImVec2 pos, ImColor color, float fontSize, bool specializedMultiplier)
 {
     ImVec2 shadowPos = pos;
     ImVec2 charSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, -1, text.c_str());
-    shadowPos.x += 2.25f;
-    shadowPos.y += 2.25f;
+	// Needed for ItemESP because of dynamic font size, but it causes issues with other text
+	float shadowPosMultiplier = specializedMultiplier ? fontSize / 24.f : 1.f;
+
+    shadowPos.x += 2.25f * shadowPosMultiplier;
+    shadowPos.y += 2.25f * shadowPosMultiplier;
     drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 1.f * color.Value.w), text.c_str());
     drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
 }
