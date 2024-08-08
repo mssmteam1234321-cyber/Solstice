@@ -27,6 +27,7 @@ public:
             &mScalingMultiplier
         );
 
+        VISIBILITY_CONDITION(mDistance, mDistanceLimited.mValue);
         VISIBILITY_CONDITION(mFontSize, mShowNames.mValue);
         VISIBILITY_CONDITION(mDistanceScaledFont, mShowNames.mValue);
         VISIBILITY_CONDITION(mFontSize, mShowNames.mValue && !mDistanceScaledFont.mValue);

@@ -30,6 +30,8 @@ void LongJump::onDisable()
             if (mod->mEnabled && mod->mKey != 0 && mod->mKey == mKey) mod->setEnabled(false);
         }
     }
+
+    mHasJumped = false;
 }
 
 void LongJump::onBaseTickEvent(BaseTickEvent& event)
