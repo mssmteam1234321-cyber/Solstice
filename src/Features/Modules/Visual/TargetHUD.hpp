@@ -13,12 +13,14 @@ public:
     EnumSettingT<Style> mStyle = EnumSettingT("Style", "The style of the target HUD", Style::Solstice, "Solstice");
     NumberSetting mXOffset = NumberSetting("X Offset", "The X offset of the target HUD", 100, -400, 400, 1);
     NumberSetting mYOffset = NumberSetting("Y Offset", "The Y offset of the target HUD", 100, -400, 400, 1);
+    NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 20, 1, 40, 1);
 
     TargetHUD() : ModuleBase("TargetHUD", "Shows target information", ModuleCategory::Visual, 0, false) {
         addSettings(
             &mStyle,
             &mXOffset,
-            &mYOffset
+            &mYOffset,
+            &mFontSize
         );
 
         mNames = {

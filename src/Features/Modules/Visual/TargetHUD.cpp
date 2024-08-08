@@ -147,11 +147,11 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     float startY = headPos.y + (headSize.y + ypad * anim);
 
     std::string name = mLastPlayerName;
-    auto textNameSize = ImGui::GetFont()->CalcTextSizeA(20 * anim, FLT_MAX, 0, name.c_str());
+    auto textNameSize = ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue * anim, FLT_MAX, 0, name.c_str());
     auto textNamePos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + (headQuartY - (textNameSize.y / 2)));
 
     std::string healthStr = "Health: " + std::to_string(static_cast<int>(mHealth + mAbsorption));
-    auto textHealthSize = ImGui::GetFont()->CalcTextSizeA(20 * anim, FLT_MAX, 0, healthStr.c_str());
+    auto textHealthSize = ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue * anim, FLT_MAX, 0, healthStr.c_str());
     auto textHealthPos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + ((headQuartY * 3) - (textHealthSize.y / 2)));
 
     headPos.x += (headSize.x - headSize2.x) / 2;
