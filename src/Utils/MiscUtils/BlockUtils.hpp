@@ -26,6 +26,7 @@ struct BlockInfo {
 class BlockUtils {
 public:
     static std::vector<BlockInfo> getBlockList(const glm::ivec3& position, float r);
+    //static std::vector<BlockInfo> getChunkBasedBlockList(const glm::ivec3& position, float r);
 
     /*if (!IsAirBlock(pos + BlockPos(0, -1, 0))) return 1;
 if (!IsAirBlock(pos + BlockPos(0, 0, 1))) return 2;
@@ -52,5 +53,7 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
     static void clearBlock(const glm::ivec3& pos);
     static void destroyBlock(glm::vec3 pos, int side, bool useTransac = false);
     static bool isMiningPosition(glm::ivec3 blockPos);
+    // Converts a min pos, and max pos, to a list of chunks that are in that range
+    static std::vector<struct ChunkPos> getChunkList(const glm::ivec3 min, const glm::ivec3 max);
 
 };

@@ -21,6 +21,8 @@
 #include <SDK/Minecraft/Network/Packets/PlayerActionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
+#include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
+#include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
 std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, float r)
 {
@@ -43,6 +45,65 @@ std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, floa
 
     return newBlocks;
 }
+
+/*
+std::vector<BlockInfo> BlockUtils::getChunkBasedBlockList(const glm::ivec3& position, float r)
+{
+    std::vector<BlockInfo> blocks = {};
+
+    const auto blockSource = ClientInstance::get()->getBlockSource();
+
+    auto newBlocks = std::vector<BlockInfo>();
+
+
+    const int radius = static_cast<int>(r);
+    newBlocks.reserve(radius * radius * radius); // reserve enough space for all blocks
+
+    glm::ivec3 min = position - glm::ivec3(radius);
+    glm::ivec3 max = position + glm::ivec3(radius);
+    auto chunks = getChunkList(min, max);
+
+    if (chunks.empty()) return newBlocks;
+
+    for (auto chunkPos : chunks)
+    {
+        LevelChunk* chunk = blockSource->getChunk(chunkPos);
+        if (chunk->isLoading) continue; // Skip if chunk is loading
+        if (!chunk) continue;
+
+        int blockFound = 0;
+
+        for (auto subchunk : chunk->subChunks)
+        {
+            auto readah = subchunk.blockReadPtr;
+            if (!readah) continue;
+            uint16_t searchRangeXZ = 16;
+            uint16_t searchRangeY = (blockSource->mBuildHeight - blockSource->mBuildDepth) / chunk->subChunks.size();
+            for(uint16_t x = 0; x < searchRangeXZ; x++)
+            {
+                for(uint16_t z = 0; z < searchRangeXZ; z++)
+                {
+                    for(uint16_t y = 0; y < searchRangeY; y++)
+                    {
+                        uint16_t elementId = (x * 0x10 + z) * 0x10 + (y & 0xf);
+                        Block* found = readah->getElement(elementId);
+                        BlockPos pos;
+                        pos.x = (chunkPos.x * 16) + x;
+                        pos.z = (chunkPos.y * 16) + z;
+                        pos.y = y + (subchunk.subchunkIndex * 16);
+                        //spdlog::debug("Block at ({}, {}, {}) is {}", pos.x, pos.y, pos.z, found->mLegacy->mName);
+                        newBlocks.emplace_back(found, pos);
+                    }
+                }
+            }
+        }
+    }
+
+    return newBlocks;
+}
+*/
+
+
 
 int BlockUtils::getBlockPlaceFace(glm::ivec3 blockPos)
 {
@@ -283,4 +344,15 @@ bool BlockUtils::isMiningPosition(glm::ivec3 blockPos) {
     if (oreMinerModule->mEnabled && oreMinerModule->mIsMiningBlock && oreMinerModule->mCurrentBlockPos == blockPos) return true;
 
     return false;
+}
+
+std::vector<ChunkPos> BlockUtils::getChunkList(const glm::ivec3 min, const glm::ivec3 max)
+{
+    std::vector<ChunkPos> chunks;
+    for (int x = min.x; x < max.x; x += 16)
+        for (int y = min.y; y < max.y; y += 16)
+            for (int z = min.z; z < max.z; z += 16)
+                chunks.push_back(ChunkPos(BlockPos(x, y, z)));
+
+    return chunks;
 }

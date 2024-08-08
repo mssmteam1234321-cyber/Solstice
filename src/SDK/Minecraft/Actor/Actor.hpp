@@ -129,6 +129,7 @@ public:
     class Level* getLevel();
     void setPosition(glm::vec3 pos);
     float distanceTo(Actor* actor);
+    float distanceTo(const glm::vec3& pos);
     bool wasOnGround();
     bool isInWater();
     void setInWater(bool inWater);

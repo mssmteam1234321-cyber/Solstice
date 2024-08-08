@@ -6,33 +6,16 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BlockChangedEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerActionPacket.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
+#include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
-void BlockESP::onEnable()
-{
-    gFeatureManager->mDispatcher->listen<RenderEvent, &BlockESP::onRenderEvent>(this);
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &BlockESP::onBaesTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
-}
 
-void BlockESP::onDisable()
-{
-    gFeatureManager->mDispatcher->deafen<RenderEvent, &BlockESP::onRenderEvent>(this);
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &BlockESP::onBaesTickEvent>(this);
-    gFeatureManager->mDispatcher->deafen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
-}
-
-struct DaBlock {
-    AABB mBlock;
-    ImColor mColor;
-};
-
-std::vector<DaBlock> blocks = {};
-
-// Block mutex
-static std::mutex blockMutex;
+static std::mutex blockMutex = {};
 
 constexpr int REDSTONE_ORE = 73;
 constexpr int REDSTONE_ORE_LIT = 74;
@@ -86,28 +69,217 @@ ImColor getColorFromId(int id)
     return ImColor(1.f, 1.f, 1.f, 1.f);
 }
 
+void BlockESP::moveToNext()
+{
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return;
+    }
+    ClientInstance* ci = ClientInstance::get();
+    Actor* player = ci->getLocalPlayer();
+    if (!player) return;
+    BlockSource* blockSource = ci->getBlockSource();
+
+    // da search pattern
+    static const std::vector<std::pair<int, int>> directions = {
+        { 1, 0 },
+        { 0, 1 },
+        { -1, 0 },
+        { 0, -1 }
+    };
+
+    size_t numSubchunks = (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16;
+    if(numSubchunks-1 > mSubChunkIndex)
+    {
+        mSubChunkIndex++;
+        //spdlog::debug("Moving to next subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, numSubchunks, mCurrentChunkPos.x, mCurrentChunkPos.y);
+        return;
+    }
+
+    mCurrentChunkPos.x += directions[mDirectionIndex].first;
+    mCurrentChunkPos.y += directions[mDirectionIndex].second;
+
+    mStepsCount++;
+    if (mStepsCount >= mSteps) {
+        mStepsCount = 0;
+        mDirectionIndex = (mDirectionIndex + 1) % directions.size();
+        if (mDirectionIndex % 2 == 0) {
+            mSteps++;
+        }
+    }
+
+    mSubChunkIndex = 0;
+    //spdlog::debug("Moving to next subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, numSubchunks, mCurrentChunkPos.x, mCurrentChunkPos.y);
+}
+
+bool BlockESP::processSub(ChunkPos processChunk, int index)
+{
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return false;
+    }
+    ClientInstance* ci = ClientInstance::get();
+    Actor* player = ci->getLocalPlayer();
+    if (!player) return false;
+    BlockSource* blockSource = ci->getBlockSource();
+
+    LevelChunk* chunk = blockSource->getChunk(processChunk);
+    if (!chunk) return false;
+
+    auto subChunk = chunk->subChunks[index];
+    SubChunkBlockStorage* blockReader = subChunk.blockReadPtr;
+    if (!blockReader) return false;
+
+    std::vector<int> enabledBlocks = getEnabledBlocks();
+
+    for(uint16_t x = 0; x < 16; x++)
+    {
+        for(uint16_t z = 0; z < 16; z++)
+        {
+            for(uint16_t y = 0; y < (blockSource->mBuildHeight - blockSource->mBuildDepth) / chunk->subChunks.size(); y++)
+            {
+                uint16_t elementId = (x * 0x10 + z) * 0x10 + (y & 0xf);
+                const Block* found = blockReader->getElement(elementId);
+                if (found->mLegacy->getBlockId() == 0)
+                {
+                    mFoundBlocks.erase(BlockPos((processChunk.x * 16) + x, y + (subChunk.subchunkIndex * 16), (processChunk.y * 16) + z));
+                    continue;
+                }
+                if (std::ranges::find(enabledBlocks, found->mLegacy->getBlockId()) == enabledBlocks.end()) continue;
+
+                BlockPos pos;
+                pos.x = (processChunk.x * 16) + x;
+                pos.z = (processChunk.y * 16) + z;
+                pos.y = y + (subChunk.subchunkIndex * 16);
+
+                //spdlog::debug("Block at ({}, {}, {}) is {} [{}]", pos.x, pos.y, pos.z, found->mLegacy->mName, found->mLegacy->getBlockId());
+                mFoundBlocks[pos] = { found, AABB(pos, glm::vec3(1.f, 1.f, 1.f)), getColorFromId(found->mLegacy->getBlockId()) };
+            }
+        }
+    }
+
+    return true;
+}
+
+void BlockESP::reset()
+{
+    std::lock_guard<std::mutex> lock(blockMutex); // Lock mutex
+
+    ClientInstance* ci = ClientInstance::get();
+    Actor* player = ci->getLocalPlayer();
+    mFoundBlocks.clear();
+    mStepsCount = 0;
+    mSteps = 1;
+    mDirectionIndex = 0;
+    mSubChunkIndex = 0;
+    if (!player) return;
+    BlockSource* blockSource = ci->getBlockSource();
+
+    mSearchCenter = ChunkPos(*player->getPos());
+    mCurrentChunkPos = mSearchCenter;
+}
+
+void BlockESP::onEnable()
+{
+    gFeatureManager->mDispatcher->listen<RenderEvent, &BlockESP::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &BlockESP::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &BlockESP::onPacketInEvent>(this);
+    reset();
+}
+
+void BlockESP::onDisable()
+{
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &BlockESP::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &BlockESP::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &BlockESP::onPacketInEvent>(this);
+    reset();
+}
+
+std::vector<int> BlockESP::getEnabledBlocks()
+{
+    std::vector<int> enabledBlocks = {};
+
+    // Insert deepslate ores as well
+    if (mEmerald.mValue)
+    {
+        enabledBlocks.push_back(EMERALD_ORE);
+        enabledBlocks.push_back(DEEPSLATE_EMERALD_ORE);
+    }
+    if (mDiamond.mValue)
+    {
+        enabledBlocks.push_back(DIAMOND_ORE);
+        enabledBlocks.push_back(DEEPSLATE_DIAMOND_ORE);
+    }
+    if (mGold.mValue)
+    {
+        enabledBlocks.push_back(GOLD_ORE);
+        enabledBlocks.push_back(DEEPSLATE_GOLD_ORE);
+    }
+    if (mIron.mValue)
+    {
+        enabledBlocks.push_back(IRON_ORE);
+        enabledBlocks.push_back(DEEPSLATE_IRON_ORE);
+    }
+    if (mCoal.mValue)
+    {
+        enabledBlocks.push_back(COAL_ORE);
+        enabledBlocks.push_back(DEEPSLATE_COAL_ORE);
+    }
+    if (mRedstone.mValue)
+    {
+        enabledBlocks.push_back(REDSTONE_ORE);
+        enabledBlocks.push_back(REDSTONE_ORE_LIT);
+        enabledBlocks.push_back(DEEPSLATE_REDSTONE_ORE);
+        enabledBlocks.push_back(DEEPSLATE_LIT_REDSTONE_ORE);
+    }
+    if (mLapis.mValue)
+    {
+        enabledBlocks.push_back(LAPIS_ORE);
+        enabledBlocks.push_back(DEEPSLATE_LAPIS_ORE);
+    }
+
+    return enabledBlocks;
+}
+
 void BlockESP::onBlockChangedEvent(BlockChangedEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return;
+    }
+    std::lock_guard<std::mutex> lock(blockMutex); // Lock mutex
+
     auto dabl = BlockInfo(event.mNewBlock, event.mBlockPos);
     if (dabl.getDistance(*ClientInstance::get()->getLocalPlayer()->getPos()) > mRadius.mValue) return;
 
-    if (isValidBlock(event.mNewBlock->mLegacy->getBlockId()))
+    ChunkPos chunkPos = ChunkPos(event.mBlockPos);
+    int subChunk = (event.mBlockPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
+    processSub(chunkPos, subChunk);
+
+    auto enabledBlocks = getEnabledBlocks();
+
+    if (isValidBlock(event.mNewBlock->mLegacy->getBlockId()) && std::ranges::find(enabledBlocks, event.mNewBlock->mLegacy->getBlockId()) != enabledBlocks.end())
     {
-        std::lock_guard<std::mutex> lock(blockMutex);
-        blocks.push_back({ dabl.getAABB(), getColorFromId(dabl.mBlock->toLegacy()->getBlockId()) });
+        const Block* block = event.mNewBlock;
+        mFoundBlocks[event.mBlockPos] = { block, AABB(event.mBlockPos, glm::vec3(1.f, 1.f, 1.f)), getColorFromId(block->mLegacy->getBlockId()) };
         spdlog::debug("event.mNewBlock->mLegacy->mName: {} event.mOldBlock->mLegacy->mName: {}", event.mNewBlock->mLegacy->mName, event.mOldBlock->mLegacy->mName);
     }
     else
     {
-        std::lock_guard<std::mutex> lock(blockMutex);
-        std::erase_if(blocks, [&](DaBlock& block) {
-            return block.mBlock == dabl.getAABB();
-        });
+        mFoundBlocks.erase(event.mBlockPos);
     }
 };
 
-void BlockESP::onBaesTickEvent(BaseTickEvent& event) const
+void BlockESP::onBaseTickEvent(BaseTickEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return;
+    }
+    std::lock_guard<std::mutex> lock(blockMutex); // Lock mutex
+
     static uint64_t lastUpdate = 0;
     uint64_t freq = mUpdateFrequency.mValue * 50.f;
     uint64_t now = NOW;
@@ -115,58 +287,79 @@ void BlockESP::onBaesTickEvent(BaseTickEvent& event) const
     if (lastUpdate + freq > now) return;
 
     lastUpdate = now;
+    auto ci = ClientInstance::get();
+    auto player = ci->getLocalPlayer();
+    if (!player) return;
+    auto blockSource = ci->getBlockSource();
 
-    const auto player = ClientInstance::get()->getLocalPlayer();
-    auto newBlocks = std::vector<DaBlock>();
-    for (BlockInfo block : BlockUtils::getBlockList(*player->getPos(), mRadius.mValue))
+    /*if (currentChunkPos.distanceTo(searchCenter) > searchRadius) {
+        this->state = ServiceState::IDLE;
+    }*/
+    if (glm::distance(glm::vec2(mCurrentChunkPos), glm::vec2(mSearchCenter)) > mChunkRadius.mValue)
     {
-        int id = block.mBlock->toLegacy()->getBlockId();
-
-        if (mEmerald.mValue && (id == EMERALD_ORE || id == DEEPSLATE_EMERALD_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mDiamond.mValue && (id == DIAMOND_ORE || id == DEEPSLATE_DIAMOND_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mGold.mValue && (id == GOLD_ORE || id == DEEPSLATE_GOLD_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mIron.mValue && (id == IRON_ORE || id == DEEPSLATE_IRON_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mCoal.mValue && (id == COAL_ORE || id == DEEPSLATE_COAL_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mRedstone.mValue && (id == REDSTONE_ORE || id == REDSTONE_ORE_LIT || id == DEEPSLATE_REDSTONE_ORE || id == DEEPSLATE_LIT_REDSTONE_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else if (mLapis.mValue && (id == LAPIS_ORE || id == DEEPSLATE_LAPIS_ORE))
-        {
-            newBlocks.push_back({ block.getAABB(), getColorFromId(id) });
-        }
-        else continue; // Skip if not in the list
+        spdlog::debug("Resetting search");
+        // Reset positions, don't clear blocks
+        mSearchCenter = ChunkPos(*player->getPos());
+        mCurrentChunkPos = mSearchCenter;
+        mStepsCount = 0;
+        mSteps = 1;
+        mDirectionIndex = 0;
+        mSubChunkIndex = 0;
     }
 
-    std::lock_guard<std::mutex> lock(blockMutex);
-    blocks = newBlocks;
+    for (int i = 0; i < 5; i++)
+    {
+        processSub(mCurrentChunkPos, mSubChunkIndex);
+        moveToNext();
+    }
+
+    BlockPos playerPos = *player->getPos();
+    int subChunk = (playerPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
+    processSub(ChunkPos(playerPos), subChunk);
+
+}
+
+void BlockESP::onPacketInEvent(PacketInEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::ChangeDimension)
+    {
+        reset(); // Reset the search when changing dimensions
+    }
+
+    if (event.mPacket->getId() == PacketID::PlayerAction)
+    {
+        auto packet = event.getPacket<PlayerActionPacket>();
+        if (packet->mAction == PlayerActionType::Respawn) reset();
+    }
 }
 
 void BlockESP::onRenderEvent(RenderEvent& event)
 {
     if (ClientInstance::get()->getMouseGrabbed()) return;
-    std::lock_guard<std::mutex> lock(blockMutex);
+
+    std::lock_guard<std::mutex> lock(blockMutex); // Lock mutex
 
     auto drawList = ImGui::GetBackgroundDrawList();
 
-    for (auto& [block, color] : blocks)
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player || !ClientInstance::get()->getLevelRenderer())
     {
-        std::vector<glm::vec2> points = MathUtils::getBoxPoints(block);
+        reset();
+        return;
+    }
+
+    glm::ivec3 playerPos = *player->getPos();
+
+    // Render the current chunk
+    AABB playerAABB = AABB(playerPos, glm::vec3(1.f, 1.f, 1.f));
+
+    for (auto& [pos, block] : mFoundBlocks)
+    {
+        if (distance(glm::vec3(pos), glm::vec3(playerPos)) > mRadius.mValue) continue;
+
+        ImColor& color = block.color;
+        AABB& blockAABB = block.aabb;
+        std::vector<glm::vec2> points = MathUtils::getBoxPoints(blockAABB);
         std::vector<ImVec2> imPoints = {};
         for (auto point : points)
         {

@@ -32,6 +32,7 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
             Aura::sTarget = nullptr;
             return;
         }
+        if (!Aura::sTarget->isPlayer()) return;
         mLastHurtTime = mHurtTime;
         mHurtTime = static_cast<float>(Aura::sTarget->getMobHurtTimeComponent()->mHurtTime);
         mLastHealth = mHealth;

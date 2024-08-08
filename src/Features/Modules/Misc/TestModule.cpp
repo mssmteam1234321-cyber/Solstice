@@ -4,6 +4,7 @@
 
 #include "TestModule.hpp"
 
+#include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/LookInputEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -15,25 +16,29 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
+#include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
 void TestModule::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    /*gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);
+    gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
 }
 
 void TestModule::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
-    gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    /*gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);
+    */
 
 }
 
@@ -41,10 +46,13 @@ Block* gDaBlock = nullptr;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
+    auto player = event.mActor;
     if (!player) return;
 
-    player->setFlag<ActorMovementTickNeededFlag>(true);
+    //player->setFlag<ActorMovementTickNeededFlag>(true);
+
+
+
 
     /*
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
@@ -77,6 +85,47 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
     // Store the last player list
     lastPlayerNames = playerNames;*/
+
+    glm::ivec3 blockPos = *player->getPos();
+    blockPos.x = std::floor(blockPos.x);
+    blockPos.y = std::floor(blockPos.y);
+    blockPos.z = std::floor(blockPos.z);
+
+    auto blockSource = ClientInstance::get()->getBlockSource();
+    ChunkBlockPos chunkBlockPos = ChunkBlockPos(BlockPos(blockPos));
+    auto chunkPos = ChunkPos(BlockPos(blockPos));
+    LevelChunk* chunk = blockSource->getChunk(chunkPos);
+    if (!chunk) return;
+
+    int blockFound = 0;
+
+    for (auto subchunk : chunk->subChunks)
+    {
+        auto readah = subchunk.blockReadPtr;
+        if (!readah) continue;
+        uint16_t searchRangeXZ = 16;
+        uint16_t searchRangeY = (blockSource->mBuildHeight - blockSource->mBuildDepth) / chunk->subChunks.size();
+        for(uint16_t x = 0; x < searchRangeXZ; x++)
+        {
+            for(uint16_t z = 0; z < searchRangeXZ; z++)
+            {
+                for(uint16_t y = 0; y < searchRangeY; y++)
+                {
+                    uint16_t elementId = (x * 0x10 + z) * 0x10 + (y & 0xf);
+                    const Block* found = readah->getElement(elementId);
+                    if (found->mLegacy->getBlockId() == 0) continue;
+                    BlockPos pos;
+                    pos.x = (chunkPos.x * 16) + x;
+                    pos.z = (chunkPos.y * 16) + z;
+                    pos.y = y + (subchunk.subchunkIndex * 16);
+                    //spdlog::debug("Block at ({}, {}, {}) is {}", pos.x, pos.y, pos.z, found->mLegacy->mName);
+                    blockFound++;
+                }
+            }
+        }
+    }
+
+    spdlog::debug("Found {} blocks at chunkpos ({}, {})", blockFound, chunkPos.x, chunkPos.y);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
@@ -109,23 +158,6 @@ void displayCopyableAddress(const std::string& name, void* address)
 
 void TestModule::onLookInputEvent(LookInputEvent& event)
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
-
-    /*player->setFlag<CameraRenderFirstPersonObjects>(false);
-    player->setFlag<CameraRenderPlayerModel>(true);*/
-
-    auto firstPersonCamera = event.mFirstPersonCamera;
-    auto thirdPersonCamera = event.mThirdPersonCamera;
-    auto thirdPersonFrontCamera = event.mThirdPersonFrontCamera;
-
-    glm::vec2 radRot = event.mCameraDirectLookComponent->mRotRads;
-    int perspectiveOption = ClientInstance::get()->getOptions()->game_thirdperson->value;
-
-    spdlog::info("firstPersonCamera: 0x{:X}", reinterpret_cast<uintptr_t>(firstPersonCamera));
-    spdlog::info("thirdPersonCamera: 0x{:X}", reinterpret_cast<uintptr_t>(thirdPersonCamera));
-    spdlog::info("thirdPersonFrontCamera: 0x{:X}", reinterpret_cast<uintptr_t>(thirdPersonFrontCamera));
-
 
 }
 

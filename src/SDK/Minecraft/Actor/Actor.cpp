@@ -334,6 +334,12 @@ float Actor::distanceTo(Actor* actor)
     return distance(closestPoint, *actorPos);
 }
 
+float Actor::distanceTo(const glm::vec3& pos)
+{
+    glm::vec3 closestPoint = getAABB().getClosestPoint(pos);
+    return distance(closestPoint, pos);
+}
+
 bool Actor::wasOnGround()
 {
     auto storage = mContext.assure<FlagComponent<WasOnGroundFlag>>();

@@ -7,7 +7,15 @@ class ChunkPos : public glm::ivec2
 public:
     ChunkPos() : glm::ivec2(0, 0) {};
     ChunkPos(int x, int z) : glm::ivec2(x, z) {}
-    ChunkPos(const BlockPos& blockPos)
+
+    explicit ChunkPos(const glm::vec3& vec)
+    {
+        const auto blockPos = BlockPos(vec);
+        this->x = blockPos.x >> 4;
+        this->y = blockPos.z >> 4;
+    }
+
+    explicit ChunkPos(const BlockPos& blockPos)
     {
         this->x = blockPos.x >> 4;
         this->y = blockPos.z >> 4;

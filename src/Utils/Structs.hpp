@@ -146,3 +146,19 @@ struct FrameTransform {
 };
 
 using BlockPos = glm::ivec3;
+
+namespace glm {
+    // < operator for glm::ivec3
+    inline bool operator<(const glm::ivec3& lhs, const glm::ivec3& rhs) {
+        return lhs.x < rhs.x && lhs.y < rhs.y && lhs.z < rhs.z;
+    }
+}
+
+template<>
+struct std::hash<BlockPos>
+{
+    size_t operator()(const BlockPos& obj) const noexcept
+    {
+        return obj.x ^ obj.y ^ obj.z;
+    }
+};

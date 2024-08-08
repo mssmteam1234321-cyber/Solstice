@@ -72,7 +72,9 @@ float ClickGui::getEaseAnim(EasingUtil ease, int mode) {
     switch (mode) {
     case 0: return ease.easeOutExpo(); break;
     case 1: return mEnabled ? ease.easeOutElastic() : ease.easeOutBack(); break;
+    default: return ease.easeOutExpo(); break;
     }
+
 }
 
 void ClickGui::onRenderEvent(RenderEvent& event)

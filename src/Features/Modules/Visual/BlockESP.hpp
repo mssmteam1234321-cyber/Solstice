@@ -9,8 +9,9 @@
 class BlockESP : public ModuleBase<BlockESP>
 {
 public:
-    NumberSetting mRadius = NumberSetting("Radius", "The radius of the block esp", 10.f, 1.f, 100.f, 0.01f);
-    NumberSetting mUpdateFrequency = NumberSetting("Update Frequency", "The frequency of the block update (in ticks)", 5.f, 1.f, 40.f, 0.01f);
+    NumberSetting mRadius = NumberSetting("Radius", "The radius of the block esp", 20.f, 1.f, 32.f, 0.01f);
+    NumberSetting mChunkRadius = NumberSetting("Chunk Radius", "The max chunk radius to search for blocks", 4.f, 1.f, 32.f, 1.f);
+    NumberSetting mUpdateFrequency = NumberSetting("Update Frequency", "The frequency of the block update (in ticks)", 1.f, 1.f, 40.f, 0.01f);
     BoolSetting mRenderFilled = BoolSetting("Render Filled", "Renders the block esp filled", true);
     BoolSetting mEmerald = BoolSetting("Emerald", "Draws around emerald ore", true);
     BoolSetting mDiamond = BoolSetting("Diamond", "Draws around diamond ore", true);
@@ -21,7 +22,7 @@ public:
     BoolSetting mLapis = BoolSetting("Lapis", "Draws around lapis ore", true);
 
     BlockESP() : ModuleBase("BlockESP", "Draws a box around selected blocks", ModuleCategory::Visual, 0, false) {
-        addSettings(&mRadius, &mUpdateFrequency, &mRenderFilled, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis);
+        addSettings(&mRadius, &mChunkRadius, &mUpdateFrequency, &mRenderFilled, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis);
 
         mNames = {
             {Lowercase, "blockesp"},
@@ -31,9 +32,31 @@ public:
         };
     }
 
+    ChunkPos mSearchCenter;
+    ChunkPos mCurrentChunkPos;
+    int mSubChunkIndex = 0;
+    int mDirectionIndex = 0;
+    int mSteps = 1;
+    int mStepsCount = 0;
+
+    struct FoundBlock
+    {
+        const Block* block;
+        AABB aabb;
+        ImColor color;
+    };
+
+    std::unordered_map<BlockPos, FoundBlock> mFoundBlocks = {};
+
+    void moveToNext();
+    bool processSub(ChunkPos processChunk, int subChunk);
+    void reset();
+
     void onEnable() override;
     void onDisable() override;
+    std::vector<int> getEnabledBlocks();
     void onBlockChangedEvent(class BlockChangedEvent& event);
-    void onBaesTickEvent(class BaseTickEvent& event) const;
+    void onBaseTickEvent(class BaseTickEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };

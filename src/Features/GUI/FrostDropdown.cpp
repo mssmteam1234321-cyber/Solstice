@@ -357,7 +357,7 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                                         if (boolSetting->mValue)
                                         {
                                             ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4, booleanRect.getCenter().y - 1), 1.3, rgb, mod->cAnim);
-                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4, booleanRect.getCenter().y - 1), 1.3, rgb, mod->cAnim);
+                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4,  booleanRect.getCenter().y - 1), 1.3, rgb, mod->cAnim);
                                         }
 
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), setName,
