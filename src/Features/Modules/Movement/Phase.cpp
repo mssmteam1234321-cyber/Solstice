@@ -19,22 +19,21 @@ std::vector<glm::ivec3> getCollidingBlocks()
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return collidingBlockList;
     AABBShapeComponent* aabb = player->getAABBShapeComponent();
-    float width = aabb->mWidth - 0.2f;
     glm::vec3 lower = aabb->mMin;
     glm::vec3 upper = aabb->mMin;
-    lower.x -= width / 2.f;
-    lower.y -= 0.1f;
-    lower.z -= width / 2.f;
+    //lower.x -= 0.1f;
+    //lower.y -= 0.1f;
+    //lower.z -= 0.1f;
 
-    upper.x += width / 2.f;
-    upper.y += aabb->mHeight + 1.f;
-    upper.z += width / 2.f;
+    //upper.x += 0.1f;
+    upper.y += aabb->mHeight;
+    //upper.z += 0.1f;
 
     for (int x = floor(lower.x); x <= floor(upper.x); x++)
         for (int y = floor(lower.y); y <= floor(upper.y); y++)
             for (int z = floor(lower.z); z <= floor(upper.z); z++) {
                 glm::ivec3 blockPos = { x, y, z };
-                if (!ClientInstance::get()->getBlockSource()->getBlock(blockPos)->mLegacy->isAir()) {
+                if (!BlockUtils::isAirBlock(blockPos)) {
                     collidingBlockList.emplace_back(blockPos);
                 }
             }
@@ -76,28 +75,28 @@ void Phase::onBaseTickEvent(BaseTickEvent& event)
         auto stateVector = player->getStateVectorComponent();
         bool isJumping = moveInput->mIsJumping;
         bool isSneaking = moveInput->mIsSneakDown;
-        glm::vec3 motion = { 0, 0, 0 };
+        float value = 0;
+
+        glm::vec3 belowBlockPos = *player->getPos();
+        belowBlockPos.y -= (PLAYER_HEIGHT + 0.1f);
+        glm::vec3 aboveBlockPos = *player->getPos();
+        aboveBlockPos.y += 0.5f;
 
         std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks();
-
-        if (!collidingBlocks.empty()) {
-            if ((isJumping || isSneaking)) motion.y = isJumping ? mSpeed.mValue / 10 : -(mSpeed.mValue / 10);
-            aabb->mMax.y = 0.f;
-            stateVector->mVelocity = motion;
-
-            glm::vec3 belowBlockPos = *player->getPos();
-            belowBlockPos.y -= (PLAYER_HEIGHT + 0.1f);
-            player->setOnGround(!ClientInstance::get()->getBlockSource()->getBlock(belowBlockPos)->mLegacy->isAir());
-        }
-        else {
-            if (0 < stateVector->mVelocity.y) stateVector->mVelocity.y = 0.f;
-
-            if (aabb->mMax.y != aabb->mMin.y + aabb->mHeight) {
-                aabb->mMax.y = aabb->mMin.y + aabb->mHeight;
-            }
+        if (isJumping && (!BlockUtils::isAirBlock(aboveBlockPos) || !collidingBlocks.empty())) {
+            value = mSpeed.mValue / 10;
+            aabb->mMin.y += value;
+            aabb->mMax.y += value;
+            stateVector->mVelocity = { 0, 0, 0 };
+        }else if (isSneaking && (!BlockUtils::isAirBlock(belowBlockPos) || !collidingBlocks.empty())) {
+            value = -(mSpeed.mValue / 10);
+            aabb->mMin.y += value;
+            aabb->mMax.y += value;
+            stateVector->mVelocity = { 0, 0, 0 };
+            moveInput->mIsSneakDown = false;
         }
 
-        mMoving = 0 < abs(motion.y);
+        mMoving = 0 < abs(value);
     }
 }
 
