@@ -24,6 +24,9 @@ enum class FastfallMode {
 struct FrictionPreset
 {
     float speed = 0.5;
+    bool strafe = true;
+    bool useStrafeSpeed = true;
+    float strafeSpeed = 0.5;
     float friction = 0.975;
     bool timerBoost = false;
     float timerSpeed = 20;
@@ -37,8 +40,8 @@ struct FrictionPreset
     float jumpHeight = 0.42f;
 
     FrictionPreset() = default;
-    FrictionPreset(float speed, float friction, bool timerBoost, float timerSpeed, FastfallMode fastFall, int fallTicks, float fallSpeed, bool fastFall2, int fallTicks2, float fallSpeed2, JumpType jumpType, float jumpHeight)
-        : speed(speed), friction(friction), timerBoost(timerBoost), timerSpeed(timerSpeed), fastFall(fastFall), fallTicks(fallTicks), fallSpeed(fallSpeed), fastFall2(fastFall2), fallTicks2(fallTicks2), fallSpeed2(fallSpeed2), jumpType(jumpType), jumpHeight(jumpHeight)
+    FrictionPreset(float speed, bool strafe, bool useStrafeSpeed, float strafeSpeed, float friction, bool timerBoost, float timerSpeed, FastfallMode fastFall, int fallTicks, float fallSpeed, bool fastFall2, int fallTicks2, float fallSpeed2, JumpType jumpType, float jumpHeight)
+        : speed(speed), strafe(strafe), useStrafeSpeed(useStrafeSpeed), strafeSpeed(strafeSpeed), friction(friction), timerBoost(timerBoost), timerSpeed(timerSpeed), fastFall(fastFall), fallTicks(fallTicks), fallSpeed(fallSpeed), fastFall2(fastFall2), fallTicks2(fallTicks2), fallSpeed2(fallSpeed2), jumpType(jumpType), jumpHeight(jumpHeight)
     {}
 };
 
@@ -59,7 +62,6 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Flareon V1");
     EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT("Type", "The preset for Flareon", FlareonPreset::FastFall, "FastFall", "Normal", "Low1", "Low2");
-    BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to allow strafing", true);
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
@@ -72,7 +74,11 @@ public:
     BoolSetting mDamageTimer = BoolSetting("Damage Timer", "Whether or not to boost timer speed when taking damage", false);
     NumberSetting mDamageTimerSpeed = NumberSetting("Damage Timer Speed", "The speed to boost timer by when taking damage", 20, 0, 40, 0.1);
 
+
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
+    BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
+    BoolSetting mUseStrafeSpeed = BoolSetting("Custom Strafe Speed", "Whether or not to apply custom speed when strafing", true);
+    NumberSetting mStrafeSpeed = NumberSetting("Strafe Speed", "The speed to strafe at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
     BoolSetting mTimerBoost = BoolSetting("Timer Boost", "Whether or not to boost timer speed", false);
     NumberSetting mTimerSpeed = NumberSetting("Timer Speed", "The speed to boost timer by", 20, 0, 40, 0.1);
@@ -92,7 +98,6 @@ public:
         addSettings(
             &mMode,
             &mFlareonPreset,
-            &mStrafe,
             &mSwiftness,
             &mSwiftnessHotbar,
             &mSwiftnessSpeed,
@@ -104,6 +109,9 @@ public:
             &mDamageTimer,
             &mDamageTimerSpeed,
             &mSpeed,
+            &mStrafe,
+            &mUseStrafeSpeed,
+            &mStrafeSpeed,
             &mFriction,
             &mTimerBoost,
             &mTimerSpeed,
@@ -117,6 +125,9 @@ public:
             &mJumpHeight,
             &mApplyNetskip
         );
+
+        VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
+        VISIBILITY_CONDITION(mStrafeSpeed, mStrafe.mValue);
 
         VISIBILITY_CONDITION(mSwiftnessHotbar, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessSpeed, mSwiftness.mValue);

@@ -26,3 +26,12 @@ bool Keyboard::isUsingMoveKeys(bool includeSpaceShift)
         return isMoving || Keyboard::mPressedKeys[VK_SPACE] || Keyboard::mPressedKeys[VK_SHIFT];
     return isMoving;
 }
+
+bool Keyboard::isStrafing()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return false;
+
+    auto moveInput = player->getMoveInputComponent();
+    return moveInput->mLeft || moveInput->mRight || moveInput->mBackward;
+}

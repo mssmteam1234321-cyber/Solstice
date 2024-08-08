@@ -150,16 +150,16 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         {
             // float speed, float friction, bool timerBoost, float timerSpeed, bool fastFall, int fallTicks, float fallSpeed, JumpType jumpType, float jumpHeight)
             case FlareonPreset::FastFall:
-                preset = FrictionPreset(3.75, 0.98, true, 20.20, FastfallMode::Predict, 4, 3.00, false, 0, 0, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.75, true, false, 0.f, 0.98, true, 20.20, FastfallMode::Predict, 4, 3.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Normal:
-                preset = FrictionPreset(3.66, 0.98, false, 20.20, FastfallMode::Predict, 5, 1.00, false, 0, 0, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.66, true, false, 0.f, 0.98, false, 20.20, FastfallMode::Predict, 5, 1.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Low1:
-                preset = FrictionPreset(3.78, 0.98, true, 20.30, FastfallMode::Predict, 1, 2.00, false, 0, 0, JumpType::Vanilla, 0.42f);
+                preset = FrictionPreset(3.78, true, false, 0.f, 0.98, true, 20.30, FastfallMode::Predict, 1, 2.00, false, 0, 0, JumpType::Vanilla, 0.42f);
                 break;
             case FlareonPreset::Low2:
-                preset = FrictionPreset(3.75, 0.98, true, 21.00, FastfallMode::Predict, 4, 1.00, false, 0, 0, JumpType::Velocity, 0.29f);
+                preset = FrictionPreset(3.75, true, false, 0.f, 0.98, true, 21.00, FastfallMode::Predict, 4, 1.00, false, 0, 0, JumpType::Velocity, 0.29f);
                 break;
         }
         tickFrictionPreset(preset);
@@ -277,7 +277,11 @@ void Speed::tickFriction(Actor* player)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((mSpeed.as<float>() * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
+    float speed = mSpeed.as<float>();
+
+    if (Keyboard::isStrafing() && mUseStrafeSpeed.mValue) speed = mStrafeSpeed.as<float>();
+
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speed * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
@@ -304,6 +308,9 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
     float timerSpeedSetting = preset.timerSpeed;
     float frictionSetting = preset.friction;
     float speedSetting = preset.speed;
+    bool strafeSetting = preset.strafe;
+    bool useStrafeSpeedSetting = preset.useStrafeSpeed;
+    float strafeSpeedSetting = preset.strafeSpeed;
     FastfallMode fastFallSetting = preset.fastFall;
     int fallTicksSetting = preset.fallTicks;
     float fallSpeedSetting = preset.fallSpeed;
@@ -312,6 +319,8 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
     float fallSpeed2Setting = preset.fallSpeed2;
     JumpType jumpTypeSetting = preset.jumpType;
     float jumpHeightSetting = preset.jumpHeight;
+
+    if (Keyboard::isStrafing() && useStrafeSpeedSetting) speedSetting = strafeSpeedSetting;
 
     if (!mDamageTimerApplied)
     {
@@ -371,7 +380,7 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction, false, mStrafe.mValue);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction, false, strafeSetting);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
