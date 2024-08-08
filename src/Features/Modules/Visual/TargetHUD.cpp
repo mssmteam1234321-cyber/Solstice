@@ -163,8 +163,8 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     auto textEndPos = textHealthPos + textHealthSize;
     textEndPos.x = boxPos.x + boxSize.x - xpad * anim;
     drawList->PushClipRect(textStartPos, textEndPos, true); // So that the text doesn't go outside the box
-    ImRenderUtils::drawShadowText(drawList, name, textNamePos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), 20 * anim, false);
-    ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), 20 * anim, false);
+    ImRenderUtils::drawShadowText(drawList, name, textNamePos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
+    ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
     drawList->PopClipRect();
 
 
