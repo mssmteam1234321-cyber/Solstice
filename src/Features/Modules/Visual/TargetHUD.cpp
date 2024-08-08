@@ -37,6 +37,11 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
         mAbsorption = Aura::sTarget->getAbsorption();
         mMaxAbsorption = Aura::sTarget->getMaxAbsorption();
         mLastPlayerName = Aura::sTarget->getRawName();
+
+        if (mHurtTime > mLastHurtTime)
+        {
+            mLastHurtTime = mHurtTime;
+        }
     }
 }
 
@@ -52,11 +57,31 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     float delta = ImGui::GetIO().DeltaTime;
 
+
     float lerpedHurtTime = MathUtils::lerp(mLastHurtTime / 10.f, mHurtTime / 10.f, delta);
+
     static float hurtTimeAnimPerc = 0.f;
-    hurtTimeAnimPerc = MathUtils::lerp(hurtTimeAnimPerc, lerpedHurtTime, delta * 20.f);
     static float healthAnimPerc = 0.f;
     static float absorptionAnimPerc = 0.f;
+
+    // if the last target is different, recalc immediately
+    if (mLastTarget != Aura::sTarget)
+    {
+        mLastTarget = Aura::sTarget;
+        mLastHealth = mHealth;
+        mLastAbsorption = mAbsorption;
+        mLastMaxHealth = mMaxHealth;
+        mLastMaxAbsorption = mMaxAbsorption;
+        healthAnimPerc = mHealth / mMaxHealth;
+        absorptionAnimPerc = mAbsorption / 20.f;
+        mLerpedHealth = mHealth;
+        mLerpedAbsorption = mAbsorption;
+        spdlog::info("Recalcing health and absorption");
+    }
+
+    mLastTarget = Aura::sTarget;
+
+    hurtTimeAnimPerc = MathUtils::lerp(hurtTimeAnimPerc, lerpedHurtTime, delta * 20.f);
 
     float perc = mLastHealth / mLastMaxHealth;
     healthAnimPerc = MathUtils::lerp(healthAnimPerc, perc, delta * 6.f);
@@ -80,7 +105,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     auto screenSize = ImGui::GetIO().DisplaySize;
 
-    auto boxSize = ImVec2(300 * anim, 115 * anim);
+    auto boxSize = ImVec2(255 * anim, 115 * anim);
     auto boxPos = ImVec2(screenSize.x / 2 - boxSize.x / 2 + mXOffset.mValue, screenSize.y / 2 - boxSize.y / 2 + mYOffset.mValue);
 
     ImVec2 headSize = ImVec2(65 * anim, 65 * anim);
@@ -108,27 +133,46 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     imageColor.Value.y = MathUtils::lerp(imageColor.Value.y, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
     imageColor.Value.z = MathUtils::lerp(imageColor.Value.z, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
 
+    float startY = headPos.y + (headSize.y + 10 * anim);
+
     headPos.x += (headSize.x - headSize2.x) / 2;
     headPos.y += (headSize.y - headSize2.y) / 2;
 
     drawList->AddImage(texture, headPos, headPos + headSize2, ImVec2(0, 0), ImVec2(1, 1), imageColor);
 
-    ImVec2 healthBarStart = ImVec2(boxPos.x + 85 * anim, boxPos.y + 59 * anim);
-    ImVec2 healthBarEnd = ImVec2(boxPos.x + boxSize.x - 30 * anim, boxPos.y + 78 * anim);
+    float ysize = 19 * anim;
+    ImVec2 healthBarStart = ImVec2(boxPos.x + 10 * anim, startY);
+    int barSizeX = boxSize.x - 10 * anim;
+    ImVec2 healthBarEnd = ImVec2(boxPos.x + barSizeX * anim, startY + ysize);
 
     drawList->AddRectFilled(healthBarStart, healthBarEnd,
                                     ImColor(149, 130, 133, (int)((float)194 * anim)), 10.f);
 
-    if (healthAnimPerc > 0.01f)
-        drawList->AddRectFilled(healthBarStart, ImVec2(healthBarStart.x + (healthBarEnd.x - healthBarStart.x) * healthAnimPerc, healthBarEnd.y),
-                                 ImColor(213, 187, 190, (int) (255 * anim)), 10.f);
+    float healthPerc = mLerpedHealth / mMaxHealth;
+    // Clamp health percentage
+    healthPerc = MathUtils::clamp(healthPerc, 0.f, 1.f);
 
 
+    if (healthPerc > 0.01f)
+    {
+        ImVec2 barEnd = ImVec2(healthBarStart.x + (barSizeX * healthPerc), healthBarEnd.y);
+        barEnd.x = MathUtils::clamp(barEnd.x, healthBarStart.x, healthBarEnd.x);
+        drawList->AddRectFilled(healthBarStart, barEnd,
+                                 ImColor(211, 0, 201, (int) (255 * anim)), 10.f);
+    }
 
-    if (absorptionAnimPerc > 0.01f)
+    float absorptionPerc = mLerpedAbsorption / 20.f;
+    // Clamp absorption percentage
+    absorptionPerc = MathUtils::clamp(absorptionPerc, 0.f, 1.f);
+
+    if (absorptionPerc > 0.01f)
+    {
+        ImVec2 barEnd = ImVec2(healthBarStart.x + (barSizeX * absorptionPerc), healthBarEnd.y);
+        barEnd.x = MathUtils::clamp(barEnd.x, healthBarStart.x, healthBarEnd.x);
         drawList->AddRectFilled(healthBarStart,
-                                    ImVec2(healthBarStart.x + (healthBarEnd.x - healthBarStart.x) * absorptionAnimPerc, healthBarEnd.y),
+                                    barEnd,
                                  ImColor(234, 168, 95, (int)(255 * anim)), 10.f);
+    }
 
 
     FontHelper::popFont();

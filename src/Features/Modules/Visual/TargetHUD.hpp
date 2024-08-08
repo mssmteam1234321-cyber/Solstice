@@ -44,6 +44,7 @@ public:
     std::string mLastPlayerName = "";
     float mLastHurtTime = 0;
     float mHurtTime = 0;
+    Actor* mLastTarget = nullptr;
     constexpr static uint64_t cHurtTimeDuration = 500;
 
     void onEnable() override;
