@@ -102,6 +102,9 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     anim = MathUtils::lerp(anim, showing ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 10.f);
 
+    float xpad = 5;
+    float ypad = 5;
+
     if (anim < 0.01f)
     {
         return;
@@ -111,12 +114,15 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     auto screenSize = ImGui::GetIO().DisplaySize;
 
-    auto boxSize = ImVec2(255 * anim, 115 * anim);
+    auto boxSize = ImVec2(255 * anim, 82 * anim);
     auto boxPos = ImVec2(screenSize.x / 2 - boxSize.x / 2 + mXOffset.mValue, screenSize.y / 2 - boxSize.y / 2 + mYOffset.mValue);
 
-    auto headSize = ImVec2(65 * anim, 65 * anim);
-    auto headPos = ImVec2(boxPos.x + 10 * anim, boxPos.y + 10 * anim);
+    auto headSize = ImVec2(50 * anim, 50 * anim);
+    auto headPos = ImVec2(boxPos.x + xpad * anim, boxPos.y + ypad * anim);
+    float headQuartY = headSize.y / 4;
     auto headSize2 = ImVec2(MathUtils::lerp(headSize.x, 40 * anim, hurtTimeAnimPerc), MathUtils::lerp(headSize.y, 40 * anim, hurtTimeAnimPerc));
+
+    float daTopYdiff = headPos.y - boxPos.y;
 
     drawList->AddRectFilled(boxPos, ImVec2(boxPos.x + boxSize.x, boxPos.y + boxSize.y), ImColor(0.f, 0.f, 0.f, 0.5f * anim), 15.f * anim);
 
@@ -134,41 +140,43 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     auto imageColor = ImColor(1.f, 1.f, 1.f, 1.f * anim);
 
-    // Adjust the color based on hurttime (red tint)
     imageColor.Value.x = MathUtils::lerp(imageColor.Value.x, 1.f, hurtTimeAnimPerc);
     imageColor.Value.y = MathUtils::lerp(imageColor.Value.y, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
     imageColor.Value.z = MathUtils::lerp(imageColor.Value.z, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
 
-    float startY = headPos.y + (headSize.y + 10 * anim);
+    float startY = headPos.y + (headSize.y + ypad * anim);
 
     std::string name = mLastPlayerName;
     auto textNameSize = ImGui::GetFont()->CalcTextSizeA(20 * anim, FLT_MAX, 0, name.c_str());
-    auto textNamePos = ImVec2(headPos.x + headSize.x + 10 * anim, headPos.y + 10 * anim);
+    auto textNamePos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + (headQuartY - (textNameSize.y / 2)));
 
     std::string healthStr = "Health: " + std::to_string(static_cast<int>(mHealth + mAbsorption));
     auto textHealthSize = ImGui::GetFont()->CalcTextSizeA(20 * anim, FLT_MAX, 0, healthStr.c_str());
-    auto textHealthPos = ImVec2(headPos.x + headSize.x + 10 * anim, headPos.y + (10 * anim) + textNameSize.y + (10 * anim));
+    auto textHealthPos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + ((headQuartY * 3) - (textHealthSize.y / 2)));
 
     headPos.x += (headSize.x - headSize2.x) / 2;
     headPos.y += (headSize.y - headSize2.y) / 2;
 
     drawList->AddImageRounded(texture, headPos, headPos + headSize2, ImVec2(0, 0), ImVec2(1, 1), imageColor, 10.f * anim);
 
-    //drawList->AddText(ImGui::GetFont(), 20 * anim, textPos, ImColor(255, 255, 255, 255), name.c_str());
     auto textStartPos = textNamePos;
     auto textEndPos = textHealthPos + textHealthSize;
-    textEndPos.x = boxPos.x + boxSize.x - 10 * anim;
+    textEndPos.x = boxPos.x + boxSize.x - xpad * anim;
     drawList->PushClipRect(textStartPos, textEndPos, true); // So that the text doesn't go outside the box
     ImRenderUtils::drawShadowText(drawList, name, textNamePos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), 20 * anim, false);
     ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), 20 * anim, false);
     drawList->PopClipRect();
 
 
-    float ysize = 19 * anim;
-    auto healthBarStart = ImVec2(boxPos.x + 10 * anim, startY);
-    int barSizeX = boxSize.x - 10;
+    float ysize = 17 * anim;
+    auto healthBarStart = ImVec2(boxPos.x + xpad * anim, startY);
+    int barSizeX = boxSize.x - xpad;
     auto healthBarEnd = ImVec2(boxPos.x + barSizeX, startY + ysize);
 
+
+    float daBottomYdiff = boxPos.y + boxSize.y - healthBarEnd.y;
+
+    //spdlog::debug("daTopYdiff: {}, daBottomYdiff: {}", daTopYdiff, daBottomYdiff);
 
     // Health bar background
     drawList->AddRectFilled(healthBarStart, healthBarEnd, ImColor(149, 130, 133, (int)((float)194 * anim)), 10.f);
@@ -180,8 +188,9 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     {
         auto barEnd = ImVec2(healthBarStart.x + (barSizeX * healthPerc), healthBarEnd.y);
         barEnd.x = MathUtils::clamp(barEnd.x, healthBarStart.x, healthBarEnd.x);
-        drawList->AddRectFilled(healthBarStart, barEnd,
-                                 ImColor(211, 0, 201, (int) (255 * anim)), 10.f);
+        ImColor endColor = ImColor(211, 0, 201, (int)(255 * anim));
+        ImColor startColor = ImColor(endColor.Value.x * 0.25f, endColor.Value.y * 0.25f, endColor.Value.z * 0.25f, endColor.Value.w);
+        drawList->AddRectFilledMultiColor(healthBarStart, barEnd, startColor, endColor, endColor, startColor, 10.f, ImDrawCornerFlags_All);
     }
 
     // Absorption bar
