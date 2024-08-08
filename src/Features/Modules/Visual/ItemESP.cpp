@@ -78,7 +78,7 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         ImVec2 textPos = ImVec2(screen.x - textSize.x / 2, screen.y - textSize.y - 5);
         //drawList->AddText(ImGui::GetFont(), fontSize, textPos, ImColor(1.0f, 1.0f, 1.0f, 1.0f), name.c_str());
         ImColor textCol = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
-        spdlog::debug("fontSize: {}", fontSize);
+
         ImRenderUtils::drawShadowText(drawList, name, textPos, textCol, fontSize, true);
 
         FontHelper::popFont();
