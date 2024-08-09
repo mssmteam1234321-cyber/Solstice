@@ -22,7 +22,6 @@ void Fly::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Fly::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Fly::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &Fly::onPacketInEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -39,7 +38,6 @@ void Fly::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Fly::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Fly::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->deafen<PacketInEvent, &Fly::onPacketInEvent>(this);
     if (mTimerBoost.mValue) ClientInstance::get()->getMinecraftSim()->setSimTimer(20);
 
     if (mMode.mValue != Mode::Jump) return;
@@ -239,7 +237,7 @@ void Fly::onPacketInEvent(PacketInEvent& event)
         {
             mLastDamage = NOW + static_cast<uintptr_t>(mFlyTime.mValue) * 1000;
             mCurrentY = player->getPos()->y;
-            displayDebug("Damage taken");
+            if (mEnabled) displayDebug("Damage taken");
         }
     }
 

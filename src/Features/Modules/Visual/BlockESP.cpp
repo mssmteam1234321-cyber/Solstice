@@ -123,6 +123,9 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
     if (!player) return false;
     BlockSource* blockSource = ci->getBlockSource();
 
+    size_t numSubchunks = (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16;
+    if (index < 0 || index >= numSubchunks) return false;
+
     LevelChunk* chunk = blockSource->getChunk(processChunk);
     if (!chunk) return false;
 
@@ -167,6 +170,7 @@ void BlockESP::reset()
 
     ClientInstance* ci = ClientInstance::get();
     Actor* player = ci->getLocalPlayer();
+    mSearchStart = NOW;
     mFoundBlocks.clear();
     mStepsCount = 0;
     mSteps = 1;
@@ -256,7 +260,9 @@ void BlockESP::onBlockChangedEvent(BlockChangedEvent& event)
 
     ChunkPos chunkPos = ChunkPos(event.mBlockPos);
     int subChunk = (event.mBlockPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
-    processSub(chunkPos, subChunk);
+    if (!processSub(chunkPos, subChunk)) {
+        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (ClientInstance::get()->getBlockSource()->mBuildHeight - ClientInstance::get()->getBlockSource()->mBuildDepth) / 16, chunkPos.x, chunkPos.y);
+    }
 
     auto enabledBlocks = getEnabledBlocks();
 
@@ -292,13 +298,10 @@ void BlockESP::onBaseTickEvent(BaseTickEvent& event)
     if (!player) return;
     auto blockSource = ci->getBlockSource();
 
-    /*if (currentChunkPos.distanceTo(searchCenter) > searchRadius) {
-        this->state = ServiceState::IDLE;
-    }*/
     if (glm::distance(glm::vec2(mCurrentChunkPos), glm::vec2(mSearchCenter)) > mChunkRadius.mValue)
     {
-        spdlog::debug("Resetting search");
-        // Reset positions, don't clear blocks
+        //spdlog::debug("Resetting search, found {} block of interest in {}ms", mFoundBlocks.size(), NOW - mSearchStart);
+        mSearchStart = NOW;
         mSearchCenter = ChunkPos(*player->getPos());
         mCurrentChunkPos = mSearchCenter;
         mStepsCount = 0;
@@ -307,20 +310,31 @@ void BlockESP::onBaseTickEvent(BaseTickEvent& event)
         mSubChunkIndex = 0;
     }
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < mChunkUpdatesPerTick.mValue; i++)
     {
-        processSub(mCurrentChunkPos, mSubChunkIndex);
+        if (!processSub(mCurrentChunkPos, mSubChunkIndex))
+        {
+            spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16, mCurrentChunkPos.x, mCurrentChunkPos.y);
+        }
         moveToNext();
     }
 
     BlockPos playerPos = *player->getPos();
     int subChunk = (playerPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
-    processSub(ChunkPos(playerPos), subChunk);
+    if (!processSub(ChunkPos(playerPos), subChunk))
+    {
+        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16, playerPos.x, playerPos.z);
+    }
 
 }
 
 void BlockESP::onPacketInEvent(PacketInEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return;
+    }
+
     if (event.mPacket->getId() == PacketID::ChangeDimension)
     {
         reset(); // Reset the search when changing dimensions
@@ -335,6 +349,11 @@ void BlockESP::onPacketInEvent(PacketInEvent& event)
 
 void BlockESP::onRenderEvent(RenderEvent& event)
 {
+    if (!ClientInstance::get()->getLevelRenderer()) {
+        reset();
+        return;
+    }
+
     if (ClientInstance::get()->getMouseGrabbed()) return;
 
     std::lock_guard<std::mutex> lock(blockMutex); // Lock mutex
@@ -350,8 +369,18 @@ void BlockESP::onRenderEvent(RenderEvent& event)
 
     glm::ivec3 playerPos = *player->getPos();
 
-    // Render the current chunk
-    AABB playerAABB = AABB(playerPos, glm::vec3(1.f, 1.f, 1.f));
+    if (mRenderCurrentChunk.mValue)
+    {
+        ChunkPos currentChunkPos = ChunkPos(mCurrentChunkPos);
+        glm::vec3 pos = glm::vec3(currentChunkPos.x * 16, 0, currentChunkPos.y * 16);
+
+        // Render the current chunk
+        AABB chunkAABB = AABB(pos, glm::vec3(16.f, 1.f, 16.f));
+        std::vector<ImVec2> chunkPoints = MathUtils::getImBoxPoints(chunkAABB);
+        drawList->AddPolyline(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f), 0, 2.0f);
+        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f, 0.25f));
+    }
+
 
     for (auto& [pos, block] : mFoundBlocks)
     {

@@ -173,6 +173,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
     ImGui::Begin("TestModule");
     ImGui::Text("TestModule");
     auto blockSource = ClientInstance::get()->getBlockSource();
+    auto ci = ClientInstance::get();
     if (player)
     {
         ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent, false>());
@@ -199,6 +200,12 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
     }
+
+    displayCopyableAddress("Options", ci->getOptions());
+    displayCopyableAddress("BlockSource", blockSource);
+    displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
+    displayCopyableAddress("MinecraftGame", ci->getMinecraftGame());
+    displayCopyableAddress("MinecraftSimulation", ci->getMinecraftSim());
 
     // Display a button that sets D3DHook::forceFallback to true
     if (ImGui::Button("Force Fallback"))

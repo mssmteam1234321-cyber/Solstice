@@ -75,6 +75,9 @@ public:
             {Normal, "Fly"},
             {NormalSpaced, "Fly"}
         };
+
+        gFeatureManager->mDispatcher->listen<PacketInEvent, &Fly::onPacketInEvent>(this);
+
     }
 
     float mCurrentY = 0.f;
