@@ -185,7 +185,7 @@ void BlockESP::reset()
 
 void BlockESP::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<RenderEvent, &BlockESP::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &BlockESP::onRenderEvent, nes::event_priority::VERY_FIRST>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &BlockESP::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<BlockChangedEvent, &BlockESP::onBlockChangedEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &BlockESP::onPacketInEvent>(this);
