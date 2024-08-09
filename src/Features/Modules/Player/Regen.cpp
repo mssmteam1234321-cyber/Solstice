@@ -577,18 +577,20 @@ void Regen::renderProgressBar()
 
     if (percentDone > 0.001f)
     {
-        drawList->AddShadowRect(ImVec2(pos.x, pos.y), progMax, color, 50.f, ImVec2(), 0, rounding);
-
+        drawList->AddShadowRect(ImVec2(pos.x, pos.y), progMax, color, 50.f, ImVec2(), ImDrawCornerFlags_All, rounding);
         drawList->PushClipRect(ImVec2(pos.x, pos.y), ImVec2(pos.x + (boxSize.x * percentDone), pos.y + (boxSize.y - 10.f)));
-        drawList->AddRectFilled(ImVec2(pos.x, pos.y), progMax, color, rounding);
+        //drawList->AddRectFilled(ImVec2(pos.x, pos.y), progMax, color, rounding);
+        //ImColor leftSide = ImColor(color.Value.x * 0.40f, color.Value.y * 0.40f, color.Value.z * 0.40f, color.Value.w);
+        ImColor leftSide = color;
+        drawList->AddRectFilledMultiColor(ImVec2(pos.x, pos.y), progMax, leftSide, color, color, leftSide, rounding, ImDrawCornerFlags_All);
         drawList->PopClipRect();
     }
 
-    drawList->PushClipRect(bgMin, bgMax);
+    if (percentDone > 0.001f) drawList->PushClipRect(bgMin, bgMax);
     drawList->AddRectFilled(ImVec2(pos.x + boxSize.x * percentDone - 6, pos.y), bgMax, ImColor(0.f, 0.f, 0.f, 0.6f), rounding);
-    drawList->PopClipRect();
+    if (percentDone > 0.001f) drawList->PopClipRect();
 
-    FontHelper::pushPrefFont(true, false);
+    FontHelper::pushPrefFont(true, true);
 
     float fontSize = 20.f * anim;
     ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, text.c_str());
