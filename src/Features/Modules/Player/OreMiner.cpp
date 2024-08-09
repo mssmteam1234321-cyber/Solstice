@@ -1,8 +1,6 @@
 // 7/28/2024
 #include "OreMiner.hpp"
 
-#include "Regen.hpp"
-
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -166,7 +164,6 @@ void OreMiner::onDisable()
 
 void OreMiner::onBaseTickEvent(BaseTickEvent& event)
 {
-    static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
     mWasMiningBlock = mIsMiningBlock;
 
     auto player = event.mActor;
@@ -175,12 +172,11 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     PlayerInventory* supplies = player->getSupplies();
     mPreviousSlot = supplies->getmSelectedSlot();
 
-    // Return if regen is mining block
-    if (regenModule->mEnabled && (regenModule->mIsMiningBlock || regenModule->mWasMiningBlock)) {
+    /*if (player->isDestroying()) {
         reset();
         mShouldSetbackSlot = false;
         return;
-    }
+    }*/
 
     // Return without reset breaking progress
     if (mLastBlockPlace + 100 > NOW) {
@@ -199,15 +195,13 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         mToolSlot = bestToolSlot;
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
 
-        static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
-        static std::vector<Regen::DestroySpeedInfo> destroySpeedList = regenModule->mDynamicSpeeds;
         if (mCalcMode.mValue == CalcMode::Normal) {
             mCurrentDestroySpeed = mDestroySpeed.mValue;
         }
         else if (mCalcMode.mValue == CalcMode::Dynamic) {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
-            for (auto& c : destroySpeedList) {
+            for (auto& c : BlockUtils::mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
                     found = true;
