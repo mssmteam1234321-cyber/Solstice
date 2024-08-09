@@ -23,6 +23,11 @@ struct BlockInfo {
     BlockInfo(Block* block, glm::ivec3 position) : mBlock(block), mPosition(position) {}
 };
 
+struct DestroySpeedInfo {
+    std::string blockName;
+    float destroySpeed;
+};
+
 class BlockUtils {
 public:
     static std::vector<BlockInfo> getBlockList(const glm::ivec3& position, float r);
@@ -41,6 +46,22 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
         {4, glm::ivec3(1, 0, 0)},
         {5, glm::ivec3(-1, 0, 0)},
         {0, glm::ivec3(0, 1, 0)}
+    };
+
+    // Dynamic Destroy Spped
+    static inline std::vector<DestroySpeedInfo> mDynamicSpeeds = { // make sure to include minecraft: before block names
+        {"minecraft:hardened_clay", 0.61f},
+        {"minecraft:green_concrete", 0.61f},
+        {"minecraft:lime_terracotta", 0.61f},
+        {"minecraft:brown_concrete", 0.61f},
+        {"minecraft:sand", 0.67f},
+        {"minecraft:dirt", 0.61f},
+        {"minecraft:grass_block", 0.67f},
+        {"minecraft:stone", 0.67f},
+        {"minecraft:brown_powder", 0.70f},
+        {"minecraft:sandstone", 0.57f},
+        {"minecraft:sandstone_slab", 0.54f},
+        {"minecraft:moss_block", 0.57f},
     };
 
     static int getBlockPlaceFace(glm::ivec3 blockPos);

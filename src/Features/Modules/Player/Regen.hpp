@@ -69,11 +69,6 @@ public:
         float time;
     };
 
-    struct DestroySpeedInfo {
-        std::string blockName;
-        float destroySpeed;
-    };
-
     glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mEnemyTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
@@ -109,38 +104,6 @@ public:
         glm::ivec3(0, 0, 1),
         glm::ivec3(-1, 0, 0),
         glm::ivec3(1, 0, 0),
-    };
-
-    /*
-    61% hardened_clay
-    61% green_concrete
-    61% lime_terracotta
-    61% brown_concrete
-    61% sand
-    61% dirt
-    67% grass_block
-    67% stone
-    70% brown_powder
-    54% sandstone
-    54% sandstone_slab
-    57% moss_block
-    */
-
-
-    // Dynamic Destroy Spped
-    std::vector<DestroySpeedInfo> mDynamicSpeeds = { // make sure to include minecraft: before block names
-        {"minecraft:hardened_clay", 0.61f},
-        {"minecraft:green_concrete", 0.61f},
-        {"minecraft:lime_terracotta", 0.61f},
-        {"minecraft:brown_concrete", 0.61f},
-        {"minecraft:sand", 0.67f},
-        {"minecraft:dirt", 0.61f},
-        {"minecraft:grass_block", 0.67f},
-        {"minecraft:stone", 0.67f},
-        {"minecraft:brown_powder", 0.70f},
-        {"minecraft:sandstone", 0.57f},
-        {"minecraft:sandstone_slab", 0.54f},
-        {"minecraft:moss_block", 0.57f},
     };
 
     void onEnable() override;

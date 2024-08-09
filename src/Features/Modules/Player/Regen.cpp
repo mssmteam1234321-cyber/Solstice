@@ -122,7 +122,7 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
 
     if (mCalcMode.mValue == CalcMode::Dynamic) {
         std::string blockName = block->getmLegacy()->getmName();
-        for (auto& c : mDynamicSpeeds) {
+        for (auto& c : BlockUtils::mDynamicSpeeds) {
             if (c.blockName == blockName) {
                 if (mDebug.mValue && mFastOreNotify.mValue) ChatUtils::displayClientMessage("gaming");
                 break;
@@ -330,7 +330,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else if (mCalcMode.mValue == CalcMode::Dynamic) {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
-            for (auto& c : mDynamicSpeeds) {
+            for (auto& c : BlockUtils::mDynamicSpeeds) {
                 if (c.blockName == blockName) {
                     mCurrentDestroySpeed = c.destroySpeed;
                     found = true;
