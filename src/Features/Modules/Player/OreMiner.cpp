@@ -198,9 +198,30 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         }
         mToolSlot = bestToolSlot;
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+
+        static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
+        static std::vector<Regen::DestroySpeedInfo> destroySpeedList = regenModule->mDynamicSpeeds;
+        if (mCalcMode.mValue == CalcMode::Normal) {
+            mCurrentDestroySpeed = mDestroySpeed.mValue;
+        }
+        else if (mCalcMode.mValue == CalcMode::Dynamic) {
+            std::string blockName = currentBlock->getmLegacy()->getmName();
+            bool found = false;
+            for (auto& c : destroySpeedList) {
+                if (c.blockName == blockName) {
+                    mCurrentDestroySpeed = c.destroySpeed;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                mCurrentDestroySpeed = mDestroySpeed.mValue;
+            }
+        }
+
         mBreakingProgress += destroySpeed;
 
-        if (mDestroySpeed.mValue <= mBreakingProgress) {
+        if (mCurrentDestroySpeed <= mBreakingProgress) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
@@ -288,7 +309,7 @@ void OreMiner::renderBlock()
     float progress = 1.f;
 
     progress = mBreakingProgress;
-    progress /= mDestroySpeed.mValue;
+    progress /= mCurrentDestroySpeed;
     if (progress < lastProgress) lastProgress = progress;
     progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
     lastProgress = progress;

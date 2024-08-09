@@ -9,7 +9,12 @@ public:
         PathFind,
         UnderGround,
     };
+    enum class CalcMode {
+        Normal,
+        Dynamic
+    };
     EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The mode for uncover", UncoverMode::None, "None", "Path Find", "Under Ground");
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 8, 1);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Ore miner", 1, 0.01, 1, 0.01);
@@ -26,7 +31,7 @@ public:
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
     OreMiner() : ModuleBase("OreMiner", "Automatically breaks ore", ModuleCategory::Player, 0, false) {
-        addSettings(&mUncoverMode, &mRange, &mUncoverRange, &mDestroySpeed, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis, &mSwing, &mHotbarOnly, &mInfiniteDurability, &mRenderBlock);
+        addSettings(&mUncoverMode, &mCalcMode, &mRange, &mUncoverRange, &mDestroySpeed, &mDiamond, &mEmerald, &mGold, &mIron, &mCoal, &mRedstone, &mLapis, &mSwing, &mHotbarOnly, &mInfiniteDurability, &mRenderBlock);
         
         mNames = {
             {Lowercase, "oreminer"},
@@ -45,6 +50,7 @@ public:
     glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
+    float mCurrentDestroySpeed = 1.f;
     bool mIsMiningBlock = false;
     bool mWasMiningBlock = false;
     bool mIsUncovering = false;
