@@ -19,6 +19,7 @@
 #include "Misc/NetSkip.hpp"
 #include "Misc/NoFilter.hpp"
 #include "Misc/NoPacket.hpp"
+#include "Misc/Disabler.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
@@ -112,6 +113,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoMessage>());
     mModules.emplace_back(std::make_shared<Killsults>());
     mModules.emplace_back(std::make_shared<NetSkip>());
+    mModules.emplace_back(std::make_shared<Disabler>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

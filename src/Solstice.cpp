@@ -48,8 +48,9 @@ void Solstice::init(HMODULE hModule)
     mModule = hModule;
     mInitialized = true;
 
+#ifdef __DEBUG__
     Logger::initialize();
-
+#endif
 
     console = spdlog::stdout_color_mt(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::color_mode::automatic);
 

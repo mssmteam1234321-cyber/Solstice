@@ -381,10 +381,13 @@ void BlockESP::onRenderEvent(RenderEvent& event)
         if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f, 0.25f));
     }
 
+    auto enabled = getEnabledBlocks();
+
 
     for (auto& [pos, block] : mFoundBlocks)
     {
         if (distance(glm::vec3(pos), glm::vec3(playerPos)) > mRadius.mValue) continue;
+        if (std::ranges::find(enabled, block.block->mLegacy->getBlockId()) == enabled.end()) continue;
 
         ImColor& color = block.color;
         AABB& blockAABB = block.aabb;
