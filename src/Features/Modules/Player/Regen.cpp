@@ -573,7 +573,7 @@ void Regen::renderProgressBar()
 
     ImVec2 displaySize = ImGui::GetIO().DisplaySize;
     ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y / 2.5f);
-    pos.y += pos.y / 2;
+    pos.y += pos.y / 1;
     ImVec2 boxSize = ImVec2(200 * anim, 47 * anim);
     // Center da progress bar
     pos.x -= boxSize.x / 2;
@@ -597,25 +597,25 @@ void Regen::renderProgressBar()
     if (mIsStealing && mEnabled) // Stealing
     {
         targetColor = ImColor(255, 0, 0, 153);
-        if (isLowercase) text = "stealing [" + std::to_string(daPerc) + "%]";
-        else text = "Stealing [" + std::to_string(daPerc) + "%]";
+        if (isLowercase) text = "stealing " + std::to_string(daPerc) + "%";
+        else text = "Stealing " + std::to_string(daPerc) + "%";
     }
     else if (mIsUncovering && mEnabled) // Uncovering
     {
-        if (isLowercase) text = "uncovering [" + std::to_string(daPerc) + "%]";
-        else text = "Uncovering [" + std::to_string(daPerc) + "%]";
+        if (isLowercase) text = "uncovering " + std::to_string(daPerc) + "%";
+        else text = "Uncovering " + std::to_string(daPerc) + "%";
         targetColor = ImColor(255, 255, 0, 153);
     }
     else if (isMining && 10 <= player->getAbsorption() && mEnabled) // Queueing
     {
-        if (isLowercase) text = "queueing [" + std::to_string(daPerc) + "%]";
-        else text = "Queueing [" + std::to_string(daPerc) + "%]";
+        if (isLowercase) text = "queueing " + std::to_string(daPerc) + "%";
+        else text = "Queueing " + std::to_string(daPerc) + "%";
         targetColor = ImColor(0, 255, 255, 153);
     }
     else // Mining
     {
-        if (isLowercase) text = "mining [" + std::to_string(daPerc) + "%]";
-        else text = "Mining [" + std::to_string(daPerc) + "%]";
+        if (isLowercase) text = "mining " + std::to_string(daPerc) + "%";
+        else text = "Mining " + std::to_string(daPerc) + "%";
         targetColor = ImColor(0, 255, 0, 153);
     }
 
