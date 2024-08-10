@@ -345,7 +345,7 @@ void InvManager::onPacketInEvent(PacketInEvent& event)
     if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
         auto packet = event.getPacket<ContainerOpenPacket>();
-        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mContainerId == ContainerID::Inventory)
+        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mType == ContainerType::Inventory)
         {
             mHasOpenContainer = true;
         }
@@ -365,7 +365,7 @@ void InvManager::onPacketOutEvent(PacketOutEvent& event)
     else if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
         auto packet = event.getPacket<ContainerOpenPacket>();
-        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mContainerId == ContainerID::Inventory)
+        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mType == ContainerType::Inventory)
         {
             mHasOpenContainer = true;
         }
