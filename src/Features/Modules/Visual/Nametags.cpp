@@ -81,7 +81,8 @@ void Nametags::onRenderEvent(RenderEvent& event)
         ImVec2 rectMin = ImVec2(pos.x - padding, pos.y - padding);
         ImVec2 rectMax = ImVec2(pos.x + imFontSize.x + padding, pos.y + imFontSize.y + padding);
 
-        drawList->AddRectFilled(rectMin, rectMax, ImColor(0.0f, 0.0f, 0.0f, 0.5f), 15.f);
+        drawList->AddShadowRect(rectMin, rectMax, ImColor(0.f, 0.f, 0.f, 1.f), 40.f, ImVec2(0,0));
+        drawList->AddRectFilled(rectMin, rectMax, ImColor(0.0f, 0.0f, 0.0f, 0.5f), 10.f);
         drawList->AddText(ImGui::GetFont(), fontSize, pos, themeColor, name.c_str());
 
         FontHelper::popPrefFont();
