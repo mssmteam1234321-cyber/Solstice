@@ -15,10 +15,11 @@
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/LevelEventPacket.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
-    #include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-void Regen::initializeRegen() {
+void Regen::initializeRegen() 
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
@@ -38,7 +39,16 @@ void Regen::initializeRegen() {
     mToolSlot = -1;
 }
 
-bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing) {
+void Regen::resetSyncSpeed() 
+{
+    mWasUncovering = false;
+    mLastTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    mLastTargettingBlockPosDestroySpeed = 1.f;
+    mLastToolSlot = 0;
+}
+
+bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnly, bool isStealing) 
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     if (!block) return false;
@@ -78,7 +88,8 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     return true;
 }
 
-bool Regen::isValidRedstone(glm::ivec3 blockPos) {
+bool Regen::isValidRedstone(glm::ivec3 blockPos) 
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return false;
 
@@ -104,7 +115,8 @@ bool Regen::isValidRedstone(glm::ivec3 blockPos) {
     return true;
 }
 
-void Regen::queueBlock(glm::ivec3 blockPos) {
+void Regen::queueBlock(glm::ivec3 blockPos) 
+{
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     mCurrentBlockPos = blockPos;
     mCurrentBlockFace = BlockUtils::getExposedFace(blockPos);
@@ -131,7 +143,8 @@ void Regen::queueBlock(glm::ivec3 blockPos) {
     }
 }
 
-Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) {
+Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) 
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return { glm::ivec3(0, 0, 0), 0 };
 
@@ -186,6 +199,9 @@ void Regen::onEnable()
     mIsMiningBlock = false;
     mEnemyTargettingBlockPos = { 0, 0, 0 };
     miningRedstones.clear();
+
+    resetSyncSpeed();
+
     initializeRegen();
 }
 
@@ -265,6 +281,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
     if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai)) {
         initializeRegen();
+        resetSyncSpeed();
         if (mIsConfuserActivated) {
             player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
             mIsConfuserActivated = false;
@@ -323,6 +340,15 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+
+        bool synchedSpeed = false;
+        if (mInfiniteDurability.mValue && mSyncSpeed.mValue && mWasUncovering && mCurrentBlockPos == mLastTargettingBlockPos && bestToolSlot == mLastToolSlot) {
+            destroySpeed = mLastTargettingBlockPosDestroySpeed;
+            synchedSpeed = true;
+        }
+        else {
+            resetSyncSpeed();
+        }
         if (mCalcMode.mValue == CalcMode::Normal) {
             if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
             else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
@@ -340,7 +366,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (!found) {
                 if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
                 else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
-            } else
+            }
+            else
             {
                 if (!gaming)
                 {
@@ -365,8 +392,16 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (mDebug.mValue && mStealNotify.mValue && mIsStealing)
                 ChatUtils::displayClientMessage("Stole ore");
 
+            if (mDebug.mValue && mSyncSpeedNotify.mValue && synchedSpeed)
+                ChatUtils::displayClientMessage("Synched destroy speed");
+
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
+
+            mWasUncovering = mIsUncovering;
+            mLastTargettingBlockPos = mTargettingBlockPos;
+            mLastTargettingBlockPosDestroySpeed = destroySpeed;
+            mLastToolSlot = bestToolSlot;
             return;
         }
     }
@@ -403,7 +438,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
                     mIsConfuserActivated = false;
                 }
-                else if(!unexposedBlockList.empty()) {
+                else if (!unexposedBlockList.empty()) {
                     glm::ivec3 confusePos = unexposedBlockList[0].mPosition + glm::ivec3(0, -1, 0);
                     BlockUtils::startDestroyBlock(confusePos, 0);
                     mLastConfusedPos = confusePos;
@@ -464,6 +499,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             PacketUtils::spoofSlot(mPreviousSlot);
             mShouldSetbackSlot = false;
         }
+
+        resetSyncSpeed();
     }
 }
 
@@ -503,7 +540,7 @@ void Regen::renderProgressBar()
     static float anim = 0.f;
     constexpr float easeSpeed = 10.f;
     (mEnabled && mWasMiningBlock || mEnabled && mIsMiningBlock) ? inEase.incrementPercentage(delta * easeSpeed / 10)
-    : inEase.decrementPercentage(delta * 2 * easeSpeed / 10);
+        : inEase.decrementPercentage(delta * 2 * easeSpeed / 10);
     float inScale = inEase.easeOutExpo();
     if (inEase.isPercentageMax()) inScale = 0.996;
     inScale = MathUtils::clamp(inScale, 0.0f, 0.996);
