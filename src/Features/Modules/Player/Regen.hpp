@@ -10,6 +10,10 @@ public:
         Normal,
         Dynamic
     };
+    enum class UncoverMode {
+        Normal,
+        Fast
+    };
     enum class StealPriority {
         Mine,
         Steal
@@ -23,6 +27,8 @@ public:
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
     BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
+    EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The uncover mode", UncoverMode::Normal, "Normal", "Fast");
+    NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 8, 1);
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
     EnumSettingT<StealPriority> mStealPriority = EnumSettingT<StealPriority>("Steal Priority", "Ore stealing priority", StealPriority::Mine, "Mine", "Steal");
@@ -34,7 +40,7 @@ public:
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
-    BoolSetting mSyncSpeed = BoolSetting("Sync Speed", "Break redstone in the same time as covered block", false);
+    BoolSetting mTest = BoolSetting("Test", "test", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
@@ -45,13 +51,16 @@ public:
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mSyncSpeed, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mSyncSpeedNotify, &mRenderBlock, &mRenderProgressBar);
+        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mUncoverMode, &mUncoverRange, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mTest, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mSyncSpeedNotify, &mRenderBlock, &mRenderProgressBar);
+
+        VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
+        VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
 
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
-        VISIBILITY_CONDITION(mSyncSpeed, mInfiniteDurability.mValue);
+        VISIBILITY_CONDITION(mTest, mInfiniteDurability.mValue);
 
         // Debug
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
