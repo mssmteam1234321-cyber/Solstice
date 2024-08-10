@@ -214,7 +214,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
     }
 
 
-    FontHelper::popFont();
+    FontHelper::popPrefFont();
     ImGui::End();
 
 }

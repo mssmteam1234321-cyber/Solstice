@@ -83,7 +83,7 @@ void ItemESP::onRenderEvent(RenderEvent& event)
 
         ImRenderUtils::drawShadowText(drawList, name, textPos, textCol, fontSize, true);
 
-        FontHelper::popFont();
+        FontHelper::popPrefFont();
 
 
     }

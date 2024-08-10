@@ -654,7 +654,7 @@ void Regen::renderProgressBar()
     ImVec2 textPos = ImVec2(pos.x + (boxSize.x - textSize.x) / 2, pos.y + (2.5f * anim));
 
     ImRenderUtils::drawShadowText(drawList, text, textPos, ImColor(255, 255, 255, 255), fontSize);
-    FontHelper::popFont();
+    FontHelper::popPrefFont();
 
 }
 

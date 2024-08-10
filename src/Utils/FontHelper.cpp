@@ -40,7 +40,7 @@ ImFont* FontHelper::getFont(bool large, bool bold)
     return nullptr;
 }
 
-void FontHelper::popFont()
+void FontHelper::popPrefFont()
 {
     ImGui::PopFont();
 }

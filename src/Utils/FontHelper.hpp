@@ -22,5 +22,5 @@ public:
     /// <summary>
     /// Pops the font from the ImGui stack.
     /// </summary>
-    static void popFont();
+    static void popPrefFont();
 };

@@ -65,6 +65,10 @@ struct glmatrixf : public glm::mat4
         screen.x = mX + (mX * x / -z * fov.x);
         screen.y = mY - (mY * y / -z * fov.y);
 
+        // If the number is too large, it's probably offscreen
+        if (screen.x > displaySize.x * 2 || screen.y > displaySize.y * 2)
+            return false;
+
         return true;
     }
 

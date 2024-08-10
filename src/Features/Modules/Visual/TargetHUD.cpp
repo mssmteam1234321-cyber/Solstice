@@ -206,7 +206,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
                                  ImColor(234, 168, 95, (int)(255 * anim)), 10.f);
     }
 
-    FontHelper::popFont();
+    FontHelper::popPrefFont();
 }
 
 void TargetHUD::onPacketInEvent(PacketInEvent& event)

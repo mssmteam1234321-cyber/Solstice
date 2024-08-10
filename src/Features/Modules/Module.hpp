@@ -99,4 +99,3 @@ public:
         return TypeID();
     }
 };
-

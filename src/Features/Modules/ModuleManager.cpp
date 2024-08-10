@@ -59,6 +59,7 @@
 #include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
 #include "Visual/MotionBlur.hpp"
+#include "Visual/Nametags.hpp"
 #include "Visual/NoCameraClip.hpp"
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/TargetHUD.hpp"
@@ -133,6 +134,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<TargetHUD>());
     mModules.emplace_back(std::make_shared<ItemESP>());
+    mModules.emplace_back(std::make_shared<Nametags>());
+
 
 
 
