@@ -143,23 +143,14 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
     {
         tickFriction(player);
     }
-    else if (mMode.mValue == Mode::FlareonV1)
+    else if (mMode.mValue == Mode::Hive)
     {
         FrictionPreset preset = {};
         switch (mFlareonPreset.mValue)
         {
             // float speed, float friction, bool timerBoost, float timerSpeed, bool fastFall, int fallTicks, float fallSpeed, JumpType jumpType, float jumpHeight)
-            case FlareonPreset::FastFall:
-                preset = FrictionPreset(3.75, true, false, 0.f, 0.98, true, 20.20, FastfallMode::Predict, 4, 3.00, false, 0, 0, JumpType::Vanilla, 0.42f);
-                break;
-            case FlareonPreset::Normal:
-                preset = FrictionPreset(3.66, true, false, 0.f, 0.98, false, 20.20, FastfallMode::Predict, 5, 1.00, false, 0, 0, JumpType::Vanilla, 0.42f);
-                break;
-            case FlareonPreset::Low1:
-                preset = FrictionPreset(3.78, true, false, 0.f, 0.98, true, 20.30, FastfallMode::Predict, 1, 2.00, false, 0, 0, JumpType::Vanilla, 0.42f);
-                break;
-            case FlareonPreset::Low2:
-                preset = FrictionPreset(3.75, true, false, 0.f, 0.98, true, 21.00, FastfallMode::Predict, 4, 1.00, false, 0, 0, JumpType::Velocity, 0.29f);
+            case FlareonPreset::Semi:
+                preset = FrictionPreset(3.81, true, true, 3.66, 0.98, true, 20.24, FastfallMode::Predict, 3, 2.00, true, 5, 1, JumpType::Velocity, 0.42f);
                 break;
         }
         tickFrictionPreset(preset);

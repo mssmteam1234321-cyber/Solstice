@@ -573,7 +573,7 @@ void Regen::renderProgressBar()
 
     ImVec2 displaySize = ImGui::GetIO().DisplaySize;
     ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y / 2.5f);
-    pos.y += pos.y / 1;
+    pos.y += pos.y / 1.14;
     ImVec2 boxSize = ImVec2(200 * anim, 47 * anim);
     // Center da progress bar
     pos.x -= boxSize.x / 2;
