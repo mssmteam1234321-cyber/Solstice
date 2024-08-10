@@ -86,7 +86,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         module = gFeatureManager->mModuleManager->getModules();
     }
 
-    static float fontSize = 25.f;
+    float fontSize = mFontSize.mValue;
 
     std::ranges::sort(module, [this](const std::shared_ptr<Module>& a, const std::shared_ptr<Module>& b)
     {
@@ -94,7 +94,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         std::string bName = b->getName();
         if (!a->getSettingDisplayText().empty() && mRenderMode.mValue) aName += " " + a->getSettingDisplayText();
         if (!b->getSettingDisplayText().empty() && mRenderMode.mValue) bName += " " + b->getSettingDisplayText();
-        return ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, aName.c_str()).x > ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, bName.c_str()).x;
+        return ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, aName.c_str()).x > ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, bName.c_str()).x;
     });
 
     // Render in top-right corner
