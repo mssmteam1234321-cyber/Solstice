@@ -40,7 +40,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
-    if (mInvOnly.mValue && !mHasOpenContainer)
+    if (mManagementMode.mValue != ManagementMode::Always && !mHasOpenContainer)
     {
         return;
     }
@@ -54,7 +54,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
 
     // If we are in a container, don't do anything
-    if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0 && !mInvOnly.mValue)
+    if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0 && mManagementMode.mValue == ManagementMode::Always)
     {
         return;
     }
@@ -344,7 +344,11 @@ void InvManager::onPacketInEvent(PacketInEvent& event)
 {
     if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
-        mHasOpenContainer = true;
+        auto packet = event.getPacket<ContainerOpenPacket>();
+        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mContainerId == ContainerID::Inventory)
+        {
+            mHasOpenContainer = true;
+        }
     }
     if (event.mPacket->getId() == PacketID::ContainerClose)
     {
@@ -360,7 +364,11 @@ void InvManager::onPacketOutEvent(PacketOutEvent& event)
     }
     else if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
-        mHasOpenContainer = true;
+        auto packet = event.getPacket<ContainerOpenPacket>();
+        if (mManagementMode.mValue == ManagementMode::ContainerOnly || mManagementMode.mValue == ManagementMode::InvOnly && packet->mContainerId == ContainerID::Inventory)
+        {
+            mHasOpenContainer = true;
+        }
     }
 }
 
