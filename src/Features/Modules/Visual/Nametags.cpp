@@ -56,6 +56,9 @@ void Nametags::onRenderEvent(RenderEvent& event)
         glm::vec2 screen = glm::vec2(0, 0);
 
         if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, renderPos, screen, ci->getFov(), ci->getGuiData()->resolution)) continue;
+        if (std::isnan(screen.x) || std::isnan(screen.y)) continue;
+        if (screen.x < 0 || screen.y < 0 || screen.x > ci->getGuiData()->resolution.x * 2 || screen.y > ci->getGuiData()->resolution.y * 2) continue;
+
 
         float fontSize = mFontSize.mValue;
         float padding = 5.f;
