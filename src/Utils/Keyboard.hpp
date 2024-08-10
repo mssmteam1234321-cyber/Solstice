@@ -77,4 +77,5 @@ public:
     static int getKeyId(const std::string& str);
     static bool isUsingMoveKeys(bool includeSpaceShift = false);
     static bool isStrafing();
+    static std::string getKey(int keyId);
 };

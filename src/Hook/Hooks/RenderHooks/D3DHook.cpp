@@ -140,6 +140,12 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
         if (swapChain->GetDevice(__uuidof(ID3D11Device), reinterpret_cast<void **>(&gDevice11)) == S_OK) {
             spdlog::info("[D3D] D3D11 Device acquired");
             alreadyRunningD3D11 = true;
+            static bool msgwarn = false;
+            if (!msgwarn)
+            {
+                MessageBoxA(NULL, "WARNING! Solstice is currently running in D3D11 mode. \nThis is NOT recommended and may cause instability.\nI strongly advise you to use D3D12 for the time being.", "Solstice", MB_OK | MB_ICONWARNING);
+                msgwarn = true;
+            }
         }
 
         if (swapChain->GetDevice(__uuidof(ID3D12Device), reinterpret_cast<void **>(&gDevice12)) == S_OK) {

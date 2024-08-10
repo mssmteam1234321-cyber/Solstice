@@ -35,3 +35,17 @@ bool Keyboard::isStrafing()
     auto moveInput = player->getMoveInputComponent();
     return moveInput->mLeft || moveInput->mRight || moveInput->mBackward;
 }
+
+// returns the char representation of the key
+std::string Keyboard::getKey(int keyId)
+{
+    for (const auto& [key, value] : mKeyMap)
+    {
+        if (value == keyId)
+        {
+            return StringUtils::toUpper(key);
+        }
+    }
+
+    return "unknown";
+}
