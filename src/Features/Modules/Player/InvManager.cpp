@@ -33,40 +33,6 @@ void InvManager::onDisable()
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &InvManager::onPingUpdateEvent>(this);
 }
 
-bool gIsOpen = false;
-bool gIsChestOpen = false;
-
-void sendOpen()
-{
-    if (gIsOpen) return;
-    auto player = ClientInstance::get()->getLocalPlayer();
-
-    auto interactPacket = MinecraftPackets::createPacket<InteractPacket>();
-    interactPacket->mTargetId = player->getRuntimeID();
-    interactPacket->mPos = *player->getPos();
-    interactPacket->mAction = InteractPacket::Action::OpenInventory;
-    ClientInstance::get()->getPacketSender()->sendToServer(interactPacket.get());
-    gIsOpen = true;
-}
-
-void sendClose(bool force = false)
-{
-    if (!gIsOpen && !force) return;
-    auto player = ClientInstance::get()->getLocalPlayer();
-    auto closePacket = MinecraftPackets::createPacket<ContainerClosePacket>();
-    closePacket->mContainerId = ContainerID::Inventory;
-    closePacket->mServerInitiatedClose = false;
-    ClientInstance::get()->getPacketSender()->sendToServer(closePacket.get());
-
-    auto closePacket2 = MinecraftPackets::createPacket<ContainerClosePacket>();
-    closePacket2->mContainerId = ContainerID::First;
-    closePacket2->mServerInitiatedClose = false;
-    ClientInstance::get()->getPacketSender()->sendToServer(closePacket2.get());
-
-
-    gIsOpen = false;
-}
-
 void InvManager::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -74,16 +40,9 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
     auto supplies = player->getSupplies();
     auto container = supplies->getContainer();
 
-    if (gIsChestOpen && mSpoofOpen.mValue)
+    if (mInvOnly.mValue && !mHasOpenContainer)
     {
-        spdlog::debug("Chest is open [condition: gIsChestOpen && mSpoofOpen.mValue]");
-        return; // Don't do anything if the chest is open
-    }
-
-    if (mCloseNext)
-    {
-        sendClose();
-        mCloseNext = false;
+        return;
     }
 
     // Check how many free slots we have
@@ -95,7 +54,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
 
     // If we are in a container, don't do anything
-    if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0)
+    if (ClientInstance::get()->getMouseGrabbed() && player && freeSlots > 0 && !mInvOnly.mValue)
     {
         return;
     }
@@ -144,9 +103,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
             firstBowSlot = i;
         } else if (firstBowSlot != -1 && mDropExtraBows.mValue && item->getItem()->mName.contains("bow"))
         {
-            if (mSpoofOpen.mValue) sendOpen();
             supplies->getContainer()->dropSlot(i);
-            if (mSpoofOpen.mValue) mCloseNext = true;
 
             mLastAction = NOW;
             if (!isInstant)
@@ -270,9 +227,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
     for (auto& item : itemsToDrop)
     {
-        if (mSpoofOpen.mValue) sendOpen();
         supplies->getContainer()->dropSlot(item);
-        if (mSpoofOpen.mValue) mCloseNext = true;
 
         mLastAction = NOW;
         if (!isInstant)
@@ -287,9 +242,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         {
             if (bestSwordSlot != -1 && bestSwordSlot != mPreferredSwordSlot.mValue - 1)
             {
-                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestSwordSlot, mPreferredSwordSlot.mValue - 1);
-                if (mSpoofOpen.mValue) mCloseNext = true;
 
                 mLastAction = NOW;
                 if (!isInstant)
@@ -302,9 +255,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         {
             if (bestPickaxeSlot != -1 && bestPickaxeSlot != mPreferredPickaxeSlot.mValue - 1)
             {
-                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestPickaxeSlot, mPreferredPickaxeSlot.mValue - 1);
-                if (mSpoofOpen.mValue) mCloseNext = true;
 
                 mLastAction = NOW;
                 if (!isInstant)
@@ -317,9 +268,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         {
             if (bestAxeSlot != -1 && bestAxeSlot != mPreferredAxeSlot.mValue - 1)
             {
-                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestAxeSlot, mPreferredAxeSlot.mValue - 1);
-                if (mSpoofOpen.mValue) mCloseNext = true;
 
                 mLastAction = NOW;
                 if (!isInstant)
@@ -332,9 +281,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         {
             if (bestShovelSlot != -1 && bestShovelSlot != mPreferredShovelSlot.mValue - 1)
             {
-                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(bestShovelSlot, mPreferredShovelSlot.mValue - 1);
-                if (mSpoofOpen.mValue) mCloseNext = true;
 
                 mLastAction = NOW;
                 if (!isInstant)
@@ -347,9 +294,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         {
             if (fireSwordSlot != -1 && fireSwordSlot != mPreferredFireSwordSlot.mValue - 1 && bestSwordSlot != fireSwordSlot)
             {
-                if (mSpoofOpen.mValue) sendOpen();
                 supplies->getContainer()->swapSlots(fireSwordSlot, mPreferredFireSwordSlot.mValue - 1);
-                if (mSpoofOpen.mValue) mCloseNext = true;
 
                 mLastAction = NOW;
                 if (!isInstant)
@@ -367,9 +312,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
                 if (firstPlaceable != -1)
                 {
-                    if (mSpoofOpen.mValue) sendOpen();
                     supplies->getContainer()->swapSlots(firstPlaceable, mPreferredBlocksSlot.mValue - 1);
-                    if (mSpoofOpen.mValue) mCloseNext = true;
 
                     mLastAction = NOW;
                     if (!isInstant)
@@ -388,9 +331,7 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
     for (auto& item : itemsToEquip)
     {
-        if (mSpoofOpen.mValue) sendOpen();
         supplies->getContainer()->equipArmor(item);
-        if (mSpoofOpen.mValue) mCloseNext = true;
         mLastAction = NOW;
         if (!isInstant)
         {
@@ -401,30 +342,13 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
 
 void InvManager::onPacketInEvent(PacketInEvent& event)
 {
-    if ((event.mPacket->getId() == PacketID::ContainerOpen || event.mPacket->getId() == PacketID::ContainerClose || event.mPacket->getId() == PacketID::Interact) && mSpoofOpen.mValue)
+    if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
-        // Return if the LastAction was more than 400ms ago
-        if (mLastAction + 200 + mLastPing < NOW) return;
-
-        if (event.mPacket->getId() == PacketID::ContainerOpen)
-        {
-            auto openPacket = event.getPacket<ContainerOpenPacket>();
-            if (openPacket->mContainerId != ContainerID::Inventory && openPacket->mContainerId != ContainerID::First) return;
-            if (openPacket->mContainerId == ContainerID::Chest) gIsChestOpen = true;
-        } else if (event.mPacket->getId() == PacketID::ContainerClose)
-        {
-            auto closePacket = event.getPacket<ContainerClosePacket>();
-            if (closePacket->mContainerId != ContainerID::Inventory && closePacket->mContainerId != ContainerID::First) return;
-            if (closePacket->mContainerId == ContainerID::Chest) gIsChestOpen = false;
-        } else if (event.mPacket->getId() == PacketID::Interact)
-        {
-            auto interactPacket = event.getPacket<InteractPacket>();
-            if (interactPacket->mAction != InteractPacket::Action::OpenInventory) return;
-        }
-
-        spdlog::warn("Cancelling packet [in:{}Packet]", std::string(magic_enum::enum_name(event.mPacket->getId())));
-
-        event.cancel();
+        mHasOpenContainer = true;
+    }
+    if (event.mPacket->getId() == PacketID::ContainerClose)
+    {
+        mHasOpenContainer = false;
     }
 }
 
@@ -432,42 +356,11 @@ void InvManager::onPacketOutEvent(PacketOutEvent& event)
 {
     if (event.mPacket->getId() == PacketID::ContainerClose)
     {
-        auto packet = event.getPacket<ContainerClosePacket>();
-        if (packet->mContainerId == ContainerID::Chest) gIsChestOpen = false;
+        mHasOpenContainer = false;
     }
-    if (event.mPacket->getId() == PacketID::Interact && mSpoofOpen.mValue)
+    else if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
-        // Return if the LastAction was more than 400ms+ping ago
-        if (mLastAction + 200 + mLastPing < NOW) return;
-
-        auto packet = event.getPacket<InteractPacket>();
-        if (packet->mAction == InteractPacket::Action::OpenInventory)
-        {
-            spdlog::warn("Cancelling packet [out:InteractPacket]");
-            event.cancel();
-        }
-    } else if (event.mPacket->getId() == PacketID::InventoryTransaction && mSpoofOpen.mValue)
-    {
-        auto packet = event.getPacket<InventoryTransactionPacket>();
-        /*std::string actionType = std::string(magic_enum::enum_name(packet->mTransaction->type));
-        spdlog::debug("InventoryTransactionPacket type: {}", actionType);*/
-        if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
-        {
-            auto iut = reinterpret_cast<ItemUseInventoryTransaction*>(packet->mTransaction.get());
-            if (iut->actionType == ItemUseInventoryTransaction::ActionType::Use || iut->actionType == ItemUseInventoryTransaction::ActionType::Place)
-            {
-                std::string actionType = std::string(magic_enum::enum_name(iut->actionType));
-                auto block = ClientInstance::get()->getBlockSource()->getBlock(iut->blockPos);
-                std::string name = block->toLegacy()->mName;
-
-                if (name.ends_with("_chest"))
-                {
-                    // Force a close
-                    sendClose(true);
-                }
-
-            }
-        }
+        mHasOpenContainer = true;
     }
 }
 

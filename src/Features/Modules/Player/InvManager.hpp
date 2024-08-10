@@ -49,8 +49,7 @@ public:
     EnumSettingT<int> mPreferredBlocksSlot = EnumSettingT("Blocks Slot", "The slot where your blocks are", 6, mSlots);
     BoolSetting mDropExtraBows = BoolSetting("Drop Extra Bows", "Drop extra bows when you have more than one", false);
     BoolSetting mIgnoreFireSword = BoolSetting("Ignore Fire Sword", "Don't drop the fire sword", false);
-    BoolSetting mSpoofOpen = BoolSetting("Spoof Open", "Server-sidedly opens your inventory while performing item actions, can bypass some anticheats", false);
-
+    BoolSetting mInvOnly = BoolSetting("Inventory Only", "Only manage your inventory when it's open", false);
 
     InvManager() : ModuleBase("InvManager", "Manages your inventory", ModuleCategory::Player, 0, false) {
         addSetting(&mMode);
@@ -64,7 +63,7 @@ public:
         addSetting(&mPreferredBlocksSlot);
         addSetting(&mDropExtraBows);
         addSetting(&mIgnoreFireSword);
-        addSetting(&mSpoofOpen);
+        addSetting(&mInvOnly);
 
         VISIBILITY_CONDITION(mPreferredSwordSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredPickaxeSlot, mPreferredSlots.mValue);
@@ -82,7 +81,7 @@ public:
 
     int64_t mLastAction = NOW;
     int64_t mLastPing = 0;
-    bool mCloseNext = false;
+    bool mHasOpenContainer = false;
 
     void onEnable() override;
     void onDisable() override;
