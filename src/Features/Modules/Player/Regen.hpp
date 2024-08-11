@@ -54,7 +54,41 @@ public:
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mOffGroundSpeed, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mUncoverMode, &mUncoverRange, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mTest, &mDynamicDestroySpeed, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mSyncSpeedNotify, &mRenderBlock, &mRenderProgressBar);
+        addSettings(
+            &mMode,
+            &mCalcMode,
+            &mOffGroundSpeed,
+            &mRange,
+            &mDestroySpeed,
+            &mOtherDestroySpeed,
+            &mOldCalculation,
+            &mSwing,
+            &mHotbarOnly,
+            &mUncover,
+            &mUncoverMode,
+            &mUncoverRange,
+            &mQueueRedstone,
+            &mSteal,
+            &mStealPriority,
+            &mAlwaysSteal,
+            &mAntiSteal,
+            &mConfuse,
+            &mAntiConfuse,
+            &mBlockOre,
+            &mAntiCover,
+            &mCompensation,
+            &mInfiniteDurability,
+            &mTest,
+            &mDynamicDestroySpeed,
+            &mAlwaysMine,
+            &mDebug,
+            &mStealNotify,
+            &mCoverNotify,
+            &mFastOreNotify,
+            &mSyncSpeedNotify,
+            &mRenderBlock,
+            &mRenderProgressBar
+        );
 
         VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
 
