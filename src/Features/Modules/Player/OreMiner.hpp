@@ -46,12 +46,12 @@ public:
         bool foundPath;
     };
 
-    glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    static inline glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
     float mCurrentDestroySpeed = 1.f;
-    bool mIsMiningBlock = false;
+    static inline bool mIsMiningBlock = false;
     bool mWasMiningBlock = false;
     bool mIsUncovering = false;
     bool mShouldRotate = false;
@@ -76,7 +76,7 @@ public:
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
-    void renderProgressBar();
+    //void renderProgressBar();
     void renderBlock();
     void onPacketOutEvent(class PacketOutEvent& event);
     void reset();

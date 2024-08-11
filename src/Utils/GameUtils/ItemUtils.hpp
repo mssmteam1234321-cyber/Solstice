@@ -21,6 +21,7 @@ public:
     static int getPlaceableItemOnBlock(glm::vec3 blockPos, bool hotbarOnly = true, bool prioHighest = true);
     static bool isUsableBlock(ItemStack* stack);
     static int getSwiftnessSpellbook(bool hotbarOnly = true);
+    static int getBoombox(bool hotbarOnly = true);
     static int getEmptyHotbarSlot();
     static void useItem(int slot);
     static int getBestBreakingTool(Block* block, bool hotbarOnly = false);

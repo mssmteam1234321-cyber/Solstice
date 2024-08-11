@@ -1,6 +1,8 @@
 // 7/28/2024
 #include "OreMiner.hpp"
 
+#include "Regen.hpp"
+
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
@@ -172,11 +174,11 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     PlayerInventory* supplies = player->getSupplies();
     mPreviousSlot = supplies->getmSelectedSlot();
 
-    /*if (player->isDestroying()) {
+    if (Regen::mIsMiningBlock || Regen::mWasMiningBlock) {
         reset();
         mShouldSetbackSlot = false;
         return;
-    }*/
+    }
 
     // Return without reset breaking progress
     if (mLastBlockPlace + 100 > NOW) {

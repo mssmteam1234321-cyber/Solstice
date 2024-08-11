@@ -83,7 +83,7 @@ public:
         float time;
     };
 
-    glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    static inline glm::ivec3 mCurrentBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mLastTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     glm::ivec3 mEnemyTargettingBlockPos = { INT_MAX, INT_MAX, INT_MAX };
@@ -93,14 +93,14 @@ public:
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
     float mCurrentDestroySpeed = 1.f;
-    bool mIsMiningBlock = false;
-    bool mWasMiningBlock = false;
+    static inline bool mIsMiningBlock = false;
+    static inline bool mWasMiningBlock = false;
     bool mIsUncovering = false;
     bool mWasUncovering = false;
     float mLastTargettingBlockPosDestroySpeed = 1.f;
     int mLastToolSlot = 0;
-    bool mIsConfuserActivated = false;
-    glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
+    static inline bool mIsConfuserActivated = false;
+    static inline glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;
     bool mShouldSetbackSlot = false;

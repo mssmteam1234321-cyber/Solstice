@@ -283,14 +283,36 @@ int ItemUtils::getSwiftnessSpellbook(bool hotbarOnly)
     {
         ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
         if (!stack->mItem) continue;
+        if (hotbarOnly && i > 8) break;
         Item* item = stack->getItem();
         if (StringUtils::containsIgnoreCase(stack->getCustomName(), "Spell of Swiftness"))
         {
             slot = i;
             break;
         }
+    }
 
+    return slot;
+}
+
+int ItemUtils::getBoombox(bool hotbarOnly)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+
+    int slot = -1;
+
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
         if (hotbarOnly && i > 8) break;
+        Item* item = stack->getItem();
+        if (StringUtils::containsIgnoreCase(item->getmName(), "boombox"))
+        {
+            slot = i;
+            break;
+        }
     }
 
     return slot;

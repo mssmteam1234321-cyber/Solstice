@@ -238,6 +238,7 @@ void Regen::onDisable()
         player->getGameMode()->stopDestroyBlock(mCurrentBlockPos);
         mIsMiningBlock = false;
     }
+    mWasMiningBlock = false;
 }
 
 void Regen::onBaseTickEvent(BaseTickEvent& event)

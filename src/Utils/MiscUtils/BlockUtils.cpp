@@ -5,7 +5,6 @@
 #include "BlockUtils.hpp"
 
 #include <src/Features/Modules/Player/Regen.hpp>
-#include <src/Features/Modules/Player/Nuker.hpp>
 #include <src/Features/Modules/Player/OreMiner.hpp>
 
 #include <Features/Events/BlockChangedEvent.hpp>
@@ -331,17 +330,12 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
 
 bool BlockUtils::isMiningPosition(glm::ivec3 blockPos) {
     auto player = ClientInstance::get()->getLocalPlayer();
-    static Regen* regenModule = gFeatureManager->mModuleManager->getModule<Regen>();
-    static Nuker* nukerModule = gFeatureManager->mModuleManager->getModule<Nuker>();
-    static OreMiner* oreMinerModule = gFeatureManager->mModuleManager->getModule<OreMiner>();
 
     if (0 < player->getGameMode()->mBreakProgress && player->getLevel()->getHitResult()->mBlockPos == blockPos) return true;
 
-    if (regenModule->mEnabled && regenModule->mIsMiningBlock && (regenModule->mConfuse.mValue && regenModule->mIsConfuserActivated && regenModule->mLastConfusedPos == blockPos) || regenModule->mCurrentBlockPos == blockPos) return true;
+    if (Regen::mIsMiningBlock && (Regen::mIsConfuserActivated && Regen::mLastConfusedPos == blockPos) || Regen::mCurrentBlockPos == blockPos) return true;
 
-    if (nukerModule->mEnabled && nukerModule->mIsMiningBlock && nukerModule->mCurrentBlockPos == blockPos) return true;
-
-    if (oreMinerModule->mEnabled && oreMinerModule->mIsMiningBlock && oreMinerModule->mCurrentBlockPos == blockPos) return true;
+    if (OreMiner::mIsMiningBlock && OreMiner::mCurrentBlockPos == blockPos) return true;
 
     return false;
 }

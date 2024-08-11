@@ -33,6 +33,7 @@
 #include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
 #include "Movement/Step.hpp"
+#include "Player/AutoBoombox.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/InvManager.hpp"
@@ -94,6 +95,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<Nuker>());
     mModules.emplace_back(std::make_shared<OreMiner>());
+    mModules.emplace_back(std::make_shared<AutoBoombox>());
     mModules.emplace_back(std::make_shared<AutoTool>());
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
