@@ -161,7 +161,10 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 
 }
 
-
+struct NameableComponent
+{
+    bool mIsNameable;
+};
 
 #define show_flag(flag) ImGui::Text(#flag ": %d", player->getFlag<flag>())
 
@@ -199,6 +202,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
+        displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());
+
     }
 
     displayCopyableAddress("Options", ci->getOptions());

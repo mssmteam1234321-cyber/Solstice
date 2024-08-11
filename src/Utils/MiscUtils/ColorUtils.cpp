@@ -4,6 +4,7 @@
 
 #include "ColorUtils.hpp"
 
+#include <regex>
 #include <Features/FeatureManager.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 
@@ -43,5 +44,12 @@ ImColor ColorUtils::getThemedColor(float index, uint64_t ms)
 
     return LerpColors(daInterface->mColorSpeed.mValue, index, colors, ms);
 
+}
+
+std::string ColorUtils::removeColorCodes(const std::string& text)
+{
+    static std::regex colorCodeRegex("§[0-9a-z]");
+    static std::string emptyString = "";
+    return std::regex_replace(text, colorCodeRegex, emptyString);
 }
 

@@ -44,5 +44,6 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void onCanShowNameTag(class CanShowNameTagEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };

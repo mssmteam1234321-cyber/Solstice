@@ -88,14 +88,17 @@ public:
     DEFINE_SIG(glm_translateRef, "E8 ? ? ? ? 4C 8D 05 ? ? ? ? 44 0F 28 05", SigType::Sig, 0);
     DEFINE_SIG(glm_translateRef2, "E8 ? ? ? ? C6 46 ? ? F3 0F 11 74 24 ? F3 0F 10 1D", SigType::Sig, 0);
     DEFINE_SIG(BlockSource_fireBlockChanged, "4C 8B ? 45 89 ? ? 49 89 ? ? 53", SigType::Sig, 0);
+    DEFINE_SIG(ActorAnimationControllerPlayer_applyToPose, "E8 ? ? ? ? 48 81 C3 ? ? ? ? 48 3B ? 75 ? 48 8B ? ? ? EB", SigType::RefSig, 1);
 
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? ? 41 0F ? ? E8 ? ? ? ? 48 8B", SigType::RefSig, 5);
     DEFINE_SIG(FluxSwing, "E8 ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? 48 8B ? F3 0F ? ? 48 8B", SigType::Sig, 0);
     DEFINE_SIG(BobHurt, "40 ? 56 48 83 EC ? 0F 29 ? ? ? 48 81 C1", SigType::Sig, 0);
+    // whatever it is, it takes a uint64_t as first param (unknown) then takes an Actor* in the second param
+    DEFINE_SIG(Unknown_canShowNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 84 C0 74 ? 32 C0 48 8B ? ? ? 48 83 C4 ? 5F C3 8B 43", SigType::Sig, 0);
     DEFINE_SIG(ItemInHandRenderer_renderItem_bytepatch, "F3 0F ? ? ? ? ? ? 0F 57 ? F3 0F ? ? ? ? ? ? F3 0F ? ? 0F 2F ? 73 ? F3 41", SigType::Sig, 0);
     DEFINE_SIG(ItemInHandRenderer_renderItem_bytepatch2, "8B 52 ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 8B ? EB ? 48 8D ? ? ? ? ? 48 8B ? ? ? ? ? 48 8B", SigType::Sig, 0);
-    DEFINE_SIG(ActorAnimationControllerPlayer_applyToPose, "E8 ? ? ? ? 48 81 C3 ? ? ? ? 48 3B ? 75 ? 48 8B ? ? ? EB", SigType::RefSig, 1);
+
 
     static void initialize();
     static void deinitialize();

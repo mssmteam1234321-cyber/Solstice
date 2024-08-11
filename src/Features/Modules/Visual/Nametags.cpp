@@ -4,6 +4,7 @@
 
 #include "Nametags.hpp"
 
+#include <Features/Events/CanShowNameTagEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
@@ -13,12 +14,23 @@
 
 void Nametags::onEnable()
 {
+    gFeatureManager->mDispatcher->listen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Nametags::onRenderEvent>(this);
 }
-
 void Nametags::onDisable()
 {
+    gFeatureManager->mDispatcher->deafen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Nametags::onRenderEvent>(this);
+}
+
+void Nametags::onCanShowNameTag(CanShowNameTagEvent& event)
+{
+    auto actor = event.mActor;
+    if (!actor->isPlayer()) return;
+    if (actor == ClientInstance::get()->getLocalPlayer() && !mRenderLocal.mValue) return;
+    if (gFriendManager->isFriend(actor) && !mShowFriends.mValue) return;
+    if (ActorUtils::isBot(actor)) return;
+    event.setResult(false); // hides the original nametag
 }
 
 void Nametags::onRenderEvent(RenderEvent& event)
@@ -26,7 +38,16 @@ void Nametags::onRenderEvent(RenderEvent& event)
     auto ci = ClientInstance::get();
     if (!ci->getLevelRenderer()) return;
 
-    auto actors = ActorUtils::getActorList(false, true);
+    auto actors = ActorUtils::getActorList(true, true);
+    std::ranges::sort(actors, [&](Actor* a, Actor* b) {
+        auto aPosComp = a->getRenderPositionComponent();
+        auto bPosComp = b->getRenderPositionComponent();
+        if (!aPosComp || !bPosComp) return false;
+        auto aPos = aPosComp->mPosition;
+        auto bPos = bPosComp->mPosition;
+        auto origin = RenderUtils::transform.mOrigin;
+        return glm::distance(origin, aPos) > glm::distance(origin, bPos);
+    });
 
     auto drawList = ImGui::GetBackgroundDrawList();
 
@@ -77,6 +98,15 @@ void Nametags::onRenderEvent(RenderEvent& event)
         FontHelper::pushPrefFont(true, true);
 
         std::string name = actor->getRawName();
+
+        if (actor == localPlayer)
+        {
+            name = actor->getNameTag();
+            // Remove everything after the first newline
+            name = name.substr(0, name.find('\n'));
+            name = ColorUtils::removeColorCodes(name);
+        }
+
         ImVec2 imFontSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
         ImVec2 pos = ImVec2(screen.x - imFontSize.x / 2, screen.y - imFontSize.y - 5);
 

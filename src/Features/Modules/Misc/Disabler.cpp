@@ -27,7 +27,7 @@ void Disabler::onSendImmediateEvent(SendImmediateEvent& event)
         event.send = (char*)&newTimestamp;
         event.a2 = 136;
         event.mModified = true;
-        spdlog::info("Updated disabler");
+        // spdlog::info("Updated disabler");
     }
 }
 
