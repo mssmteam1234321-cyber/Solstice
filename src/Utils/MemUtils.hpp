@@ -5,6 +5,7 @@
 #define _AMD64_
 #include <minwindef.h>
 #include <unordered_map>
+#include <Features/Events/SendImmediateEvent.hpp>
 //
 // Created by vastrakai on 6/25/2024.
 //
@@ -175,6 +176,7 @@ public:
     static void copyBytes(uintptr_t dest, uintptr_t src, size_t size);
     static std::vector<unsigned char> readBytes(uintptr_t ptr, size_t size);
     static void setProtection(uintptr_t ptr, size_t size, DWORD protection);
+    static std::string bytesToHex(char* bytes, int length);
 };
 
 

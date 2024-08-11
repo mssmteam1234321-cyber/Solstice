@@ -314,7 +314,17 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 
         if (now - lastAttack < delay) break;
 
-        player->swing();
+        if (mSwing.mValue)
+        {
+            if (mSwingDelay.mValue)
+            {
+                if (now - mLastSwing >= mSwingDelayValue.mValue * 1000)
+                {
+                    player->swing();
+                }
+            }
+            else player->swing();
+        }
         int slot = -1;
         int bestWeapon = getSword(actor);
         mHotbarOnly.mValue ? slot = bestWeapon : slot = player->getSupplies()->mSelectedSlot;
@@ -372,6 +382,9 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
         pkt->mRot = rots;
         pkt->mYHeadRot = rots.y;
+    } else if (event.mPacket->getId() == PacketID::Animate)
+    {
+        mLastSwing = NOW;
     }
 
 }

@@ -47,7 +47,7 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the module", Mode::Instant, "Instant", "Delayed");
     NumberSetting mDelay = NumberSetting("Delay", "The delay, in milliseconds", 50, 0, 500, 1);
-    EnumSettingT<ManagementMode> mManagementMode = EnumSettingT<ManagementMode>("Management Mode", "When to manage the inventory", ManagementMode::Always, "Always", "Container Only", "Inventory Only");
+    EnumSettingT<ManagementMode> mManagementMode = EnumSettingT<ManagementMode>("Management", "When to manage the inventory", ManagementMode::Always, "Always", "Container Only", "Inventory Only");
     BoolSetting mPreferredSlots = BoolSetting("Preferred Slots", "Use preferred slots", true);
     EnumSettingT<int> mPreferredSwordSlot = EnumSettingT("Sword Slot", "The slot where your sword is", 1, mSlots);
     EnumSettingT<int> mPreferredPickaxeSlot = EnumSettingT("Pickaxe Slot", "The slot where your pickaxe is", 2, mSlots);

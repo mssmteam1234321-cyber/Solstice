@@ -61,17 +61,21 @@ __int64 RakPeerHooks::getLastPing(void* _this, void* a2)
     return val;
 }
 
-
 uint64_t RakPeerHooks::sendImmediate(uint64_t a1, char* send, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6, uint64_t a7, uint64_t a8, uint64_t a9, uint64_t a10)
 {
     auto original = SendImmediateDetour->getOriginal<decltype(&sendImmediate)>();
 
     auto holder = nes::make_holder<SendImmediateEvent>(a1, send, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     gFeatureManager->mDispatcher->trigger(holder);
-    if (holder->isCancelled()) return 0;
+    if (holder->isCancelled()) {
+        uint8_t id = holder->send[0];
+        spdlog::debug("RakNet::RakPeer::SendImmediate cancelled event [id={0}]", id);
+        return 0;
+    }
 
     if (holder->mModified)
     {
+        spdlog::debug("RakNet::RakPeer::SendImmediate modified event [send={0}]", MemUtils::bytesToHex(holder->send, a2 / 8));
         return original(holder->a1, holder->send, holder->a2, holder->a3, holder->a4, holder->a5, holder->a6, holder->a7, holder->a8, holder->a9, holder->a10);
     }
 

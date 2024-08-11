@@ -12,7 +12,6 @@
 
 
 
-
 template <typename Ret, typename ... Args>
 auto MemUtils::getFunc(void* func)
 {
@@ -111,5 +110,24 @@ void MemUtils::setProtection(uintptr_t ptr, size_t size, DWORD protection)
 {
     DWORD oldProtect;
     VirtualProtect(reinterpret_cast<void*>(ptr), size, protection, &oldProtect);
+}
+
+
+std::string MemUtils::bytesToHex(char* bytes, int length)
+{
+    // Convert the bytes to a hex string
+    // format: "00 00 00 00"
+    std::stringstream ss;
+
+    for (int i = 0; i < length; i++)
+    {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (0xFF & bytes[i]);
+        if (i + 1 < length)
+        {
+            ss << " ";
+        }
+    }
+
+    return ss.str();
 }
 

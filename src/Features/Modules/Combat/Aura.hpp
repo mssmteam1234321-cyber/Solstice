@@ -54,17 +54,44 @@ public:
     BoolSetting mThrowProjectiles = BoolSetting("Throw Projectiles", "Whether or not to throw projectiles at the target", false);
     NumberSetting mThrowDelay = NumberSetting("Throw Delay", "The delay between throwing projectiles (in ticks)", 1, 0, 20, 0.01);
     BoolSetting mAutoBow = BoolSetting("Auto Bow", "Whether or not to automatically shoot the bow", false);
+    BoolSetting mSwing = BoolSetting("Swing", "Whether or not to swing the arm", true);
+    BoolSetting mSwingDelay = BoolSetting("Swing Delay", "Whether or not to delay the swing", false);
+    NumberSetting mSwingDelayValue = NumberSetting("Swing Delay Value", "The delay between swings (in seconds)", 4.5f, 0.f, 10.f, 0.01f);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
-        addSettings(&mMode, &mAttackMode, &mRotateMode, &mSwitchMode, &mAnticheatMode, &mAutoFireSword/*, &mFireSwordSpoof*/, &mHotbarOnly, &mFistFriends, &mRange, &mRandomizeAPS, &mAPS, &mAPSMin, &mAPSMax, &mThrowProjectiles, &mThrowDelay, &mAutoBow, &mStrafe);
+        addSettings(
+            &mMode,
+            &mAttackMode,
+            &mRotateMode,
+            &mSwitchMode,
+            &mAnticheatMode,
+            &mAutoFireSword
+            /*, &mFireSwordSpoof*/,
+            &mHotbarOnly,
+            &mFistFriends,
+            &mRange,
+            &mRandomizeAPS,
+            &mAPS,
+            &mAPSMin,
+            &mAPSMax,
+            &mThrowProjectiles,
+            &mThrowDelay,
+            &mAutoBow,
+            &mSwing,
+            &mSwingDelay,
+            &mSwingDelayValue,
+            &mStrafe);
 
         VISIBILITY_CONDITION(mAutoFireSword, mSwitchMode.mValue != SwitchMode::None);
-        VISIBILITY_CONDITION(mFireSwordSpoof, mAutoFireSword.mValue == true);
-        VISIBILITY_CONDITION(mAPS, mRandomizeAPS.mValue == false);
-        VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue == true);
-        VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue == true);
-        VISIBILITY_CONDITION(mThrowDelay, mThrowProjectiles.mValue == true);
+        VISIBILITY_CONDITION(mFireSwordSpoof, mAutoFireSword.mValue);
+        VISIBILITY_CONDITION(mAPS, !mRandomizeAPS.mValue);
+        VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue);
+        VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue);
+        VISIBILITY_CONDITION(mThrowDelay, mThrowProjectiles.mValue);
+
+        VISIBILITY_CONDITION(mSwingDelay, mSwing.mValue);
+        VISIBILITY_CONDITION(mSwingDelayValue, mSwingDelay.mValue && mSwing.mValue);
 
 
         mNames = {
@@ -79,6 +106,7 @@ public:
     bool mRotating = false;
     static inline bool sHasTarget = false;
     static inline Actor* sTarget = nullptr;
+    int64_t mLastSwing = 0;
 
     int getSword(Actor* target);
     bool shouldUseFireSword(Actor* target);

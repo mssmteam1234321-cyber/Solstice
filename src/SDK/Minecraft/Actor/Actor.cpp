@@ -21,6 +21,34 @@
 #include "Components/ActorGameTypeComponent.hpp"
 #include <SDK/Minecraft/Network/Packets/SetPlayerGameTypePacket.hpp>
 
+#define COMPONENT_GET_FUNC(funcName, componentType) \
+componentType* Actor::funcName() \
+{ \
+    auto component = mContext.getComponent<componentType>(); \
+    if (!component) \
+    { \
+        spdlog::warn("Actor::{}: No {} found", #funcName, #componentType); \
+    } \
+    return component; \
+}
+
+COMPONENT_GET_FUNC(getWalkAnimationComponent, ActorWalkAnimationComponent)
+COMPONENT_GET_FUNC(getActorTypeComponent, ActorTypeComponent)
+COMPONENT_GET_FUNC(getRenderPositionComponent, RenderPositionComponent)
+COMPONENT_GET_FUNC(getStateVectorComponent, StateVectorComponent)
+COMPONENT_GET_FUNC(getMoveInputComponent, MoveInputComponent)
+COMPONENT_GET_FUNC(getRawMoveInputComponent, RawMoveInputComponent)
+COMPONENT_GET_FUNC(getActorRotationComponent, ActorRotationComponent)
+COMPONENT_GET_FUNC(getAABBShapeComponent, AABBShapeComponent)
+COMPONENT_GET_FUNC(getBlockMovementSlowdownMultiplierComponent, BlockMovementSlowdownMultiplierComponent)
+COMPONENT_GET_FUNC(getActorUniqueIDComponent, ActorUniqueIDComponent)
+COMPONENT_GET_FUNC(getActorHeadRotationComponent, ActorHeadRotationComponent)
+COMPONENT_GET_FUNC(getMobBodyRotationComponent, MobBodyRotationComponent)
+COMPONENT_GET_FUNC(getCameraDirectLookComponent, CameraDirectLookComponent)
+COMPONENT_GET_FUNC(getMaxAutoStepComponent, MaxAutoStepComponent)
+COMPONENT_GET_FUNC(getAttributesComponent, AttributesComponent)
+COMPONENT_GET_FUNC(getCameraComponent, CameraComponent)
+
 void Actor::swing()
 {
     MemUtils::callVirtualFunc<void>(OffsetProvider::Actor_swing, this);
@@ -196,12 +224,6 @@ GameMode* Actor::getGameMode()
     return hat::member_at<GameMode*>(this, OffsetProvider::Actor_mGameMode);
 }
 
-ActorWalkAnimationComponent* Actor::getWalkAnimationComponent()
-{
-    return mContext.getComponent<ActorWalkAnimationComponent>();
-}
-
-
 DebugCameraComponent* Actor::getDebugCameraComponent()
 {
     return mContext.try_get<DebugCameraComponent>();
@@ -212,64 +234,9 @@ CameraPresetComponent* Actor::getCameraPresetComponent()
     return mContext.try_get<CameraPresetComponent>();
 }
 
-ActorTypeComponent* Actor::getActorTypeComponent()
-{
-    return mContext.getComponent<ActorTypeComponent>();
-}
-
-RenderPositionComponent* Actor::getRenderPositionComponent()
-{
-    return mContext.getComponent<RenderPositionComponent>();
-}
-
-StateVectorComponent* Actor::getStateVectorComponent()
-{
-    return mContext.getComponent<StateVectorComponent>();
-}
-
-MoveInputComponent* Actor::getMoveInputComponent()
-{
-    return mContext.getComponent<MoveInputComponent>();
-}
-
-RawMoveInputComponent* Actor::getRawMoveInputComponent()
-{
-    return mContext.getComponent<RawMoveInputComponent>();
-}
-
-ActorRotationComponent* Actor::getActorRotationComponent()
-{
-    return mContext.getComponent<ActorRotationComponent>();
-}
-
-AABBShapeComponent* Actor::getAABBShapeComponent()
-{
-    return mContext.getComponent<AABBShapeComponent>();
-}
-
-BlockMovementSlowdownMultiplierComponent* Actor::getBlockMovementSlowdownMultiplierComponent()
-{
-    return mContext.getComponent<BlockMovementSlowdownMultiplierComponent>();
-}
-
-ActorUniqueIDComponent* Actor::getActorUniqueIDComponent()
-{
-    return mContext.getComponent<ActorUniqueIDComponent>();
-}
-
 ContainerManagerModel* Actor::getContainerManagerModel()
 {
     return hat::member_at<ContainerManagerModel*>(this, OffsetProvider::Actor_mContainerManagerModel);
-}
-
-ActorHeadRotationComponent* Actor::getActorHeadRotationComponent()
-{
-    return mContext.getComponent<ActorHeadRotationComponent>();
-}
-
-MobBodyRotationComponent* Actor::getMobBodyRotationComponent()
-{
-    return mContext.getComponent<MobBodyRotationComponent>();
 }
 
 JumpControlComponent* Actor::getJumpControlComponent()
@@ -278,21 +245,6 @@ JumpControlComponent* Actor::getJumpControlComponent()
     auto id = mContext.mEntityId;
     return MemUtils::callFastcall<JumpControlComponent*>(func, mContext.mRegistry, &id);
 
-}
-
-CameraComponent* Actor::getCameraComponent()
-{
-    return mContext.getComponent<CameraComponent>();
-}
-
-CameraDirectLookComponent* Actor::getCameraDirectLookComponent()
-{
-    return mContext.getComponent<CameraDirectLookComponent>();
-}
-
-MaxAutoStepComponent* Actor::getMaxAutoStepComponent()
-{
-    return mContext.getComponent<MaxAutoStepComponent>();
 }
 
 MobHurtTimeComponent* Actor::getMobHurtTimeComponent()
@@ -317,7 +269,8 @@ Level* Actor::getLevel()
 
 int64_t Actor::getRuntimeID()
 {
-    return mContext.getComponent<RuntimeIDComponent>()->runtimeID;
+    auto runtimeIDComponent = mContext.getComponent<RuntimeIDComponent>();
+    return runtimeIDComponent ? runtimeIDComponent->runtimeID : -1;
 }
 
 void Actor::setPosition(glm::vec3 pos)
@@ -445,12 +398,6 @@ void Actor::setNametag(const std::string& name)
 {
     static auto func = SigManager::Actor_setNameTag;
     MemUtils::callFastcall<void, void*, std::string>(func, this, name);
-}
-
-
-AttributesComponent* Actor::getAttributesComponent()
-{
-    return mContext.getComponent<AttributesComponent>();
 }
 
 float Actor::getMaxHealth()

@@ -32,11 +32,22 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
 
     try
     {
-        for (auto &&[_, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+        for (auto &&[entId, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
         {
+            // Check if the entity id exists
+            if (!player->mContext.mRegistry->valid(entId))
+            {
+                spdlog::critical("Found invalid entity id [{}]", entId);
+#ifdef __DEBUG__
+                ChatUtils::displayClientMessage("§cCHECK CONSOLE");
+#endif
+                return actors;
+            }
+
+            // Continue if the actor is null
             if (!moduleOwner.actor)
             {
-                spdlog::debug("Found null actor pointer for entity!");
+                spdlog::critical("Found null actor pointer for entity!");
                 continue;
             };
             // Continue if the actor is a bot and we want to exclude bots
