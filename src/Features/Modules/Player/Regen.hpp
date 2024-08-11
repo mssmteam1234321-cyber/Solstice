@@ -7,8 +7,9 @@ public:
         Hive,
     };
     enum class CalcMode {
-        Normal,
-        Dynamic
+        Minecraft,
+        Custom,
+        Static
     };
     enum class UncoverMode {
         Normal,
@@ -19,7 +20,8 @@ public:
         Steal
     };
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
-    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Custom", "Static");
+    NumberSetting mOffGroundSpeed = NumberSetting("Off Ground Speed", "The multiplie value for destroy speed while off ground", 0.5, 0, 1, 0.01);
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
     NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
@@ -41,6 +43,7 @@ public:
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mTest = BoolSetting("Test", "test", false);
+    BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
@@ -51,7 +54,9 @@ public:
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
-        addSettings(&mMode, &mCalcMode, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mUncoverMode, &mUncoverRange, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mTest, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mSyncSpeedNotify, &mRenderBlock, &mRenderProgressBar);
+        addSettings(&mMode, &mCalcMode, &mOffGroundSpeed, &mRange, &mDestroySpeed, &mOtherDestroySpeed, &mOldCalculation, &mSwing, &mHotbarOnly, &mUncover, &mUncoverMode, &mUncoverRange, &mQueueRedstone, &mSteal, &mStealPriority, &mAlwaysSteal, &mAntiSteal, &mConfuse, &mAntiConfuse, &mBlockOre, &mAntiCover, &mCompensation, &mInfiniteDurability, &mTest, &mDynamicDestroySpeed, &mAlwaysMine, &mDebug, &mStealNotify, &mCoverNotify, &mFastOreNotify, &mSyncSpeedNotify, &mRenderBlock, &mRenderProgressBar);
+
+        VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
 
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
