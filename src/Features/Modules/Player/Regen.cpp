@@ -132,7 +132,7 @@ void Regen::queueBlock(glm::ivec3 blockPos)
     mToolSlot = bestToolSlot;
     mShouldSetbackSlot = true;
 
-    if (mCalcMode.mValue == CalcMode::Dynamic) {
+    if (mDynamicDestroySpeed.mValue) {
         std::string blockName = block->getmLegacy()->getmName();
         for (auto& c : BlockUtils::mDynamicSpeeds) {
             if (c.blockName == blockName) {
@@ -359,7 +359,27 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
         bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
-        float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+        float destroySpeed = 1.f;
+
+        bool wasOnGround = player->isOnGround();
+
+        switch (mCalcMode.mValue)
+        {
+        case CalcMode::Minecraft:
+            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+            break;
+        case CalcMode::Custom:
+            player->setOnGround(true);
+            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+            player->setOnGround(wasOnGround);
+            if (!wasOnGround) destroySpeed *= mOffGroundSpeed.mValue;
+            break;
+        case CalcMode::Static:
+            player->setOnGround(true);
+            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+            player->setOnGround(wasOnGround);
+            break;
+        }
 
         bool synchedSpeed = false;
         if (mInfiniteDurability.mValue && mTest.mValue && mWasUncovering && mCurrentBlockPos == mLastTargettingBlockPos && bestToolSlot == mLastToolSlot) {
@@ -369,11 +389,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else {
             resetSyncSpeed();
         }
-        if (mCalcMode.mValue == CalcMode::Normal) {
+
+        if (!mDynamicDestroySpeed.mValue) {
             if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
             else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
         }
-        else if (mCalcMode.mValue == CalcMode::Dynamic) {
+        else
+        {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
             for (auto& c : BlockUtils::mDynamicSpeeds) {
