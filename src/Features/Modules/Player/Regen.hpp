@@ -140,6 +140,7 @@ public:
     int mLastToolSlot = 0;
     static inline bool mIsConfuserActivated = false;
     static inline glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
+
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;
     bool mShouldSetbackSlot = false;
