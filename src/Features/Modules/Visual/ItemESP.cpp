@@ -34,6 +34,7 @@ void ItemESP::onRenderEvent(RenderEvent& event)
     for (auto actor : actors)
     {
         if (!actor) continue;
+        if (!actor->mItem.mItem) continue;
         if (mDistanceLimited.mValue && player->distanceTo(actor) > mDistance.mValue) continue;
         if (!actor->getPos()) continue;
 
