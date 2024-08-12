@@ -12,6 +12,7 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
@@ -190,7 +191,6 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     if (side == -1) side = getBlockPlaceFace(blockPos);
 
     glm::vec3 vec = blockPos;
-
     if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
 
     HitResult* res = player->getLevel()->getHitResult();
@@ -204,7 +204,6 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     res->mIndirectHit = false;
     res->mRayDir = vec;
     res->mPos = blockPos;
-
 
     bool oldSwinging = player->isSwinging();
     int oldSwingProgress = player->getSwingProgress();
@@ -221,6 +220,36 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     res->mIndirectHit = false;
     res->mRayDir = vec;
     res->mPos = blockPos;
+
+    /*
+
+    auto transac = MinecraftPackets::createPacket<InventoryTransactionPacket>();
+
+    auto cit = std::make_unique<ItemUseInventoryTransaction>();
+    cit->actionType = ItemUseInventoryTransaction::ActionType::Place;
+    int slot = player->getSupplies()->mSelectedSlot;
+    cit->slot = slot;
+    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->blockPos = blockPos + glm::ivec3(blockFaceOffsets[side]);
+    cit->face = side;
+    cit->targetBlockRuntimeId = 0;
+    cit->playerPos = *player->getPos();
+
+    glm::vec3 pPos = *player->getPos() - glm::vec3(0, PLAYER_HEIGHT, 0);
+    glm::vec3 clickPos = glm::vec3(blockPos) - pPos;
+
+
+    cit->clickPos = clickPos;
+
+    transac->mTransaction = std::move(cit);
+    PacketUtils::queueSend(transac, false);
+
+    ItemStack* item = player->getSupplies()->getContainer()->getItem(slot);
+    if (!item->mItem) return;
+    if (!item->mBlock) return;
+
+    setBlock(blockPos, item->mBlock);*/
+
 }
 
 void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
@@ -260,16 +289,31 @@ void BlockUtils::startDestroyBlock(glm::vec3 pos, int side)
     res->mPos = blockPos;
 }
 
+static constexpr int AIR_RUNTIME_ID = 3690217760;
+
 void BlockUtils::clearBlock(const glm::ivec3& pos)
 {
+    setBlock(pos, AIR_RUNTIME_ID);
+}
+
+void BlockUtils::setBlock(const glm::ivec3& pos, Block* block) {
+    ClientInstance::get()->getBlockSource()->setBlock(pos, block);
+}
+
+void BlockUtils::setBlock(const glm::ivec3& pos, unsigned int runtimeId) {
     Block* oldBlock = ClientInstance::get()->getBlockSource()->getBlock(pos);
     std::shared_ptr<UpdateBlockPacket> p = MinecraftPackets::createPacket<UpdateBlockPacket>();
     p->mPos = pos;
     p->mLayer = UpdateBlockPacket::BlockLayer::Standard;
     p->mUpdateFlags = BlockUpdateFlag::Priority;
-    p->mBlockRuntimeId = 3690217760;
+    p->mBlockRuntimeId = runtimeId;
     PacketUtils::sendToSelf(p);
     Block* newBlock = ClientInstance::get()->getBlockSource()->getBlock(pos);
+
+    if (oldBlock == newBlock)
+    {
+        spdlog::warn("setBlock operation failed, block at ({}, {}, {}) is still the same [rtid: {}]", pos.x, pos.y, pos.z, runtimeId);
+    }
 
     // Fire a block update event because sendToSelf doesn't trigger it
     auto holder = nes::make_holder<BlockChangedEvent>(pos, newBlock, oldBlock, 0, ClientInstance::get()->getLocalPlayer());
@@ -346,7 +390,7 @@ std::vector<ChunkPos> BlockUtils::getChunkList(const glm::ivec3 min, const glm::
     for (int x = min.x; x < max.x; x += 16)
         for (int y = min.y; y < max.y; y += 16)
             for (int z = min.z; z < max.z; z += 16)
-                chunks.push_back(ChunkPos(BlockPos(x, y, z)));
+                chunks.emplace_back(BlockPos(x, y, z));
 
     return chunks;
 }

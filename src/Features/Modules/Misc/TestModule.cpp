@@ -51,6 +51,15 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
     //player->setFlag<ActorMovementTickNeededFlag>(true);
 
+    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(*player->getPos());
+    ItemStack* item = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot);
+    if (!item->mItem) return;
+    if (!item->mBlock) return;
+
+    BlockUtils::setBlock(*player->getPos() - PLAYER_HEIGHT_VEC - glm::vec3(0, 1, 0), item->mBlock->getRuntimeId());
+    spdlog::debug("Attempted to place block [rtid: {}] at ({}, {}, {})", item->mBlock->getRuntimeId(), player->getPos()->x, player->getPos()->y - 1, player->getPos()->z);
+    return;
+
 
 
 
@@ -203,6 +212,13 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
         displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());
+        displayCopyableAddress("gDaBlock", gDaBlock);
+        if (gDaBlock)
+        {
+            auto rtid = gDaBlock->getRuntimeId();
+            spdlog::debug("gDaBlock->getRuntimeId(): {}", rtid);
+            ImGui::Text("gDaBlock->getRuntimeId(): %d", rtid);
+        }
 
     }
 

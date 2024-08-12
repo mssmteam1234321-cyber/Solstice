@@ -37,3 +37,8 @@ public:
     BlockUpdateFlag            mUpdateFlags;              // this+0x40
     unsigned int               mBlockRuntimeId;           // this+0x44
 };
+
+class UpdateBlockSyncedPacket : public ::UpdateBlockPacket {
+public:
+    ActorBlockSyncMessage mEntityBlockSyncMessage; // this+0x48
+};

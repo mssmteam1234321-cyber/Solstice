@@ -9,7 +9,24 @@ class Block {
 public:
     CLASS_FIELD(class BlockLegacy*, mLegacy, 0x30);
 
+
     BlockLegacy* toLegacy() {
         return mLegacy;
     }
+
+    uint32_t getRuntimeId() {
+        return hat::member_at<uint32_t>(this, 0xC0);
+    }
+};
+
+struct ActorBlockSyncMessage {
+public:
+    // ActorBlockSyncMessage inner types define
+    enum class MessageId : int {
+        CREATE  = 0x1,
+        DESTROY = 0x2,
+    };
+
+    uint64_t                         mEntityUniqueID;
+    ActorBlockSyncMessage::MessageId mMessage;
 };

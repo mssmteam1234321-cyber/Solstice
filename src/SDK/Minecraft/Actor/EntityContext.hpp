@@ -27,6 +27,7 @@ struct EntityContext {
     template <typename T>
     T* getComponent() {
         if (!this->mRegistry) return nullptr;
+        if (!this->mRegistry->valid(mEntityId)) return nullptr;
         return const_cast<T*>(mRegistry->try_get<T>(mEntityId));
     }
 

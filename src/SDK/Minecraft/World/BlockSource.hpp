@@ -17,4 +17,5 @@ public:
     virtual Block* getBlock(glm::ivec3 const&);
     virtual Block* getBlock(glm::ivec3 const&, int);
     LevelChunk* getChunk(ChunkPos const&);
+    void setBlock(BlockPos const&, Block*);
 };

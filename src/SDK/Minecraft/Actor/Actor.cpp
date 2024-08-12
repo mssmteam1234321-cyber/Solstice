@@ -24,10 +24,15 @@
 #define COMPONENT_GET_FUNC(funcName, componentType) \
 componentType* Actor::funcName() \
 { \
+    if (!mContext.mRegistry->valid(this->mContext.mEntityId)) \
+    { \
+        spdlog::critical("Actor::{}: Invalid entity id", #funcName); \
+        return nullptr; \
+    } \
     auto component = mContext.getComponent<componentType>(); \
     if (!component) \
     { \
-        spdlog::warn("Actor::{}: No {} found", #funcName, #componentType); \
+        spdlog::critical("Actor::{}: No {} found", #funcName, #componentType); \
     } \
     return component; \
 }

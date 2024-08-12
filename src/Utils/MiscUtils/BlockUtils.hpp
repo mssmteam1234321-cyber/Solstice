@@ -72,6 +72,8 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
     static void placeBlock(glm::vec3 pos, int side);
     static void startDestroyBlock(glm::vec3 pos, int side);
     static void clearBlock(const glm::ivec3& pos);
+    static void setBlock(const glm::ivec3& pos, Block* block);
+    static void setBlock(const glm::ivec3& pos, unsigned int runtimeId);
     static void destroyBlock(glm::vec3 pos, int side, bool useTransac = false);
     static bool isMiningPosition(glm::ivec3 blockPos);
     // Converts a min pos, and max pos, to a list of chunks that are in that range
