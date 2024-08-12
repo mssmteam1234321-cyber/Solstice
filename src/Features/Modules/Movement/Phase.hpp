@@ -20,7 +20,7 @@ public:
         addSettings(&mMode, &mSpeed, &mBlink);
 
         VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Vertical);
-        VISIBILITY_CONDITION(mBlink, mMode.mValue == Mode::Vertical);
+        VISIBILITY_CONDITION(mBlink, mMode.mValue == Mode::Horizontal);
 
         mNames = {
             {Lowercase, "phase"},

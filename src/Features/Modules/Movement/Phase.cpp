@@ -13,7 +13,7 @@
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
 
-std::vector<glm::ivec3> getCollidingBlocks()
+std::vector<glm::ivec3> getCollidingBlocks(float range)
 {
     std::vector<glm::ivec3> collidingBlockList;
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -21,13 +21,13 @@ std::vector<glm::ivec3> getCollidingBlocks()
     AABBShapeComponent* aabb = player->getAABBShapeComponent();
     glm::vec3 lower = aabb->mMin;
     glm::vec3 upper = aabb->mMin;
-    //lower.x -= 0.1f;
+    lower.x -= range;
     //lower.y -= 0.1f;
-    //lower.z -= 0.1f;
+    lower.z -= range;
 
-    //upper.x += 0.1f;
+    upper.x += range;
     upper.y += aabb->mHeight;
-    //upper.z += 0.1f;
+    upper.z += range;
 
     for (int x = floor(lower.x); x <= floor(upper.x); x++)
         for (int y = floor(lower.y); y <= floor(upper.y); y++)
@@ -68,9 +68,13 @@ void Phase::onBaseTickEvent(BaseTickEvent& event)
     AABBShapeComponent* aabb = player->getAABBShapeComponent();
 
     if (mMode.mValue == Mode::Horizontal) {
+        std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks(0.2);
+        mMoving = !collidingBlocks.empty() && player->getStateVectorComponent()->mVelocity != glm::vec3(0, 0, 0);
         aabb->mMax.y = aabb->mMin.y;
     }
     else if (mMode.mValue == Mode::Vertical) {
+        std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks(0);
+
         auto moveInput = player->getMoveInputComponent();
         auto stateVector = player->getStateVectorComponent();
         bool isJumping = moveInput->mIsJumping;
@@ -82,7 +86,6 @@ void Phase::onBaseTickEvent(BaseTickEvent& event)
         glm::vec3 aboveBlockPos = *player->getPos();
         aboveBlockPos.y += 0.5f;
 
-        std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks();
         if (isJumping && (!BlockUtils::isAirBlock(aboveBlockPos) || !collidingBlocks.empty())) {
             value = mSpeed.mValue / 10;
             aabb->mMin.y += value;
@@ -95,8 +98,6 @@ void Phase::onBaseTickEvent(BaseTickEvent& event)
             stateVector->mVelocity = { 0, 0, 0 };
             moveInput->mIsSneakDown = false;
         }
-
-        mMoving = 0 < abs(value);
     }
 }
 
@@ -105,5 +106,7 @@ void Phase::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if(mMoving && mBlink.mValue) event.mCancelled = true;
+    if (mMoving && mBlink.mValue) {
+        event.mCancelled = true;
+    }
 }

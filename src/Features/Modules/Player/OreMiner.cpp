@@ -7,7 +7,6 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
-#include <Features/Modules/Combat/Aura.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -39,7 +38,7 @@ void OreMiner::reset() {
     mToolSlot = -1;
 }
 
-bool OreMiner::isValidBlock(glm::ivec3 blockPos, bool oreOnly, bool exposedOnly) {
+bool OreMiner::isValidBlock(glm::ivec3 blockPos, bool oreOnly, bool exposedOnly, bool usePriority, OrePriority priority) {
     auto player = ClientInstance::get()->getLocalPlayer();
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     if (!block) return false;
@@ -50,17 +49,16 @@ bool OreMiner::isValidBlock(glm::ivec3 blockPos, bool oreOnly, bool exposedOnly)
     // BlockID Check
     int blockId = block->mLegacy->getBlockId();
     if (oreOnly) {
-        bool isOre = false;
-        // STUPID CODE
-        if (mEmerald && (blockId == 129 || blockId == 662)) isOre = true;
-        else if (mDiamond && (blockId == 56 || blockId == 660)) isOre = true;
-        else if (mGold && (blockId == 14 || blockId == 657)) isOre = true;
-        else if (mIron && (blockId == 15 || blockId == 656)) isOre = true;
-        else if (mCoal && (blockId == 16 || blockId == 661)) isOre = true;
-        else if (mRedstone && (blockId == 73 || blockId == 74 || blockId == 658 || blockId == 659)) isOre = true;
-        else if (mLapis && (blockId == 21 || blockId == 655)) isOre = true;
+        bool IsOre = false;
+        if (mEmerald && (!usePriority || mEmeraldPriority.mValue == priority) && isOre(mEmeraldIds, blockId)) IsOre = true;
+        else if (mDiamond && (!usePriority || mDiamondPriority.mValue == priority) && isOre(mDiamondIds, blockId)) IsOre = true;
+        else if (mGold && (!usePriority || mGoldPriority.mValue == priority) && isOre(mGoldIds, blockId)) IsOre = true;
+        else if (mIron && (!usePriority || mIronPriority.mValue == priority) && isOre(mIronIds, blockId)) IsOre = true;
+        else if (mCoal && (!usePriority || mCoalPriority.mValue == priority) && isOre(mCoalIds, blockId)) IsOre = true;
+        else if (mRedstone && (!usePriority || mRedstonePriority.mValue == priority) && isOre(mRedstoneIds, blockId)) IsOre = true;
+        else if (mLapis && (!usePriority || mLapisPriority.mValue == priority) && isOre(mLapisIds, blockId)) IsOre = true;
 
-        if (!isOre) return false;
+        if (!IsOre) return false;
     }
 
     // Distance Check
@@ -134,6 +132,11 @@ OreMiner::PathFindResult OreMiner::getBestPathToBlock(glm::ivec3 blockPos) {
     return { glm::ivec3(INT_MAX, INT_MAX, INT_MAX), false };
 }
 
+bool OreMiner::isOre(std::vector<int> Ids, int id)
+{
+    return std::find(Ids.begin(), Ids.end(), id) != Ids.end();
+}
+
 void OreMiner::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &OreMiner::onBaseTickEvent>(this);
@@ -193,6 +196,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;
+            return;
         }
         mToolSlot = bestToolSlot;
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
@@ -233,50 +237,54 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         std::vector<BlockInfo> exposedBlockList;
         std::vector<BlockInfo> unexposedBlockList;
 
-        for (int i = 0; i < blockList.size(); i++) {
-            if (isValidBlock(blockList[i].mPosition, true, false)) {
-                if (BlockUtils::getExposedFace(blockList[i].mPosition) != -1) exposedBlockList.push_back(blockList[i]);
-                else unexposedBlockList.push_back(blockList[i]);
-            }
-            else continue;
-        }
+        for (int n = 0; n < 3; n++) {
+            OrePriority priority = static_cast<OrePriority>(n);
 
-        glm::vec3 playerPos = *player->getPos();
-        glm::ivec3 pos = { 0, 0, 0 };
-        glm::ivec3 targettingPos = { 0, 0, 0 };
-        if (!exposedBlockList.empty()) {
-            float closestDistance = INT_MAX;
-            for (int i = 0; i < exposedBlockList.size(); i++) {
-                glm::vec3 blockPos = exposedBlockList[i].mPosition;
-                float dist = glm::distance(playerPos, blockPos);
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    pos = blockPos;
-                    targettingPos = blockPos;
+            for (int i = 0; i < blockList.size(); i++) {
+                if (isValidBlock(blockList[i].mPosition, true, false, true, priority)) {
+                    if (BlockUtils::getExposedFace(blockList[i].mPosition) != -1) exposedBlockList.push_back(blockList[i]);
+                    else unexposedBlockList.push_back(blockList[i]);
                 }
+                else continue;
             }
-            // queue block
-            queueBlock(pos);
-            mTargettingBlockPos = targettingPos;
-            return;
-        }
-        else if ((mUncoverMode.mValue == UncoverMode::PathFind || mUncoverMode.mValue == UncoverMode::UnderGround) && !unexposedBlockList.empty()) {
-            float closestDistance = INT_MAX;
-            for (int i = 0; i < unexposedBlockList.size(); i++) {
-                glm::vec3 blockPos = unexposedBlockList[i].mPosition;
-                float dist = glm::distance(playerPos, blockPos);
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    pos = blockPos;
-                    targettingPos = blockPos;
+
+            glm::vec3 playerPos = *player->getPos();
+            glm::ivec3 pos = { 0, 0, 0 };
+            glm::ivec3 targettingPos = { 0, 0, 0 };
+            if (!exposedBlockList.empty()) {
+                float closestDistance = INT_MAX;
+                for (int i = 0; i < exposedBlockList.size(); i++) {
+                    glm::vec3 blockPos = exposedBlockList[i].mPosition;
+                    float dist = glm::distance(playerPos, blockPos);
+                    if (dist < closestDistance) {
+                        closestDistance = dist;
+                        pos = blockPos;
+                        targettingPos = blockPos;
+                    }
                 }
-            }
-            PathFindResult result = getBestPathToBlock(pos);
-            if (result.foundPath) {
-                queueBlock(result.blockPos);
-                mIsUncovering = true;
+                // queue block
+                queueBlock(pos);
                 mTargettingBlockPos = targettingPos;
                 return;
+            }
+            else if ((mUncoverMode.mValue == UncoverMode::PathFind || mUncoverMode.mValue == UncoverMode::UnderGround) && !unexposedBlockList.empty()) {
+                float closestDistance = INT_MAX;
+                for (int i = 0; i < unexposedBlockList.size(); i++) {
+                    glm::vec3 blockPos = unexposedBlockList[i].mPosition;
+                    float dist = glm::distance(playerPos, blockPos);
+                    if (dist < closestDistance) {
+                        closestDistance = dist;
+                        pos = blockPos;
+                        targettingPos = blockPos;
+                    }
+                }
+                PathFindResult result = getBestPathToBlock(pos);
+                if (result.foundPath) {
+                    queueBlock(result.blockPos);
+                    mIsUncovering = true;
+                    mTargettingBlockPos = targettingPos;
+                    return;
+                }
             }
         }
 
