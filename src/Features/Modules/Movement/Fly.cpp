@@ -49,7 +49,7 @@ void Fly::displayDebug(const std::string& message) const
 {
     if (mDebug.mValue)
     {
-        ChatUtils::displayClientMessage("§6Fly", message);
+        ChatUtils::displayClientMessageSub("§6Fly", message);
         spdlog::debug("[Fly] {}", message);
     }
 }

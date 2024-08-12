@@ -14,6 +14,6 @@ public:
     {
         displayClientMessage(fmt::format(fmt, std::forward<Args>(args)...));
     }
-    static void displayClientMessage(const std::string& subcaption, const std::string& msg);
+    static void displayClientMessageSub(const std::string& subcaption, const std::string& msg);
     static void displayClientMessageRaw(const std::string& msg);
 };
