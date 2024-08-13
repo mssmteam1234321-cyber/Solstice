@@ -13,13 +13,13 @@ void AutoScale::onEnable()
     // Store the old values
     auto guiData = ClientInstance::get()->getGuiData();
     mOldGuiScale = guiData->mGuiScale;
-    mOldScaleMultiplier = guiData->scalingMultiplier;
+    mOldScaleMultiplier = guiData->mScalingMultiplier;
     mOldScaledResolution = guiData->mResolutionScaled;
 
     // Set the new values
     guiData->mGuiScale = mScaleSetting.mValue;
-    guiData->scalingMultiplier = 1 / mScaleSetting.mValue;
-    guiData->mResolutionScaled = glm::vec2(guiData->mResolution.x * guiData->scalingMultiplier, guiData->mResolution.y * guiData->scalingMultiplier);
+    guiData->mScalingMultiplier = 1 / mScaleSetting.mValue;
+    guiData->mResolutionScaled = glm::vec2(guiData->mResolution.x * guiData->mScalingMultiplier, guiData->mResolution.y * guiData->mScalingMultiplier);
 
     gFeatureManager->mDispatcher->listen<RenderEvent, &AutoScale::onRenderEvent>(this);
 }
@@ -31,7 +31,7 @@ void AutoScale::onDisable()
     // Restore the old values
     auto guiData = ClientInstance::get()->getGuiData();
     guiData->mGuiScale = mOldGuiScale;
-    guiData->scalingMultiplier = mOldScaleMultiplier;
+    guiData->mScalingMultiplier = mOldScaleMultiplier;
     guiData->mResolutionScaled = mOldScaledResolution;
 }
 
@@ -40,6 +40,6 @@ void AutoScale::onRenderEvent(RenderEvent& event)
     float scale = mScaleSetting.mValue;
     auto guiData = ClientInstance::get()->getGuiData();
     guiData->mGuiScale = scale;
-    guiData->scalingMultiplier = 1 / scale;
-    guiData->mResolutionScaled = glm::vec2(guiData->mResolution.x * guiData->scalingMultiplier, guiData->mResolution.y * guiData->scalingMultiplier);
+    guiData->mScalingMultiplier = 1 / scale;
+    guiData->mResolutionScaled = glm::vec2(guiData->mResolution.x * guiData->mScalingMultiplier, guiData->mResolution.y * guiData->mScalingMultiplier);
 }
