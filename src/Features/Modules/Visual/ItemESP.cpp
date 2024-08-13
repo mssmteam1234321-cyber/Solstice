@@ -35,8 +35,8 @@ void ItemESP::onRenderEvent(RenderEvent& event)
     {
         if (!actor) continue;
         if (!actor->mItem.mItem) continue;
-        if (mDistanceLimited.mValue && player->distanceTo(actor) > mDistance.mValue) continue;
         if (!actor->getPos()) continue;
+        if (mDistanceLimited.mValue && player->distanceTo(actor) > mDistance.mValue) continue;
 
         AABB aabb = actor->getAABB();
         std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
