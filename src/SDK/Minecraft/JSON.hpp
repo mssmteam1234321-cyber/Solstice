@@ -23,9 +23,8 @@ namespace MinecraftJson
     };
 
     class Value { // equivalent to bds' Json::Value, but we dont wanna confuse it with nlohmann json
-    //public:
-        char pad[16];
-        /*struct CZString {
+    public:
+        struct CZString {
             enum class DuplicationPolicy : unsigned int { // mPolicy?? got this from BDS
                 noDuplication   = 0,
                 duplicate       = 1,
@@ -41,16 +40,6 @@ namespace MinecraftJson
             const char *mStr;       // this+0x4
             uint32_t mIndex;        // this+0x8 // ArrayIndex    mIndex{};
             StringStorage mStorage; // this+0xC
-
-
-            //union {
-            //    ArrayIndex    mIndex{};
-            //    StringStorage mStorage;
-            //};
-
-
-
-
 
             CZString() : mStr(nullptr), mIndex(0) {}
             CZString(const char *s, uint32_t index) : mStr(s), mIndex(index) {}
@@ -69,7 +58,6 @@ namespace MinecraftJson
 
         ValueType   mType : 8;                    // this+0x0028
         int32_t     mAllocated : 1;               // this+0x002C
-        */
     public:
         std::string* toStyledString()
         {

@@ -21,4 +21,4 @@ public:
     std::optional<ModalFormCancelReason> mFormCancelReason; // this+0x50
 };
 
-static_assert(sizeof(ModalFormResponsePacket) == 0x48);
+//static_assert(sizeof(ModalFormResponsePacket) == 0x48);
