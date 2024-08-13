@@ -112,10 +112,6 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event) // i have a huge bone
 
             if (mThirdPersonStyle.mValue == ThirdPersonStyle::VastraKai)
             {
-                xRot = mXRot.mValue;
-                yRot = mYRot.mValue;
-                zRot = mZRot.mValue;
-
                 if (player->getSwingProgress() > 0) {
                     xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
                     yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
