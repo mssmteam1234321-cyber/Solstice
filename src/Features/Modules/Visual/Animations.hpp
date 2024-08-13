@@ -12,19 +12,11 @@ public:
         Blocking,
         Test
     };
-
-    enum class ThirdPersonStyle
-    {
-        VastraKai,
-        Tozic
-    };
-
     EnumSettingT<Animation> mAnimation = EnumSettingT("Animation", "The animation to use", Animation::Blocking, "Default", "Blocking", "Test");
     NumberSetting mSwingTime = NumberSetting("Swing Time", "The time it takes to swing your arm", 6.f, 0.f, 20.0f, 1.f);
     BoolSetting mNoSwitchAnimation = BoolSetting("No Switch Animation", "Disables the switch animation", true);
     BoolSetting mFluxSwing = BoolSetting("Flux Swing", "Flux Client styled swinging", true);
     BoolSetting mThirdPersonBlock = BoolSetting("3rd person", "Displays 3rd person animations", false);
-    EnumSettingT<ThirdPersonStyle> mThirdPersonStyle = EnumSettingT("3rd person style", "The style of 3rd person blocking", ThirdPersonStyle::Tozic, "emily", "Tozic");
     // Holds the rotation for third person blocking, if you need to play with it, simply add da settings
     NumberSetting mXRot = NumberSetting("X Rotation", "The custom X rotation value. (default: 0)", -57.f, -360.f, 360.f, 0.01f);
     NumberSetting mYRot = NumberSetting("Y Rotation", "The custom Y rotation value. (default: 0)", -45.16f, -360.f, 360.f, 0.01f);
@@ -42,7 +34,6 @@ public:
             &mNoSwitchAnimation,
             &mFluxSwing,
             &mThirdPersonBlock,
-            &mThirdPersonStyle,
             // &mXRot,
             // &mYRot,
             // &mZRot,
@@ -52,7 +43,6 @@ public:
             &mSmallItems
         );
 
-        VISIBILITY_CONDITION(mThirdPersonStyle, mThirdPersonBlock.mValue);
         VISIBILITY_CONDITION(mOnlyOnBlock, mCustomSwingAngle.mValue);
         VISIBILITY_CONDITION(mSwingAngleSetting, mCustomSwingAngle.mValue);
 
@@ -75,8 +65,4 @@ public:
     void onSwingDurationEvent(class SwingDurationEvent& event);
     void onBoneRenderEvent(class BoneRenderEvent& event);
     void onBobHurtEvent(class BobHurtEvent& event);
-
-    std::string getSettingDisplay() override {
-        return mThirdPersonStyle.mValues[mThirdPersonStyle.as<int>()];
-    }
 };

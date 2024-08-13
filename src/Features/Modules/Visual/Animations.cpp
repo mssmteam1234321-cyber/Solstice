@@ -89,7 +89,7 @@ void Animations::onSwingDurationEvent(SwingDurationEvent& event)
     event.mSwingDuration = mSwingTime.as<int>();
 }
 
-void Animations::onBoneRenderEvent(BoneRenderEvent& event) // i have a huge boner 😈
+void Animations::onBoneRenderEvent(BoneRenderEvent& event)
 {
     auto ent = event.mActor;
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -104,53 +104,25 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event) // i have a huge bone
         bool isHoldingSword = heldItem && heldItem->mItem && heldItem->getItem()->isSword();
         if ((!ClientInstance::get()->getMouseGrabbed() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && isHoldingSword || event.mDoBlockAnimation && isHoldingSword) && mAnimation.mValue != Animation::Default)
         {
-            static float xRot = 0;
-            static float yRot = 0;
-            static float zRot = 0;
+            float xRot = mXRot.mValue;
+            float yRot = mYRot.mValue;
+            float zRot = mZRot.mValue;
 
             Actor* player = ClientInstance::get()->getLocalPlayer();
 
-            if (mThirdPersonStyle.mValue == ThirdPersonStyle::VastraKai)
-            {
-                xRot = mXRot.mValue;
-                yRot = mYRot.mValue;
-                zRot = mZRot.mValue;
-
-                if (player->getSwingProgress() > 0) {
-                    xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-                else {
-                    xRot = MathUtils::animate(-65, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(-17, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-
-                partModel->mRot.x = xRot;
-                partModel->mRot.y = yRot;
-                partModel->mRot.z = zRot;
-                partModel->mSize.z = 0.9177761;
+            if (player->getSwingProgress() > 0) {
+                xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
+                yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
+            }
+            else {
+                xRot = MathUtils::animate(-65, xRot, ImRenderUtils::getDeltaTime() * 3.f);
+                yRot = MathUtils::animate(-17, yRot, ImRenderUtils::getDeltaTime() * 3.f);
             }
 
-            if (mThirdPersonStyle.mValue == ThirdPersonStyle::Tozic)
-            {
-                //xRot = -65;
-                //yRot = -17;
-                zRot = 57;
-
-                if (player->getSwingProgress() > 0) {
-                    xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-                else {
-                    xRot = MathUtils::animate(-65, xRot, ImRenderUtils::getDeltaTime() * 3.f);
-                    yRot = MathUtils::animate(-17, yRot, ImRenderUtils::getDeltaTime() * 3.f);
-                }
-
-                partModel->mRot.x = xRot;
-                partModel->mRot.y = yRot;
-                partModel->mRot.z = zRot;
-                partModel->mSize.z = 0.917f;
-            }
+            partModel->mRot.x = xRot;
+            partModel->mRot.y = yRot;
+            partModel->mRot.z = zRot;
+            partModel->mSize.z = 0.9177761;
         }
     }
 }
