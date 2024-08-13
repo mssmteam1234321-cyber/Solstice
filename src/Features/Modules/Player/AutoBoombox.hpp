@@ -7,7 +7,7 @@
 
 class AutoBoombox : public ModuleBase<AutoBoombox> {
 public:
-    NumberSetting mDelay = NumberSetting("Delay", "The delay in ms to place boombox", 1000, 0, 1500, 10);
+    NumberSetting mDelay = NumberSetting("Delay", "The delay in ms to place boombox", 1000, 100, 1500, 10);
     BoolSetting mHotbarOnly = BoolSetting{ "Hotbar Only", "Only switch to boomboxes in the hotbar", true };
     AutoBoombox() : ModuleBase("AutoBoombox", "Automatically places boombox in the hive", ModuleCategory::Player, 0, false)
     {

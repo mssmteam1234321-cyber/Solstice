@@ -55,8 +55,6 @@ void AutoBoombox::onBaseTickEvent(BaseTickEvent& event)
     int boomboxSlot = ItemUtils::getBoombox(mHotbarOnly.mValue);
     if (boomboxSlot == -1) return;
 
-    supplies->mInHandSlot = boomboxSlot;
-
     if (supplies->mSelectedSlot != boomboxSlot) {
         mPreviousSlot = supplies->mSelectedSlot;
         supplies->mSelectedSlot = boomboxSlot;
