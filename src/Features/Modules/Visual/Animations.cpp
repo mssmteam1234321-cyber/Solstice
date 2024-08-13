@@ -112,6 +112,10 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event) // i have a huge bone
 
             if (mThirdPersonStyle.mValue == ThirdPersonStyle::VastraKai)
             {
+                xRot = mXRot.mValue;
+                yRot = mYRot.mValue;
+                zRot = mZRot.mValue;
+
                 if (player->getSwingProgress() > 0) {
                     xRot = MathUtils::animate(-30, xRot, ImRenderUtils::getDeltaTime() * 3.f);
                     yRot = MathUtils::animate(0, yRot, ImRenderUtils::getDeltaTime() * 3.f);
@@ -129,8 +133,8 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event) // i have a huge bone
 
             if (mThirdPersonStyle.mValue == ThirdPersonStyle::Tozic)
             {
-                xRot = -65;
-                yRot = -17;
+                //xRot = -65;
+                //yRot = -17;
                 zRot = 57;
 
                 if (player->getSwingProgress() > 0) {
