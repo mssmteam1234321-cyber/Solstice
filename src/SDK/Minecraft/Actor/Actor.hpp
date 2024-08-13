@@ -40,7 +40,7 @@ public:
 
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
-    CLASS_FIELD(std::string, mEntityIdentifier, 0x2B8)
+    CLASS_FIELD(std::string, mEntityIdentifier, OffsetProvider::Actor_mEntityIdentifier);
 
     virtual bool getStatusFlag(ActorFlags) = 0;
     virtual void setStatusFlag(ActorFlags, bool) = 0;

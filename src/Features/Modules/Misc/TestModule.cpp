@@ -170,7 +170,6 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
         ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("held item", player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot));
-        displayCopyableAddress("getPlayerList", player->getLevel()->mVfTable[273]);
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());

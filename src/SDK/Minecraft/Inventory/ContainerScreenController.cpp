@@ -4,6 +4,7 @@
 
 #include "ContainerScreenController.hpp"
 
+#include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
 #include <Utils/MemUtils.hpp>
 
@@ -16,5 +17,5 @@ void ContainerScreenController::handleAutoPlace(const std::string& name, int slo
 void* ContainerScreenController::_tryExit()
 {
     // TODO: implement index signature instead of raw index
-    return MemUtils::callVirtualFunc<void*>(12, this);
+    return MemUtils::callVirtualFunc<void*>(OffsetProvider::ContainerScreenController_tryExit, this);
 }

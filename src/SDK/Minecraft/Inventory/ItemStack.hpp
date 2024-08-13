@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
 #include <Utils/MemUtils.hpp>
 
@@ -73,7 +74,7 @@ public:
 
     void reinit(Item* item, int count, int itemData) {
         mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
-        MemUtils::callVirtualFunc<void>(3, this, item, count, itemData);
+        MemUtils::callVirtualFunc<void>(OffsetProvider::ItemStack_reInit, this, item, count, itemData);
     }
 
     std::string getCustomName() {

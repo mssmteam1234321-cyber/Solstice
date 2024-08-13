@@ -44,6 +44,11 @@ private: \
 static inline std::function<void()> name##_function = (mSigInitializers.emplace_back(name##_initializer), std::function<void()>()); \
 public:
 
+// Defines a direct offset for a field (for offsets/indexes that can't be sigged)
+#define DEFINE_FIELD(name, offset) \
+public: \
+static constexpr inline int (name) = offset;
+
 #include <future>
 #include <libhat/Scanner.hpp>
 
@@ -110,6 +115,12 @@ public:
 
     // TODO: Identify the correct signature for this (something related to actor bones)
     DEFINE_INDEX_FIELD_TYPED(uint8_t, Unknown_mActor, "48 8B ? ? 0F 29 ? ? 44 0F ? ? ? E8 ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
+
+    DEFINE_FIELD(ContainerScreenController_tryExit, 12);
+    DEFINE_FIELD(ItemStack_reInit, 3);
+
+    DEFINE_FIELD(Actor_mEntityIdentifier, 0x2B8);
+
 
     static void initialize();
     static void deinitialize();
