@@ -371,8 +371,13 @@ void AutoReport::onPacketInEvent(PacketInEvent& event)
             mReportedPlayers.push_back(reportedPlayer);
         }
 
-
+        if (StringUtils::containsIgnoreCase(txt, "List of players, or replay ID, not yet loaded.")) {
+            mFinishedReporting = true;
+            mLastReportTime = NOW;
+            ChatUtils::displayClientMessage("Cancelled reporting");
+        }
     }
+
     if (event.mPacket->getId() == PacketID::ModalFormRequest) {
         auto packet = event.getPacket<ModalFormRequestPacket>();
         nlohmann::json json = nlohmann::json::parse(packet->mJSON);

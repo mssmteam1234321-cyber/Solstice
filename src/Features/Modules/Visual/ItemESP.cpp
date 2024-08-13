@@ -54,7 +54,7 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         glm::vec2 screen = glm::vec2(0, 0);
 
 
-        if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, pos, screen, ci->getFov(), ci->getGuiData()->resolution)) continue;
+        if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, pos, screen, ci->getFov(), ci->getGuiData()->mResolution)) continue;
 
         if (!mShowNames.mValue) continue;
         if (!actor->mItem.mItem) continue;

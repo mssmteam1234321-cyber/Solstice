@@ -247,7 +247,7 @@ void ImRenderUtils::fillCircle(ImVec2 center, float radius, const ImColor& color
 
 ImVec2 ImRenderUtils::getScreenSize()
 {
-    glm::vec2 resolution = ClientInstance::get()->getGuiData()->resolution;
+    glm::vec2 resolution = ClientInstance::get()->getGuiData()->mResolution;
     return ImVec2(resolution.x, resolution.y);
 }
 

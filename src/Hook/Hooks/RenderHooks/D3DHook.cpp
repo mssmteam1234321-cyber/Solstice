@@ -280,7 +280,7 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
     D2D::init(swapChain, gDevice11.get());
 
     static ImVec2 lastWindowSize = ImGui::GetIO().DisplaySize;
-    ImVec2 windowSize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+    ImVec2 windowSize = ImVec2(ClientInstance::get()->getGuiData()->mResolution.x, ClientInstance::get()->getGuiData()->mResolution.y);
 
     if (lastWindowSize.x != windowSize.x || lastWindowSize.y != windowSize.y) {
         auto holder = nes::make_holder<WindowResizeEvent>(windowSize.x, windowSize.y);
@@ -356,7 +356,7 @@ void D3DHook::initImGui(ID3D11Device* device, ID3D11DeviceContext* deviceContext
     ImGui_ImplDX11_Init(device, deviceContext);
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+    io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->mResolution.x, ClientInstance::get()->getGuiData()->mResolution.y);
 
     imGuiInitialized = true;
 }
@@ -378,10 +378,10 @@ void D3DHook::igNewFrame()
     ImGui::NewFrame();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->resolution.x, ClientInstance::get()->getGuiData()->resolution.y);
+    io.DisplaySize = ImVec2(ClientInstance::get()->getGuiData()->mResolution.x, ClientInstance::get()->getGuiData()->mResolution.y);
 
     MathUtils::fov = RenderUtils::transform.mFov;
-    MathUtils::displaySize = ClientInstance::get()->getGuiData()->resolution;
+    MathUtils::displaySize = ClientInstance::get()->getGuiData()->mResolution;
     MathUtils::origin = RenderUtils::transform.mOrigin;
 
 
