@@ -7,10 +7,12 @@
 class AutoReport : public ModuleBase<AutoReport> {
 public:
     NumberSetting mDelay = NumberSetting("Delay", "The delay in seconds between each report", 5, 1, 10, 1);
+    BoolSetting mQueueWhenFinished = BoolSetting("Queue When Finished", "Queue for a game when you finish reporting", false);
 
     AutoReport() : ModuleBase("AutoReport", "Automatically reports players", ModuleCategory::Misc, 0, false) {
         addSettings(
-            &mDelay
+            &mDelay,
+            &mQueueWhenFinished
         );
 
         mNames = {

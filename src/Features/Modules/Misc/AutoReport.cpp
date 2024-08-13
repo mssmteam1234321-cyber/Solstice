@@ -15,6 +15,8 @@
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlaySoundPacket.hpp>
+
+#include "AutoQueue.hpp"
 /*{
     "buttons": [
         {
@@ -197,6 +199,9 @@ void AutoReport::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    // TODO: Replace this with an event trigger instead of a module dependency
+    auto autoQueue = gFeatureManager->mModuleManager->getModule<AutoQueue>();
+
     if (NOW - mLastTeleport <= 1000 && NOW - mLastDimensionChange <= 1000)
     {
         if (player->getStatusFlag(ActorFlags::Noai))
@@ -266,6 +271,11 @@ void AutoReport::onBaseTickEvent(BaseTickEvent& event)
             }
             if (validButtons.empty())
             {
+                if (mQueueWhenFinished && autoQueue)
+                {
+                    autoQueue->mQueueForGame = true;
+                    autoQueue->mLastQueueTime = NOW - autoQueue->mQueueDelay.mValue * 1000; // Instantly queue
+                }
                 ChatUtils::displayClientMessage("Finished reporting");
                 mFinishedReporting = true;
                 closeForm();
