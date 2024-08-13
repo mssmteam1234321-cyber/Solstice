@@ -390,7 +390,10 @@ std::string Actor::getRawName()
         }
     }
 
-    return getNameTag();
+    std::string name = getNameTag();
+    name = name.substr(0, name.find('\n'));
+    name = ColorUtils::removeColorCodes(name);
+    return name;
 }
 
 const std::string& Actor::getNameTag()

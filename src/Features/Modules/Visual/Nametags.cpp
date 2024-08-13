@@ -60,6 +60,8 @@ void Nametags::onRenderEvent(RenderEvent& event)
         if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;
+        auto posComp = actor->getRenderPositionComponent();
+        if (!posComp) continue;
 
         auto themeColor = ImColor(1.f, 1.f, 1.f, 1.f); //ColorUtils::getThemedColor(0);
 
@@ -69,7 +71,7 @@ void Nametags::onRenderEvent(RenderEvent& event)
             else continue;
         }
 
-        glm::vec3 renderPos = actor->getRenderPositionComponent()->mPosition;
+        glm::vec3 renderPos = posComp->mPosition;
         if (actor == localPlayer) renderPos = RenderUtils::transform.mPlayerPos;
         renderPos.y += 0.5f;
 

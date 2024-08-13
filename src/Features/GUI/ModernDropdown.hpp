@@ -36,6 +36,8 @@ public:
     bool isBinding = false;
     ColorSetting* lastColorSetting = nullptr;
     bool displayColorPicker = false;
+    bool resetPosition = false;
+    uint64_t lastReset = 0;
 
     // Colour
     ImColor textColor = ImColor(255, 255, 255);

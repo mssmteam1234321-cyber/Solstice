@@ -13,8 +13,11 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
+#include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
@@ -26,42 +29,40 @@ void TestModule::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
-    /*gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
+    /*gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
 }
 
 void TestModule::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
-    /*gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);
-    */
-
+    /*gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
 }
 
 Block* gDaBlock = nullptr;
+
+int lastFormId = 0;
+bool formOpen = false;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
     if (!player) return;
 
-    //player->setFlag<ActorMovementTickNeededFlag>(true);
-
-    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(*player->getPos());
-    ItemStack* item = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot);
-    if (!item->mItem) return;
-    if (!item->mBlock) return;
-
-    BlockUtils::setBlock(*player->getPos() - PLAYER_HEIGHT_VEC - glm::vec3(0, 1, 0), item->mBlock->getRuntimeId());
-    spdlog::debug("Attempted to place block [rtid: {}] at ({}, {}, {})", item->mBlock->getRuntimeId(), player->getPos()->x, player->getPos()->y - 1, player->getPos()->z);
-    return;
-
-
-
+    if (formOpen && mMode.mValue == Mode::Mode3)
+    {
+        auto packet = MinecraftPackets::createPacket<ModalFormResponsePacket>();
+        packet->mFormId = lastFormId;
+        MinecraftJson::Value json;
+        json.mType = MinecraftJson::ValueType::Int;
+        json.mValue.mInt = 0;
+        packet->mJSONResponse = json;
+        ClientInstance::get()->getPacketSender()->send(packet.get());
+    }
 
     /*
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
@@ -94,61 +95,26 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
     // Store the last player list
     lastPlayerNames = playerNames;*/
-
-    glm::ivec3 blockPos = *player->getPos();
-    blockPos.x = std::floor(blockPos.x);
-    blockPos.y = std::floor(blockPos.y);
-    blockPos.z = std::floor(blockPos.z);
-
-    auto blockSource = ClientInstance::get()->getBlockSource();
-    ChunkBlockPos chunkBlockPos = ChunkBlockPos(BlockPos(blockPos));
-    auto chunkPos = ChunkPos(BlockPos(blockPos));
-    LevelChunk* chunk = blockSource->getChunk(chunkPos);
-    if (!chunk) return;
-
-    int blockFound = 0;
-
-    for (auto subchunk : chunk->subChunks)
-    {
-        auto readah = subchunk.blockReadPtr;
-        if (!readah) continue;
-        uint16_t searchRangeXZ = 16;
-        uint16_t searchRangeY = (blockSource->mBuildHeight - blockSource->mBuildDepth) / chunk->subChunks.size();
-        for(uint16_t x = 0; x < searchRangeXZ; x++)
-        {
-            for(uint16_t z = 0; z < searchRangeXZ; z++)
-            {
-                for(uint16_t y = 0; y < searchRangeY; y++)
-                {
-                    uint16_t elementId = (x * 0x10 + z) * 0x10 + (y & 0xf);
-                    const Block* found = readah->getElement(elementId);
-                    if (found->mLegacy->getBlockId() == 0) continue;
-                    BlockPos pos;
-                    pos.x = (chunkPos.x * 16) + x;
-                    pos.z = (chunkPos.y * 16) + z;
-                    pos.y = y + (subchunk.subchunkIndex * 16);
-                    //spdlog::debug("Block at ({}, {}, {}) is {}", pos.x, pos.y, pos.z, found->mLegacy->mName);
-                    blockFound++;
-                }
-            }
-        }
-    }
-
-    spdlog::debug("Found {} blocks at chunkpos ({}, {})", blockFound, chunkPos.x, chunkPos.y);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+    if (event.mPacket->getId() == PacketID::ModalFormResponse)
     {
+        auto packet = event.getPacket<ModalFormResponsePacket>();
+        formOpen = false;
+        spdlog::info("ModalFormResponsePacket: FormId: {}, ValueType: {}", packet->mFormId, std::string(magic_enum::enum_name(packet->mJSONResponse->mType)));
     }
 }
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::PlayerList)
+    if (event.mPacket->getId() == PacketID::ModalFormRequest)
     {
-
+        auto packet = event.getPacket<ModalFormRequestPacket>();
+        lastFormId = packet->mFormId;
+        formOpen = true;
+        if (mMode.mValue == Mode::Mode3) event.cancel();
     }
 }
 
@@ -213,13 +179,6 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
         displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());
         displayCopyableAddress("gDaBlock", gDaBlock);
-        if (gDaBlock)
-        {
-            auto rtid = gDaBlock->getRuntimeId();
-            spdlog::debug("gDaBlock->getRuntimeId(): {}", rtid);
-            ImGui::Text("gDaBlock->getRuntimeId(): %d", rtid);
-        }
-
     }
 
     displayCopyableAddress("Options", ci->getOptions());

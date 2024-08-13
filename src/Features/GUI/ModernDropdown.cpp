@@ -45,6 +45,28 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
     float deltaTime = ImGui::GetIO().DeltaTime;
     auto drawList = ImGui::GetBackgroundDrawList();
 
+    // If the reset position bool is true and lastReset was more than 100ms ago, reset the position
+    if (resetPosition && NOW - lastReset > 100)
+    {
+        catPositions.clear();
+        ImVec2 screen = ImRenderUtils::getScreenSize();
+        auto categories = ModuleCategoryNames;
+        if (catPositions.empty())
+        {
+            float centerX = screen.x / 2.f;
+            float xPos = centerX - (categories.size() * (catWidth + catGap) / 2);
+            for (std::string& category : categories)
+            {
+                CategoryPosition pos;
+                pos.x = xPos;
+                pos.y = catGap * 2;
+                xPos += catWidth + catGap;
+                catPositions.push_back(pos);
+            }
+        }
+        resetPosition = false;
+    }
+
     /*ImRenderUtils::fillRectangle(
             ImVec4(0, 0, screen.x, screen.y),
             ImColor(0, 0, 0), animation * 0.38f);*/
@@ -924,32 +946,6 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
 void ModernGui::onWindowResizeEvent(WindowResizeEvent& event)
 {
-    // Reset positions to default
-    static std::thread resetThread = std::thread();
-
-    if (resetThread.joinable())
-    {
-        resetThread.join();
-    }
-
-    resetThread = std::thread([this]()
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        catPositions.clear();
-        ImVec2 screen = ImRenderUtils::getScreenSize();
-        auto categories = ModuleCategoryNames;
-        if (catPositions.empty())
-        {
-            float centerX = screen.x / 2.f;
-            float xPos = centerX - (categories.size() * (catWidth + catGap) / 2);
-            for (std::string& category : categories)
-            {
-                CategoryPosition pos;
-                pos.x = xPos;
-                pos.y = catGap * 2;
-                xPos += catWidth + catGap;
-                catPositions.push_back(pos);
-            }
-        }
-    });
+    resetPosition = true;
+    lastReset = NOW;
 }

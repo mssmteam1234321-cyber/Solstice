@@ -20,6 +20,7 @@
 #include "Misc/NoFilter.hpp"
 #include "Misc/NoPacket.hpp"
 #include "Misc/Disabler.hpp"
+#include "Misc/AutoReport.hpp"
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
@@ -101,6 +102,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Derp>());
     mModules.emplace_back(std::make_shared<Freecam>());
 
+
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
@@ -117,6 +119,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Killsults>());
     mModules.emplace_back(std::make_shared<NetSkip>());
     mModules.emplace_back(std::make_shared<Disabler>());
+    mModules.emplace_back(std::make_shared<AutoReport>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

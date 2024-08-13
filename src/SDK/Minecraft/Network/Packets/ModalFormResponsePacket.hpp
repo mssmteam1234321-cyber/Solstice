@@ -14,11 +14,18 @@ enum class ModalFormCancelReason : signed char {
 
 class ModalFormResponsePacket : public Packet {
 public:
-    static inline PacketID ID = PacketID::ModalFormResponse;
+    static inline auto ID = PacketID::ModalFormResponse;
 
     unsigned int                         mFormId;           // this+0x30
     std::optional<MinecraftJson::Value>  mJSONResponse;     // this+0x38
     std::optional<ModalFormCancelReason> mFormCancelReason; // this+0x50
 };
 
-//static_assert(sizeof(ModalFormResponsePacket) == 0x48);
+class ModalFormRequestPacket : public Packet
+{
+public:
+    static inline auto ID = PacketID::ModalFormRequest;
+
+    unsigned int mFormId; // this+0x30
+    std::string  mJSON;    // this+0x38
+};
