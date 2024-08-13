@@ -20,6 +20,6 @@ void CommandUtils::executeCommand(const std::string& command)
     auto crq = MinecraftPackets::createPacket<CommandRequestPacket>();
     crq->mCommand = command;
     crq->mOrigin.mPlayerId = player->getRuntimeID();
-    ClientInstance::get()->getPacketSender()->sendToServer(crq.get());
+    ClientInstance::get()->getPacketSender()->send(crq.get());
     spdlog::info("Sent command: {}", command);
 }

@@ -36,11 +36,13 @@ public:
     std::map<uint64_t, std::string> mQueuedCommands = {};
 
 
+
     void onEnable() override;
     void onDisable() override;
     void queueForGame();
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.as<int>()];

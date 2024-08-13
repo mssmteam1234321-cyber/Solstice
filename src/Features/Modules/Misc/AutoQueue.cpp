@@ -7,6 +7,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
@@ -20,6 +21,7 @@ void AutoQueue::queueForGame()
 void AutoQueue::onEnable()
 {
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AutoQueue::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &AutoQueue::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoQueue::onBaseTickEvent>(this);
 
     mQueuedCommands[NOW] = "/connection";
@@ -28,6 +30,7 @@ void AutoQueue::onEnable()
 void AutoQueue::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &AutoQueue::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AutoQueue::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoQueue::onBaseTickEvent>(this);
 }
 
@@ -109,5 +112,13 @@ void AutoQueue::onPacketInEvent(PacketInEvent& event)
             event.mCancelled = true;
             return;
         }
+    }
+}
+
+void AutoQueue::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::CommandRequest)
+    {
+        mLastCommandExecuted = NOW;
     }
 }
