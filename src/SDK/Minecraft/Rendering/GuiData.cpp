@@ -13,12 +13,6 @@
 void GuiData::displayClientMessage(const std::string& msg)
 {
     if (!ClientInstance::get()->getLocalPlayer()) return;
-
-    // Temporary, can't get the original function to work
-    auto textPacket = MinecraftPackets::createPacket<TextPacket>();
-    textPacket->mType = TextPacketType::Raw;
-    textPacket->mMessage = msg;
-    PacketUtils::sendToSelf(textPacket);
-
-    //MemUtils::callFastcall<void>(SigManager::GuiData_displayClientMessage, this, msg, false);
+    int lol = 0;
+    MemUtils::callFastcall<void>(SigManager::GuiData_displayClientMessage, this, msg, &lol, false);
 }
