@@ -101,7 +101,7 @@ public:
     DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftGame_mProfanityContext, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 90 48 C7 44 24 20", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "80 79 ? ? 74 ? 80 79 18 ? 74 ? 80 7C 24 60", 2, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset);
+    //DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset); // this isn't even correct lmao
     DEFINE_INDEX_FIELD(Actor_mHurtTimeComponent, "48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 89 ? ? ? 48 8B ? 8B 38", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(BlockSource_getChunk, "48 8B ? ? ? ? ? 44 89 ? ? ? FF 15 ? ? ? ? 48 83 C4", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(BlockSource_setBlock, "48 8B ? ? ? ? ? FF 15 ? ? ? ? EB ? 41 83 FF", 3, OffsetType::Index);

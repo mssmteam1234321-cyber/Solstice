@@ -59,8 +59,7 @@ void Animations::onDisable()
 
 void Animations::onBaseTickEvent(BaseTickEvent& event)
 {
-    auto localPlayer = ClientInstance::get()->getLocalPlayer();
-    if (!localPlayer) return;
+    auto player = event.mActor;
 
     patchNoSwitchAnimation(mNoSwitchAnimation.mValue);
     patchFluxSwing(mFluxSwing.mValue);
@@ -81,7 +80,6 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
         *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
     }
 
-    auto player = event.mActor;
 
     mOldSwingDuration = mSwingDuration;
     mSwingDuration = player->getSwingProgress();

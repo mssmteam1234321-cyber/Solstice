@@ -19,14 +19,13 @@ struct Bone
 
     ActorPartModel* getActorPartModel()
     {
-        return reinterpret_cast<ActorPartModel*>(reinterpret_cast<uintptr_t>(this + OffsetProvider::Bone_mPartModel));
+        return reinterpret_cast<ActorPartModel*>(reinterpret_cast<uintptr_t>(this + 0xEC));
     }
 };
 
 class ActorModel
 {
 public:
-    //ActorPartModel* mModels[6] = {nullptr};
     std::map<int, ActorPartModel*> mModels;
 
     ActorModel() = default;
