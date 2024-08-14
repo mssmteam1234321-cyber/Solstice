@@ -36,14 +36,19 @@
 
 class Actor {
 public:
-    unsigned char filler[1096 - 8]; // From levilamina
+    unsigned char filler[1096]; // From levilamina
 
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
     CLASS_FIELD(std::string, mEntityIdentifier, OffsetProvider::Actor_mEntityIdentifier);
 
-    virtual bool getStatusFlag(ActorFlags) = 0;
-    virtual void setStatusFlag(ActorFlags, bool) = 0;
+    bool getStatusFlag(ActorFlags flag) {
+        return MemUtils::callFastcall<bool>(SigManager::Actor_getStatusFlag, this, flag);
+    }
+
+    void setStatusFlag(ActorFlags flag, bool value) {
+        //MemUtils::callFastcall<void>(SigManager::Actor_setStatusFlag, this, flag, value);
+    }
 
     template<typename flag_t>
     bool getFlag() {
@@ -127,3 +132,5 @@ public:
     AttributeInstance* getAttribute(int id);
     bool isOnFire();
 };
+
+static_assert(sizeof(Actor) == 0x448, "Actor size is invalid"); // 1096 = 0x448

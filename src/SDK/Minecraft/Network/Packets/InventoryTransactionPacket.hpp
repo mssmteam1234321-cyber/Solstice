@@ -110,8 +110,9 @@ public:
 
     void addAction(InventoryAction const& action) {
         static void* func = reinterpret_cast<void*>(SigManager::InventoryTransaction_addAction);
-        using AddAction = void(__fastcall*)(InventoryTransaction*, InventoryAction const&, bool);
-        reinterpret_cast<AddAction>(func)(this, action, false);
+        int sillyInt = 0;
+        using AddAction = void(__fastcall*)(InventoryTransaction*, InventoryAction const&, int*, bool);
+        reinterpret_cast<AddAction>(func)(this, action, &sillyInt, false);
     }
 };
 
@@ -305,7 +306,6 @@ public:
     char pad[0x10]; // this+0x30
     std::vector<std::pair<ContainerEnumName, std::vector<unsigned char>>> mLegacySetItemSlots;   // this+0x40
     std::unique_ptr<ComplexInventoryTransaction>                          mTransaction;        // this+0x58
-    //ComplexInventoryTransaction* mTransaction;                                                   // this+0x58
     bool                                                                  mIsClientSide = false; // this+0x60
 };
 
