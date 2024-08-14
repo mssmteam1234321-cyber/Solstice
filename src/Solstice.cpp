@@ -188,8 +188,6 @@ void Solstice::init(HMODULE hModule)
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
-    SmartAssureFinder::getForComponent<CameraRenderPlayerModelComponent>();
-
     // Create a thead to wait for all futures in hooks then load a default config if any
     console->info("Press END to eject dll.");
 

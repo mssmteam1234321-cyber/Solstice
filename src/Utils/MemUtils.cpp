@@ -217,7 +217,6 @@ uintptr_t MemUtils::findReferenceInRange(uintptr_t ptr, uintptr_t start, uintptr
             uintptr_t targetAddr = addr + offset + 5;
 
             if (targetAddr == ptr) {
-                spdlog::info("Found reference at 0x{:X}", addr);
                 return addr;
             }
         }
@@ -227,7 +226,6 @@ uintptr_t MemUtils::findReferenceInRange(uintptr_t ptr, uintptr_t start, uintptr
             uintptr_t targetAddr = addr + offset + 7;
 
             if (targetAddr == ptr) {
-                spdlog::info("Found reference at 0x{:X}", addr);
                 return addr;
             }
         }

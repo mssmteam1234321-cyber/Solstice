@@ -25,7 +25,7 @@ class SmartAssureFinder
 {
 public:
     template<typename component_t>
-    static void* getForComponent()
+    static void* get()
     {
         uint64_t start = NOW;
         // Get the assure signature
@@ -55,8 +55,20 @@ public:
             spdlog::error("Failed to find assure function for component: {}", symbol);
             return nullptr;
         }
-        spdlog::info("Found assure function for component: {} at {} [found in {}ms]", symbol, MemUtils::getMbMemoryString(assureFunc), NOW - start);
+        spdlog::warn("Smart assure finder found function for component {} at {} [found in {}ms]", typenameStr, MemUtils::getMbMemoryString(assureFunc), NOW - start);
+        //ChatUtils::displayClientMessage("Warning: Smart assure finder was used for component: " + symbol);
         return reinterpret_cast<void*>(assureFunc);
+    }
+
+    template<typename component_t>
+    static void* getForComponent()
+    {
+        static auto assure = get<component_t>();
+        if (assure == nullptr) {
+            assure = get<component_t>();
+            return nullptr;
+        }
+        return assure;
     }
 };
 

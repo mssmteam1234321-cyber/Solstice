@@ -6,7 +6,7 @@
 #include "SubChunk.hpp"
 
 class LevelChunk {
-public:
+private:
     char                    pad_0000[120];           // this+0x0000
     int32_t                 chunkPosX;               // this+0x0078
     int32_t                 chunkPosY;               // this+0x007C
@@ -21,6 +21,7 @@ public:
     char                    pad_0DE8[979];           // this+0x0DE8
     bool                    isLoading;               // this+0x11BB
     char                    pad_11BC[20];            // this+0x11BC
+public:
 
     std::vector<SubChunk>* getSubChunks() {
         return &hat::member_at<std::vector<SubChunk>>(this, OffsetProvider::LevelChunk_mSubChunks);

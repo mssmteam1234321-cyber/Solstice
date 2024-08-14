@@ -88,7 +88,7 @@ void BlockESP::moveToNext()
         { 0, -1 }
     };
 
-    size_t numSubchunks = (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16;
+    size_t numSubchunks = (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16;
     if(numSubchunks-1 > mSubChunkIndex)
     {
         mSubChunkIndex++;
@@ -123,11 +123,13 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
     if (!player) return false;
     BlockSource* blockSource = ci->getBlockSource();
 
-    size_t numSubchunks = (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16;
+    size_t numSubchunks = (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16;
     if (index < 0 || index >= numSubchunks) return false;
 
     LevelChunk* chunk = blockSource->getChunk(processChunk);
     if (!chunk) return false;
+
+    // Get the nmber
 
     auto subChunk = (*chunk->getSubChunks())[index];
     SubChunkBlockStorage* blockReader = subChunk.blockReadPtr;
@@ -139,7 +141,7 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
     {
         for(uint16_t z = 0; z < 16; z++)
         {
-            for(uint16_t y = 0; y < (blockSource->mBuildHeight - blockSource->mBuildDepth) / chunk->subChunks.size(); y++)
+            for(uint16_t y = 0; y < (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / chunk->getSubChunks()->size(); y++)
             {
                 uint16_t elementId = (x * 0x10 + z) * 0x10 + (y & 0xf);
                 const Block* found = blockReader->getElement(elementId);
@@ -259,9 +261,9 @@ void BlockESP::onBlockChangedEvent(BlockChangedEvent& event)
     if (dabl.getDistance(*ClientInstance::get()->getLocalPlayer()->getPos()) > mRadius.mValue) return;
 
     ChunkPos chunkPos = ChunkPos(event.mBlockPos);
-    int subChunk = (event.mBlockPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
+    int subChunk = (event.mBlockPos.y - ClientInstance::get()->getBlockSource()->getBuildDepth()) >> 4;
     if (!processSub(chunkPos, subChunk)) {
-        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (ClientInstance::get()->getBlockSource()->mBuildHeight - ClientInstance::get()->getBlockSource()->mBuildDepth) / 16, chunkPos.x, chunkPos.y);
+        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (ClientInstance::get()->getBlockSource()->getBuildHeight() - ClientInstance::get()->getBlockSource()->getBuildDepth()) / 16, chunkPos.x, chunkPos.y);
     }
 
     auto enabledBlocks = getEnabledBlocks();
@@ -314,16 +316,16 @@ void BlockESP::onBaseTickEvent(BaseTickEvent& event)
     {
         if (!processSub(mCurrentChunkPos, mSubChunkIndex))
         {
-            spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16, mCurrentChunkPos.x, mCurrentChunkPos.y);
+            spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16, mCurrentChunkPos.x, mCurrentChunkPos.y);
         }
         moveToNext();
     }
 
     BlockPos playerPos = *player->getPos();
-    int subChunk = (playerPos.y - ClientInstance::get()->getBlockSource()->mBuildDepth) >> 4;
+    int subChunk = (playerPos.y - ClientInstance::get()->getBlockSource()->getBuildDepth()) >> 4;
     if (!processSub(ChunkPos(playerPos), subChunk))
     {
-        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (blockSource->mBuildHeight - blockSource->mBuildDepth) / 16, playerPos.x, playerPos.z);
+        spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16, playerPos.x, playerPos.z);
     }
 
 }
