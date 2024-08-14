@@ -91,7 +91,7 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
     if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f)) return;
 
     bool firstPerson = ClientInstance::get()->getOptions()->game_thirdperson->value == 0;
-    if (firstPerson && !player->getFlag<RenderCameraFlag>()) return;
+    if (firstPerson && !player->getFlag<RenderCameraComponent>()) return;
 
 
     const auto actorRotations = event.mEntity->getActorRotationComponent();

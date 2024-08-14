@@ -87,27 +87,6 @@ void Actor::setGameType(int type)
     ClientInstance::get()->getPacketSender()->sendToServer(pkt.get()); // on some servers this can server-side set the gamemode
 }
 
-bool Actor::isGameCameraActive()
-{
-    // use da flag component
-    auto storage = mContext.assure<FlagComponent<GameCameraFlag>>();
-    return storage->contains(this->mContext.mEntityId);
-}
-
-void Actor::setGameCameraActive(bool active)
-{
-    auto storage = mContext.assure<FlagComponent<GameCameraFlag>>();
-    bool wasActive = isGameCameraActive();
-    if (active && !wasActive)
-    {
-        storage->emplace(this->mContext.mEntityId);
-    }
-    else if (!active && wasActive)
-    {
-        storage->remove(this->mContext.mEntityId);
-    }
-}
-
 bool Actor::isDebugCameraActive()
 {
     // use da flag component
@@ -129,19 +108,6 @@ void Actor::setDebugCameraActive(bool active)
     }
 }
 
-void Actor::setAllowInsideBlockRender(bool allow)
-{
-    auto storage = mContext.assure<FlagComponent<AllowInsideBlockRender>>();
-    if (allow)
-    {
-        storage->emplace(this->mContext.mEntityId);
-    }
-    else
-    {
-        storage->remove(this->mContext.mEntityId);
-    }
-
-}
 
 int Actor::getSwingProgress()
 {
@@ -300,27 +266,7 @@ float Actor::distanceTo(const glm::vec3& pos)
 
 bool Actor::wasOnGround()
 {
-    auto storage = mContext.assure<FlagComponent<WasOnGroundFlag>>();
-    return storage->contains(this->mContext.mEntityId);
-}
-
-bool Actor::isInWater()
-{
-    auto storage = mContext.assure<FlagComponent<InWaterFlag>>();
-    return storage->contains(this->mContext.mEntityId);
-}
-
-void Actor::setInWater(bool inWater)
-{
-    auto storage = mContext.assure<FlagComponent<InWaterFlag>>();
-    if (inWater)
-    {
-        storage->emplace(this->mContext.mEntityId);
-    }
-    else
-    {
-        storage->remove(this->mContext.mEntityId);
-    }
+    return getFlag<WasOnGroundFlagComponent>();
 }
 
 bool Actor::isOnGround()
@@ -459,5 +405,5 @@ AttributeInstance* Actor::getAttribute(int id)
 
 bool Actor::isOnFire()
 {
-    return getFlag<OnFireComponent, false>();
+    return getFlag<OnFireComponent>();
 }

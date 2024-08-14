@@ -45,34 +45,16 @@ public:
     virtual bool getStatusFlag(ActorFlags) = 0;
     virtual void setStatusFlag(ActorFlags, bool) = 0;
 
-    template<typename flag_t, bool real_flag = true>
+    template<typename flag_t>
     bool getFlag() {
-        if (real_flag)
-        {
-            auto storage = mContext.assure<FlagComponent<flag_t>>();
-            return storage->contains(this->mContext.mEntityId);
-        }
-
         auto storage = mContext.assure<flag_t>();
         return storage->contains(this->mContext.mEntityId);
     }
 
-    template<typename flag_t, bool real_flag = true>
-    void setFlag(bool value) {
-        if (!real_flag)
-        {
-            auto storage = mContext.assure<flag_t>();
-            bool has = storage->contains(this->mContext.mEntityId);
-            if (value && !has) {
-                storage->emplace(this->mContext.mEntityId);
-            }
-            else if (!value && has) {
-                storage->remove(this->mContext.mEntityId);
-            }
-            return;
-        }
-
-        auto storage = mContext.assure<FlagComponent<flag_t>>();
+    template<typename flag_t>
+    void setFlag(bool value)
+    {
+        auto storage = mContext.assure<flag_t>();
         bool has = storage->contains(this->mContext.mEntityId);
         if (value && !has) {
             storage->emplace(this->mContext.mEntityId);
@@ -88,8 +70,6 @@ public:
     void setSwinging(bool swinging);
     int getGameType();
     void setGameType(int type);
-    bool isGameCameraActive();
-    void setGameCameraActive(bool active);
     bool isDebugCameraActive();
     void setDebugCameraActive(bool active);
     void setAllowInsideBlockRender(bool allow);
@@ -131,8 +111,6 @@ public:
     float distanceTo(Actor* actor);
     float distanceTo(const glm::vec3& pos);
     bool wasOnGround();
-    bool isInWater();
-    void setInWater(bool inWater);
     bool isOnGround();
     void setOnGround(bool);
     void jumpFromGround();

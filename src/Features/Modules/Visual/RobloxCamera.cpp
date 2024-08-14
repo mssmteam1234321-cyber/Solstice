@@ -23,9 +23,9 @@ void RobloxCamera::onEnable()
 
     if (auto player = ClientInstance::get()->getLocalPlayer())
     {
-        player->setFlag<RenderCameraFlag>(true);
-        player->setFlag<CameraRenderPlayerModel>(true);
-        player->setFlag<CameraRenderFirstPersonObjects>(false);
+        player->setFlag<RenderCameraComponent>(true);
+        player->setFlag<CameraRenderPlayerModelComponent>(true);
+        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     }
 }
 
@@ -38,9 +38,9 @@ void RobloxCamera::onDisable()
 
     if (auto player = ClientInstance::get()->getLocalPlayer())
     {
-        player->setFlag<RenderCameraFlag>(false);
-        player->setFlag<CameraRenderPlayerModel>(false);
-        player->setFlag<CameraRenderFirstPersonObjects>(false);
+        player->setFlag<RenderCameraComponent>(false);
+        player->setFlag<CameraRenderPlayerModelComponent>(false);
+        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     }
 
     mCurrentDistance = 0.f;
@@ -92,9 +92,9 @@ void RobloxCamera::onLookInputEvent(LookInputEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    player->setFlag<RenderCameraFlag>(true);
-    player->setFlag<CameraRenderPlayerModel>(true);
-    player->setFlag<CameraRenderFirstPersonObjects>(false);
+    player->setFlag<RenderCameraComponent>(true);
+    player->setFlag<CameraRenderPlayerModelComponent>(true);
+    player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
 
     auto camera = event.mFirstPersonCamera;
     glm::vec2 radRot = event.mCameraDirectLookComponent->mRotRads;

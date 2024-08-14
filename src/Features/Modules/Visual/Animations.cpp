@@ -13,7 +13,11 @@
 #include <SDK/Minecraft/Actor/ActorPartModel.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 
-DEFINE_NOP_PATCH_FUNC(patchNoSwitchAnimation, SigManager::ItemInHandRenderer_render_bytepatch, 0x4);
+std::vector<unsigned char> gNoSwitchAnimation = {
+    0x0F, 0x57, 0xC0, // xorps xmm0, xmm0
+    0x90, 0x90, 0x90, 0x90, 0x90 // nop
+};
+DEFINE_PATCH_FUNC(patchNoSwitchAnimation, SigManager::ItemInHandRenderer_render_bytepatch, gNoSwitchAnimation);
 DEFINE_NOP_PATCH_FUNC(patchFluxSwing, SigManager::FluxSwing, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchDefaultSwing, SigManager::ItemInHandRenderer_renderItem_bytepatch, 0x8);
 DEFINE_NOP_PATCH_FUNC(patchDefaultSwing2, SigManager::ItemInHandRenderer_renderItem_bytepatch+11, 0x8);

@@ -131,3 +131,190 @@ std::string MemUtils::bytesToHex(char* bytes, int length)
     return ss.str();
 }
 
+#define INRANGE(x,a,b)	(x >= a && x <= b)
+#define getBits( x )	(INRANGE((x&(~0x20)),'A','F') ? ((x&(~0x20)) - 'A' + 0xa) : (INRANGE(x,'0','9') ? x - '0' : 0))
+#define getByte( x )	(getBits(x[0]) << 4 | getBits(x[1]))
+
+/*uintptr_t Mem::FindSig(uintptr_t rangeStart, uintptr_t rangeEnd, const char* pattern)
+{
+	const char* pat = pattern;
+	DWORD_PTR firstMatch = 0;
+	for (DWORD_PTR pCur = rangeStart; pCur < rangeEnd; pCur++)
+	{
+		if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat))
+		{
+			if (!*pat) return firstMatch;
+			if (!firstMatch) firstMatch = pCur;
+			if (!pat[2]) return firstMatch;
+
+
+			if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?')
+				pat += 3;
+			else
+				pat += 2;
+		}
+		else {
+
+			if (firstMatch != 0)
+				pCur = firstMatch;
+			pat = pattern;
+			firstMatch = 0;
+		}
+	}
+	return NULL;
+}*/
+
+std::vector<uintptr_t> MemUtils::findPattern(const std::string& pattern)
+{
+    std::vector<uintptr_t> results;
+    MODULEINFO moduleInfo;
+    GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &moduleInfo, sizeof(MODULEINFO));
+    int THREAD_COUNT = std::thread::hardware_concurrency();
+    uintptr_t start = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
+    uintptr_t end = start + moduleInfo.SizeOfImage;
+    const char* pat = pattern.c_str();
+
+    for (uintptr_t pCur = start; pCur < end; pCur++)
+    {
+        if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat))
+        {
+            if (!*pat) results.push_back(pCur);
+            if (!pat[2]) results.push_back(pCur);
+
+            if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?')
+                pat += 3;
+            else
+                pat += 2;
+        }
+        else
+        {
+            pat = pattern.c_str();
+        }
+    }
+
+    return results;
+
+}
+
+uintptr_t MemUtils::findStringInRange(const std::string& string, uintptr_t start, uintptr_t end) {
+    const size_t length = string.size();
+    const char* target = string.c_str();
+
+    for (uintptr_t pCur = start; pCur < end; pCur++) {
+        if (std::memcmp(reinterpret_cast<const char*>(pCur), target, length) == 0) {
+            return pCur;
+        }
+    }
+    return 0;
+}
+
+uintptr_t MemUtils::findReferenceInRange(uintptr_t ptr, uintptr_t start, uintptr_t end) {
+    for (uintptr_t addr = start; addr < end; addr++) {
+        uint8_t* bytePtr = reinterpret_cast<uint8_t*>(addr);
+
+        if (bytePtr[0] == 0xE8) {
+            int32_t offset = *reinterpret_cast<int32_t*>(addr + 1);
+            uintptr_t targetAddr = addr + offset + 5;
+
+            if (targetAddr == ptr) {
+                spdlog::info("Found reference at 0x{:X}", addr);
+                return addr;
+            }
+        }
+
+        if (bytePtr[0] == 0x48 && bytePtr[1] == 0x8D) {
+            int32_t offset = *reinterpret_cast<int32_t*>(addr + 3);
+            uintptr_t targetAddr = addr + offset + 7;
+
+            if (targetAddr == ptr) {
+                spdlog::info("Found reference at 0x{:X}", addr);
+                return addr;
+            }
+        }
+    }
+    return 0;
+}
+
+uintptr_t MemUtils::findString(const std::string& string) {
+    MODULEINFO moduleInfo;
+    GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &moduleInfo, sizeof(MODULEINFO));
+    uintptr_t start = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
+    uintptr_t end = start + moduleInfo.SizeOfImage;
+
+    // Determine number of threads to use
+    const size_t numThreads = std::thread::hardware_concurrency();
+    const uintptr_t rangeSize = (end - start) / numThreads;
+
+    std::vector<std::future<uintptr_t>> futures;
+    for (size_t i = 0; i < numThreads; ++i) {
+        uintptr_t rangeStart = start + i * rangeSize;
+        uintptr_t rangeEnd = (i == numThreads - 1) ? end : rangeStart + rangeSize;
+
+        futures.emplace_back(std::async(std::launch::async, &MemUtils::findStringInRange, string, rangeStart, rangeEnd));
+    }
+
+    for (auto& future : futures) {
+        uintptr_t result = future.get();
+        if (result != 0) {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+uintptr_t MemUtils::findReference(uintptr_t address) {
+    if (address == 0) {
+        spdlog::error("Invalid address passed to findReference");
+        return 0;
+    }
+    MODULEINFO moduleInfo;
+    GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &moduleInfo, sizeof(MODULEINFO));
+    uintptr_t start = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
+    uintptr_t end = start + moduleInfo.SizeOfImage;
+
+    // Determine number of threads to use
+    const size_t numThreads = std::thread::hardware_concurrency();
+    const uintptr_t rangeSize = (end - start) / numThreads;
+
+    std::vector<std::future<uintptr_t>> futures;
+    for (size_t i = 0; i < numThreads; ++i) {
+        uintptr_t rangeStart = start + i * rangeSize;
+        uintptr_t rangeEnd = (i == numThreads - 1) ? end : rangeStart + rangeSize;
+
+        futures.emplace_back(std::async(std::launch::async, &MemUtils::findReferenceInRange, address, rangeStart, rangeEnd));
+    }
+
+    for (auto& future : futures) {
+        uintptr_t result = future.get();
+        if (result != 0) {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+uintptr_t MemUtils::getTopOfFunction(uintptr_t address)
+{
+    if (address == 0)
+    {
+        spdlog::error("Invalid address passed to getTopOfFunction");
+        return 0;
+    }
+    uintptr_t current = address;
+    while (true)
+    {
+        // If we hit a padding 0xCC, or we hit a 0xC3 (ret) instruction, we've reached the top of the function
+        if (*reinterpret_cast<uint8_t*>(current) == 0xCC || *reinterpret_cast<uint8_t*>(current) == 0xC3)
+        {
+            // if current + 1 isn't a multiple of 16, we're not at the top of the function
+            if ((current + 1) % 16 == 0)
+            {
+                return current + 1;
+            }
+        }
+
+        current--;
+    }
+}

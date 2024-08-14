@@ -12,6 +12,7 @@
 #include <Utils/MemUtils.hpp>
 
 #include "EntityId.hpp"
+#include "Components/FlagComponent.hpp"
 #include "spdlog/spdlog.h"
 
 class EntityRegistry
@@ -19,20 +20,52 @@ class EntityRegistry
     entt::basic_registry<EntityId>* mRegistry;
 };
 
-struct EntityContext {
-    EntityRegistry* mEntityRegistry;
-    entt::basic_registry<EntityId>* mRegistry;
-    EntityId mEntityId;
+// this is very silly but i need this as a backup for assures that can't be found using the original method
+class SmartAssureFinder
+{
+public:
+    template<typename component_t>
+    static void* getForComponent()
+    {
+        uint64_t start = NOW;
+        // Get the assure signature
+        std::string typenameStr = typeid(component_t).name();
+        std::string symbol = typenameStr + ">(void) noexcept";
+        // Look for this symbol string in Minecraft
+        uintptr_t stringLoc = MemUtils::findString(symbol);
+        if (stringLoc == 0)
+        {
+            spdlog::error("Failed to find symbol: {}", symbol);
+            return nullptr;
+        }
 
-    template <typename T>
-    T* getComponent() {
-        if (!this->mRegistry) return nullptr;
-        if (!this->mRegistry->valid(mEntityId)) return nullptr;
-        return const_cast<T*>(mRegistry->try_get<T>(mEntityId));
+        spdlog::info("symbol: {} found at {}", symbol, MemUtils::getMbMemoryString(stringLoc));
+
+        uintptr_t assureFunc = MemUtils::findReference(stringLoc);
+        assureFunc = MemUtils::getTopOfFunction(assureFunc);
+        assureFunc = MemUtils::findReference(assureFunc);
+        assureFunc = MemUtils::getTopOfFunction(assureFunc);
+        assureFunc = MemUtils::findReference(assureFunc);
+        assureFunc = MemUtils::getTopOfFunction(assureFunc);
+        assureFunc = MemUtils::findReference(assureFunc);
+        assureFunc = MemUtils::getTopOfFunction(assureFunc);
+
+        if (assureFunc == 0)
+        {
+            spdlog::error("Failed to find assure function for component: {}", symbol);
+            return nullptr;
+        }
+        spdlog::info("Found assure function for component: {} at {} [found in {}ms]", symbol, MemUtils::getMbMemoryString(assureFunc), NOW - start);
+        return reinterpret_cast<void*>(assureFunc);
     }
+};
+
+class OldAssureFinder
+{
+public:
 
     template<typename component_t>
-    hat::signature_view getAssureSignature() {
+    static hat::signature_view getAssureSignature() {
         uint32_t hash = entt::type_hash<component_t>::value();
         const auto* bytes = reinterpret_cast<uint8_t*>(&hash);
 
@@ -44,18 +77,20 @@ struct EntityContext {
             ss << " " << std::setw(2) << std::setfill('0') << std::hex << (0xFF & bytes[i]);
         }
 
+        spdlog::trace("Assure signature for component: {} is {}", typeid(component_t).name(), ss.str());
+
         return hat::parse_signature(ss.str()).value();
     }
 
     template<typename component_t>
-    void* resolveAssure() {
+    static void* getForComponent()
+    {
         auto assureSig = getAssureSignature<component_t>();
         std::string componentName = typeid(component_t).name();
         auto result = reinterpret_cast<uintptr_t>(hat::find_pattern(assureSig).get());
         if (result == 0) {
             // Include the component Name and the signature
             spdlog::critical("Failed to resolve component: {}", componentName);
-            MessageBoxA(nullptr, ("Failed to resolve component: " + componentName + ".").c_str(), "Error", MB_OK | MB_ICONERROR);
             return nullptr;
         }
         result += 5; // Add 5 to skip the mov edx, 0xhash instruction
@@ -94,11 +129,45 @@ struct EntityContext {
 
                 result += 1;
             }
+
+            if (byte == 0xCC)
+            {
+                // fail
+                spdlog::critical("Failed to resolve component: {} [CC]", componentName);
+                return nullptr;
+            }
         }
 
         // Log the resolved address
         spdlog::info("Resolved address for component: {} at {}", componentName, MemUtils::getMbMemoryString(assureAddr));
         return reinterpret_cast<void*>(assureAddr);
+    }
+};
+
+struct EntityContext {
+    EntityRegistry* mEntityRegistry;
+    entt::basic_registry<EntityId>* mRegistry;
+    EntityId mEntityId;
+
+    template <typename T>
+    T* getComponent() {
+        if (!this->mRegistry) return nullptr;
+        if (!this->mRegistry->valid(mEntityId)) return nullptr;
+        return const_cast<T*>(mRegistry->try_get<T>(mEntityId));
+    }
+
+    template<typename component_t>
+    void* resolveAssure() {
+        auto result = OldAssureFinder::getForComponent<component_t>();
+        if (result == 0) result = SmartAssureFinder::getForComponent<component_t>();
+
+        if (result == 0) {
+            spdlog::critical("Failed to resolve component: {}", typeid(component_t).name());
+            MessageBoxA(nullptr, ("Failed to resolve component: " + std::string(typeid(component_t).name()) + ".").c_str(), "Error", MB_OK | MB_ICONERROR);
+            return nullptr;
+        }
+
+        return reinterpret_cast<void*>(result);
     }
 
     template<typename component_t>

@@ -61,8 +61,10 @@ namespace MinecraftJson
     public:
         std::string* toStyledString()
         {
-            static uintptr_t func = SigManager::JSON_toStyledString;
-            return MemUtils::callFastcall<std::string*, void*>(func, this);
+            // TODO: Impl this function manually without using a sig
+            return nullptr;
+            /*static uintptr_t func = SigManager::JSON_toStyledString;
+            return MemUtils::callFastcall<std::string*, void*>(func, this);*/
         }
         nlohmann::json toNlohmannJson()
         {

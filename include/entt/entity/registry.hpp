@@ -231,6 +231,7 @@ private:
  */
 template<typename Entity, typename Allocator>
 class basic_registry {
+public:
     using base_type = basic_sparse_set<Entity, Allocator>;
     using alloc_traits = std::allocator_traits<Allocator>;
     static_assert(std::is_same_v<typename alloc_traits::value_type, Entity>, "Invalid value type");

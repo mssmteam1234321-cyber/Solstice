@@ -132,7 +132,7 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         mDamageTimerApplied = true;
         ClientInstance::get()->getMinecraftSim()->setSimTimer(mDamageTimerSpeed.as<float>());
     } else mDamageTimerApplied = false;
-    if (player->getFlag<RedirectCameraInput>()) return;
+    if (player->getFlag<RedirectCameraInputComponent>()) return;
 
     if (mSwiftness.mValue)
     {

@@ -44,22 +44,22 @@ void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
     original(screenView, mcuirc);
 }
 
-void SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv,
-    mce::Color* color)
+void* SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv,
+    mce::Color* color, void* unk)
 {
     auto original = mDrawImageDetour->getOriginal<decltype(&onDrawImage)>();
 
     nes::event_holder<DrawImageEvent> holder = nes::make_holder<DrawImageEvent>(context, texture, pos, size, uv, color);
     gFeatureManager->mDispatcher->trigger(holder);
-    if (holder->isCancelled()) return;
+    if (holder->isCancelled()) return nullptr;
 
-    return original(context, texture, pos, size, uv, color);
+    return original(context, texture, pos, size, uv, color, unk);
 }
 
 void SetupAndRenderHook::initVt(void* ctx)
 {
     const auto vtable = *static_cast<uintptr_t**>(ctx);
-    mDrawImageDetour = std::make_unique<Detour>("MinecraftUIRenderContext::drawImage", reinterpret_cast<void*>(vtable[7]), &SetupAndRenderHook::onDrawImage);
+    mDrawImageDetour = std::make_unique<Detour>("MinecraftUIRenderContext::drawImage", reinterpret_cast<void*>(vtable[OffsetProvider::MinecraftUIRenderContext_drawImage]), &SetupAndRenderHook::onDrawImage);
     mDrawImageDetour->enable();
 }
 

@@ -132,6 +132,34 @@ void Solstice::init(HMODULE hModule)
     OffsetProvider::initialize();
     SigManager::initialize();
     int64_t send = NOW;
+
+    int failedSigs = 0;
+
+    // Go through all signatures and print any that failed
+    for (const auto& [sig, result] : SigManager::mSigs)
+    {
+        if (result == 0)
+        {
+            console->critical("[signatures] Failed to find signature: {}", sig);
+            failedSigs++;
+        }
+    }
+
+    for (const auto& [sig, result] : OffsetProvider::mSigs)
+    {
+        if (result == 0)
+        {
+            console->critical("[offsets] Failed to find offset: {}", sig);
+            failedSigs++;
+        }
+    }
+
+    if (failedSigs > 0)
+    {
+        console->critical("Failed to find {} signatures/offsets!", failedSigs);
+        Sleep(500);
+    }
+
     console->info("initialized signatures in {}ms", send - sstart);
 
 
@@ -159,6 +187,8 @@ void Solstice::init(HMODULE hModule)
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
+
+    SmartAssureFinder::getForComponent<CameraRenderPlayerModelComponent>();
 
     // Create a thead to wait for all futures in hooks then load a default config if any
     console->info("Press END to eject dll.");

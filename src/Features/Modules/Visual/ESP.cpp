@@ -33,7 +33,7 @@ void ESP::onRenderEvent(RenderEvent& event)
 
     for (auto actor : actors)
     {
-        if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0 && !localPlayer->getFlag<RenderCameraFlag>()) continue;
+        if (actor == localPlayer && ClientInstance::get()->getOptions()->game_thirdperson->value == 0 && !localPlayer->getFlag<RenderCameraComponent>()) continue;
         if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;

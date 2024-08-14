@@ -27,9 +27,9 @@ void Freecam::onEnable()
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    player->setFlag<RenderCameraFlag>(true);
-    player->setFlag<CameraRenderPlayerModel>(true);
-    player->setFlag<RedirectCameraInput>(true);
+    player->setFlag<RenderCameraComponent>(true);
+    player->setFlag<CameraRenderPlayerModelComponent>(true);
+    player->setFlag<RedirectCameraInputComponent>(true);
 
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Freecam::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<LookInputEvent, &Freecam::onLookInputEvent>(this);
@@ -72,9 +72,9 @@ void Freecam::onDisable()
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    player->setFlag<RenderCameraFlag>(false);
-    player->setFlag<CameraRenderPlayerModel>(false);
-    player->setFlag<RedirectCameraInput>(false);
+    player->setFlag<RenderCameraComponent>(false);
+    player->setFlag<CameraRenderPlayerModelComponent>(false);
+    player->setFlag<RedirectCameraInputComponent>(false);
 
     if (mMode.mValue == Mode::Normal)
     {
@@ -157,8 +157,8 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
 
     player->getSupplies()->mInHandSlot = -1;
 
-    player->setFlag<RenderCameraFlag>(true);
-    player->setFlag<CameraRenderPlayerModel>(true);
+    player->setFlag<RenderCameraComponent>(true);
+    player->setFlag<CameraRenderPlayerModelComponent>(true);
     //player->setFlag<CameraRenderFirstPersonObjects>(false);
 
     glm::vec3 motion = glm::vec3(0, 0, 0);

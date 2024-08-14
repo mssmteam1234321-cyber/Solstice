@@ -53,7 +53,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
-    if (formOpen && mMode.mValue == Mode::Mode3)
+    /*if (formOpen && mMode.mValue == Mode::Mode3)
     {
         auto packet = MinecraftPackets::createPacket<ModalFormResponsePacket>();
         packet->mFormId = lastFormId;
@@ -62,7 +62,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         json.mValue.mInt = 0;
         packet->mJSONResponse = json;
         ClientInstance::get()->getPacketSender()->send(packet.get());
-    }
+    }*/
 
     /*
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
@@ -99,23 +99,23 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::ModalFormResponse)
+    /*if (event.mPacket->getId() == PacketID::ModalFormResponse)
     {
         auto packet = event.getPacket<ModalFormResponsePacket>();
         formOpen = false;
         spdlog::info("ModalFormResponsePacket: FormId: {}, ValueType: {}", packet->mFormId, std::string(magic_enum::enum_name(packet->mJSONResponse->mType)));
-    }
+    }*/
 }
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::ModalFormRequest)
+    /*if (event.mPacket->getId() == PacketID::ModalFormRequest)
     {
         auto packet = event.getPacket<ModalFormRequestPacket>();
         lastFormId = packet->mFormId;
         formOpen = true;
         if (mMode.mValue == Mode::Mode3) event.cancel();
-    }
+    }*/
 }
 
 void displayCopyableAddress(const std::string& name, void* address)
@@ -154,22 +154,17 @@ void TestModule::onRenderEvent(RenderEvent& event)
     auto ci = ClientInstance::get();
     if (player)
     {
-        ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent, false>());
-        ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlag>());
-        ImGui::Text("isInWater: %d", player->getFlag<InWaterFlag>());
-        ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraFlag>());
-        ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraFlag>());
-        ImGui::Text("cameraRenderFirstPersonObjects: %d", player->getFlag<CameraRenderFirstPersonObjects>());
-        ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModel>());
-        ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent, false>());
-        ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent, false>());
+        ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent>());
+        ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlagComponent>());
+        ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraComponent>());
+        ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraComponent>());
+        ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModelComponent>());
+        ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent>());
+        ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent>());
 
         //ImGui::Text("ActorMovementTickNeededFlag: %d", player->getFlag<ActorMovementTickNeededFlag>());
 
-        show_flag(ActorMovementTickNeededFlag);
-
         ImGui::Text("gameType: %d", player->getGameType());
-        displayCopyableAddress("held item", player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot));
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());

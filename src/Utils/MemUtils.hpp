@@ -177,6 +177,18 @@ public:
     static std::vector<unsigned char> readBytes(uintptr_t ptr, size_t size);
     static void setProtection(uintptr_t ptr, size_t size, DWORD protection);
     static std::string bytesToHex(char* bytes, int length);
+    static std::vector<uintptr_t> findPattern(const std::string& pattern);
+public:
+    static uintptr_t findString(const std::string& string);
+    static uintptr_t findReference(uintptr_t address);
+    static uintptr_t getTopOfFunction(uintptr_t address);
+
+private:
+    template<typename T>
+    static T readMemory(uintptr_t address);
+
+    static uintptr_t findStringInRange(const std::string& string, uintptr_t start, uintptr_t end);
+    static uintptr_t findReferenceInRange(uintptr_t ptr, uintptr_t start, uintptr_t end);
 };
 
 
