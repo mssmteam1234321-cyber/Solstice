@@ -67,7 +67,7 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
     patchDefaultSwing(mAnimation.mValue == Animation::Test);
     patchDefaultSwing2(mAnimation.mValue == Animation::Test);
 
-    if (mOnlyOnBlock.mValue) // I am sorry emily but the animations is aids for me :(
+    if (mOnlyOnBlock.mValue && mSwingAngle)
     {
         if (mShouldBlock)
         {
@@ -76,7 +76,7 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
         {
             *mSwingAngle = -80.f;
         }
-    } else
+    } else if (mSwingAngle)
     {
         *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
     }
