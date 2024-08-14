@@ -350,19 +350,19 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
     auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ItemUseInventoryTransaction>();
-    cit->actionType = ItemUseInventoryTransaction::ActionType::Destroy;
+    cit->mActionType = ItemUseInventoryTransaction::ActionType::Destroy;
     int slot = player->getSupplies()->mSelectedSlot;
-    cit->slot = slot;
-    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
-    cit->blockPos = blockPos;
-    cit->face = side;
-    cit->targetBlockRuntimeId = 0;
-    cit->playerPos = *player->getPos();
+    cit->mSlot = slot;
+    cit->mItemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->mBlockPos = blockPos;
+    cit->mFace = side;
+    cit->mTargetBlockRuntimeId = 0;
+    cit->mPlayerPos = *player->getPos();
 
     BlockInfo block = BlockInfo(ClientInstance::get()->getBlockSource()->getBlock(blockPos), blockPos);
     AABB blockAABB = block.getAABB();
 
-    cit->clickPos = blockAABB.getClosestPoint(*player->getPos());
+    cit->mClickPos = blockAABB.getClosestPoint(*player->getPos());
     pkt->mTransaction = std::move(cit);
     PacketUtils::queueSend(pkt);
 

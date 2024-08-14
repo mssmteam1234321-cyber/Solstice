@@ -123,12 +123,12 @@ std::shared_ptr<InventoryTransactionPacket> ActorUtils::createAttackTransaction(
     auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ItemUseOnActorInventoryTransaction>();
-    cit->slot = slot;
-    cit->itemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
-    cit->actorId = actor->getActorUniqueIDComponent()->mUniqueID;
-    cit->actionType = ItemUseOnActorInventoryTransaction::ActionType::Attack;
-    cit->clickPos = actor->getAABB().getClosestPoint(*player->getPos());
-    cit->playerPos = *player->getPos();
+    cit->mSlot = slot;
+    cit->mItemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
+    cit->mActorId = actor->getActorUniqueIDComponent()->mUniqueID;
+    cit->mActionType = ItemUseOnActorInventoryTransaction::ActionType::Attack;
+    cit->mClickPos = actor->getAABB().getClosestPoint(*player->getPos());
+    cit->mPlayerPos = *player->getPos();
 
     pkt->mTransaction = std::move(cit);
 

@@ -143,9 +143,9 @@ void Killsults::onPacketOutEvent(PacketOutEvent& event)
         auto packet = event.getPacket<InventoryTransactionPacket>();
 
         auto* ait = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(packet->mTransaction.get());
-        if (ait->actionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+        if (ait->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
         {
-            auto actor = ActorUtils::getActorFromUniqueId(ait->actorId);
+            auto actor = ActorUtils::getActorFromUniqueId(ait->mActorId);
             if (!actor) return;
 
             mLastAttacked[actor->getRuntimeID()] = NOW;

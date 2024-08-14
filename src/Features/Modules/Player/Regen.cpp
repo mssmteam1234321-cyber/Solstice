@@ -745,10 +745,10 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
             if (const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
-                transac->actionType == ItemUseInventoryTransaction::ActionType::Place)
+                transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
             {
                 mLastBlockPlace = NOW;
-                mLastPlacedBlockSlot = transac->slot;
+                mLastPlacedBlockSlot = transac->mSlot;
             }
         }
     }

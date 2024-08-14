@@ -115,9 +115,9 @@ void Inventory::startUsingItem(int slot) {
     auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ItemUseInventoryTransaction>();
-    cit->actionType = ItemUseInventoryTransaction::ActionType::Use;
-    cit->slot = slot;
-    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->mActionType = ItemUseInventoryTransaction::ActionType::Use;
+    cit->mSlot = slot;
+    cit->mItemInHand = *player->getSupplies()->getContainer()->getItem(slot);
 
 
     pkt->mTransaction = std::move(cit);

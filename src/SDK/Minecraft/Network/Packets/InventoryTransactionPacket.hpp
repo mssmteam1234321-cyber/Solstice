@@ -105,8 +105,8 @@ public:
 
 class InventoryTransaction {
 public:
-    std::unordered_map<InventorySource, std::vector<InventoryAction>> actions; // 0x0
-    std::vector<InventoryTransactionItemGroup>                        items;   // 0x40
+    std::unordered_map<InventorySource, std::vector<InventoryAction>> mActions; // 0x0
+    std::vector<InventoryTransactionItemGroup>                        mItems;   // 0x40
 
     void addAction(InventoryAction const& action) {
         static void* func = reinterpret_cast<void*>(SigManager::InventoryTransaction_addAction);
@@ -137,8 +137,8 @@ public:
         vtable = reinterpret_cast<uintptr_t**>(vtable_addr);
         type = Type::NormalTransaction;
         data = InventoryTransaction();
-        data.actions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
-        data.items = std::vector<InventoryTransactionItemGroup>();
+        data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
+        data.mItems = std::vector<InventoryTransactionItemGroup>();
     };
 
     Type getTransacType() {
@@ -155,13 +155,14 @@ public:
         Destroy = 2,
     };
 
-    ActionType actionType{};
-    glm::ivec3 blockPos{};
-    uint32_t targetBlockRuntimeId{};
-    uint8_t face{};
-    int32_t slot{};
-    NetworkItemStackDescriptor itemInHand{};
-    glm::vec3 playerPos{}, clickPos{};
+    ActionType mActionType{};
+    glm::ivec3 mBlockPos{};
+    uint32_t mTargetBlockRuntimeId{};
+    uint8_t mFace{};
+    int32_t mSlot{};
+    NetworkItemStackDescriptor mItemInHand{};
+    glm::vec3 mPlayerPos{};
+    glm::vec3 mClickPos{};
 
     ItemUseInventoryTransaction()
     {
@@ -169,8 +170,8 @@ public:
         vtable = reinterpret_cast<uintptr_t**>(vtable_addr);
         type = Type::ItemUseTransaction;
         data = InventoryTransaction();
-        data.actions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
-        data.items = std::vector<InventoryTransactionItemGroup>();
+        data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
+        data.mItems = std::vector<InventoryTransactionItemGroup>();
     }
 };
 
@@ -183,12 +184,12 @@ public:
         ItemInteract = 2,
     };
 
-    uint64_t actorId{};
-    ActionType actionType{};
-    int32_t slot{};
-    NetworkItemStackDescriptor itemInHand{};
-    glm::vec3 playerPos{};
-    glm::vec3 clickPos{};
+    uint64_t mActorId{};
+    ActionType mActionType{};
+    int32_t mSlot{};
+    NetworkItemStackDescriptor mItemInHand{};
+    glm::vec3 mPlayerPos{};
+    glm::vec3 mClickPos{};
 
     ItemUseOnActorInventoryTransaction()
     {
@@ -196,8 +197,8 @@ public:
         vtable = reinterpret_cast<uintptr_t**>(vtable_addr);
         type = Type::ItemUseOnEntityTransaction;
         data = InventoryTransaction();
-        data.actions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
-        data.items = std::vector<InventoryTransactionItemGroup>();
+        data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
+        data.mItems = std::vector<InventoryTransactionItemGroup>();
     }
 };
 
@@ -209,10 +210,10 @@ public:
         Use = 1,
     };
 
-    ActionType actionType{};
-    int32_t slot{};
-    NetworkItemStackDescriptor itemInHand{};
-    glm::vec3 headPos{};
+    ActionType mActionType{};
+    int32_t mSlot{};
+    NetworkItemStackDescriptor mItemInHand{};
+    glm::vec3 mHeadPos{};
 
     ItemReleaseInventoryTransaction()
     {

@@ -330,8 +330,8 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
             ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
             const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
-            if (transac->actionType == ItemUseInventoryTransaction::ActionType::Place)
-                transac->clickPos = glm::vec3(0, 0, 0);
+            if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
+                transac->mClickPos = glm::vec3(0, 0, 0);
         }
     }
 

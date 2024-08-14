@@ -131,7 +131,6 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event)
 
 void Animations::onBobHurtEvent(BobHurtEvent& event)
 {
-    spdlog::info("BobHurtEvent [this: {:X}]", event.mThis);
     auto matrix = event.mMatrix;
     if (mSmallItems.mValue) *matrix = glm::translate(*matrix, glm::vec3(0.5f, -0.2f, -0.6f));
 
