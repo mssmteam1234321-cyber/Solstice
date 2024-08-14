@@ -174,6 +174,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
+        displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
