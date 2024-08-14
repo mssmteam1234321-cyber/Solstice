@@ -99,7 +99,7 @@ bool Regen::isValidRedstone(glm::ivec3 blockPos)
     if (blockID != 73 && blockID != 74) return false;
 
     // BlockPos Check
-    if (mRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == mTargettingBlockPos) return false;
+    if (mBlockRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == mTargettingBlockPos) return false;
 
     // IsMiningPosition Check
     if (BlockUtils::isMiningPosition(blockPos)) return false;

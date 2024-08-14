@@ -39,6 +39,7 @@ public:
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
+    NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
@@ -75,6 +76,7 @@ public:
             &mConfuse,
             &mAntiConfuse,
             &mBlockOre,
+            &mBlockRange,
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
@@ -96,6 +98,8 @@ public:
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
+
+        VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
 
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
