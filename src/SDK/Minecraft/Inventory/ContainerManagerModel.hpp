@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <SDK/OffsetProvider.hpp>
 
 class ItemStack;
 
@@ -61,21 +62,14 @@ enum class ContainerType : char {
 class ContainerManagerModel {
 public: // if any of these ever changes im gonna castrate myself
     virtual ~ContainerManagerModel();
-    virtual ContainerID getContainerId(void);
-    virtual void setContainerId(ContainerID);
-    virtual ContainerType getContainerType(void);
-    virtual void setContainerType(ContainerType);
-    virtual void serverInitItemStackIds(void);
-    virtual void getItemCopies(void); // std::vector<ItemStack> getItemCopies(void);
-    virtual void setSlot(int, ItemStack const&, bool);
-    virtual ItemStack* getSlot(int);
-    virtual void setData(int, int);
-    virtual void broadcastChanges(void);
-    virtual void debitPlayerLevels(int);
-    virtual bool isCreativeMode(void);
-    virtual bool isClientSide(void);
-    virtual bool isServerAuthoritative(void);
-    virtual bool isValid(float);
-    virtual bool tick(void);
-    virtual void _postInit(void);
+
+    ContainerType getContainerType() {
+        static auto vindex = OffsetProvider::ContainerManagerModel_getContainerType;
+        return MemUtils::callVirtualFunc<ContainerType>(vindex, this);
+    }
+
+    ItemStack* getSlot(int slot) {
+        static auto vindex = OffsetProvider::ContainerManagerModel_getSlot;
+        return MemUtils::callVirtualFunc<ItemStack*>(vindex, this, slot);
+    }
 };
