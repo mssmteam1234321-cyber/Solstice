@@ -124,7 +124,7 @@ public:
     DEFINE_FIELD(ItemStack_reInit, 3);
     DEFINE_FIELD(MinecraftUIRenderContext_drawImage, 7);
 
-    DEFINE_FIELD(Actor_mEntityIdentifier, 0x2B8);
+    DEFINE_FIELD(Actor_mEntityIdentifier, 0x240);
 
 
 

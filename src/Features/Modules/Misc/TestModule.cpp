@@ -164,6 +164,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("Item2", player->getSupplies()->getContainer()->getItem(1));
         ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(0)));
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
+        displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());

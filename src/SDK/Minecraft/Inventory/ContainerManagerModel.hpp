@@ -60,13 +60,9 @@ enum class ContainerType : char {
 };
 
 class ContainerManagerModel {
-public: // if any of these ever changes im gonna castrate myself
+public: // im castrating myself
+    CLASS_FIELD(ContainerType, mContainerType, 0x29);
     virtual ~ContainerManagerModel();
-
-    ContainerType getContainerType() {
-        static auto vindex = OffsetProvider::ContainerManagerModel_getContainerType;
-        return MemUtils::callVirtualFunc<ContainerType>(vindex, this);
-    }
 
     ItemStack* getSlot(int slot) {
         static auto vindex = OffsetProvider::ContainerManagerModel_getSlot;

@@ -102,7 +102,7 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event)
 
     if (ent != ClientInstance::get()->getLocalPlayer()) return;
 
-    if (bone->mBoneStr == "rightarm")
+    if (bone->mBoneStr == "rightarm" && mThirdPersonBlock.mValue)
     {
         auto heldItem = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mInHandSlot);
         bool isHoldingSword = heldItem && heldItem->mItem && heldItem->getItem()->isSword();
@@ -133,6 +133,7 @@ void Animations::onBoneRenderEvent(BoneRenderEvent& event)
 
 void Animations::onBobHurtEvent(BobHurtEvent& event)
 {
+    spdlog::info("BobHurtEvent [this: {:X}]", event.mThis);
     auto matrix = event.mMatrix;
     if (mSmallItems.mValue) *matrix = glm::translate(*matrix, glm::vec3(0.5f, -0.2f, -0.6f));
 

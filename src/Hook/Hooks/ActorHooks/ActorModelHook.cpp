@@ -22,11 +22,23 @@ void ActorModelHook::onActorModel(uintptr_t a1, uintptr_t a2, uintptr_t a3, floa
     auto ent = *reinterpret_cast<Actor**>(a2 + 0x38); // 0x38 is the pointer to actor :D
     if (!ent) return;
 
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
     const auto bone = reinterpret_cast<Bone*>(a3);
     const auto partModel = bone->getActorPartModel();
 
-    auto holder = nes::make_holder<BoneRenderEvent>(bone, partModel, ent);
-    gFeatureManager->mDispatcher->trigger(holder);
+    if (bone->mBoneStr == "rightarm")
+    {
+        spdlog::info("rightarm pos: {}, {}, {}", partModel->mPos.x, partModel->mPos.y, partModel->mPos.z);
+        spdlog::info("rightarm rot: {}, {}, {}", partModel->mRot.x, partModel->mRot.y, partModel->mRot.z);
+        spdlog::info("rightarm size: {}, {}, {}", partModel->mSize.x, partModel->mSize.y, partModel->mSize.z);
+    }
+
+
+
+    /*auto holder = nes::make_holder<BoneRenderEvent>(bone, partModel, ent);
+    gFeatureManager->mDispatcher->trigger(holder);*/
 }
 
 void ActorModelHook::init()
