@@ -129,8 +129,6 @@ void ChestStealer::takeItem(int slot, NetworkItemStackDescriptor item)
     auto pkt = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ComplexInventoryTransaction>();
-    cit->data.actions = {};
-    cit->data
     cit->data.addAction(action1);
     cit->data.addAction(action2);
 

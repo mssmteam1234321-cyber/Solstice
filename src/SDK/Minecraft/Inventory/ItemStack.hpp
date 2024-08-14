@@ -70,7 +70,7 @@ class ItemStack : public ItemStackBase
 {
 public:
     uint8_t mStackNetId; //0x0088
-    PAD(0x10);
+    PAD(0x8);
 
     void reinit(Item* item, int count, int itemData) {
         mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
@@ -106,4 +106,4 @@ public:
     }
 };
 
-static_assert(sizeof(ItemStack) == 0xA0, "ItemStack size invalid");
+static_assert(sizeof(ItemStack) == 0x98, "ItemStack size invalid");

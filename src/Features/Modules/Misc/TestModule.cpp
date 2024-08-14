@@ -167,6 +167,9 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("supplies", player->getSupplies());
+        displayCopyableAddress("Item1", player->getSupplies()->getContainer()->getItem(0));
+        displayCopyableAddress("Item2", player->getSupplies()->getContainer()->getItem(1));
+        ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(0)));
         displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());

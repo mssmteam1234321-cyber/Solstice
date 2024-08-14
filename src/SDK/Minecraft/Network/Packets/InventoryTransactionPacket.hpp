@@ -89,7 +89,7 @@ public:
     }
 };
 
-static_assert(sizeof(InventoryAction) == 0x210);
+static_assert(sizeof(InventoryAction) == 0x200);
 
 class InventoryTransactionItemGroup {
 public:
