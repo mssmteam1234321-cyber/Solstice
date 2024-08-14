@@ -129,7 +129,7 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
     LevelChunk* chunk = blockSource->getChunk(processChunk);
     if (!chunk) return false;
 
-    auto subChunk = chunk->subChunks[index];
+    auto subChunk = (*chunk->getSubChunks())[index];
     SubChunkBlockStorage* blockReader = subChunk.blockReadPtr;
     if (!blockReader) return false;
 

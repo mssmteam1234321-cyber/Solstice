@@ -105,6 +105,7 @@ public:
     DEFINE_INDEX_FIELD(Actor_mHurtTimeComponent, "48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 89 ? ? ? 48 8B ? 8B 38", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(BlockSource_getChunk, "48 8B ? ? ? ? ? 44 89 ? ? ? FF 15 ? ? ? ? 48 83 C4", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(BlockSource_setBlock, "48 8B ? ? ? ? ? FF 15 ? ? ? ? EB ? 41 83 FF", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(LevelChunk_mSubChunks, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? 48 2B ? 48 C1 F8 ? 49 0F ? ? 48 85 ? 74 ? 48 8B ? 66 0F", 3, OffsetType::FieldOffset);
 
     // Just in case if its needed, these arent actually implemented yet
     DEFINE_INDEX_FIELD(ClientInstance_mHMDState, "48 8D ? ? ? ? ? 48 8B ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 C6 86 38 08 00 00", 3, OffsetType::FieldOffset);

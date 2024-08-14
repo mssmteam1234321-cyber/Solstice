@@ -1,6 +1,8 @@
 #pragma once
 // all of this subchunk stuff was sent to me by tozic and
 // im pretty sure its pasted from nuvola lmao
+#include <SDK/OffsetProvider.hpp>
+
 #include "SubChunk.hpp"
 
 class LevelChunk {
@@ -19,4 +21,8 @@ public:
     char                    pad_0DE8[979];           // this+0x0DE8
     bool                    isLoading;               // this+0x11BB
     char                    pad_11BC[20];            // this+0x11BC
+
+    std::vector<SubChunk>* getSubChunks() {
+        return &hat::member_at<std::vector<SubChunk>>(this, OffsetProvider::LevelChunk_mSubChunks);
+    }
 };
