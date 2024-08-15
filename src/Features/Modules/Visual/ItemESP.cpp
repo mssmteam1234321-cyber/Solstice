@@ -35,7 +35,7 @@ void ItemESP::onRenderEvent(RenderEvent& event)
     {
         if (!actor) continue;
         if (!actor->mItem.mItem) continue;
-        if (!actor->getPos()) continue;
+        if (!actor->getStateVectorComponent()) continue;
         if (mDistanceLimited.mValue && player->distanceTo(actor) > mDistance.mValue) continue;
 
         AABB aabb = actor->getAABB();
