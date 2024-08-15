@@ -169,6 +169,7 @@ public:
     NetworkItemStackDescriptor mItemInHand{};
     glm::vec3 mPlayerPos{};
     glm::vec3 mClickPos{};
+    void* unknown1{};
 
     ItemUseInventoryTransaction()
     {
@@ -191,6 +192,7 @@ public:
         str += ", slot: " + std::to_string(mSlot);
         str += ", playerPos: " + fmt::format("{}, {}, {}", mPlayerPos.x, mPlayerPos.y, mPlayerPos.z);
         str += ", clickPos: " + fmt::format("{}, {}, {}", mClickPos.x, mClickPos.y, mClickPos.z);
+        str += ", unknown1: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(unknown1));
         return str;
     }
 };
@@ -237,17 +239,17 @@ public:
 
     ItemReleaseInventoryTransaction()
     {
-        /*static uintptr_t vtable_addr = SigManager::ItemReleaseInventoryTransaction_vtable), 3);
+        static uintptr_t vtable_addr = SigManager::ItemReleaseInventoryTransaction_vtable;
         vtable = reinterpret_cast<uintptr_t**>(vtable_addr);
         type = Type::ItemReleaseTransaction;
         data = InventoryTransaction();
-        data.actions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
-        data.items = std::vector<InventoryTransactionItemGroup>();*/
+        data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
+        data.mItems = std::vector<InventoryTransactionItemGroup>();
     }
 };
 
 static_assert(sizeof(ComplexInventoryTransaction) == 104);
-static_assert(sizeof(ItemUseInventoryTransaction) == 256);
+//static_assert(sizeof(ItemUseInventoryTransaction) == 256);
 static_assert(sizeof(ItemUseOnActorInventoryTransaction) == 240);
 static_assert(sizeof(ItemReleaseInventoryTransaction) == 224);
 

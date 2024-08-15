@@ -39,7 +39,6 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 
     if (event.mPacket->getId() == PacketID::InventoryTransaction)
     {
-        MessageBox(0, "Fuck you!", "Packet", 0);
         auto packet = event.getPacket<InventoryTransactionPacket>();
         std::string packetinfo = packet->mTransaction->toString();
         if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)

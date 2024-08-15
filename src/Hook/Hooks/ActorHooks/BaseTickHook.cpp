@@ -26,7 +26,7 @@ void BaseTickHook::onBaseTick(Actor* actor)
 
     for (auto& [mTime, mPacket, mBypassHook] : mQueuedPackets)
     {
-        spdlog::trace("Sending packet with ID: {} [queued {}ms ago]", magic_enum::enum_name(mPacket->getId()), NOW - mTime);
+        spdlog::trace("Sending packet with ID: {} [queued {}ms ago] [{}]", magic_enum::enum_name(mPacket->getId()), NOW - mTime, mBypassHook ? "bypassing hook" : "not bypassing hook");
         if (mBypassHook) ClientInstance::get()->getPacketSender()->sendToServer(mPacket.get());
         else ClientInstance::get()->getPacketSender()->send(mPacket.get());
     }

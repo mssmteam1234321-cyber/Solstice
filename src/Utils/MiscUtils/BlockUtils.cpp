@@ -336,6 +336,7 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
         player->getGameMode()->stopDestroyBlock(blockPos);
         player->setSwinging(oldSwinging);
         player->setSwingProgress(oldSwingProgress);
+        spdlog::info("Destroyed block at ({}, {}, {}) [using game mode]", blockPos.x, blockPos.y, blockPos.z);
         return;
     }
 
@@ -362,9 +363,9 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
 
     cit->mClickPos = glm::vec3(0, 0, 0); // this is correct, i actually checked it this time
     pkt->mTransaction = std::move(cit);
-    PacketUtils::queueSend(pkt);
+    PacketUtils::queueSend(pkt, false);
     clearBlock(blockPos);
-
+    spdlog::info("Destroyed block at ({}, {}, {}) [using transac]", blockPos.x, blockPos.y, blockPos.z);
 }
 
 bool BlockUtils::isMiningPosition(glm::ivec3 blockPos) {
