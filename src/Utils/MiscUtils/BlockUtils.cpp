@@ -358,11 +358,12 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
     cit->mItemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
     cit->mBlockPos = blockPos;
     cit->mFace = side;
-    cit->mTargetBlockRuntimeId = AIR_RUNTIME_ID;
+    cit->mTargetBlockRuntimeId = 0x92;
     cit->mPlayerPos = *player->getPos();
 
     cit->mClickPos = glm::vec3(0, 0, 0); // this is correct, i actually checked it this time
     pkt->mTransaction = std::move(cit);
+    pkt->mIsClientSide = true;
     PacketUtils::queueSend(pkt, false);
     clearBlock(blockPos);
     spdlog::info("Destroyed block at ({}, {}, {}) [using transac]", blockPos.x, blockPos.y, blockPos.z);

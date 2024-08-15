@@ -19,6 +19,9 @@
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <glm/glm.hpp>
+#include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
+#include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 
 float pYaw;
 float pOldYaw;
@@ -156,7 +159,15 @@ void Interface::onBaseTickEvent(BaseTickEvent& event)
 
 void Interface::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+    auto level = player->getLevel();
+    if (!level) return;
+    auto moveSettings = level->getPlayerMovementSettings();
+    if (!moveSettings) return;
+    bool isServerAuthoritative = moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritative;
+
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput && isServerAuthoritative)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 
@@ -166,5 +177,15 @@ void Interface::onPacketOutEvent(PacketOutEvent& event)
         pYaw = paip->mRot.y;
         pPitch = paip->mRot.x;
         pHeadYaw = paip->mYHeadRot;
+    }
+    else if (event.mPacket->getId() == PacketID::MovePlayer && isServerAuthoritative)
+    {
+        auto mpp = event.getPacket<MovePlayerPacket>();
+        pOldYaw = pYaw;
+        pOldPitch = pPitch;
+        pOldBodyYaw = pBodyYaw;
+        pYaw = mpp->mRot.y;
+        pPitch = mpp->mRot.x;
+        pHeadYaw = mpp->mYHeadRot;
     }
 }
