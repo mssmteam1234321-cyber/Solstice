@@ -295,12 +295,15 @@ int ItemUtils::getSwiftnessSpellbook(bool hotbarOnly)
     return slot;
 }
 
-int ItemUtils::getBoombox(bool hotbarOnly)
+int ItemUtils::getBoombox(bool hotbarOnly, bool tnt)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return -1;
 
     int slot = -1;
+
+    std::string name = "boombox";
+    if (tnt) name = "tnt";
 
     for (int i = 0; i < 36; i++)
     {
@@ -308,7 +311,7 @@ int ItemUtils::getBoombox(bool hotbarOnly)
         if (!stack->mItem) continue;
         if (hotbarOnly && i > 8) break;
         Item* item = stack->getItem();
-        if (StringUtils::containsIgnoreCase(item->getmName(), "boombox"))
+        if (StringUtils::containsIgnoreCase(item->getmName(), name))
         {
             slot = i;
             break;

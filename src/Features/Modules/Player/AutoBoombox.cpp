@@ -52,14 +52,14 @@ void AutoBoombox::onBaseTickEvent(BaseTickEvent& event)
     if (!Aura::sHasTarget || !Aura::sTarget->getActorTypeComponent()) return;
     if (!Aura::sTarget->isPlayer()) return;
 
-    int boomboxSlot = ItemUtils::getBoombox(mHotbarOnly.mValue);
+    int boomboxSlot = ItemUtils::getBoombox(mHotbarOnly.mValue, mMode.mValue == Mode::TNT);
     if (boomboxSlot == -1) return;
 
     if (supplies->mSelectedSlot != boomboxSlot) {
         mPreviousSlot = supplies->mSelectedSlot;
         supplies->mSelectedSlot = boomboxSlot;
         mSelectedSlot = true;
-        return;
+        if(mMode.mValue == Mode::Boombox) return;
     }
 
     glm::ivec3 placePos = *Aura::sTarget->getPos();
