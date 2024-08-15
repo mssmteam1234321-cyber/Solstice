@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
+#include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -353,21 +354,15 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
     cit->mActionType = ItemUseInventoryTransaction::ActionType::Destroy;
     int slot = player->getSupplies()->mSelectedSlot;
     cit->mSlot = slot;
-    cit->mItemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->mItemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
     cit->mBlockPos = blockPos;
     cit->mFace = side;
-    cit->mTargetBlockRuntimeId = 0;
+    cit->mTargetBlockRuntimeId = AIR_RUNTIME_ID;
     cit->mPlayerPos = *player->getPos();
 
-    BlockInfo block = BlockInfo(ClientInstance::get()->getBlockSource()->getBlock(blockPos), blockPos);
-    AABB blockAABB = block.getAABB();
-
-    cit->mClickPos = blockAABB.getClosestPoint(*player->getPos());
+    cit->mClickPos = glm::vec3(0, 0, 0); // this is correct, i actually checked it this time
     pkt->mTransaction = std::move(cit);
     PacketUtils::queueSend(pkt);
-
-    // We broke the block, now we need to clear it manually
-    // since were not using GameMode::destroyBlock which does it for us
     clearBlock(blockPos);
 
 }

@@ -22,7 +22,7 @@ void PacketLogger::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::PlayerAuthInput, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::PlayerAuthInput, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
 
 void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {
@@ -36,6 +36,21 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
         auto packet = event.getPacket<Packet>();
         spdlog::info("Packet: {}", "Login");
     };
+
+    if (event.mPacket->getId() == PacketID::InventoryTransaction)
+    {
+        MessageBox(0, "Fuck you!", "Packet", 0);
+        auto packet = event.getPacket<InventoryTransactionPacket>();
+        std::string packetinfo = packet->mTransaction->toString();
+        if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+        {
+            //spdlog::info("Packet: {}", "InventoryTransaction (type: " +  std::string(magic_enum::enum_name(packet->mTransaction->type)) + ", vtable: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(packet->mTransaction->vtable)) + ")");
+            auto itemUse = reinterpret_cast<ItemUseInventoryTransaction*>(packet->mTransaction.get());
+            packetinfo = itemUse->toString();
+        }
+
+        spdlog::info("Packet: InventoryTransaction, {}", packetinfo);
+    }
 
     if (event.mPacket->getId() == PacketID::ModalFormResponse)
     {

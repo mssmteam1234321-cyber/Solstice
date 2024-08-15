@@ -110,9 +110,8 @@ public:
 
     void addAction(InventoryAction const& action) {
         static void* func = reinterpret_cast<void*>(SigManager::InventoryTransaction_addAction);
-        int sillyInt = 0;
-        using AddAction = void(__fastcall*)(InventoryTransaction*, InventoryAction const&, int*, bool);
-        reinterpret_cast<AddAction>(func)(this, action, &sillyInt, false);
+        using AddAction = void(__fastcall*)(InventoryTransaction*, InventoryAction const&, bool);
+        reinterpret_cast<AddAction>(func)(this, action, false);
     }
 };
 
@@ -143,7 +142,14 @@ public:
 
     Type getTransacType() {
         return type;
-    };
+    }
+
+    std::string toString()
+    {
+        std::string str = "ComplexInventoryTransaction [type: " + std::string(magic_enum::enum_name(type));
+        str += ", vtable: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(vtable)) + "]";
+        return str;
+    }
 };
 
 class ItemUseInventoryTransaction : public ComplexInventoryTransaction
@@ -172,6 +178,20 @@ public:
         data = InventoryTransaction();
         data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
         data.mItems = std::vector<InventoryTransactionItemGroup>();
+    }
+
+    std::string toString()
+    {
+        std::string str = "ItemUseInventoryTransaction [type: " + std::string(magic_enum::enum_name(type));
+        str += ", vtable: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(vtable)) + "]";
+        str += ", actionType: " + std::string(magic_enum::enum_name(mActionType));
+        str += ", blockPos: " + fmt::format("{}, {}, {}", mBlockPos.x, mBlockPos.y, mBlockPos.z);
+        str += ", targetBlockRuntimeId: " + fmt::format("{:x}", mTargetBlockRuntimeId);
+        str += ", face: " + std::to_string(mFace);
+        str += ", slot: " + std::to_string(mSlot);
+        str += ", playerPos: " + fmt::format("{}, {}, {}", mPlayerPos.x, mPlayerPos.y, mPlayerPos.z);
+        str += ", clickPos: " + fmt::format("{}, {}, {}", mClickPos.x, mClickPos.y, mClickPos.z);
+        return str;
     }
 };
 

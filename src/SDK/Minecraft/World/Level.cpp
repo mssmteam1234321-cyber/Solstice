@@ -6,6 +6,7 @@
 
 #include <libhat.hpp>
 #include <SDK/OffsetProvider.hpp>
+#include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
 
 std::unordered_map<mce::UUID, PlayerListEntry>* Level::getPlayerList()
 {
@@ -17,4 +18,10 @@ HitResult* Level::getHitResult()
 {
     static auto vIndex = OffsetProvider::Level_getHitResult;
     return MemUtils::callVirtualFunc<HitResult*>(vIndex, this);
+}
+
+SyncedPlayerMovementSettings* Level::getPlayerMovementSettings()
+{
+    static auto vIndex = OffsetProvider::Level_getPlayerMovementSettings;
+    return MemUtils::callVirtualFunc<SyncedPlayerMovementSettings*>(vIndex, this);
 }

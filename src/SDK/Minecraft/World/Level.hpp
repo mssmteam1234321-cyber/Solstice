@@ -32,5 +32,6 @@ public:
 
     std::unordered_map<mce::UUID, PlayerListEntry>* getPlayerList();
     class HitResult* getHitResult();
+    class SyncedPlayerMovementSettings* getPlayerMovementSettings();
 
 };

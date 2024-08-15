@@ -12,6 +12,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -147,6 +148,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
     auto ci = ClientInstance::get();
     if (player)
     {
+        // begin flag group
+        ImGui::BeginGroup();
         ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent>());
         ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlagComponent>());
         ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraComponent>());
@@ -154,21 +157,35 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModelComponent>());
         ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent>());
         ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent>());
+        ImGui::EndGroup();
 
         //ImGui::Text("ActorMovementTickNeededFlag: %d", player->getFlag<ActorMovementTickNeededFlag>());
 
+        ImGui::BeginGroup();
         ImGui::Text("gameType: %d", player->getGameType());
         displayCopyableAddress("LocalPlayer", player);
-        displayCopyableAddress("supplies", player->getSupplies());
+        displayCopyableAddress("PlayerInventory", player->getSupplies());
+        displayCopyableAddress("GameMode", player->getGameMode());
+        displayCopyableAddress("Level", player->getLevel());
+        if (player->getLevel()) displayCopyableAddress("SyncedPlayerMovementSettings", player->getLevel()->getPlayerMovementSettings());
+        if (player->getLevel()->getPlayerMovementSettings())
+        {
+            auto settings = player->getLevel()->getPlayerMovementSettings();
+            std::string authority = std::string(magic_enum::enum_name(settings->AuthorityMode));
+            int rewindHistorySize = static_cast<int>(settings->mRewindHistorySize);
+            bool serverAuthBlockBreaking = settings->ServerAuthBlockBreaking;
+            ImGui::Text("Authority Movement: %s", authority.c_str());
+            ImGui::Text("Rewind History Size: %d", rewindHistorySize);
+            ImGui::Text("Server Auth Block Breaking: %s", serverAuthBlockBreaking ? "true" : "false");
+        }
         displayCopyableAddress("Item1", player->getSupplies()->getContainer()->getItem(0));
         displayCopyableAddress("Item2", player->getSupplies()->getContainer()->getItem(1));
         ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(0)));
-        displayCopyableAddress("DebugCamera", player->getDebugCameraComponent());
         displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
-        displayCopyableAddress("gDaBlock", gDaBlock);
+        ImGui::EndGroup();
     }
 
     displayCopyableAddress("Options", ci->getOptions());
@@ -176,6 +193,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
     displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
     displayCopyableAddress("MinecraftGame", ci->getMinecraftGame());
     displayCopyableAddress("MinecraftSimulation", ci->getMinecraftSim());
+    displayCopyableAddress("PacketSender", ci->getPacketSender());
+
 
     // Display a button that sets D3DHook::forceFallback to true
     if (ImGui::Button("Force Fallback"))
