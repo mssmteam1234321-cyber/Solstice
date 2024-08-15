@@ -99,7 +99,7 @@ bool Regen::isValidRedstone(glm::ivec3 blockPos)
     if (blockID != 73 && blockID != 74) return false;
 
     // BlockPos Check
-    if (mRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == mTargettingBlockPos) return false;
+    if (mBlockRange.mValue < glm::distance(*player->getPos(), glm::vec3(blockPos)) || blockPos == mTargettingBlockPos) return false;
 
     // IsMiningPosition Check
     if (BlockUtils::isMiningPosition(blockPos)) return false;
@@ -490,6 +490,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             }
 
             float closestDistance = INT_MAX;
+            bool foundTargettingBlock = false;
             for (int i = 0; i < exposedBlockList.size(); i++) {
                 glm::vec3 blockPos = exposedBlockList[i].mPosition;
                 float dist = glm::distance(playerPos, blockPos);
@@ -497,6 +498,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     closestDistance = dist;
                     pos = blockPos;
                     targettingPos = blockPos;
+                }
+                if (glm::ivec3(blockPos) == mLastTargettingBlockPos && mWasUncovering) foundTargettingBlock = true;
+            }
+            if (mTest2.mValue && foundTargettingBlock) {
+                if (pos != mLastTargettingBlockPos) {
+                    pos = mLastTargettingBlockPos;
+                    if (mDebug.mValue && mPriorityNotify.mValue) ChatUtils::displayClientMessage("Prioritized ore");
                 }
             }
             // queue block

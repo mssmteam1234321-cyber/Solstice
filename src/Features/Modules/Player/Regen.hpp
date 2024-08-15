@@ -39,10 +39,12 @@ public:
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
+    NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mTest = BoolSetting("Test", "test", false);
+    BoolSetting mTest2 = BoolSetting("Test2", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
@@ -50,6 +52,7 @@ public:
     BoolSetting mCoverNotify = BoolSetting("Cover Notify", "Send message in chat when you covered ore", false);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
+    BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
@@ -75,10 +78,12 @@ public:
             &mConfuse,
             &mAntiConfuse,
             &mBlockOre,
+            &mBlockRange,
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
             &mTest,
+            &mTest2,
             &mDynamicDestroySpeed,
             &mAlwaysMine,
             &mDebug,
@@ -86,6 +91,7 @@ public:
             &mCoverNotify,
             &mFastOreNotify,
             &mSyncSpeedNotify,
+            &mPriorityNotify,
             &mRenderBlock,
             &mRenderProgressBar
         );
@@ -97,6 +103,8 @@ public:
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
 
+        VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
+
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
         VISIBILITY_CONDITION(mTest, mInfiniteDurability.mValue);
@@ -106,6 +114,7 @@ public:
         VISIBILITY_CONDITION(mCoverNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
 
         mNames = {
             {Lowercase, "regen"},

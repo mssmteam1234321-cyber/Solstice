@@ -34,7 +34,7 @@ void DestroyProgress::onRenderEvent(RenderEvent& event)
     lastProgress = cAnimProgress;
     cAnimProgress = MathUtils::clamp(cAnimProgress, 0.f, 1.f);
 
-    if (0 >= cProgress) return;
+    if (0 >= cProgress || player->getLevel()->getHitResult()->mType != HitType::BLOCK) return;
 
     glm::ivec3 cMiningPos = player->getLevel()->getHitResult()->mBlockPos;
     auto boxSize = glm::vec3(cAnimProgress, cAnimProgress, cAnimProgress);
