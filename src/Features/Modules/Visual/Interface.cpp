@@ -178,7 +178,7 @@ void Interface::onPacketOutEvent(PacketOutEvent& event)
         pPitch = paip->mRot.x;
         pHeadYaw = paip->mYHeadRot;
     }
-    else if (event.mPacket->getId() == PacketID::MovePlayer && isServerAuthoritative)
+    else if (event.mPacket->getId() == PacketID::MovePlayer && !isServerAuthoritative)
     {
         auto mpp = event.getPacket<MovePlayerPacket>();
         pOldYaw = pYaw;
