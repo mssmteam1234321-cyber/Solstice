@@ -26,6 +26,8 @@ enum class TeleportationCause : int {
 
 class MovePlayerPacket : public Packet {
 public:
+    static inline const auto ID = PacketID::MovePlayer;
+
     int64_t                                   mPlayerID;         // this+0x30
     glm::vec3                                 mPos;              // this+0x38
     glm::vec2                                 mRot;              // this+0x44

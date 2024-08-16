@@ -29,7 +29,6 @@ public:
         OpenInventory  = 0x6,
     };
 
-public:
     Action                 mAction;   // this+0x30
     uint64_t               mTargetId; // this+0x38
     glm::vec3              mPos;      // this+0x40

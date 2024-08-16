@@ -41,9 +41,9 @@ public:
 
 class CompoundTagVariant
 {
-    char pad_0000[40]; //0x0000
+    PAD(0x28);
     Tag::Type type; //0x0028
-    char pad_002C[7]; //0x002C
+    PAD(0x7);
 public:
     inline Tag::Type getTagType() {
         return this->type;

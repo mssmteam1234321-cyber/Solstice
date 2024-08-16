@@ -93,6 +93,7 @@ public:
 class CameraInstructionPacket : public ::Packet {
 public:
     static inline PacketID ID = PacketID::CameraInstruction;
+
     CameraInstruction mData;
 
     int getPreset() const {

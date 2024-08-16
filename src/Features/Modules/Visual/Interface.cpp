@@ -93,7 +93,7 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
     if (event.mEntity != player) return;
     if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f)) return;
 
-    bool firstPerson = ClientInstance::get()->getOptions()->game_thirdperson->value == 0;
+    bool firstPerson = ClientInstance::get()->getOptions()->mThirdPerson->value == 0;
     if (firstPerson && !player->getFlag<RenderCameraComponent>()) return;
 
 
@@ -104,15 +104,15 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
 
     float realOldPitch = actorRotations->mOldPitch;
     float realPitch = actorRotations->mPitch;
-    float realHeadRot = headRotations->headRot;
-    float realOldHeadRot = headRotations->oldHeadRot;
+    float realHeadRot = headRotations->mHeadRot;
+    float realOldHeadRot = headRotations->mOldHeadRot;
     float realBodyYaw = bodyRotations->yBodyRot;
     float realOldBodyYaw = bodyRotations->yOldBodyRot;
 
     actorRotations->mOldPitch = pLerpedPitch;
     actorRotations->mPitch = pLerpedPitch;
-    headRotations->headRot = pLerpedHeadYaw;
-    headRotations->oldHeadRot = pLerpedHeadYaw;
+    headRotations->mHeadRot = pLerpedHeadYaw;
+    headRotations->mOldHeadRot = pLerpedHeadYaw;
     bodyRotations->yBodyRot = pLerpedBodyYaw;
     bodyRotations->yOldBodyRot = pLerpedBodyYaw;
 
@@ -122,8 +122,8 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
 
     actorRotations->mOldPitch = realOldPitch;
     actorRotations->mPitch = realPitch;
-    headRotations->headRot = realHeadRot;
-    headRotations->oldHeadRot = realOldHeadRot;
+    headRotations->mHeadRot = realHeadRot;
+    headRotations->mOldHeadRot = realOldHeadRot;
     bodyRotations->yBodyRot = realBodyYaw;
     bodyRotations->yOldBodyRot = realOldBodyYaw;
 }

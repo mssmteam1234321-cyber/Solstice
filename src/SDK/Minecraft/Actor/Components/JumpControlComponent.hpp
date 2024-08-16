@@ -11,8 +11,7 @@ public:
     // padding to make the struct size 88 bytes
     CLASS_FIELD(bool, mNoJumpDelay, 0x10);
 
-
-    char pad_0x0[0x58];
+    PAD(0x58);
 };
 
 static_assert(sizeof(JumpControlComponent) == 0x58);

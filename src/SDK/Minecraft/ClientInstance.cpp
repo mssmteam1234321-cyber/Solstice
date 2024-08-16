@@ -27,13 +27,13 @@ ClientInstance* ClientInstance::get()
 
 glmatrixf ClientInstance::getViewMatrix()
 {
-    return hat::member_at<glmatrixf>(this, 0x330);
+    return hat::member_at<glmatrixf>(this, OffsetProvider::ClientInstance_mViewMatrix);
 }
 
 glm::vec2 ClientInstance::getFov()
 {
-    float x = hat::member_at<float>(this, 0x6F0);
-    float y = hat::member_at<float>(this, 0x704);
+    float x = hat::member_at<float>(this, OffsetProvider::ClientInstance_mFovX); // 0x6F0
+    float y = hat::member_at<float>(this, OffsetProvider::ClientInstance_mFovY); // 0x704
     return { x, y };
 }
 

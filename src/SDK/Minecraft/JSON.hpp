@@ -80,7 +80,7 @@ namespace MinecraftJson
     };
 
     class Reader {
-        char pad[192];
+        PAD(0xC0);
     public:
         void Parse(std::string* input, MinecraftJson::Value* output)
         {

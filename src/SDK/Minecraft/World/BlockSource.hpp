@@ -9,9 +9,6 @@
 
 class BlockSource {
 public:
-    // CLASS_FIELD(int16_t, mBuildHeight, 0x0038);
-    // CLASS_FIELD(int16_t, mBuildDepth, 0x003A);
-
     int16_t getBuildHeight() {
         return hat::member_at<int16_t>(this, OffsetProvider::BlockSource_mBuildHeight);
     }

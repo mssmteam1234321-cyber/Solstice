@@ -21,7 +21,7 @@ public:
     CLASS_FIELD(glm::vec2, mMoveVector, 0x48);
 
     // padding to make the struct size 136
-    char pad_0x0[0x88];
+    PAD(0x88);
 
     void setJumping(bool value) {
         reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(this) + 0x26)[0] = value;

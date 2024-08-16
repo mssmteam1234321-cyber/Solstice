@@ -15,6 +15,8 @@ public:
 
     static ClientInstance* get();
 
+
+
     class MinecraftSim* getMinecraftSim();
     class LevelRenderer* getLevelRenderer();
     class LoopbackPacketSender* getPacketSender();

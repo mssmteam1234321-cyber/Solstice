@@ -5,6 +5,6 @@
 #pragma once
 
 struct ActorHeadRotationComponent {
-    float headRot;
-    float oldHeadRot;
+    float mHeadRot;
+    float mOldHeadRot;
 };

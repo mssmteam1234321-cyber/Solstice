@@ -87,7 +87,7 @@ void RobloxCamera::onBaseTickEvent(BaseTickEvent& event)
 
 void RobloxCamera::onLookInputEvent(LookInputEvent& event)
 {
-    ClientInstance::get()->getOptions()->game_thirdperson->value = 0;
+    ClientInstance::get()->getOptions()->mThirdPerson->value = 0;
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;

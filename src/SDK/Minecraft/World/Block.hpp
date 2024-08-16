@@ -3,11 +3,12 @@
 // Created by vastrakai on 7/3/2024.
 //
 
+#include <SDK/OffsetProvider.hpp>
 #include <Utils/MemUtils.hpp>
 
 class Block {
 public:
-    CLASS_FIELD(class BlockLegacy*, mLegacy, 0x30);
+    CLASS_FIELD(class BlockLegacy*, mLegacy, OffsetProvider::Block_mLegacy);
 
 
     BlockLegacy* toLegacy() {
@@ -15,7 +16,7 @@ public:
     }
 
     uint32_t getRuntimeId() {
-        return hat::member_at<uint32_t>(this, 0xC0);
+        return hat::member_at<uint32_t>(this, OffsetProvider::Block_mRuntimeId);
     }
 };
 

@@ -44,7 +44,7 @@ void Freecam::onEnable()
     mLastRot.mOldPitch = mLastRot.mPitch;
 
     mLastHeadRot = *player->getActorHeadRotationComponent();
-    mLastHeadRot.oldHeadRot = mLastHeadRot.headRot;
+    mLastHeadRot.mOldHeadRot = mLastHeadRot.mHeadRot;
 
     mLastBodyRot = *player->getMobBodyRotationComponent();
     mLastBodyRot.yOldBodyRot = mLastBodyRot.yBodyRot;
@@ -109,12 +109,12 @@ void Freecam::onPacketInEvent(PacketInEvent& event)
             float headRot = mpp->mYHeadRot;
             mLastRot.mYaw = pktRot.x;
             mLastRot.mPitch = pktRot.y;
-            mLastHeadRot.headRot = headRot;
+            mLastHeadRot.mHeadRot = headRot;
             mLastBodyRot.yBodyRot = pktRot.x;
 
             mLastRot.mOldYaw = pktRot.x;
             mLastRot.mOldPitch = pktRot.y;
-            mLastHeadRot.oldHeadRot = headRot;
+            mLastHeadRot.mOldHeadRot = headRot;
             mLastBodyRot.yOldBodyRot = pktRot.x;
 
 
@@ -138,7 +138,7 @@ void Freecam::onPacketOutEvent(PacketOutEvent& event)
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 
         paip->mRot = { mLastRot.mYaw, mLastRot.mPitch };
-        paip->mYHeadRot = mLastHeadRot.headRot;
+        paip->mYHeadRot = mLastHeadRot.mHeadRot;
 
         // Clamp the rot to -180 to 180 and -90 to 90 respectively
         paip->mRot.x = MathUtils::wrap(paip->mRot.x, -180, 180);
@@ -235,7 +235,7 @@ void Freecam::onLookInputEvent(LookInputEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    ClientInstance::get()->getOptions()->game_thirdperson->value = 0;
+    ClientInstance::get()->getOptions()->mThirdPerson->value = 0;
 
     if (mMode.mValue == Mode::Detached)
     {

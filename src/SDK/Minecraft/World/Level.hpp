@@ -9,18 +9,18 @@
 
 class PlayerListEntry {
 public:
-    uint64_t id; // This is the ActorUniqueID
-    mce::UUID uuid;
-    std::string name, XUID, platformOnlineId;
-    BuildPlatform buildPlatform;
+    uint64_t mId; // This is the ActorUniqueID
+    mce::UUID mUuid;
+    std::string mName, mXUID, mPlatformOnlineId;
+    BuildPlatform mBuildPlatform;
 
     PlayerListEntry() {
-        id = 0;
-        uuid = mce::UUID();
-        name = "";
-        XUID = "";
-        platformOnlineId = "";
-        buildPlatform = BuildPlatform::Unknown;
+        mId = 0;
+        mUuid = mce::UUID();
+        mName = "";
+        mXUID = "";
+        mPlatformOnlineId = "";
+        mBuildPlatform = BuildPlatform::Unknown;
     }
 };
 

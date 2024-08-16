@@ -56,7 +56,7 @@ void Nametags::onRenderEvent(RenderEvent& event)
     for (auto actor : actors)
     {
         if (!actor->isPlayer()) continue;
-        if (actor == localPlayer && ci->getOptions()->game_thirdperson->value == 0 && !localPlayer->getFlag<RenderCameraComponent>()) continue;
+        if (actor == localPlayer && ci->getOptions()->mThirdPerson->value == 0 && !localPlayer->getFlag<RenderCameraComponent>()) continue;
         if (actor == localPlayer && !mRenderLocal.mValue) continue;
         auto shape = actor->getAABBShapeComponent();
         if (!shape) continue;

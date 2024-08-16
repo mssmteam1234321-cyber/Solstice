@@ -37,7 +37,7 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
     if (thisMod->renderData == nullptr)
         return;
 
-    auto curr = thisMod->renderData->actor;
+    auto curr = thisMod->renderData->mActor;
 
     static float height = 0.5f;
 
@@ -64,7 +64,7 @@ void ItemPhysics::glm_rotate(glm::mat4x4 &mat, float angle, float x, float y, fl
     if (yMod <= 0.f)
         yMod = 0.f;
 
-    glm::vec3 pos = thisMod->renderData->position;
+    glm::vec3 pos = thisMod->renderData->mPosition;
     pos.y += yMod;
 
     auto& vec = std::get<1>(thisMod->actorData.at(curr));

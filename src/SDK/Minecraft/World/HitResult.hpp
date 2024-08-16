@@ -13,14 +13,9 @@ enum HitType : uint32_t
 };
 
 struct WeakEntityRef {
-private:
-    uint8_t pad[0x10]{};
-
-public:
+    PAD(0x10);
     EntityId id;
-
-private:
-    uint8_t pad2[0x4]{};
+    PAD(0x4);
 };
 
 class HitResult {

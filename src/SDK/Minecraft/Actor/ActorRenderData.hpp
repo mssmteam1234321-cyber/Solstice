@@ -4,20 +4,17 @@
 //
 
 struct ActorRenderData {
-    class Actor* actor;
-    int64_t* data; // e. g. ItemStack if the actor is an ItemActor
-    glm::vec3 position;
-    glm::vec2 rotation;
-    glm::vec2 headRot;
-    bool glint;
-    bool ignoreLighting;
-    bool isInUI;
-    float deltaTime;
-    int modelObjId;
-    float modelSize;
-    //AnimationComponent *animationComponent;
-    //MolangVariableMap *variables;
+    class Actor* mActor;
+    int64_t* mData; // e. g. ItemStack if the actor is an ItemActor
+    glm::vec3 mPosition;
+    glm::vec2 mRotation;
+    glm::vec2 mHeadRot;
+    bool mGlint;
+    bool mIgnoreLighting;
+    bool mIsInUI;
+    float mDeltaTime;
+    int mModelObjId;
+    float mModelSize;
 
-private:
-    char pad[0x10];
+    PAD(0x10);
 };

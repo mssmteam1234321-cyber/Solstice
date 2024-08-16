@@ -8,5 +8,5 @@
 #include <cstdint>
 
 struct RuntimeIDComponent {
-    int64_t runtimeID;
+    int64_t mRuntimeID;
 };

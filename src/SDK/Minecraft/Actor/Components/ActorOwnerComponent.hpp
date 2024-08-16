@@ -7,5 +7,5 @@
 class ActorOwnerComponent
 {
 public:
-    class Actor* actor;
+    class Actor* mActor;
 };

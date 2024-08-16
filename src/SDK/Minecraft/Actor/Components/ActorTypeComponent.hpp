@@ -8,5 +8,5 @@
 
 struct ActorTypeComponent
 {
-    ActorType type;
+    ActorType mType;
 };

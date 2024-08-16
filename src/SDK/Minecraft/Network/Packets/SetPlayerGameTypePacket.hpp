@@ -19,5 +19,6 @@ enum class GameType : int {
 class SetPlayerGameTypePacket : public ::Packet {
 public:
     static inline PacketID ID = PacketID::SetPlayerGameType;
+
     GameType mPlayerGameType; // this+0x30
 };

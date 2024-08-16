@@ -168,7 +168,7 @@ bool Actor::isPlayer()
 {
     auto actorType = getActorTypeComponent();
     if (!actorType) return false;
-    return actorType->type == ActorType::Player;
+    return actorType->mType == ActorType::Player;
 }
 
 ChunkPos Actor::getChunkPos()
@@ -241,7 +241,7 @@ Level* Actor::getLevel()
 int64_t Actor::getRuntimeID()
 {
     auto runtimeIDComponent = mContext.getComponent<RuntimeIDComponent>();
-    return runtimeIDComponent ? runtimeIDComponent->runtimeID : -1;
+    return runtimeIDComponent ? runtimeIDComponent->mRuntimeID : -1;
 }
 
 void Actor::setPosition(glm::vec3 pos)
@@ -320,7 +320,7 @@ std::string Actor::getRawName()
         return "What?";
     }
 
-    if (actorType->type != ActorType::Player)
+    if (actorType->mType != ActorType::Player)
     {
         // mEntityIdentifier will be used as fallback
         return mEntityIdentifier;
@@ -330,9 +330,9 @@ std::string Actor::getRawName()
 
     for (auto& [id, entry] : *player->getLevel()->getPlayerList())
     {
-        if (entry.id == uniqueId)
+        if (entry.mId == uniqueId)
         {
-            return entry.name;
+            return entry.mName;
         }
     }
 
@@ -358,28 +358,28 @@ float Actor::getMaxHealth()
 {
     auto health = getAttribute(Health);
     if (!health) return 0;
-    return health->maximumValue;
+    return health->mMaximumValue;
 }
 
 float Actor::getHealth()
 {
     auto health = getAttribute(Health);
     if (!health) return 0;
-    return health->currentValue;
+    return health->mCurrentValue;
 }
 
 float Actor::getAbsorption()
 {
     auto absorption = getAttribute(Absorption);
     if (!absorption) return 0;
-    return absorption->currentValue;
+    return absorption->mCurrentValue;
 }
 
 float Actor::getMaxAbsorption()
 {
     auto absorption = getAttribute(Absorption);
     if (!absorption) return 0;
-    return absorption->maximumValue;
+    return absorption->mMaximumValue;
 }
 
 AttributeInstance* Actor::getAttribute(AttributeId id)
@@ -395,7 +395,7 @@ AttributeInstance* Actor::getAttribute(int id)
         return nullptr;
     }
     // Directly access the map
-    auto& map = component->baseAttributeMap.attributes;
+    auto& map = component->mBaseAttributeMap.mAttributes;
     auto it = map.find(id);
     if (it != map.end()) {
         return &it->second;

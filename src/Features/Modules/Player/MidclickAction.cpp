@@ -77,9 +77,9 @@ void MidclickAction::onBaseTickEvent(BaseTickEvent& event)
             auto entity = hitResult->mEntity.id;
             Actor* target = nullptr;
             for (auto&& [id, moduleOwner, type, ridc] : player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each()) {
-                if (type.type != ActorType::Player) continue;
+                if (type.mType != ActorType::Player) continue;
                 if (id == entity) {
-                    target = moduleOwner.actor;
+                    target = moduleOwner.mActor;
                     break;
                 }
             }

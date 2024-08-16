@@ -28,27 +28,23 @@ enum AttributeId {
 };
 
 class AttributeInstance {
-private:
-    char __padding[0x74];
-public:
-    float minimumValue;
-    float maximumValue;
-    float currentValue;
+    PAD(0x74);
+    float mMinimumValue;
+    float mMaximumValue;
+    float mCurrentValue;
 
-    ~AttributeInstance();
-    virtual void tick(void);
+    virtual ~AttributeInstance();
+    virtual void tick();
 };
 
 static_assert(sizeof(AttributeInstance) == 0x88, "AttributeInstance size is not correct");
 
 class Attribute {
-public:
-    __int64 hash;
-    __int64 hashedStringHash;
-    std::string attributeName;
-private:
-    char __padding[0x32];
-public:
+public: // I'm pretty sure this is a HashedString but i don't really care
+    __int64 mHash;
+    __int64 mHashedStringHash;
+    std::string mAttributeName;
+    PAD(0x32);
 
     Attribute() {
         memset(this, 0x0, sizeof(Attribute));
@@ -56,7 +52,7 @@ public:
 
     Attribute(__int64 hash) {
         memset(this, 0x0, sizeof(Attribute));
-        this->hash = hash;
+        this->mHash = hash;
     }
 };
 
@@ -74,48 +70,48 @@ enum AttributeHashes : unsigned __int64 {
 class HealthAttribute : public Attribute
 {
 public:
-    HealthAttribute() { this->hash = AttributeHashes::HEALTH; }
+    HealthAttribute() { this->mHash = AttributeHashes::HEALTH; }
 };
 
 class PlayerHungerAttribute : public Attribute
 {
 public:
-    PlayerHungerAttribute() { this->hash = AttributeHashes::HUNGER; }
+    PlayerHungerAttribute() { this->mHash = AttributeHashes::HUNGER; }
 };
 
 class MovementAttribute : public Attribute
 {
 public:
-    MovementAttribute() { this->hash = AttributeHashes::MOVEMENT; }
+    MovementAttribute() { this->mHash = AttributeHashes::MOVEMENT; }
 };
 
 class AbsorptionAttribute : public Attribute
 {
 public:
-    AbsorptionAttribute() { this->hash = AttributeHashes::ABSORPTION; }
+    AbsorptionAttribute() { this->mHash = AttributeHashes::ABSORPTION; }
 };
 
 class PlayerSaturationAttribute : public Attribute
 {
 public:
-    PlayerSaturationAttribute() { this->hash = AttributeHashes::SATURATION; }
+    PlayerSaturationAttribute() { this->mHash = AttributeHashes::SATURATION; }
 };
 
 class FollowRangeAttribute : public Attribute
 {
 public:
-    FollowRangeAttribute() { this->hash = AttributeHashes::FOLLOW_RANGE; }
+    FollowRangeAttribute() { this->mHash = AttributeHashes::FOLLOW_RANGE; }
 };
 
 class PlayerLevelAttribute : public Attribute {
 public:
-    PlayerLevelAttribute() { this->hash = AttributeHashes::LEVEL; }
+    PlayerLevelAttribute() { this->mHash = AttributeHashes::LEVEL; }
 };
 
 class PlayerExperienceAttribute : public Attribute
 {
 public:
-    PlayerExperienceAttribute() { this->hash = AttributeHashes::EXPERIENCE; }
+    PlayerExperienceAttribute() { this->mHash = AttributeHashes::EXPERIENCE; }
 };
 
 
@@ -124,8 +120,8 @@ public:
 class BaseAttributeMap
 {
 public:
-    std::unordered_map<int, AttributeInstance> attributes;
-    std::vector<uint64_t> dirtyAttributes;
+    std::unordered_map<int, AttributeInstance> mAttributes;
+    std::vector<uint64_t> mDirtyAttributes;
 };
 
 static_assert(sizeof(BaseAttributeMap) == 0x58);
@@ -133,7 +129,7 @@ static_assert(sizeof(BaseAttributeMap) == 0x58);
 
 struct AttributesComponent
 {
-    BaseAttributeMap baseAttributeMap;
+    BaseAttributeMap mBaseAttributeMap;
 };
 
 static_assert(sizeof(AttributesComponent) == 0x58);

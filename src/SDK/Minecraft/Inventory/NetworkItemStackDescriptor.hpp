@@ -64,7 +64,7 @@ class ItemDescriptorCount : public ItemDescriptor
 {
 public:
     unsigned short mStackSize; // this+0x10
-    char pad[0x6];
+    PAD(0x6);
 }; //Size: 0x0018
 static_assert(sizeof(ItemDescriptorCount) == 0x18);
 
@@ -72,7 +72,7 @@ static_assert(sizeof(ItemDescriptorCount) == 0x18);
 class NetworkItemStackDescriptor : public ItemDescriptorCount
 {
 public:
-    char pad_0018[72]; //0x0018
+    PAD(0x48);
     /*bool                  mIncludeNetIds{};  // this+0x18
     ItemStackNetIdVariant mNetIdVariant{};   // this+0x20
     unsigned int          mBlockRuntimeId{}; // this+0x38

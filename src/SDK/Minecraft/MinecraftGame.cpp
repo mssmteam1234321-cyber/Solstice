@@ -17,7 +17,6 @@ MinecraftGame* MinecraftGame::getInstance()
     if (!MainView::getInstance() || !MainView::getInstance()->getBedrockPlatform() || !MainView::getInstance()->getBedrockPlatform()->getMinecraftGame())
         return nullptr;
     return MainView::getInstance()->getBedrockPlatform()->getMinecraftGame();
-    return nullptr;
 }
 
 ClientInstance* MinecraftGame::getPrimaryClientInstance()

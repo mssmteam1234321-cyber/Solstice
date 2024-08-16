@@ -45,16 +45,16 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
             }
 
             // Continue if the actor is null
-            if (!moduleOwner.actor)
+            if (!moduleOwner.mActor)
             {
                 spdlog::critical("Found null actor pointer for entity!");
                 continue;
             };
             // Continue if the actor is a bot and we want to exclude bots
-            if (excludeBots && antibot->isBot(moduleOwner.actor)) continue;
+            if (excludeBots && antibot->isBot(moduleOwner.mActor)) continue;
 
-            if (type.type == ActorType::Player && playerOnly || !playerOnly)
-                actors.push_back(moduleOwner.actor);
+            if (type.mType == ActorType::Player && playerOnly || !playerOnly)
+                actors.push_back(moduleOwner.mActor);
         }
     } catch (std::exception &e)
     {
@@ -86,15 +86,15 @@ std::vector<Actor*> ActorUtils::getActorsOfType(ActorType type)
     {
         for (auto &&[_, moduleOwner, typeComponent]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent>().each())
         {
-            if (!moduleOwner.actor)
+            if (!moduleOwner.mActor)
             {
                 spdlog::debug("Found null actor pointer for entity!");
                 continue;
             };
             // do NOT exclude bots as we are specifically requesting a type
 
-            if (typeComponent.type == type)
-                actors.push_back(moduleOwner.actor);
+            if (typeComponent.mType == type)
+                actors.push_back(moduleOwner.mActor);
         }
     } catch (std::exception &e)
     {
@@ -142,7 +142,7 @@ Actor* ActorUtils::getActorFromUniqueId(const int64_t uniqueId)
 
     for (auto &&[_, moduleOwner, ridc, uidc]: player->mContext.mRegistry->view<ActorOwnerComponent, RuntimeIDComponent, ActorUniqueIDComponent>().each())
     {
-        if (uidc.mUniqueID == uniqueId && moduleOwner.actor) return moduleOwner.actor;
+        if (uidc.mUniqueID == uniqueId && moduleOwner.mActor) return moduleOwner.mActor;
     }
 
     return nullptr;
@@ -155,7 +155,7 @@ Actor* ActorUtils::getActorFromRuntimeID(int64_t runtimeId)
 
     for (auto &&[_, moduleOwner, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, RuntimeIDComponent>().each())
     {
-        if (ridc.runtimeID == runtimeId && moduleOwner.actor) return moduleOwner.actor;
+        if (ridc.mRuntimeID == runtimeId && moduleOwner.mActor) return moduleOwner.mActor;
     }
 
     return nullptr;
