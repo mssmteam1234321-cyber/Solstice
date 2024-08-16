@@ -21,6 +21,8 @@
 #include "Misc/NoPacket.hpp"
 #include "Misc/Disabler.hpp"
 #include "Misc/AutoReport.hpp"
+#include "Misc/StaffAlert.hpp"
+
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
@@ -120,6 +122,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NetSkip>());
     mModules.emplace_back(std::make_shared<Disabler>());
     mModules.emplace_back(std::make_shared<AutoReport>());
+    mModules.emplace_back(std::make_shared<StaffAlert>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

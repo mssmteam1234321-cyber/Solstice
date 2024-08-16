@@ -5,12 +5,21 @@
 #pragma once
 
 #include <cstdint>
+#include <Utils/MiscUtils/MathUtils.hpp>
 #include <Utils/SysUtils/SHA256.hpp>
 
 namespace mce {
     struct UUID {
         uint64_t mLow;
         uint64_t mHigh;
+
+        static UUID generate()
+        {
+            UUID uuid = {};
+            uuid.mLow = rand();
+            uuid.mHigh = rand();
+            return uuid;
+        }
 
         [[nodiscard]] std::string toString() const
         {
