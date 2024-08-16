@@ -55,11 +55,13 @@ void AutoBoombox::onBaseTickEvent(BaseTickEvent& event)
     int boomboxSlot = ItemUtils::getBoombox(mHotbarOnly.mValue, mMode.mValue == Mode::TNT);
     if (boomboxSlot == -1) return;
 
-    if (supplies->mSelectedSlot != boomboxSlot) {
-        mPreviousSlot = supplies->mSelectedSlot;
-        supplies->mSelectedSlot = boomboxSlot;
-        mSelectedSlot = true;
-        if(mMode.mValue == Mode::Boombox) return;
+    if (mMode.mValue == Mode::Boombox) {
+        if (supplies->mSelectedSlot != boomboxSlot) {
+            mPreviousSlot = supplies->mSelectedSlot;
+            supplies->mSelectedSlot = boomboxSlot;
+            mSelectedSlot = true;
+            return;
+        }
     }
 
     glm::ivec3 placePos = *Aura::sTarget->getPos();
@@ -85,6 +87,13 @@ void AutoBoombox::onBaseTickEvent(BaseTickEvent& event)
         }
     }
     if (!found) return;
+
+    if (mMode.mValue == Mode::TNT) {
+        mPreviousSlot = supplies->mSelectedSlot;
+        supplies->mSelectedSlot = boomboxSlot;
+        mSelectedSlot = true;
+    }
+
     side = BlockUtils::getBlockPlaceFace(placePos);
 
     mCurrentPlacePos = placePos;
