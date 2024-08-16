@@ -36,7 +36,7 @@
 
 class Actor {
 public:
-    unsigned char filler[1096]; // From levilamina
+    unsigned char filler[1032]; // From levilamina
 
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
@@ -133,4 +133,4 @@ public:
     bool isOnFire();
 };
 
-static_assert(sizeof(Actor) == 0x448, "Actor size is invalid"); // 1096 = 0x448
+static_assert(sizeof(Actor) == 0x408, "Actor size is invalid");
