@@ -48,7 +48,7 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
         {0, glm::ivec3(0, 1, 0)}
     };
 
-    // Dynamic Destroy Spped
+    // Dynamic Destroy Speed
     static inline std::vector<DestroySpeedInfo> mDynamicSpeeds = { // make sure to include minecraft: before block names
         {"minecraft:green_concrete", 0.65f},
         {"minecraft:lime_terracotta", 0.65f},
@@ -59,6 +59,12 @@ if (!IsAirBlock(pos + BlockPos(0, 1, 0))) return 0;*/
         {"minecraft:sandstone", 0.57f},
         {"minecraft:sandstone_slab", 0.57f},
         {"minecraft:moss_block", 0.57f},
+    };
+
+    // Dynamic Destroy Speed 2
+    static inline std::vector<DestroySpeedInfo> mNukeSpeeds = { // make sure to include minecraft: before block names
+        {"minecraft:sand", 0.24f},
+        {"minecraft:dirt", 0.24f},
     };
 
     static int getBlockPlaceFace(glm::ivec3 blockPos);

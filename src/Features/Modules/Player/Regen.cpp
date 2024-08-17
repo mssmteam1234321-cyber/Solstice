@@ -401,11 +401,22 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
-            for (auto& c : BlockUtils::mDynamicSpeeds) {
-                if (c.blockName == blockName) {
-                    mCurrentDestroySpeed = c.destroySpeed;
-                    found = true;
-                    break;
+            if (mOnGroundOnly.mValue && mNuke.mValue) {
+                for (auto& c : BlockUtils::mNukeSpeeds) {
+                    if (c.blockName == blockName) {
+                        mCurrentDestroySpeed = c.destroySpeed;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                for (auto& c : BlockUtils::mDynamicSpeeds) {
+                    if (c.blockName == blockName) {
+                        mCurrentDestroySpeed = c.destroySpeed;
+                        found = true;
+                        break;
+                    }
                 }
             }
             if (!found) {

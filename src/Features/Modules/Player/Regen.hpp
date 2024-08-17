@@ -53,6 +53,7 @@ public:
     BoolSetting mTest2 = BoolSetting("Test2", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
+    BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
@@ -125,6 +126,7 @@ public:
         VISIBILITY_CONDITION(mTest, mInfiniteDurability.mValue);
 
         VISIBILITY_CONDITION(mOnGroundOnly, mDynamicDestroySpeed.mValue);
+        VISIBILITY_CONDITION(mNuke, mDynamicDestroySpeed.mValue && mOnGroundOnly.mValue);
 
         // Debug
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
