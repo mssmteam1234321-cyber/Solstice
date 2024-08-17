@@ -16,4 +16,9 @@ public:
     }
     static void displayClientMessageSub(const std::string& subcaption, const std::string& msg);
     static void displayClientMessageRaw(const std::string& msg);
+    template<typename... Args>
+    static void displayClientMessageRaw(fmt::format_string<Args...> fmt, Args&&... args)
+    {
+        displayClientMessageRaw(fmt::format(fmt, std::forward<Args>(args)...));
+    }
 };

@@ -48,5 +48,3 @@ std::string Logger::getAnsiColor(int r, int g, int b)
     return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 
-// Logging format
-
