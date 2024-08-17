@@ -477,8 +477,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         glm::ivec3 pos = { 0, 0, 0 };
         glm::ivec3 targettingPos = { 0, 0, 0 };
         if (!exposedBlockList.empty()) {
-            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
             // Confuser
+            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
             if (shouldConfuse) {
                 if (mIsConfuserActivated) {
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
