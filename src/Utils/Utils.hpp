@@ -36,6 +36,7 @@
 #include "MiscUtils/ColorUtils.hpp"
 #include "MiscUtils/BlockUtils.hpp"
 #include "MiscUtils/Audio.hpp"
+#include "MiscUtils/DataStore.hpp"
 #include "GameUtils/PacketUtils.hpp"
 #include "GameUtils/ItemUtils.hpp"
 #include "GameUtils/ChatUtils.hpp"
