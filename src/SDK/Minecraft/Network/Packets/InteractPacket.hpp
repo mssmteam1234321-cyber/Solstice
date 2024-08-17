@@ -23,6 +23,8 @@ public:
     // InteractPacket inner types define
     enum class Action : unsigned char {
         Invalid        = 0x0,
+        RightClick     = 0x1,
+        LeftClick      = 0x2,
         StopRiding     = 0x3,
         InteractUpdate = 0x4,
         NpcOpen        = 0x5,
