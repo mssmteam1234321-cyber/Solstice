@@ -82,7 +82,7 @@ public:
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,
-            &mStrafe,
+            &mStrafe
             //&mDebug
         );
 
