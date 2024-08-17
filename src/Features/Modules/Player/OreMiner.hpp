@@ -20,6 +20,7 @@ public:
     };
     EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The mode for uncover", UncoverMode::None, "None", "Path Find", "Under Ground");
     EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
+    BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 8, 1);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Ore miner", 1, 0.01, 1, 0.01);
@@ -45,6 +46,7 @@ public:
     OreMiner() : ModuleBase("OreMiner", "Automatically breaks ore", ModuleCategory::Player, 0, false) {
         addSetting(&mUncoverMode);
         addSetting(&mCalcMode);
+        addSetting(&mOnGroundOnly);
         addSetting(&mRange);
         addSetting(&mUncoverRange);
         addSetting(&mDestroySpeed);
@@ -66,6 +68,8 @@ public:
         addSetting(&mHotbarOnly);
         addSetting(&mInfiniteDurability);
         addSetting(&mRenderBlock);
+
+        VISIBILITY_CONDITION(mOnGroundOnly, mCalcMode.mValue == CalcMode::Dynamic);
 
         VISIBILITY_CONDITION(mEmeraldPriority, mEmerald.mValue);
         VISIBILITY_CONDITION(mDiamondPriority, mDiamond.mValue);
@@ -101,6 +105,7 @@ public:
     bool mShouldSetbackSlot = false;
     int mPreviousSlot = -1;
     int mToolSlot = -1;
+    bool mOffGround = false;
 
     uint64_t mLastBlockPlace = 0;
     int mLastPlacedBlockSlot = 0;

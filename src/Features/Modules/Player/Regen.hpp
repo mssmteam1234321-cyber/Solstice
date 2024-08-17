@@ -46,6 +46,7 @@ public:
     BoolSetting mTest = BoolSetting("Test", "test", false);
     BoolSetting mTest2 = BoolSetting("Test2", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
+    BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
@@ -85,6 +86,7 @@ public:
             &mTest,
             &mTest2,
             &mDynamicDestroySpeed,
+            &mOnGroundOnly,
             &mAlwaysMine,
             &mDebug,
             &mStealNotify,
@@ -108,6 +110,8 @@ public:
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
         VISIBILITY_CONDITION(mTest, mInfiniteDurability.mValue);
+
+        VISIBILITY_CONDITION(mOnGroundOnly, mDynamicDestroySpeed.mValue);
 
         // Debug
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
@@ -149,6 +153,7 @@ public:
     int mLastToolSlot = 0;
     static inline bool mIsConfuserActivated = false;
     static inline glm::ivec3 mLastConfusedPos = { INT_MAX, INT_MAX, INT_MAX };
+    bool mOffGround = false;
 
     bool mShouldRotate = false;
     bool mShouldSpoofSlot = false;

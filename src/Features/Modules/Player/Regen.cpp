@@ -37,6 +37,7 @@ void Regen::initializeRegen()
     mIsUncovering = false;
     mIsStealing = false;
     mToolSlot = -1;
+    mOffGround = false;
 }
 
 void Regen::resetSyncSpeed() 
@@ -363,6 +364,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
         bool wasOnGround = player->isOnGround();
 
+        if (!wasOnGround) mOffGround = true;
+
         switch (mCalcMode.mValue)
         {
         case CalcMode::Minecraft:
@@ -390,7 +393,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             resetSyncSpeed();
         }
 
-        if (!mDynamicDestroySpeed.mValue) {
+        if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
             if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
             else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
         }
