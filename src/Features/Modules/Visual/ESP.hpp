@@ -16,11 +16,14 @@ public:
     BoolSetting mRenderFilled = BoolSetting("Render Filled", "Whether or not to render the ESP filled.", true);
     BoolSetting mRenderLocal = BoolSetting("Render Local", "Whether or not to render the ESP on the local player.", false);
     BoolSetting mShowFriends = BoolSetting("Show Friends", "Whether or not to render the ESP on friends.", true);
+    BoolSetting mDebug = BoolSetting("Debug", "Whether or not to display bots.", false);
+
     ESP() : ModuleBase("ESP", "Draws a box around entities", ModuleCategory::Visual, 0, false) {
         addSetting(&mStyle);
         addSetting(&mRenderFilled);
         addSetting(&mRenderLocal);
         addSetting(&mShowFriends);
+        //addSetting(&mDebug);
 
         mNames = {
             {Lowercase, "esp"},

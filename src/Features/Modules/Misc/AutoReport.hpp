@@ -43,6 +43,8 @@ public:
     uint64_t mLastDimensionChange = 0;
     uint64_t mLastTeleport = 0;
 
+    std::vector<std::string> mReportedPlayers;
+
     void onEnable() override;
     void onDisable() override;
     void submitForm(int buttonId);
@@ -52,5 +54,4 @@ public:
     void onPacketOutEvent(class PacketOutEvent& event);
 
 
-    std::vector<std::string> mReportedPlayers;
 };

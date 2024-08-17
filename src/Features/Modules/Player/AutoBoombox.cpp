@@ -99,6 +99,7 @@ void AutoBoombox::onBaseTickEvent(BaseTickEvent& event)
     mCurrentPlacePos = placePos;
     mShouldRotate = true;
     BlockUtils::placeBlock(placePos, side);
+    BlockUtils::clearBlock(placePos);     // Clear the place pos so we dont place on the block again
     mLastBoomboxPlace = NOW;
 }
 

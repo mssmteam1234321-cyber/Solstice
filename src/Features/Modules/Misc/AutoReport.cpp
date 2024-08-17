@@ -159,6 +159,13 @@ void AutoReport::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &AutoReport::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AutoReport::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoReport::onBaseTickEvent>(this);
+
+
+    if (!mFinishedReporting)
+    {
+        ChatUtils::displayClientMessage("Cancelled reporting");
+        mFinishedReporting = true;
+    }
 }
 
 // get current ms with the NOW macro

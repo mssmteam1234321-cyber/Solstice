@@ -61,6 +61,8 @@ void ItemESP::onRenderEvent(RenderEvent& event)
 
         ItemStack* stack = &actor->mItem;
 
+        if (!stack->mItem) continue;
+
         std::string name = actor->mItem.getItem()->mName;
         if (name.empty()) return;
         name += " x" + std::to_string(stack->mCount);

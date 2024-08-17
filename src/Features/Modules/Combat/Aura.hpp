@@ -58,6 +58,7 @@ public:
     BoolSetting mSwingDelay = BoolSetting("Swing Delay", "Whether or not to delay the swing", false);
     NumberSetting mSwingDelayValue = NumberSetting("Swing Delay Value", "The delay between swings (in seconds)", 4.5f, 0.f, 10.f, 0.01f);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
+    BoolSetting mDebug = BoolSetting("Debug", "Whether or not to display debug information", false);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
         addSettings(
@@ -81,7 +82,9 @@ public:
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,
-            &mStrafe);
+            &mStrafe,
+            //&mDebug
+        );
 
         VISIBILITY_CONDITION(mAutoFireSword, mSwitchMode.mValue != SwitchMode::None);
         VISIBILITY_CONDITION(mFireSwordSpoof, mAutoFireSword.mValue);
