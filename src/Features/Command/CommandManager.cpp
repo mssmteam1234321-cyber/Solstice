@@ -21,6 +21,7 @@
 #include "Commands/UnbindCommand.hpp"
 #include "Commands/ModuleCommand.hpp"
 #include "Commands/GamemodeCommand.hpp"
+#include "Commands/HiveStatsCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -38,7 +39,7 @@ void CommandManager::init()
     ADD_COMMAND(FriendCommand);
     ADD_COMMAND(GamemodeCommand);
     ADD_COMMAND(BuildInfoCommand);
-
+    ADD_COMMAND(HiveStatsCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }

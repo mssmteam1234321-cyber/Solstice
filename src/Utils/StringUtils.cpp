@@ -184,3 +184,28 @@ std::string StringUtils::toBase64(const std::string& str)
 {
     return Base64::encode(str);
 }
+
+std::string StringUtils::getRelativeTime(std::chrono::system_clock::time_point time)
+{
+    auto now = std::chrono::system_clock::now();
+
+    auto diff = now - time;
+
+    auto seconds = std::chrono::duration_cast<std::chrono::seconds>(diff);
+    if (seconds.count() < 60) return std::to_string(seconds.count()) + " seconds ago";
+
+    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(diff);
+    if (minutes.count() < 60) return std::to_string(minutes.count()) + " minutes ago";
+
+    auto hours = std::chrono::duration_cast<std::chrono::hours>(diff);
+    if (hours.count() < 24) return std::to_string(hours.count()) + " hours ago";
+
+    auto days = std::chrono::duration_cast<std::chrono::days>(diff);
+    if (days.count() < 30) return std::to_string(days.count()) + " days ago";
+
+    auto months = std::chrono::duration_cast<std::chrono::months>(diff);
+    if (months.count() < 12) return std::to_string(months.count()) + " months ago";
+
+    auto years = std::chrono::duration_cast<std::chrono::years>(diff);
+    return std::to_string(years.count()) + " years ago";
+}

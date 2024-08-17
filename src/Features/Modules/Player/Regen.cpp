@@ -37,6 +37,7 @@ void Regen::initializeRegen()
     mIsUncovering = false;
     mIsStealing = false;
     mToolSlot = -1;
+    mOffGround = false;
 }
 
 void Regen::resetSyncSpeed() 
@@ -363,6 +364,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
         bool wasOnGround = player->isOnGround();
 
+        if (!wasOnGround) mOffGround = true;
+
         switch (mCalcMode.mValue)
         {
         case CalcMode::Minecraft:
@@ -390,7 +393,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             resetSyncSpeed();
         }
 
-        if (!mDynamicDestroySpeed.mValue) {
+        if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
             if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
             else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
         }
@@ -398,11 +401,22 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
-            for (auto& c : BlockUtils::mDynamicSpeeds) {
-                if (c.blockName == blockName) {
-                    mCurrentDestroySpeed = c.destroySpeed;
-                    found = true;
-                    break;
+            if (mOnGroundOnly.mValue && mNuke.mValue) {
+                for (auto& c : BlockUtils::mNukeSpeeds) {
+                    if (c.blockName == blockName) {
+                        mCurrentDestroySpeed = c.destroySpeed;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                for (auto& c : BlockUtils::mDynamicSpeeds) {
+                    if (c.blockName == blockName) {
+                        mCurrentDestroySpeed = c.destroySpeed;
+                        found = true;
+                        break;
+                    }
                 }
             }
             if (!found) {
@@ -475,7 +489,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         glm::ivec3 targettingPos = { 0, 0, 0 };
         if (!exposedBlockList.empty()) {
             // Confuser
-            if (mConfuse.mValue) {
+            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
+            if (shouldConfuse) {
                 if (mIsConfuserActivated) {
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
                     mIsConfuserActivated = false;
@@ -485,6 +500,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     BlockUtils::startDestroyBlock(confusePos, 0);
                     mLastConfusedPos = confusePos;
                     mIsConfuserActivated = true;
+                    mLastConfuse = NOW;
+                    if (mDebug.mValue && mConfuseNotify.mValue) ChatUtils::displayClientMessage("Confused stealer");
                     return;
                 }
             }
@@ -774,7 +791,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
-            if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos)) return;
+            if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
@@ -793,6 +810,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                     mBlackListedOrePos = pos;
                     if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
+                mLastStealerDetected = NOW;
             }
 
             // Ore Blocker

@@ -9,7 +9,26 @@
 
 void ChatUtils::displayClientMessage(const std::string& msg)
 {
-    ClientInstance::get()->getGuiData()->displayClientMessage("§asolstice§7 » §r" + msg);
+    if (!msg.contains("\n"))
+    {
+        ClientInstance::get()->getGuiData()->displayClientMessage("§asolstice§7 » §r" + msg);
+        return;
+    }
+
+    // Newline handling
+    std::string formattedMsg = "§asolstice§7 » §r";
+    for (const auto& c : msg)
+    {
+        if (c == '\n')
+        {
+            formattedMsg += "\n§asolstice§7 » §r";
+        }
+        else
+        {
+            formattedMsg += c;
+        }
+    }
+    ClientInstance::get()->getGuiData()->displayClientMessage(formattedMsg);
 }
 
 void ChatUtils::displayClientMessageSub(const std::string& subcaption, const std::string& msg)
