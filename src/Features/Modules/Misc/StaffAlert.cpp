@@ -6,6 +6,7 @@
 
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
+#include <Utils/MiscUtils/DataStore.hpp>
 
 // example: (URL: https://api.playhive.com/v0/game/all/main/FlareonRapier, Method: GET)
 /*
@@ -43,20 +44,16 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
         if (json.contains("main"))
         {
             auto main = json["main"];
-            PlayerInfo player;
-            player.name = main["username_cc"];
-            player.rank = main["rank"];
-            sender->mPlayers.push_back(player);
+            PlayerInfo player = PlayerInfo(main["username_cc"], main["rank"]);
+            sender->mPlayerStore.mObjects.push_back(player);
             spdlog::info("[StaffAlert] Player found: {} ({})", player.name, player.rank);
         }
     } else if (event.mStatusCode == 404) {
         // Extract the name from the URL
         std::string name = originalRequest->mUrl.substr(originalRequest->mUrl.find_last_of('/') + 1);
         // Name is not found, so we add it to the cache with the rank "NICKED"
-        PlayerInfo player;
-        player.name = name;
-        player.rank = "NICKED";
-        sender->mPlayers.push_back(player);
+        PlayerInfo player = PlayerInfo(name, "NICKED");
+        sender->mPlayerStore.mObjects.push_back(player);
         spdlog::info("[StaffAlert] Player not found: {}, adding as rank 'NICKED'", name);
     } else if (event.mStatusCode == 429) {
         // Rate limited
@@ -67,15 +64,15 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
         spdlog::error("[StaffAlert] Request failed with status code: {}", event.mStatusCode);
     }
 
+    if (sender->mSaveToDatabase.mValue) sender->mPlayerStore.save();
+
     // Don't delete the request here, it will be deleted by BaseTickEvent when the future is done
 }
 
 
 bool StaffAlert::isPlayerCached(const std::string& name) const
 {
-    return std::ranges::any_of(mPlayers, [name](const auto& player) {
-        return player.name == name;
-    });
+    return std::ranges::find_if(mPlayerStore.mObjects, [&name](const PlayerInfo& player) { return player.name == name; }) != mPlayerStore.mObjects.end();
 }
 
 
@@ -83,7 +80,7 @@ const std::string& StaffAlert::getRank(const std::string& name)
 {
     static const std::string unknown = "Unknown";
 
-    for (const auto& player : mPlayers)
+    for (const auto& player : mPlayerStore.mObjects)
     {
         if (player.name == name)
         {
@@ -112,6 +109,7 @@ void StaffAlert::makeRequest(const std::string& name)
 
 void StaffAlert::onEnable()
 {
+    if (mSaveToDatabase.mValue) mPlayerStore.load();
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &StaffAlert::onBaseTickEvent>(this);
 }
 
@@ -122,6 +120,13 @@ void StaffAlert::onDisable()
 
 void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
 {
+    static bool lastSaveState = mSaveToDatabase.mValue;
+    if (lastSaveState != mSaveToDatabase.mValue)
+    {
+        lastSaveState = mSaveToDatabase.mValue;
+        if (mSaveToDatabase.mValue) mPlayerStore.load();
+    }
+
     //spdlog::info("[StaffAlert] Players: {}, Requests: {}, Events: {}", mPlayers.size(), mRequests.size(), mPlayerEvents.size()); // Debugging
     for (auto it = mRequests.begin(); it != mRequests.end();)
     {
