@@ -30,6 +30,8 @@
   }
 }*/
 
+static constexpr uint64_t rateLimitMs = 15 * 1000; // 15 seconds
+
 void StaffAlert::onHttpResponse(HttpResponseEvent event)
 {
     auto sender = static_cast<StaffAlert*>(event.mSender);
@@ -56,6 +58,11 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
         player.rank = "NICKED";
         sender->mPlayers.push_back(player);
         spdlog::info("[StaffAlert] Player not found: {}, adding as rank 'NICKED'", name);
+    } else if (event.mStatusCode == 429) {
+        // Rate limited
+        spdlog::warn("[StaffAlert] Rate limited, waiting {} seconds", rateLimitMs / 1000);
+        ChatUtils::displayClientMessageRaw("§c§l» §r§cRate limited, waiting {} seconds", rateLimitMs / 1000);
+        sender->mLastRateLimit = NOW;
     } else {
         spdlog::error("[StaffAlert] Request failed with status code: {}", event.mStatusCode);
     }
@@ -116,7 +123,6 @@ void StaffAlert::onDisable()
 void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
 {
     //spdlog::info("[StaffAlert] Players: {}, Requests: {}, Events: {}", mPlayers.size(), mRequests.size(), mPlayerEvents.size()); // Debugging
-
     for (auto it = mRequests.begin(); it != mRequests.end();)
     {
         if (it->second->isDone())
@@ -125,6 +131,11 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
         } else {
             ++it;
         }
+    }
+
+    if (mLastRateLimit != 0 && NOW - mLastRateLimit < rateLimitMs)
+    {
+        return;
     }
 
     auto player = event.mActor;

@@ -1,3 +1,4 @@
+
 #pragma once
 #include <vector>
 #include <string>
@@ -30,6 +31,7 @@ public:
     static std::string sha256(const std::string& str);
     static std::string fromBase64(const std::string& str);
     static std::string toBase64(const std::string& str);
+    static std::string getRelativeTime(std::chrono::system_clock::time_point time);
 };
 
 
