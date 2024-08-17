@@ -155,7 +155,7 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
     std::vector<std::string> playerNames;
     for (auto& entry : *playerList | std::views::values)
     {
-        playerNames.emplace_back(entry.name);
+        playerNames.emplace_back(entry.mName);
     }
     static std::vector<std::string> lastPlayerNames = playerNames;
 
