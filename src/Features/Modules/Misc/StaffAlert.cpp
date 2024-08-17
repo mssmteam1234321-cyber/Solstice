@@ -51,7 +51,7 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
         }
     } else if (event.mStatusCode == 404) {
         // Extract the name from the URL
-        std::string name = event.mResponse.substr(event.mResponse.find_last_of('/') + 1);
+        std::string name = originalRequest->mUrl.substr(originalRequest->mUrl.find_last_of('/') + 1);
         // Name is not found, so we add it to the cache with the rank "NICKED"
         PlayerInfo player;
         player.name = name;
