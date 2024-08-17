@@ -20,7 +20,11 @@ void HiveStatsCommand::onStatsReceived(HttpResponseEvent event)
             return;
         }
         // Extract the username from the URL
-        const auto username = request->mUrl.substr(request->mUrl.find_last_of('/') + 1);
+        auto username = request->mUrl.substr(request->mUrl.find_last_of('/') + 1);
+
+        // Remove non alphanumeric characters from the username
+        std::erase_if(username, [](char c) { return !std::isalnum(c); });
+
         // Remove the username from the URL (erase everything after the last / including the /)
         request->mUrl.erase(request->mUrl.find_last_of('/'));
         // Extract the gamemode from the URL
