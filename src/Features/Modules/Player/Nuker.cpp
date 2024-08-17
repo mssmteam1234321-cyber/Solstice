@@ -80,11 +80,13 @@ void Nuker::queueBlock(glm::ivec3 blockPos) {
     mIsMiningBlock = true;
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
+    if (mTest.mValue) bestToolSlot = ItemUtils::getBestItem(SItemType::Shovel, mHotbarOnly.mValue);
     if (mShouldSpoofSlot) {
         PacketUtils::spoofSlot(bestToolSlot);
         mShouldSpoofSlot = false;
     }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
+    if (mInstaBreak) BlockUtils::destroyBlock(blockPos, mCurrentBlockFace, mInfiniteDurability.mValue);
     mToolSlot = bestToolSlot;
     mShouldSetbackSlot = true;
 }
@@ -136,6 +138,7 @@ void Nuker::onBaseTickEvent(BaseTickEvent& event)
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
+        if (mTest.mValue) bestToolSlot = ItemUtils::getBestItem(SItemType::Shovel, mHotbarOnly.mValue);
         if (mShouldSpoofSlot) {
             PacketUtils::spoofSlot(bestToolSlot);
             mShouldSpoofSlot = false;

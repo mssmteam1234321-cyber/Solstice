@@ -36,6 +36,7 @@ void OreMiner::reset() {
     mIsMiningBlock = false;
     mIsUncovering = false;
     mToolSlot = -1;
+    mOffGround = false;
 }
 
 bool OreMiner::isValidBlock(glm::ivec3 blockPos, bool oreOnly, bool exposedOnly, bool usePriority, OrePriority priority) {
@@ -201,7 +202,9 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         mToolSlot = bestToolSlot;
         float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
 
-        if (mCalcMode.mValue == CalcMode::Normal) {
+        if (!player->isOnGround()) mOffGround = true;
+
+        if (mCalcMode.mValue == CalcMode::Normal || (mOnGroundOnly.mValue && mOffGround)) {
             mCurrentDestroySpeed = mDestroySpeed.mValue;
         }
         else if (mCalcMode.mValue == CalcMode::Dynamic) {

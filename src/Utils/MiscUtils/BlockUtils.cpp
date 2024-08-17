@@ -377,7 +377,7 @@ bool BlockUtils::isMiningPosition(glm::ivec3 blockPos) {
 
     if (0 < player->getGameMode()->mBreakProgress && player->getLevel()->getHitResult()->mBlockPos == blockPos) return true;
 
-    if (Regen::mIsMiningBlock && (Regen::mIsConfuserActivated && Regen::mLastConfusedPos == blockPos) || Regen::mCurrentBlockPos == blockPos) return true;
+    if (Regen::mIsMiningBlock && Regen::mCurrentBlockPos == blockPos) return true;
 
     if (OreMiner::mIsMiningBlock && OreMiner::mCurrentBlockPos == blockPos) return true;
 
