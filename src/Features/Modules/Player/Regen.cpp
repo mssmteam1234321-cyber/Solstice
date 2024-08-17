@@ -477,8 +477,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         glm::ivec3 pos = { 0, 0, 0 };
         glm::ivec3 targettingPos = { 0, 0, 0 };
         if (!exposedBlockList.empty()) {
+            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
             // Confuser
-            if (mConfuse.mValue) {
+            if (shouldConfuse) {
                 if (mIsConfuserActivated) {
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
                     mIsConfuserActivated = false;
@@ -488,6 +489,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     BlockUtils::startDestroyBlock(confusePos, 0);
                     mLastConfusedPos = confusePos;
                     mIsConfuserActivated = true;
+                    mLastConfuse = NOW;
+                    if (mDebug.mValue && mConfuseNotify.mValue) ChatUtils::displayClientMessage("Confused stealer");
                     return;
                 }
             }
@@ -777,7 +780,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
-            if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos)) return;
+            if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
@@ -796,6 +799,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                     mBlackListedOrePos = pos;
                     if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
+                mLastStealerDetected = NOW;
             }
 
             // Ore Blocker
