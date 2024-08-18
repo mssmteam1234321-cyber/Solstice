@@ -36,6 +36,7 @@
 #include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
 #include "Movement/Step.hpp"
+#include "Movement/Spider.hpp"
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
@@ -88,6 +89,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FastStop>());
     mModules.emplace_back(std::make_shared<Step>());
     mModules.emplace_back(std::make_shared<LongJump>());
+    mModules.emplace_back(std::make_shared<Spider>());
 
 
     // Player

@@ -431,20 +431,24 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
     {
         if (actor == player || actor == target) continue;
         float distance = actor->distanceTo(target);
-        if (distance > 10.f) continue;
-
-        spdlog::info("Processing entity [id: {}] [distance: {}]", actor->mEntityIdentifier, distance);
+        if (distance > 3.f) continue;
 
         std::string id = actor->mEntityIdentifier;
-        if (id == "hivecommon:shadow" && distance < 1.0f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
+        float hitboxWidth = actor->getAABBShapeComponent()->mWidth;
+        float hitboxHeight = actor->getAABBShapeComponent()->mHeight;
+
+        if (id == "hivecommon:shadow" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
         {
-            if (mDebug.mValue) ChatUtils::displayClientMessage("Found shadow entity");
+            if (hitboxWidth != 0.86f || hitboxHeight != 2.32f) // Identify Correct Shadow
+            {
+                continue;
+            }
+
             return actor;
         }
 
         if (id == "minecraft:pig" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV1)
         {
-            if (mDebug.mValue) ChatUtils::displayClientMessage("Found pig entity");
             return actor;
         }
     }

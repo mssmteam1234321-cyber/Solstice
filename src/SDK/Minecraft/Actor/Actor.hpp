@@ -118,6 +118,7 @@ public:
     bool wasOnGround();
     bool isOnGround();
     void setOnGround(bool);
+    bool isCollidingHorizontal();
     void jumpFromGround();
     float getFallDistance();
     std::string getRawName();

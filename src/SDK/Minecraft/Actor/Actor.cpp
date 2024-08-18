@@ -289,6 +289,11 @@ void Actor::setOnGround(bool flag)
     }
 }
 
+bool Actor::isCollidingHorizontal()
+{
+    auto storage = mContext.assure<FlagComponent<HorizontalCollisionFlag>>();
+    return storage->contains(this->mContext.mEntityId);
+}
 
 void Actor::jumpFromGround()
 {
