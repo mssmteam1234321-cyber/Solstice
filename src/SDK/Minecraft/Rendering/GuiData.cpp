@@ -4,31 +4,23 @@
 
 #include "GuiData.hpp"
 
-#include <Hook/Hooks/NetworkHooks/PacketReceiveHook.hpp>
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
-#include <SDK/Minecraft/GameSession.hpp>
-#include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <Utils/MemUtils.hpp>
 
+class DummyData
+{
+public:
+    PAD(0x120);
+};
+
 void GuiData::displayClientMessage(const std::string& msg)
 {
     if (!ClientInstance::get()->getLocalPlayer()) return;
-    static uintptr_t func = 0;
 
-    auto textPacket = MinecraftPackets::createPacket<TextPacket>();
-    textPacket->mMessage = msg;
-    textPacket->mType = TextPacketType::Raw;
-
-    static bool once = false;
-    if (!once || !func)
-    {
-        func = textPacket->mDispatcher->getPacketHandler();
-        once = true;
-    }
-
-    if (!func) return;
-    MemUtils::callFastcall<void>(func, textPacket->mDispatcher, PacketReceiveHook::NetworkIdentifier, ClientInstance::get()->getMinecraftSim()->getGameSession()->getEventCallback(), textPacket);
-};
+    // This is stupid.
+    static std::unique_ptr<DummyData> dummyData = std::make_unique<DummyData>();
+    MemUtils::callFastcall<void>(SigManager::GuiData_displayClientMessage, this, msg, dummyData.get(), false);
+}
