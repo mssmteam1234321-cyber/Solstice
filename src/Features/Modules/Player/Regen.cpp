@@ -258,6 +258,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
+    int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
+    ItemStack* stack = supplies->getContainer()->getItem(pickaxeSlot);
+    bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
@@ -300,7 +303,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai)) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe) {
         initializeRegen();
         resetSyncSpeed();
         if (mIsConfuserActivated) {
