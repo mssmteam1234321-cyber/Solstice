@@ -135,6 +135,7 @@ public:
     void setInWater(bool inWater);
     bool isOnGround();
     void setOnGround(bool);
+    bool isCollidingHorizontal();
     void jumpFromGround();
     float getFallDistance();
     std::string getRawName();
