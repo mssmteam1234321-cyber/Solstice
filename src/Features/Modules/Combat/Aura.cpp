@@ -434,8 +434,16 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
         if (distance > 3.f) continue;
 
         std::string id = actor->mEntityIdentifier;
-        if (id == "hivecommon:shadow" && distance < 1.5f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
+        float hitboxWidth = actor->getAABBShapeComponent()->mWidth;
+        float hitboxHeight = actor->getAABBShapeComponent()->mHeight;
+
+        if (id == "hivecommon:shadow" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
         {
+            if (hitboxWidth != 0.86f || hitboxHeight != 2.32f) // Identify Correct Shadow
+            {
+                continue;
+            }
+
             return actor;
         }
 
