@@ -299,7 +299,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
 
         miningRedstones.clear();
-        return;
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
