@@ -13,6 +13,6 @@
 void GuiData::displayClientMessage(const std::string& msg)
 {
     if (!ClientInstance::get()->getLocalPlayer()) return;
-    int lol = 0;
+    static int lol = 0;
     MemUtils::callFastcall<void>(SigManager::GuiData_displayClientMessage, this, msg, &lol, false);
 }
