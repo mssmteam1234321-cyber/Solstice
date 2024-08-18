@@ -192,7 +192,7 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     if (side == -1) side = getBlockPlaceFace(blockPos);
 
     glm::vec3 vec = blockPos;
-    if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
+    /*if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
 
     HitResult* res = player->getLevel()->getHitResult();
 
@@ -220,27 +220,27 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     res->mType = HitType::BLOCK;
     res->mIndirectHit = false;
     res->mRayDir = vec;
-    res->mPos = blockPos;
+    res->mPos = blockPos;*/
 
-    /*
 
+    // TODO: UNDO THIS WHEN FIXED
     auto transac = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ItemUseInventoryTransaction>();
-    cit->actionType = ItemUseInventoryTransaction::ActionType::Place;
+    cit->mActionType = ItemUseInventoryTransaction::ActionType::Place;
     int slot = player->getSupplies()->mSelectedSlot;
-    cit->slot = slot;
-    cit->itemInHand = *player->getSupplies()->getContainer()->getItem(slot);
-    cit->blockPos = blockPos + glm::ivec3(blockFaceOffsets[side]);
-    cit->face = side;
-    cit->targetBlockRuntimeId = 0;
-    cit->playerPos = *player->getPos();
+    cit->mSlot = slot;
+    cit->mItemInHand = *player->getSupplies()->getContainer()->getItem(slot);
+    cit->mBlockPos = blockPos + glm::ivec3(blockFaceOffsets[side]);
+    cit->mFace = side;
+    cit->mTargetBlockRuntimeId = 0;
+    cit->mPlayerPos = *player->getPos();
 
     glm::vec3 pPos = *player->getPos() - glm::vec3(0, PLAYER_HEIGHT, 0);
     glm::vec3 clickPos = glm::vec3(blockPos) - pPos;
 
 
-    cit->clickPos = clickPos;
+    cit->mClickPos = clickPos;
 
     transac->mTransaction = std::move(cit);
     PacketUtils::queueSend(transac, false);
@@ -249,7 +249,7 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     if (!item->mItem) return;
     if (!item->mBlock) return;
 
-    setBlock(blockPos, item->mBlock);*/
+    setBlock(blockPos, item->mBlock);
 
 }
 

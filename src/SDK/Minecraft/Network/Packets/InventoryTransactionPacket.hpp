@@ -169,7 +169,6 @@ public:
     NetworkItemStackDescriptor mItemInHand{};
     glm::vec3 mPlayerPos{};
     glm::vec3 mClickPos{};
-    void* unknown1{};
 
     ItemUseInventoryTransaction()
     {
@@ -192,7 +191,6 @@ public:
         str += ", slot: " + std::to_string(mSlot);
         str += ", playerPos: " + fmt::format("{}, {}, {}", mPlayerPos.x, mPlayerPos.y, mPlayerPos.z);
         str += ", clickPos: " + fmt::format("{}, {}, {}", mClickPos.x, mClickPos.y, mClickPos.z);
-        str += ", unknown1: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(unknown1));
         return str;
     }
 };
