@@ -97,6 +97,7 @@ public:
             &mTest2,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
+            &mNuke,
             &mAlwaysMine,
             &mDebug,
             &mStealNotify,
