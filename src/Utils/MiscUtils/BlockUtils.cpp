@@ -192,7 +192,8 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     if (side == -1) side = getBlockPlaceFace(blockPos);
 
     glm::vec3 vec = blockPos;
-    /*if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
+
+    if (side != -1) vec += blockFaceOffsets[side] * 0.5f;
 
     HitResult* res = player->getLevel()->getHitResult();
 
@@ -220,11 +221,10 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     res->mType = HitType::BLOCK;
     res->mIndirectHit = false;
     res->mRayDir = vec;
-    res->mPos = blockPos;*/
+    res->mPos = blockPos;
 
 
-    // TODO: UNDO THIS WHEN FIXED
-    auto transac = MinecraftPackets::createPacket<InventoryTransactionPacket>();
+    /*auto transac = MinecraftPackets::createPacket<InventoryTransactionPacket>();
 
     auto cit = std::make_unique<ItemUseInventoryTransaction>();
     cit->mActionType = ItemUseInventoryTransaction::ActionType::Place;
@@ -249,7 +249,7 @@ void BlockUtils::placeBlock(glm::vec3 pos, int side)
     if (!item->mItem) return;
     if (!item->mBlock) return;
 
-    setBlock(blockPos, item->mBlock);
+    setBlock(blockPos, item->mBlock);*/
 
 }
 

@@ -161,14 +161,29 @@ public:
         Destroy = 2,
     };
 
+    enum class PredictedResult : int32_t
+    {
+        Failure,
+        Success
+    };
+
+    enum class TriggerType : int8_t
+    {
+        Unknown,
+        PlayerInput,
+        SimulationTick,
+    };
+
     ActionType mActionType{};
+    TriggerType mTriggerType = TriggerType::PlayerInput;
     glm::ivec3 mBlockPos{};
-    uint32_t mTargetBlockRuntimeId{};
-    uint8_t mFace{};
-    int32_t mSlot{};
+    int32_t mTargetBlockRuntimeId{};
+    uint32_t mFace{};
+    uint32_t mSlot{};
     NetworkItemStackDescriptor mItemInHand{};
     glm::vec3 mPlayerPos{};
     glm::vec3 mClickPos{};
+    PredictedResult mPredictedResult = PredictedResult::Success;
 
     ItemUseInventoryTransaction()
     {
@@ -178,20 +193,6 @@ public:
         data = InventoryTransaction();
         data.mActions = std::unordered_map<InventorySource, std::vector<InventoryAction>>();
         data.mItems = std::vector<InventoryTransactionItemGroup>();
-    }
-
-    std::string toString()
-    {
-        std::string str = "ItemUseInventoryTransaction [type: " + std::string(magic_enum::enum_name(type));
-        str += ", vtable: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(vtable)) + "]";
-        str += ", actionType: " + std::string(magic_enum::enum_name(mActionType));
-        str += ", blockPos: " + fmt::format("{}, {}, {}", mBlockPos.x, mBlockPos.y, mBlockPos.z);
-        str += ", targetBlockRuntimeId: " + fmt::format("{:x}", mTargetBlockRuntimeId);
-        str += ", face: " + std::to_string(mFace);
-        str += ", slot: " + std::to_string(mSlot);
-        str += ", playerPos: " + fmt::format("{}, {}, {}", mPlayerPos.x, mPlayerPos.y, mPlayerPos.z);
-        str += ", clickPos: " + fmt::format("{}, {}, {}", mClickPos.x, mClickPos.y, mClickPos.z);
-        return str;
     }
 };
 
