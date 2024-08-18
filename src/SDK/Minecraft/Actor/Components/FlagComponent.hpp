@@ -15,3 +15,4 @@ DEFINE_FLAG(WasOnGroundFlagComponent)
 DEFINE_FLAG(OnFireComponent)
 DEFINE_FLAG(MoveRequestComponent)
 DEFINE_FLAG(DebugCameraIsActiveComponent)
+DEFINE_FLAG(HorizontalCollisionFlagComponent);

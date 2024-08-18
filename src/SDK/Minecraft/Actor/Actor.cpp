@@ -291,7 +291,7 @@ void Actor::setOnGround(bool flag)
 
 bool Actor::isCollidingHorizontal()
 {
-    auto storage = mContext.assure<FlagComponent<HorizontalCollisionFlag>>();
+    auto storage = mContext.assure<HorizontalCollisionFlagComponent>();
     return storage->contains(this->mContext.mEntityId);
 }
 

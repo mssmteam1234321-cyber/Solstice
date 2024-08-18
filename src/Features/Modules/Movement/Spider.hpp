@@ -21,7 +21,9 @@ public:
 
         mNames = {
             {Lowercase, "spider"},
+            {LowercaseSpaced, "spider"},
             {Normal, "Spider"},
+            {NormalSpaced, "Spider"},
         };
     }
 
