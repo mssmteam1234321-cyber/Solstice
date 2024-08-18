@@ -334,6 +334,7 @@ void BlockUtils::destroyBlock(glm::vec3 pos, int side, bool useTransac)
 
         player->getGameMode()->destroyBlock(&blockPos, side);
         player->getGameMode()->stopDestroyBlock(blockPos);
+
         player->setSwinging(oldSwinging);
         player->setSwingProgress(oldSwingProgress);
         spdlog::info("Destroyed block at ({}, {}, {}) [using game mode]", blockPos.x, blockPos.y, blockPos.z);

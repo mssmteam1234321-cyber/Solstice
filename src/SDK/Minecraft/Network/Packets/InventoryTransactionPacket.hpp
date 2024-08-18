@@ -143,13 +143,6 @@ public:
     Type getTransacType() {
         return type;
     }
-
-    std::string toString()
-    {
-        std::string str = "ComplexInventoryTransaction [type: " + std::string(magic_enum::enum_name(type));
-        str += ", vtable: " + fmt::format("{:x}", reinterpret_cast<uintptr_t>(vtable)) + "]";
-        return str;
-    }
 };
 
 class ItemUseInventoryTransaction : public ComplexInventoryTransaction
