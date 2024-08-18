@@ -143,7 +143,7 @@ HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT fla
             static bool msgwarn = false;
             if (!msgwarn)
             {
-                MessageBoxA(NULL, "WARNING! Solstice is currently running in D3D11 mode. \nThis is NOT recommended and may cause instability.\nI strongly advise you to use D3D12 for the time being.", "Solstice", MB_OK | MB_ICONWARNING);
+                NotifyUtils::notify("WARNING! Solstice is currently running in D3D11 mode. \nThis is NOT recommended and may cause instability.\nI strongly advise you to use D3D12 for the time being.", 15.f, Notification::Type::Warning);
                 msgwarn = true;
             }
         }
