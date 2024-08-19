@@ -92,7 +92,6 @@ void Freecam::onPacketInEvent(PacketInEvent& event)
 
     if (event.mPacket->getId() == PacketID::MovePlayer)
     {
-        spdlog::info("MovePlayerPacket");
         auto player = ClientInstance::get()->getLocalPlayer();
         if (!player) return;
 
@@ -137,14 +136,14 @@ void Freecam::onPacketOutEvent(PacketOutEvent& event)
         if (!player) return;
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 
-        paip->mRot = { mLastRot.mYaw, mLastRot.mPitch };
-        paip->mYHeadRot = mLastHeadRot.mHeadRot;
+        paip->mRot = { mLastRot.mPitch, mLastRot.mYaw };
+        paip->mYHeadRot = mLastRot.mYaw;
 
-        // Clamp the rot to -180 to 180 and -90 to 90 respectively
-        paip->mRot.x = MathUtils::wrap(paip->mRot.x, -180, 180);
-        paip->mRot.y = MathUtils::clamp(paip->mRot.y, -90, 90);
+        // Clamp the rot to -180 to 180 for yaw, -90 to 90 for pitch
+        paip->mRot.x = MathUtils::wrap(paip->mRot.x, -90, 90);
+        paip->mRot.y = MathUtils::wrap(paip->mRot.y, -180, 180);
         paip->mYHeadRot = MathUtils::wrap(paip->mYHeadRot, -180, 180);
-
+        paip->removeMovingInput();
     }
 
 }

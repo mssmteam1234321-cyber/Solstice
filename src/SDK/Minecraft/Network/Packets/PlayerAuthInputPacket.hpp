@@ -310,6 +310,12 @@ public:
     void removeAllInputData() {
         mInputData = AuthInputAction::NONE;
     }
+    void removeMovingInput()
+    {
+        mInputData &= ~(AuthInputAction::UP | AuthInputAction::DOWN | AuthInputAction::LEFT | AuthInputAction::RIGHT | AuthInputAction::UP_LEFT | AuthInputAction::UP_RIGHT);
+        mAnalogMoveVector = { 0, 0 };
+        mMove = { 0, 0 };
+    }
     void addInputData(AuthInputAction data) {
         mInputData |= data;
     }
