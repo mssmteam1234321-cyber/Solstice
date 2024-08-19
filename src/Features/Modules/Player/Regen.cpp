@@ -187,13 +187,16 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos)
             glm::ivec3 pos1 = blockPos + offsetList[i];
             Block* currentBlock = source->getBlock(pos1);
             bool isAir = currentBlock->getmLegacy()->isAir();
-            if (!isAir) currentBreakingTime += 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue), currentBlock);
+            float blockBreakingTime1 = 0;
+            if (!isAir) blockBreakingTime1 = 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue), currentBlock);
             for (int i2 = 0; i2 < 5; i2++) {
                 if (-offsetList[i] == offsetList[i2]) continue;
                 glm::ivec3 pos2 = pos1 + offsetList[i2];
                 Block* currentBlock2 = source->getBlock(pos2);
                 bool isAir2 = currentBlock2->getmLegacy()->isAir();
-                if (!isAir2) currentBreakingTime += 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock2, mHotbarOnly.mValue), currentBlock2);
+                float blockBreakingTime2 = 0;
+                if (!isAir2) blockBreakingTime2 = 1 / ItemUtils::getDestroySpeed(ItemUtils::getBestBreakingTool(currentBlock2, mHotbarOnly.mValue), currentBlock2);
+                currentBreakingTime = blockBreakingTime1 + blockBreakingTime2;
                 if (currentBreakingTime < bestBreakingTime) {
                     bestBreakingTime = currentBreakingTime;
                     if (!isAir2) bestPos = pos2;
