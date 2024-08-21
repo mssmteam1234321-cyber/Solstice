@@ -48,12 +48,7 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
     {
         auto packet = event.getPacket<ModalFormResponsePacket>();
         std::string json = "";
-        std::string* output = nullptr;
-        if (packet->mJSONResponse.has_value())
-            output = packet->mJSONResponse.value().toStyledString();
-        else
-            output = nullptr;
-        spdlog::info("Packet: ModalFormResponse, FormId: {}, FormJson: {}", packet->mFormId, output ? *output : "output was null and could not be read!");
+        spdlog::info("Packet: ModalFormResponse, FormId: {}, FormJson: {}", packet->mFormId, packet->mJSONResponse.has_value() ? packet->mJSONResponse.value().toString() : "null");
     }
 }
 

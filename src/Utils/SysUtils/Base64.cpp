@@ -4,61 +4,10 @@
 
 #include "Base64.hpp"
 
-std::string Base64::encode(const std::string& input)
-{
-    // Base64 encoding
 
-    // 1. Convert each character to its ASCII value
-    // 2. Convert the ASCII value to binary
-    // 3. Group the binary values into groups of 6 bits
-    // 4. Convert each group of 6 bits to its decimal value
-    // 5. Map the decimal value to the corresponding Base64 character
 
-    // Base64 character set
-    const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    std::string output;
 
-    // Convert each character to its ASCII value
-    for (size_t i = 0; i < input.size(); i++)
-    {
-        char c = input[i];
-        // Convert the character to its ASCII value
-        int ascii_value = static_cast<int>(c);
-        // Convert the ASCII value to binary
-        std::string binary_value;
-        while (ascii_value > 0)
-        {
-            binary_value = std::to_string(ascii_value % 2) + binary_value;
-            ascii_value /= 2;
-        }
-        // Pad the binary value with zeros to make it 8 bits long
-        while (binary_value.size() < 8)
-        {
-            binary_value = "0" + binary_value;
-        }
-        // Group the binary values into groups of 6 bits
-        for (size_t j = 0; j < binary_value.size(); j += 6)
-        {
-            std::string group = binary_value.substr(j, 6);
-            // Convert each group of 6 bits to its decimal value
-            int decimal_value = 0;
-            for (size_t k = 0; k < group.size(); k++)
-            {
-                decimal_value = decimal_value * 2 + (group[k] - '0');
-            }
-            // Map the decimal value to the corresponding Base64 character
-            output += base64_chars[decimal_value];
-        }
-    }
 
-    // Pad the output with '=' characters if the length is not a multiple of 4
-    while (output.size() % 4 != 0)
-    {
-        output += '=';
-    }
-
-    return output;
-}
 
 static const std::string base64_chars =
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -67,6 +16,48 @@ static const std::string base64_chars =
 
 static inline bool is_base64(unsigned char c) {
     return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+std::string base64_encode(const std::string &input) {
+    unsigned char const* bytes_to_encode = reinterpret_cast<const unsigned char*>(input.c_str());
+    unsigned int in_len = input.size();
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    while (in_len--) {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4) ; i++)
+                ret += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (j = 0; (j < i + 1); j++)
+            ret += base64_chars[char_array_4[j]];
+
+        while((i++ < 3))
+            ret += '=';
+    }
+
+    return ret;
 }
 
 std::string base64_decode(const std::string &encoded_string) {
@@ -110,6 +101,11 @@ std::string base64_decode(const std::string &encoded_string) {
     return ret;
 }
 
+
+std::string Base64::encode(const std::string& input)
+{
+   return base64_encode(input);
+}
 
 std::string Base64::decode(const std::string& input)
 {

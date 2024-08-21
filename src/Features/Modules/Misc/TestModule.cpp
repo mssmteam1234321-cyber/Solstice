@@ -184,7 +184,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
-        displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
+        displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
+        displayCopyableAddress("AABBShapeComponent", player->mContext.try_get<AABBShapeComponent>());
         ImGui::EndGroup();
     }
 

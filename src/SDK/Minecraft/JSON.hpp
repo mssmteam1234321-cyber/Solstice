@@ -59,13 +59,47 @@ namespace MinecraftJson
         ValueType   mType : 8;                    // this+0x0028
         int32_t     mAllocated : 1;               // this+0x002C
     public:
-        std::string* toStyledString()
+        [[nodiscard]] std::string toString()
         {
-            // TODO: Impl this function manually without using a sig
-            return nullptr;
-            /*static uintptr_t func = SigManager::JSON_toStyledString;
-            return MemUtils::callFastcall<std::string*, void*>(func, this);*/
+            std::string result;
+            switch (mType)
+            {
+            case ValueType::Null:
+                result = "[nulltype]";
+                break;
+            case ValueType::Int:
+                result = std::to_string(mValue.mInt);
+                break;
+            case ValueType::Uint:
+                result = std::to_string(mValue.mUInt64);
+                break;
+            case ValueType::Real:
+                result = std::to_string(mValue.mReal);
+                break;
+            case ValueType::String:
+                result = std::string("\"") + mValue.mString + std::string("\"");
+                break;
+            case ValueType::Boolean:
+                result = mValue.mBool ? "true" : "false";
+                break;
+            case ValueType::Array:
+                result = "[";
+                for (auto& [key, value] : *mValue.mMap)
+                {
+                    result += value.toString() + ", ";
+                }
+                result += "]";
+                break;
+            case ValueType::Object:
+                result = "[object]";
+                break;
+            default:
+                result = "what?";
+                break;
+            }
+            return result;
         }
+
         nlohmann::json toNlohmannJson()
         {
 
