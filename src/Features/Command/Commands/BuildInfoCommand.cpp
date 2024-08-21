@@ -6,6 +6,8 @@
 
 #include <build_info.h>
 
+static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
+
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
 {
     ChatUtils::displayClientMessage("§6Solstice build info");
@@ -17,6 +19,8 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eCommit message§7: {}", std::string(SOLSTICE_BUILD_COMMIT_MESSAGE));
     ChatUtils::displayClientMessage("§6- §eCommit hash§7: {}", std::string(SOLSTICE_BUILD_VERSION));
     ChatUtils::displayClientMessage("§6- §eCompiled by§7: {}", std::string(SOLSTICE_PC_USERNAME));
+    ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
+    ChatUtils::displayClientMessage("§6- §eBuild ID§7: {}", std::string((DISCORD_USER_ID == 0x1F1F1F1F1F1F1F1F ? std::to_string(DISCORD_USER_ID) : "N/A")));
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
 #else
