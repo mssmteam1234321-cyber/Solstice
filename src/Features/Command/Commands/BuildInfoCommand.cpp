@@ -8,6 +8,12 @@
 
 static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
 
+struct IdHolder
+{
+    uint64_t id;
+    explicit IdHolder(const uint64_t id) : id(id) {}
+};
+
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
 {
     ChatUtils::displayClientMessage("§6Solstice build info");
@@ -20,6 +26,10 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eCommit hash§7: {}", std::string(SOLSTICE_BUILD_VERSION));
     ChatUtils::displayClientMessage("§6- §eCompiled by§7: {}", std::string(SOLSTICE_PC_USERNAME));
     ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
+
+    // so it doesn't get optimized out
+    auto idHolder = std::make_unique<IdHolder>(DISCORD_USER_ID);
+    idHolder.reset();
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
 #else
