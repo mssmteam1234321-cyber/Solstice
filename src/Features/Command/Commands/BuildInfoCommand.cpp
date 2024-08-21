@@ -20,11 +20,6 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eCommit hash§7: {}", std::string(SOLSTICE_BUILD_VERSION));
     ChatUtils::displayClientMessage("§6- §eCompiled by§7: {}", std::string(SOLSTICE_PC_USERNAME));
     ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
-    if (SOLSTICE_PC_USERNAME == "nt authority/network service") {
-        ChatUtils::displayClientMessage("§6- §eBuild ID§7: {:X}", DISCORD_USER_ID);
-    } else {
-        ChatUtils::displayClientMessage("§6- §eBuild ID§7: N/A");
-    }
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
 #else
