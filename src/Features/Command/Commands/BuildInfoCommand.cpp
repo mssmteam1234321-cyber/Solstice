@@ -6,15 +6,12 @@
 
 #include <build_info.h>
 
-//static uint64_t UID1 = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
-//uint64_t[
-constexpr std::array<uint64_t, 2> UID1 = {0x1F1F1F1F1F1F1F1F, 0x1F1F1F1F1F1F1F1F};
+static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
 
 struct IdHolder
 {
-    std::array<uint64_t, 2> id1;
-
-    explicit IdHolder(const std::array<uint64_t, 2>& id1) : id1(id1) {}
+    uint64_t id;
+    explicit IdHolder(const uint64_t id) : id(id) {}
 };
 
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
@@ -31,7 +28,7 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
 
     // so it doesn't get optimized out
-    auto idHolder = std::make_unique<IdHolder>(UID1);
+    auto idHolder = std::make_unique<IdHolder>(DISCORD_USER_ID);
     idHolder.reset();
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
