@@ -131,6 +131,112 @@ bool D3DHook::loadTextureFromEmbeddedResource(const char* resourceName, ID3D11Sh
 
     return true;
 }
+
+/*ID3D11ShaderResourceView** createTextureFromData(ID3D11Device* device, const uint8_t* data, int width, int height) {
+	if (!device || !data || width <= 0 || height <= 0) {
+		return nullptr;
+		throw std::invalid_argument("Invalid argument(s) provided to CreateTextureFromData.");
+	}
+
+	// Define the texture description
+	D3D11_TEXTURE2D_DESC textureDesc = {}; // OLD
+	textureDesc.Width = static_cast<UINT>(width);
+	textureDesc.Height = static_cast<UINT>(height);
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // assuming it's 32-bit RGBA format
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	// Define the subresource data
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = data;
+	initData.SysMemPitch = static_cast<UINT>(width * 4); // assuming it's 32-bit RGBA format
+	initData.SysMemSlicePitch = 0;
+
+	// Create the texture
+	ID3D11Texture2D* texture = nullptr;
+	HRESULT hr = device->CreateTexture2D(&textureDesc, &initData, &texture);
+	if (FAILED(hr)) {
+		throw std::runtime_error("Failed to create texture from data.");
+	}
+
+	// Create the shader resource view
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	ID3D11ShaderResourceView** shaderResourceView;
+	hr = device->CreateShaderResourceView(texture, &srvDesc, shaderResourceView);
+	if (FAILED(hr)) {
+		throw std::runtime_error("Failed to create shader resource view.");
+	}
+
+	return shaderResourceView;
+}*/
+
+bool D3DHook::createTextureFromData(const uint8_t* data, int width, int height, ID3D11ShaderResourceView** out_srv)
+{
+    ID3D11Device* device = gDevice11.get();
+
+    if (!device || !data || width <= 0 || height <= 0) {
+        spdlog::error("Invalid argument(s) provided to CreateTextureFromData.");
+        return false;
+    }
+
+    // use nearest neighbor filtering
+
+    // Define the texture description
+    D3D11_TEXTURE2D_DESC textureDesc = {}; // OLD
+    textureDesc.Width = static_cast<UINT>(width);
+
+    textureDesc.Height = static_cast<UINT>(height);
+    textureDesc.MipLevels = 1;
+    textureDesc.ArraySize = 1;
+    textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // assuming it's 32-bit RGBA format
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.Usage = D3D11_USAGE_DEFAULT;
+    textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    textureDesc.CPUAccessFlags = 0;
+    textureDesc.MiscFlags = 0;
+
+    // Define the subresource data
+    D3D11_SUBRESOURCE_DATA initData = {};
+
+    initData.pSysMem = data;
+    initData.SysMemPitch = static_cast<UINT>(width * 4); // assuming it's 32-bit RGBA format
+    initData.SysMemSlicePitch = 0;
+
+    // Create the texture
+    ID3D11Texture2D* texture = nullptr;
+    HRESULT hr = device->CreateTexture2D(&textureDesc, &initData, &texture);
+    if (FAILED(hr)) {
+        spdlog::error("Failed to create texture from data.");
+        return false;
+    }
+
+    // Create the shader resource view
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
+    srvDesc.Format = textureDesc.Format;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = 1;
+
+    hr = device->CreateShaderResourceView(texture, &srvDesc, out_srv);
+    if (FAILED(hr)) {
+        spdlog::error("Failed to create shader resource view.");
+        return false;
+    }
+
+    return true;
+}
+
 HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags)
 {
     gSwapChain = swapChain;

@@ -8,6 +8,7 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+#include <SDK/Minecraft/Actor/SerializedSkin.hpp>
 #include <SDK/Minecraft/Network/Packets/ActorEventPacket.hpp>
 
 void TargetHUD::onEnable()
@@ -52,8 +53,75 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
     }
 }
 
+
+struct TargetTextureHolder {
+    ID3D11ShaderResourceView* texture = nullptr;
+    bool loaded = false;
+};
+
+static std::map<Actor*, TargetTextureHolder> targetTextures;
+
+ID3D11ShaderResourceView* getActorSkinTex(Actor* actor)
+{
+    if (!targetTextures.contains(actor)) targetTextures[actor] = TargetTextureHolder();
+
+    auto& [texture, loaded] = targetTextures[actor];
+
+    if (actor && actor->isPlayer())
+    {
+        auto skin = actor->getSkin();
+        if (skin)
+        {
+            if (!loaded) {
+                // Calculate head dimensions and offsets based on skin width
+                int headSize = skin->skinWidth / 8; // 64x64 -> 8, 128x128 -> 16
+                int headOffsetX = skin->skinWidth / 8; // Offset starts at 1/8th of the skin width
+                int headOffsetY = skin->skinHeight / 8; // Offset starts at 1/8th of the skin height
+
+                // Create a new buffer for the head portion
+                std::vector<uint8_t> headData(headSize * headSize * 4); // Assuming 4 bytes per pixel (RGBA)
+
+                // Copy the head part from skinData
+                for (int y = 0; y < headSize; y++) {
+                    for (int x = 0; x < headSize; x++) {
+                        int srcIndex = ((y + headOffsetY) * skin->skinWidth + (x + headOffsetX)) * 4;
+                        int dstIndex = (y * headSize + x) * 4;
+                        std::copy_n(skin->skinData + srcIndex, 4, headData.data() + dstIndex);
+                    }
+                }
+
+                int scalingFactor = 8;
+                std::vector<uint8_t> scaledHeadData(headSize * scalingFactor * headSize * scalingFactor * 4);
+
+                for (int y = 0; y < headSize * scalingFactor; y++) {
+                    for (int x = 0; x < headSize * scalingFactor; x++) {
+                        int srcX = x / scalingFactor;
+                        int srcY = y / scalingFactor;
+                        int srcIndex = (srcY * headSize + srcX) * 4;
+                        int dstIndex = (y * headSize * scalingFactor + x) * 4;
+                        std::copy_n(headData.data() + srcIndex, 4, scaledHeadData.data() + dstIndex);
+                    }
+                }
+
+                headSize *= scalingFactor;
+
+                headData = std::move(scaledHeadData);
+                spdlog::info("Loading skin texture for {}", actor->getRawName());
+                D3DHook::createTextureFromData(headData.data(), headSize, headSize, &texture);
+                loaded = true;
+            }
+        }
+    }
+
+
+    return texture;
+}
+
 void TargetHUD::onRenderEvent(RenderEvent& event)
 {
+    if (!ClientInstance::get()->getLocalPlayer()) return;
+    if (!ClientInstance::get()->getLevelRenderer()) return;
+
     auto drawList = ImGui::GetBackgroundDrawList();
     if (mStyle.mValue != Style::Solstice)
     {
@@ -120,6 +188,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     auto headSize = ImVec2(50 * anim, 50 * anim);
     auto headPos = ImVec2(boxPos.x + xpad * anim, boxPos.y + ypad * anim);
+
     float headQuartY = headSize.y / 4;
     auto headSize2 = ImVec2(MathUtils::lerp(headSize.x, 40 * anim, hurtTimeAnimPerc), MathUtils::lerp(headSize.y, 40 * anim, hurtTimeAnimPerc));
 
@@ -127,17 +196,11 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     drawList->AddRectFilled(boxPos, ImVec2(boxPos.x + boxSize.x, boxPos.y + boxSize.y), ImColor(0.f, 0.f, 0.f, 0.5f * anim), 15.f * anim);
 
-    static std::string filePath = "notch.png";
-    static ID3D11ShaderResourceView* texture;
+    ID3D11ShaderResourceView* texture = nullptr;
     static bool loaded = false;
-    static int width, height;
-    if (!loaded)
-    {
-        D3DHook::loadTextureFromEmbeddedResource(filePath.c_str(), &texture, &width, &height);
-        loaded = true;
-        width /= 10;
-        height /= 10;
-    }
+    texture = getActorSkinTex(Aura::sTarget);
+    loaded = true;
+
 
     auto imageColor = ImColor(1.f, 1.f, 1.f, 1.f * anim);
 
@@ -158,7 +221,9 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     headPos.x += (headSize.x - headSize2.x) / 2;
     headPos.y += (headSize.y - headSize2.y) / 2;
 
-    drawList->AddImageRounded(texture, headPos, headPos + headSize2, ImVec2(0, 0), ImVec2(1, 1), imageColor, 10.f * anim);
+
+    if (texture)
+        drawList->AddImageRounded(texture, headPos, headPos + headSize2, ImVec2(0, 0), ImVec2(1, 1), imageColor, 10.f * anim);
 
     auto textStartPos = textNamePos;
     auto textEndPos = textHealthPos + textHealthSize;

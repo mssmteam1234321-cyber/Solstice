@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#define DEFINE_FLAG(name) struct name {};
+//#define DEFINE_FLAG(name) struct name {}; // this is stupid lmao
 
 struct CameraRenderFirstPersonObjectsComponent {};
 struct CameraRenderPlayerModelComponent {};

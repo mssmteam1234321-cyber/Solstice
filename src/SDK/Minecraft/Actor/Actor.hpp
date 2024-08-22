@@ -112,6 +112,7 @@ public:
     class SimpleContainer* getArmorContainer();
     class PlayerInventory* getSupplies();
     class Level* getLevel();
+    class SerializedSkin* getSkin();
     void setPosition(glm::vec3 pos);
     float distanceTo(Actor* actor);
     float distanceTo(const glm::vec3& pos);

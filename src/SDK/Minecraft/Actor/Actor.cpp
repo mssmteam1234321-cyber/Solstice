@@ -12,6 +12,7 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <Utils/MiscUtils/RenderUtils.hpp>
+#include "SerializedSkin.hpp"
 
 #include "ActorType.hpp"
 #include "Components/ActorTypeComponent.hpp"
@@ -238,6 +239,11 @@ Level* Actor::getLevel()
     return hat::member_at<Level*>(this, OffsetProvider::Actor_mLevel);
 }
 
+SerializedSkin* Actor::getSkin()
+{
+    return hat::member_at<SerializedSkin*>(this, OffsetProvider::Actor_mSerializedSkin);
+}
+
 int64_t Actor::getRuntimeID()
 {
     auto runtimeIDComponent = mContext.getComponent<RuntimeIDComponent>();
@@ -271,28 +277,17 @@ bool Actor::wasOnGround()
 
 bool Actor::isOnGround()
 {
-    auto storage = mContext.assure<OnGroundFlagComponent>();
-    return storage->contains(this->mContext.mEntityId);
+    return getFlag<OnGroundFlagComponent>();
 }
 
 void Actor::setOnGround(bool flag)
 {
-    auto storage = mContext.assure<OnGroundFlagComponent>();
-    auto wasOnGround = isOnGround();
-    if (flag && !wasOnGround)
-    {
-        storage->emplace(this->mContext.mEntityId);
-    }
-    else if (!flag && wasOnGround)
-    {
-        storage->remove(this->mContext.mEntityId);
-    }
+    setFlag<OnGroundFlagComponent>(flag);
 }
 
 bool Actor::isCollidingHorizontal()
 {
-    auto storage = mContext.assure<HorizontalCollisionFlagComponent>();
-    return storage->contains(this->mContext.mEntityId);
+    return getFlag<HorizontalCollisionFlagComponent>();
 }
 
 void Actor::jumpFromGround()

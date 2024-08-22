@@ -110,6 +110,7 @@ public:
     DEFINE_INDEX_FIELD_TYPED(uint8_t, ContainerManagerModel_getContainerType, "48 8B ? ? FF 15 ? ? ? ? 84 C0 75 ? 48 8B ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? B0", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, ContainerManagerModel_getSlot, "48 8B ? ? FF 15 ? ? ? ? 48 8B ? 48 8B ? ? ? 0F B6", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Level_getPlayerMovementSettings, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 49 8B ? ? 44 38", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(Actor_mSerializedSkin, "48 8B ? ? ? ? ? 4C 8B ? 48 8B ? ? 89 44 ? ? E8", 3, OffsetType::FieldOffset);
 
     // Just in case if its needed, these arent actually implemented yet
     DEFINE_INDEX_FIELD(ClientInstance_mHMDState, "48 8D ? ? ? ? ? 48 8B ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 48 8D ? ? ? ? ? E8 ? ? ? ? 90 C6 86 38 08 00 00", 3, OffsetType::FieldOffset);

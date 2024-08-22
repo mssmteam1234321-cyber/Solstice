@@ -24,6 +24,7 @@ public:
     static inline bool forceFallback = false;
 
     static bool loadTextureFromEmbeddedResource(const char* resourceName, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
+    static bool createTextureFromData(const uint8_t* data, int width, int height, ID3D11ShaderResourceView** out_srv);
     static HRESULT present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags);
     static HRESULT resizeBuffers(IDXGISwapChain3* swapChain, UINT bufferCount, UINT width, UINT height, DXGI_FORMAT newFormat, UINT swapChainFlags);
     static void initImGui(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
