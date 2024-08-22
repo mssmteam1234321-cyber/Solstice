@@ -7,6 +7,7 @@
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/SendImmediateEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
@@ -17,11 +18,13 @@
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthinputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
 
 void AutoKick::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoKick::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &AutoKick::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &AutoKick::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<SendImmediateEvent, &AutoKick::onSendImmediateEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PingUpdateEvent, &AutoKick::onPingUpdateEvent, nes::event_priority::VERY_FIRST>(this);
 
@@ -34,6 +37,7 @@ void AutoKick::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoKick::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AutoKick::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &AutoKick::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<SendImmediateEvent, &AutoKick::onSendImmediateEvent>(this);
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &AutoKick::onPingUpdateEvent>(this);
 
@@ -46,12 +50,23 @@ void AutoKick::onDisable()
         mSelectedSlot = false;
     }
     mShouldRotate = false;
+    mRecentlyUpdatedBlockPositions.clear();
 }
 
 void AutoKick::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
     auto supplies = player->getSupplies();
+
+    // Ghost checks
+    for (auto pos : mRecentlyUpdatedBlockPositions) {
+        if (BlockUtils::isAirBlock(pos)) {
+            if (mDebug.mValue) ChatUtils::displayClientMessage("Failed to place block");
+            if (mSpamPlace.mValue) mLastBlockPlace = 0;
+        }
+    }
+    mRecentlyUpdatedBlockPositions.clear();
+
     //ChatUtils::displayClientMessage("Ping:" + std::to_string(mPing));
     if (mLastBlockPlace + mDelay.mValue > NOW) {
         if (mSelectedSlot) {
@@ -75,8 +90,10 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
     if (mUsePrediction) {
         prediction = targetPos - mLastTargetPos;
     }
-    if (abs(prediction.z) < abs(prediction.x)) prediction.z = 0;
-    else prediction.x = 0;
+    if (!mAllowDiagonal.mValue) {
+        if (abs(prediction.z) < abs(prediction.x)) prediction.z = 0;
+        else prediction.x = 0;
+    }
     glm::vec3 predictionPos = targetPos + glm::vec3(prediction.x * PingTime, 0, prediction.z * PingTime);
     glm::vec3 predictionBlockPos = targetPos + glm::vec3(prediction.x * PredictedTime, 0, prediction.z * PredictedTime);
     mUsePrediction = true;
@@ -135,6 +152,19 @@ void AutoKick::onPacketOutEvent(PacketOutEvent& event) {
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
+        }
+    }
+}
+
+void AutoKick::onPacketInEvent(PacketInEvent& event) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (event.mPacket->getId() == PacketID::UpdateBlock) {
+        auto pkt = event.getPacket<UpdateBlockPacket>();
+        auto updateBlockPacket = pkt.get();
+        if (updateBlockPacket->mPos == mCurrentPlacePos && !BlockUtils::isAirBlock(updateBlockPacket->mPos) && NOW - mLastBlockPlace <= 800) {
+            mRecentlyUpdatedBlockPositions.push_back(updateBlockPacket->mPos);
         }
     }
 }
