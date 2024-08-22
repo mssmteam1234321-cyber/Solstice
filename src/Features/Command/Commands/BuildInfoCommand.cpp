@@ -6,19 +6,15 @@
 
 #include <build_info.h>
 
-static uint64_t UID1 = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
-static uint64_t UID2 = 0x2F2F2F2F2F2F2F2F; // replaced at fetch time
-static uint64_t UID3 = 0x3F3F3F3F3F3F3F3F; // replaced at fetch time
-
-
+//static uint64_t UID1 = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
+//uint64_t[
+constexpr std::array<uint64_t, 2> UID1 = {0x1F1F1F1F1F1F1F1F, 0x1F1F1F1F1F1F1F1F};
 
 struct IdHolder
 {
-    uint64_t id1;
-    uint64_t id2;
-    uint64_t id3;
+    std::array<uint64_t, 2> id1;
 
-    explicit IdHolder(const uint64_t id1, const uint64_t id2, const uint64_t id3) : id1(id1), id2(id2), id3(id3) {}
+    explicit IdHolder(const std::array<uint64_t, 2>& id1) : id1(id1) {}
 };
 
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
@@ -35,7 +31,7 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
 
     // so it doesn't get optimized out
-    auto idHolder = std::make_unique<IdHolder>(UID1, UID2, UID3);
+    auto idHolder = std::make_unique<IdHolder>(UID1);
     idHolder.reset();
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
