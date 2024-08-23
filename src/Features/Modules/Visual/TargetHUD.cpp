@@ -285,4 +285,7 @@ void TargetHUD::onPacketInEvent(PacketInEvent& event)
         Actor* target = ActorUtils::getActorFromRuntimeID(packet->mRuntimeID);
         if (!target) return;
     }
+    else if (event.mPacket->getId() == PacketID::ChangeDimension) {
+        targetTextures.clear();
+    }
 }
