@@ -22,6 +22,13 @@ void TargetHUD::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TargetHUD::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &TargetHUD::onPacketInEvent>(this);
+
+    // Clear and release textures
+    for (auto& [actor, textureHolder] : mTargetTextures)
+    {
+        if (textureHolder.texture) textureHolder.texture->Release();
+    }
+    mTargetTextures.clear();
 }
 
 void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
@@ -36,17 +43,21 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
             Aura::sTarget = nullptr;
             return;
         }
-        if (!Aura::sTarget->isPlayer()) return;
+        mHealth = Aura::sTarget->getHealth();
+        mMaxHealth = Aura::sTarget->getMaxHealth();
+        mAbsorption = Aura::sTarget->getAbsorption();
+        mMaxAbsorption = Aura::sTarget->getMaxAbsorption();
+        if (!Aura::sTarget->isPlayer())
+        {
+            mLastPlayerName = "Mob";
+            return;
+        }
         mLastHurtTime = mHurtTime;
         mHurtTime = static_cast<float>(Aura::sTarget->getMobHurtTimeComponent()->mHurtTime);
         mLastHealth = mHealth;
         mLastAbsorption = mAbsorption;
         mLastMaxHealth = mMaxHealth;
         mLastMaxAbsorption = mMaxAbsorption;
-        mHealth = Aura::sTarget->getHealth();
-        mMaxHealth = Aura::sTarget->getMaxHealth();
-        mAbsorption = Aura::sTarget->getAbsorption();
-        mMaxAbsorption = Aura::sTarget->getMaxAbsorption();
         mLastPlayerName = Aura::sTarget->getRawName();
 
         if (mHurtTime > mLastHurtTime)
@@ -82,9 +93,13 @@ void TargetHUD::validateTextures()
 
 ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (actor && !actor->isPlayer()) actor = player;
+
     if (!mTargetTextures.contains(actor)) mTargetTextures[actor] = TargetTextureHolder();
 
     auto& [texture, loaded, id] = mTargetTextures[actor];
+
 
     if (actor && actor->isPlayer())
     {
@@ -203,10 +218,10 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     auto screenSize = ImGui::GetIO().DisplaySize;
 
-    auto boxSize = ImVec2(255 * anim, 82 * anim);
+    auto boxSize = ImVec2(230 * anim, 70 * anim);
     auto boxPos = ImVec2(screenSize.x / 2 - boxSize.x / 2 + mXOffset.mValue, screenSize.y / 2 - boxSize.y / 2 + mYOffset.mValue);
 
-    auto headSize = ImVec2(50 * anim, 50 * anim);
+    auto headSize = ImVec2(60 * anim, 60 * anim);
     auto headPos = ImVec2(boxPos.x + xpad * anim, boxPos.y + ypad * anim);
 
     float headQuartY = headSize.y / 4;
@@ -214,6 +229,8 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     float daTopYdiff = headPos.y - boxPos.y;
 
+    //drawList->AddShadowRect(boxPos, ImVec2(boxPos.x + boxSize.x, boxPos.y + boxSize.y), ImColor(0.f, 0.f, 0.f, 1.f * anim), 20.f, ImVec2(0, 0), ImDrawCornerFlags_All, 15.f * anim);
+    // The background.
     drawList->AddRectFilled(boxPos, ImVec2(boxPos.x + boxSize.x, boxPos.y + boxSize.y), ImColor(0.f, 0.f, 0.f, 0.5f * anim), 15.f * anim);
 
     ID3D11ShaderResourceView* texture = nullptr;
@@ -228,15 +245,24 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     imageColor.Value.y = MathUtils::lerp(imageColor.Value.y, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
     imageColor.Value.z = MathUtils::lerp(imageColor.Value.z, 1.f - hurtTimeAnimPerc, hurtTimeAnimPerc);
 
-    float startY = headPos.y + (headSize.y + ypad * anim);
+
+
+    float healthStartY = boxPos.y + boxSize.y - (ypad + 2) * anim - 25 * anim;
+    float ysize = 20 * anim;
+    auto healthBarStart = ImVec2(boxPos.x + headSize.x + (xpad * 2) * anim, healthStartY);
+    int barSizeX = boxSize.x - xpad;
+    auto healthBarEnd = ImVec2(boxPos.x + barSizeX, healthStartY + ysize);
 
     std::string name = mLastPlayerName;
     auto textNameSize = ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue * anim, FLT_MAX, 0, name.c_str());
-    auto textNamePos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + (headQuartY - (textNameSize.y / 2)));
+    // the y for the name should be between the y of the health bar and the box y
+    float ydiff = healthBarStart.y - boxPos.y;
+    auto textNamePos = ImVec2(headPos.x + headSize.x + xpad * anim, boxPos.y + ydiff / 2 - textNameSize.y / 2 + (ypad * anim));
 
-    std::string healthStr = "Health: " + std::to_string(static_cast<int>(mHealth + mAbsorption));
+
+    std::string healthStr = "+" + std::to_string((int)mAbsorption);
     auto textHealthSize = ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue * anim, FLT_MAX, 0, healthStr.c_str());
-    auto textHealthPos = ImVec2(headPos.x + headSize.x + xpad * anim, headPos.y + ((headQuartY * 3) - (textHealthSize.y / 2)));
+    auto textHealthPos = ImVec2(healthBarStart.x + xpad * anim, healthStartY);
 
     headPos.x += (headSize.x - headSize2.x) / 2;
     headPos.y += (headSize.y - headSize2.y) / 2;
@@ -250,14 +276,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     textEndPos.x = boxPos.x + boxSize.x - xpad * anim;
     drawList->PushClipRect(textStartPos, textEndPos, true); // So that the text doesn't go outside the box
     ImRenderUtils::drawShadowText(drawList, name, textNamePos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
-    ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
     drawList->PopClipRect();
-
-
-    float ysize = 17 * anim;
-    auto healthBarStart = ImVec2(boxPos.x + xpad * anim, startY);
-    int barSizeX = boxSize.x - xpad;
-    auto healthBarEnd = ImVec2(boxPos.x + barSizeX, startY + ysize);
 
 
     float daBottomYdiff = boxPos.y + boxSize.y - healthBarEnd.y;
@@ -265,31 +284,63 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     //spdlog::debug("daTopYdiff: {}, daBottomYdiff: {}", daTopYdiff, daBottomYdiff);
 
     // Health bar background
-    drawList->AddRectFilled(healthBarStart, healthBarEnd, ImColor(149, 130, 133, (int)((float)194 * anim)), 10.f);
+    drawList->AddRectFilled(healthBarStart, healthBarEnd, ImColor(100, 100, 100, (int)((float)170 * anim)), 10.f);
 
-    // Health bar
     float healthPerc = mLerpedHealth / mMaxHealth;
     healthPerc = MathUtils::clamp(healthPerc, 0.f, 1.f);
+    auto healthEnd = ImVec2(healthBarEnd.x, healthBarEnd.y);
+    healthEnd.x = MathUtils::lerp(healthBarStart.x, healthBarEnd.x, healthPerc);
+
+    float absorptionPerc = mLerpedAbsorption / 20.f;
+    absorptionPerc = MathUtils::clamp(absorptionPerc, 0.f, 1.f);
+    auto absorpEnd = ImVec2(healthBarEnd.x, healthBarEnd.y);
+    absorpEnd.x = MathUtils::lerp(healthBarStart.x, healthBarEnd.x, absorptionPerc);
+
+    float endXDiff = healthBarEnd.x - healthBarStart.x;
+    ImColor startColor = ColorUtils::getThemedColor(0);
+    ImColor endColor = ColorUtils::getThemedColor(endXDiff * 2);
+    startColor.Value.w *= anim;
+    endColor.Value.w *= anim;
+
+    // the shadow rect rounding doesn't work properly
+    /*// Absorption bar glow
+    {
+        ImVec2 start = ImVec2(healthBarStart.x, healthBarStart.y);
+        ImVec2 end = ImVec2(absorpEnd.x, absorpEnd.y);
+        drawList->AddShadowRect(start, end, ImColor(244, 204, 0, (int)(255 * anim)), 10.f, ImVec2(0, 0), ImDrawCornerFlags_All, 15.f * anim);
+    }
+
+    // Health bar glow
+    {
+        ImVec2 start = ImVec2(absorpEnd.x, healthBarStart.y);
+        ImVec2 end = ImVec2(healthEnd.x, healthEnd.y);
+        drawList->AddShadowRect(start, end, startColor, 10.f, ImVec2(0, 0), ImDrawCornerFlags_All, 15.f * anim);
+    }*/
+
+    // Health bar
     if (healthPerc > 0.01f)
     {
-        auto barEnd = ImVec2(healthBarStart.x + (barSizeX * healthPerc), healthBarEnd.y);
-        barEnd.x = MathUtils::clamp(barEnd.x, healthBarStart.x, healthBarEnd.x);
-        ImColor endColor = ImColor(211, 0, 201, (int)(255 * anim));
-        ImColor startColor = ImColor(endColor.Value.x * 0.25f, endColor.Value.y * 0.25f, endColor.Value.z * 0.25f, endColor.Value.w);
-        drawList->AddRectFilledMultiColor(healthBarStart, barEnd, startColor, endColor, endColor, startColor, 10.f, ImDrawCornerFlags_All);
+        drawList->PushClipRect(healthBarStart, healthEnd, true); // To avoid rounding issues
+        drawList->AddRectFilledMultiColor(healthBarStart, healthBarEnd, startColor, endColor, endColor, startColor, 10.f, ImDrawCornerFlags_All);
+        drawList->PopClipRect();
     }
 
     // Absorption bar
-    float absorptionPerc = mLerpedAbsorption / 20.f;
-    absorptionPerc = MathUtils::clamp(absorptionPerc, 0.f, 1.f);
     if (absorptionPerc > 0.01f)
     {
-        auto barEnd = ImVec2(healthBarStart.x + (barSizeX * absorptionPerc), healthBarEnd.y);
-        barEnd.x = MathUtils::clamp(barEnd.x, healthBarStart.x, healthBarEnd.x);
-        drawList->AddRectFilled(healthBarStart,
-                                    barEnd,
-                                 ImColor(234, 168, 95, (int)(255 * anim)), 10.f);
+        drawList->PushClipRect(healthBarStart, absorpEnd, true); // To avoid rounding issues
+        drawList->AddRectFilled(healthBarStart, healthBarEnd, ImColor(244, 204, 0, (int)(255 * anim)), 10.f);
+        drawList->PopClipRect();
     }
+
+    // uh its kinda necessary to render this on top :trollcat:
+    if (mAbsorption != 0)
+    {
+        drawList->PushClipRect(textStartPos, textEndPos, true);
+        ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
+        drawList->PopClipRect();
+    }
+
 
     FontHelper::popPrefFont();
 }

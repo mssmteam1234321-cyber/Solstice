@@ -10,5 +10,6 @@ public:
     static MinecraftGame* getInstance();
     class ClientInstance* getPrimaryClientInstance();
     class UIProfanityContext* getProfanityContext();
+    bool getMouseGrabbed();
     void playUi(const std::string& soundName, float volume, float pitch);
 };

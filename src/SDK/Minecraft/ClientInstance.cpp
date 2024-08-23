@@ -91,13 +91,14 @@ std::string ClientInstance::getScreenName()
 
 void ClientInstance::setDisableInput(bool disable)
 {
-
     MemUtils::callVirtualFunc<void>(OffsetProvider::ClientInstance_setDisableInput, this, disable);
 }
 
 bool ClientInstance::getMouseGrabbed()
 {
-    return MemUtils::callVirtualFunc<bool>(OffsetProvider::ClientInstance_getMouseGrabbed, this);
+    // idk why but the original virtual func's result was inverted
+    // so im just gonna recreate that here because i'm too lazy to refactor everything
+    return !getMinecraftGame()->getMouseGrabbed();
 }
 
 void ClientInstance::grabMouse()

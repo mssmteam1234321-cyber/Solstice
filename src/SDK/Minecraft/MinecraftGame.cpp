@@ -36,6 +36,11 @@ UIProfanityContext* MinecraftGame::getProfanityContext()
     return hat::member_at<UIProfanityContext*>(this, OffsetProvider::MinecraftGame_mProfanityContext);
 }
 
+bool MinecraftGame::getMouseGrabbed()
+{
+    return hat::member_at<bool>(this, OffsetProvider::MinecraftGame_mMouseGrabbed);
+}
+
 void MinecraftGame::playUi(const std::string& soundName, float volume, float pitch)
 {
     int index = OffsetProvider::MinecraftGame_playUi;

@@ -31,7 +31,7 @@ public:
             {NormalSpaced, "Target HUD"},
         };
 
-        gFeatureManager->mDispatcher->listen<RenderEvent, &TargetHUD::onRenderEvent>(this);
+        gFeatureManager->mDispatcher->listen<RenderEvent, &TargetHUD::onRenderEvent, nes::event_priority::LAST>(this);
     }
 
 
