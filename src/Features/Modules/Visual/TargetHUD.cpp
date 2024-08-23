@@ -34,6 +34,7 @@ void TargetHUD::onDisable()
 void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
 {
     validateTextures();
+    if (mHealthCalculation.mValue) calculateHealths();
 
     if (Aura::sHasTarget && Aura::sTarget && Aura::sTarget->getMobHurtTimeComponent())
     {
@@ -44,6 +45,7 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
             return;
         }
         mHealth = Aura::sTarget->getHealth();
+        if (mHealthCalculation.mValue) mHealth = mHealths[Aura::sTarget->getRawName()].health;
         mMaxHealth = Aura::sTarget->getMaxHealth();
         mAbsorption = Aura::sTarget->getAbsorption();
         mMaxAbsorption = Aura::sTarget->getMaxAbsorption();
@@ -67,6 +69,48 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
     }
 }
 
+
+void TargetHUD::calculateHealths() {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    auto actors = ActorUtils::getActorList(true, true);
+
+    bool heal = 4000 <= NOW - mLastHealTime;
+    if (heal) mLastHealTime = NOW;
+
+    for (auto actor : actors) {
+        if (actor == player) continue;
+        if (!actor->getMobHurtTimeComponent() || !actor->getActorTypeComponent()) continue;
+        auto info = &mHealths[actor->getRawName()];
+        float absorption = actor->getAbsorption();
+        int hurtTime = actor->getMobHurtTimeComponent()->mHurtTime;
+        if (0 < hurtTime) {
+            float damage = 0;
+            if (absorption < info->lastAbsorption) {
+                if (0 < absorption) {
+                    info->damage = abs(info->lastAbsorption - absorption);
+                    damage = 0;
+                }
+                else if (0 < info->lastAbsorption) {
+                    damage = abs(info->damage - info->lastAbsorption);
+                }
+            }
+            else if(hurtTime == 9)
+            {
+                damage = info->damage;
+            }
+
+            if (absorption == 0 && 0 < damage) {
+                if (info->health - damage < 0) info->health = 0;
+                else info->health -= damage;
+            }
+        }
+        if (heal) {
+            if (info->health + 1 > 20) info->health = 20;
+            else info->health++;
+        }
+        info->lastAbsorption = absorption;
+    }
+}
 
 void TargetHUD::validateTextures()
 {
@@ -363,5 +407,9 @@ void TargetHUD::onPacketInEvent(PacketInEvent& event)
             if (textureHolder.texture) textureHolder.texture->Release();
         }
         mTargetTextures.clear();
+
+        // Clear health calculation caches
+        mLastHealTime = NOW;
+        mHealths.clear();
     }
 }

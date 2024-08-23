@@ -15,13 +15,15 @@ public:
     NumberSetting mXOffset = NumberSetting("X Offset", "The X offset of the target HUD", 100, -400, 400, 1);
     NumberSetting mYOffset = NumberSetting("Y Offset", "The Y offset of the target HUD", 100, -400, 400, 1);
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 20, 1, 40, 1);
+    BoolSetting mHealthCalculation = BoolSetting("Health Calculation", "Calculate health", false);
 
     TargetHUD() : ModuleBase("TargetHUD", "Shows target information", ModuleCategory::Visual, 0, false) {
         addSettings(
             &mStyle,
             &mXOffset,
             &mYOffset,
-            &mFontSize
+            &mFontSize,
+            &mHealthCalculation
         );
 
         mNames = {
@@ -59,10 +61,20 @@ public:
     std::map<Actor*, TargetTextureHolder> mTargetTextures;
     constexpr static uint64_t cHurtTimeDuration = 500;
 
+    // Health Calculation
+    struct HealthInfo {
+        float health = 20;
+        float lastAbsorption = 0;
+        float damage = 1;
+    };
+    std::map<std::string, HealthInfo> mHealths;
+    uint64_t mLastHealTime = 0;
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void validateTextures();
+    void calculateHealths();
     ID3D11ShaderResourceView* getActorSkinTex(Actor* actor);
     void onRenderEvent(class RenderEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
