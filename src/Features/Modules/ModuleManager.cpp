@@ -13,6 +13,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
+#include "Misc/AutoCosmetic.hpp"
 #include "Misc/AutoMessage.hpp"
 #include "Misc/Friends.hpp"
 #include "Misc/Killsults.hpp"
@@ -127,6 +128,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Disabler>());
     mModules.emplace_back(std::make_shared<AutoReport>());
     mModules.emplace_back(std::make_shared<StaffAlert>());
+    mModules.emplace_back(std::make_shared<AutoCosmetic>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

@@ -23,6 +23,7 @@ int ItemUtils::getItemValue(ItemStack* item) {
     case SItemType::Chestplate:
     case SItemType::Leggings:
     case SItemType::Boots:
+        if (item->getItem()->getItemTier() < 4) break;
         value = item->getEnchantValue(Enchant::PROTECTION) + item->getEnchantValue(Enchant::FIRE_PROTECTION);
         break;
     case SItemType::Sword:

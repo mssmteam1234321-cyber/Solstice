@@ -152,6 +152,8 @@ void AutoReport::onEnable()
     gFeatureManager->mDispatcher->listen<PacketInEvent, &AutoReport::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &AutoReport::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoReport::onBaseTickEvent>(this);
+
+    mFinishedReporting = false;
 }
 
 void AutoReport::onDisable()
@@ -385,7 +387,7 @@ void AutoReport::onPacketInEvent(PacketInEvent& event)
         }
     }
 
-    if (event.mPacket->getId() == PacketID::ModalFormRequest) {
+    if (event.mPacket->getId() == PacketID::ModalFormRequest && !mFinishedReporting) {
         auto packet = event.getPacket<ModalFormRequestPacket>();
         nlohmann::json json = nlohmann::json::parse(packet->mJSON);
         std::string jsonStr = json.dump(4);
@@ -435,6 +437,12 @@ void AutoReport::onPacketOutEvent(PacketOutEvent& event)
     // For this to work, you need to send packets using send() and not sendToServer()
     if (event.mPacket->getId() == PacketID::ModalFormResponse) {
         auto packet = event.getPacket<ModalFormResponsePacket>();
+        if (mFinishedReporting)
+        {
+            mHasFormOpen = false;
+            mLastFormTime = NOW;
+            return;
+        }
         mLastFormTime = NOW;
         if (packet->mFormId == mLastFormId) {
             mHasFormOpen = false;
