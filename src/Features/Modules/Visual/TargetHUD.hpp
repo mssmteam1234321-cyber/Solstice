@@ -1,4 +1,5 @@
 #pragma once
+#include <SDK/Minecraft/Actor/EntityId.hpp>
 //
 // Created by vastrakai on 8/4/2024.
 //
@@ -33,6 +34,14 @@ public:
         gFeatureManager->mDispatcher->listen<RenderEvent, &TargetHUD::onRenderEvent>(this);
     }
 
+
+
+    struct TargetTextureHolder {
+        ID3D11ShaderResourceView* texture = nullptr;
+        bool loaded = false;
+        EntityId associatedEntity = EntityId();
+    };
+
     float mHealth = 0;
     float mMaxHealth = 0;
     float mLastHealth = 0;
@@ -47,11 +56,14 @@ public:
     float mLastHurtTime = 0;
     float mHurtTime = 0;
     Actor* mLastTarget = nullptr;
+    std::map<Actor*, TargetTextureHolder> mTargetTextures;
     constexpr static uint64_t cHurtTimeDuration = 500;
 
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void validateTextures();
+    ID3D11ShaderResourceView* getActorSkinTex(Actor* actor);
     void onRenderEvent(class RenderEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
 };

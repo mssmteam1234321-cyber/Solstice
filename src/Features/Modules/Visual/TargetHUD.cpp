@@ -9,6 +9,7 @@
 #include <Features/Modules/Combat/Aura.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <SDK/Minecraft/Actor/SerializedSkin.hpp>
+#include <SDK/Minecraft/Actor/Components/ActorOwnerComponent.hpp>
 #include <SDK/Minecraft/Network/Packets/ActorEventPacket.hpp>
 
 void TargetHUD::onEnable()
@@ -25,6 +26,8 @@ void TargetHUD::onDisable()
 
 void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
 {
+    validateTextures();
+
     if (Aura::sHasTarget && Aura::sTarget && Aura::sTarget->getMobHurtTimeComponent())
     {
         if (!Aura::sTarget->getActorTypeComponent())
@@ -54,18 +57,34 @@ void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
 }
 
 
-struct TargetTextureHolder {
-    ID3D11ShaderResourceView* texture = nullptr;
-    bool loaded = false;
-};
-
-static std::map<Actor*, TargetTextureHolder> targetTextures;
-
-ID3D11ShaderResourceView* getActorSkinTex(Actor* actor)
+void TargetHUD::validateTextures()
 {
-    if (!targetTextures.contains(actor)) targetTextures[actor] = TargetTextureHolder();
+    auto player = ClientInstance::get()->getLocalPlayer();
+    std::vector<EntityId> foundEntities;
+    for (auto &&[daId, moduleOwner, typeComponent]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent>().each())
+    {
+        foundEntities.push_back(moduleOwner.mActor->mContext.mEntityId);
+    }
 
-    auto& [texture, loaded] = targetTextures[actor];
+    for (auto it = mTargetTextures.begin(); it != mTargetTextures.end();)
+    {
+        if (std::ranges::find(foundEntities, it->second.associatedEntity) == foundEntities.end())
+        {
+            if (it->second.texture) it->second.texture->Release();
+            it = mTargetTextures.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
+{
+    if (!mTargetTextures.contains(actor)) mTargetTextures[actor] = TargetTextureHolder();
+
+    auto& [texture, loaded, id] = mTargetTextures[actor];
 
     if (actor && actor->isPlayer())
     {
@@ -109,6 +128,7 @@ ID3D11ShaderResourceView* getActorSkinTex(Actor* actor)
                 spdlog::info("Loading skin texture for {}", actor->getRawName());
                 D3DHook::createTextureFromData(headData.data(), headSize, headSize, &texture);
                 loaded = true;
+                id = actor->mContext.mEntityId;
             }
         }
     }
@@ -286,6 +306,11 @@ void TargetHUD::onPacketInEvent(PacketInEvent& event)
         if (!target) return;
     }
     else if (event.mPacket->getId() == PacketID::ChangeDimension) {
-        targetTextures.clear();
+        // Clear textures
+        for (auto& [actor, textureHolder] : mTargetTextures)
+        {
+            if (textureHolder.texture) textureHolder.texture->Release();
+        }
+        mTargetTextures.clear();
     }
 }
