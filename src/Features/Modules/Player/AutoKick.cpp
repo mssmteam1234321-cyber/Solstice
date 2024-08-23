@@ -20,6 +20,35 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthinputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
 
+std::vector<glm::ivec3> getCollidingBlocks(Actor* target)
+{
+    std::vector<glm::ivec3> collidingBlockList;
+    auto player = target;
+    if (!player) return collidingBlockList;
+    AABBShapeComponent* aabb = player->getAABBShapeComponent();
+    glm::vec3 lower = aabb->mMin;
+    glm::vec3 upper = aabb->mMin;
+
+    lower.x -= 0.3f;
+    //lower.y -= 0.1f;
+    lower.z -= 0.3f;
+
+    upper.x += 0.3f;
+    upper.y += aabb->mHeight;
+    upper.z += 0.3f;
+
+    for (int x = floor(lower.x); x <= floor(upper.x); x++)
+        for (int y = floor(lower.y); y <= floor(upper.y); y++)
+            for (int z = floor(lower.z); z <= floor(upper.z); z++) {
+                glm::ivec3 blockPos = { x, y, z };
+                if (!BlockUtils::isAirBlock(blockPos)) {
+                    collidingBlockList.emplace_back(blockPos);
+                }
+            }
+
+    return collidingBlockList;
+}
+
 void AutoKick::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoKick::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
@@ -51,6 +80,7 @@ void AutoKick::onDisable()
     }
     mShouldRotate = false;
     mRecentlyUpdatedBlockPositions.clear();
+    mLastServerBlockPos = { INT_MAX,INT_MAX,INT_MAX };
 }
 
 void AutoKick::onBaseTickEvent(BaseTickEvent& event)
@@ -63,6 +93,11 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
         if (BlockUtils::isAirBlock(pos)) {
             if (mDebug.mValue) ChatUtils::displayClientMessage("Failed to place block");
             if (mSpamPlace.mValue) mLastBlockPlace = 0;
+        }
+        else {
+            if (mDebug.mValue) ChatUtils::displayClientMessage("Successfully placed block");
+            mLastBlockUpdated = NOW;
+            mLastServerBlockPos = pos;
         }
     }
     mRecentlyUpdatedBlockPositions.clear();
@@ -83,10 +118,26 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
 
     if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) < 1) return;
 
+    // Flagged Check
+    std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks(Aura::sTarget);
+    if (std::find(collidingBlocks.begin(), collidingBlocks.end(), mLastServerBlockPos) != collidingBlocks.end() && NOW - mLastBlockUpdated <= 1000) {
+        if (!mFlagged) {
+            int flagCount = mFlagCounter[Aura::sTarget->getRawName()];
+            mFlagCounter[Aura::sTarget->getRawName()] = flagCount + 1;
+            if (mDebug.mValue) {
+                ChatUtils::displayClientMessage(Aura::sTarget->getRawName() + " has been flagged (x" + std::to_string(flagCount + 1) + ")");
+            }
+        }
+        mFlagged = true;
+    }
+    else {
+        mFlagged = false;
+    }
+
     glm::vec3 targetPos = *Aura::sTarget->getPos();
     glm::vec3 prediction = { 0, 0, 0 };
     float PingTime = ((mPing / 50) * 2) + ((mOpponentPing.mValue / 50) * 2);
-    float PredictedTime = PingTime + 2;
+    float PredictedTime = PingTime + 1;
     if (mUsePrediction) {
         prediction = targetPos - mLastTargetPos;
     }
@@ -166,6 +217,9 @@ void AutoKick::onPacketInEvent(PacketInEvent& event) {
         if (updateBlockPacket->mPos == mCurrentPlacePos && !BlockUtils::isAirBlock(updateBlockPacket->mPos) && NOW - mLastBlockPlace <= 800) {
             mRecentlyUpdatedBlockPositions.push_back(updateBlockPacket->mPos);
         }
+    }
+    else if (event.mPacket->getId() == PacketID::ChangeDimension) {
+        mFlagCounter.clear();
     }
 }
 

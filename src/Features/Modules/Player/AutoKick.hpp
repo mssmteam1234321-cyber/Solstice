@@ -52,11 +52,16 @@ public:
 
     uint64_t mLastBlockPlace = 0;
     glm::ivec3 mCurrentPlacePos = { INT_MAX, INT_MAX, INT_MAX };
+    uint64_t mLastBlockUpdated = 0;
+    glm::ivec3 mLastServerBlockPos = { INT_MAX, INT_MAX, INT_MAX };
+    bool mFlagged = false;
 
     uint64_t mPing = 100;
     uint64_t mEventDelay = 0;
 
     std::vector<glm::ivec3> mRecentlyUpdatedBlockPositions;
+
+    std::map<std::string, int> mFlagCounter;
 
     void onEnable();
     void onDisable() override;
