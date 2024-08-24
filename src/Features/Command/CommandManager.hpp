@@ -12,7 +12,6 @@
 class CommandManager {
 public:
     std::vector<std::unique_ptr<Command>> mCommands;
-    static inline std::vector<std::future<void>> mCommandFutures = {};
 
     void init();
     void shutdown();

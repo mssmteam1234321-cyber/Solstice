@@ -7,9 +7,11 @@
 class AutoCosmetic : public ModuleBase<AutoCosmetic> {
 public:
     NumberSetting mUiDelay = NumberSetting("UI Delay", "The delay in milliseconds between each UI interaction", 200, 0, 1000, 100);
+
     AutoCosmetic() : ModuleBase("AutoCosmetic", "Automatically applies cosmetics on The Hive", ModuleCategory::Misc, 0, false)
     {
         addSetting(&mUiDelay);
+
         mNames = {
             {Lowercase, "autocosmetic"},
             {LowercaseSpaced, "auto cosmetic"},
@@ -18,13 +20,11 @@ public:
         };
     }
 
-
-
     unsigned int mLastFormId = 0;
     bool mHasFormOpen = false;
     bool mIsCosmeticMenu = false;
-    std::string mJson;
-    std::string mLastFormTitle;
+    std::string mJson = "";
+    std::string mLastFormTitle = "";
     bool mFinishedApplying = true;
     int mCosmeticIndex = 0;
     bool mInteractedWithItem = false;
