@@ -5,25 +5,26 @@
 #include <Features/Modules/ModuleManager.hpp>
 
 #include "Combat/Aura.hpp"
-#include "Misc/AutoQueue.hpp"
-#include "Misc/DeviceSpoof.hpp"
-#include "Misc/KickSounds.hpp"
-#include "Misc/PacketLogger.hpp"
-#include "Misc/TestModule.hpp"
-#include "Misc/ToggleSounds.hpp"
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
 #include "Misc/AutoAccept.hpp"
 #include "Misc/AutoCosmetic.hpp"
 #include "Misc/AutoMessage.hpp"
+#include "Misc/AutoQueue.hpp"
+#include "Misc/AutoReport.hpp"
+#include "Misc/DeviceSpoof.hpp"
+#include "Misc/Disabler.hpp"
 #include "Misc/Friends.hpp"
+#include "Misc/KickSounds.hpp"
 #include "Misc/Killsults.hpp"
 #include "Misc/NetSkip.hpp"
 #include "Misc/NoFilter.hpp"
 #include "Misc/NoPacket.hpp"
-#include "Misc/Disabler.hpp"
-#include "Misc/AutoReport.hpp"
+#include "Misc/PacketLogger.hpp"
+#include "Misc/PartySpammer.hpp"
 #include "Misc/StaffAlert.hpp"
+#include "Misc/TestModule.hpp"
+#include "Misc/ToggleSounds.hpp"
 
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
@@ -34,15 +35,17 @@
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Phase.hpp"
 #include "Movement/SafeWalk.hpp"
-#include "Movement/Sprint.hpp"
-#include "Movement/Velocity.hpp"
 #include "Movement/Speed.hpp"
-#include "Movement/Step.hpp"
 #include "Movement/Spider.hpp"
+#include "Movement/Sprint.hpp"
+#include "Movement/Step.hpp"
+#include "Movement/Velocity.hpp"
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
+#include "Player/Derp.hpp"
+#include "Player/Freecam.hpp"
 #include "Player/InvManager.hpp"
 #include "Player/MidclickAction.hpp"
 #include "Player/Nuker.hpp"
@@ -50,8 +53,6 @@
 #include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
-#include "Player/Derp.hpp"
-#include "Player/Freecam.hpp"
 #include "spdlog/spdlog.h"
 #include "Visual/Animations.hpp"
 #include "Visual/Arraylist.hpp"
@@ -59,18 +60,18 @@
 #include "Visual/BlockESP.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/DestroyProgress.hpp"
-#include "Visual/Interface.hpp"
-#include "Visual/LevelInfo.hpp"
-#include "Visual/Notifications.hpp"
-#include "Visual/Watermark.hpp"
 #include "Visual/ESP.hpp"
+#include "Visual/Interface.hpp"
 #include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
+#include "Visual/LevelInfo.hpp"
 #include "Visual/MotionBlur.hpp"
 #include "Visual/Nametags.hpp"
 #include "Visual/NoCameraClip.hpp"
+#include "Visual/Notifications.hpp"
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/TargetHUD.hpp"
+#include "Visual/Watermark.hpp"
 
 void ModuleManager::init()
 {
@@ -131,6 +132,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<StaffAlert>());
     mModules.emplace_back(std::make_shared<AutoCosmetic>());
     mModules.emplace_back(std::make_shared<AutoAccept>());
+    mModules.emplace_back(std::make_shared<PartySpammer>());
+
 
 
     // Visual
