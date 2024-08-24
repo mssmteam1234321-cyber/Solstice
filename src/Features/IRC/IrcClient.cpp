@@ -38,6 +38,13 @@ bool IrcClient::isConnected()
 
 bool IrcClient::connectToServer()
 {
+    mLastPing = NOW;
+    // If we are connecting, return false
+    if (mConnectionState == ConnectionState::Connecting)
+    {
+        spdlog::error("[irc] Cannot connect to server, already connecting");
+        return false;
+    }
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         spdlog::error("[irc] WSAStartup failed with error: {}", WSAGetLastError());
@@ -90,6 +97,7 @@ bool IrcClient::connectToServer()
     });
     mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
         spdlog::info("[irc] Disconnected from server");
+        //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
         disconnect();
     });
     Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
@@ -160,6 +168,7 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
     if (mLastPing != 0 && NOW - mLastPing > 15000 && isConnected())
     {
         spdlog::info("[irc] Ping timeout, disconnecting");
+        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cTimed out.");
         disconnect();
         return;
     }
@@ -210,6 +219,19 @@ void IrcClient::sendPacket(const IrcPacket* packet)
     mWriter.FlushAsync();
 }
 
+std::string fnv1a_hash32(const std::string& str)
+{
+    const uint32_t FNV_prime = 16777619;
+    const uint32_t offset_basis = 2166136261;
+    uint32_t hash = offset_basis;
+    for (char c : str)
+    {
+        hash ^= c;
+        hash *= FNV_prime;
+    }
+    return std::to_string(hash);
+}
+
 std::string IrcClient::getPreferredUsername()
 {
     if (!Solstice::Prefs->mIrcName.empty())
@@ -220,6 +242,8 @@ std::string IrcClient::getPreferredUsername()
     if (_dupenv_s(&username, &len, "USERNAME") == 0 && username != nullptr) {
         std::string usernameStr(username);
         free(username);
+        usernameStr = StringUtils::trim(usernameStr);
+        usernameStr = fnv1a_hash32(usernameStr);
         return usernameStr;
     }
     return "";
