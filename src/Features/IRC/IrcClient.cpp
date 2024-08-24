@@ -229,7 +229,7 @@ std::string fnv1a_hash32(const std::string& str)
         hash ^= c;
         hash *= FNV_prime;
     }
-    return std::to_string(hash);
+    return fmt::format("{:x}", hash);
 }
 
 std::string IrcClient::getPreferredUsername()
