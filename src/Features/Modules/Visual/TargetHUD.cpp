@@ -137,8 +137,8 @@ void TargetHUD::validateTextures()
 
 ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (actor && !actor->isPlayer()) actor = player;
+    /*auto player = ClientInstance::get()->getLocalPlayer();
+    if (actor && !actor->isPlayer()) actor = player;*/
 
     if (!mTargetTextures.contains(actor)) mTargetTextures[actor] = TargetTextureHolder();
 
