@@ -41,6 +41,7 @@ void IrcClient::sendIdentifySelf()
         return;
     }
 
+
     IrcIdentifySelfPacket packet;
     packet.hwid = getHwid();
     packet.xuid = "0"; // Temporary, until i impl getXuid
