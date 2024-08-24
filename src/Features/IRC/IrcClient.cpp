@@ -329,7 +329,8 @@ void IrcClient::onMessageReceived(const char* message)
     }
     case IrcPacketType::Ping: {
             mLastPing = NOW;
-            spdlog::info("[irc] Received ping response from server");
+            // this gets really annoying to see in the console lol
+            //spdlog::info("[irc] Received ping response from server");
             break;
     }
     default: {
@@ -403,10 +404,10 @@ void IrcManager::requestChangeUsername(std::string username)
 {
     if (mClient)
     {
-        mClient->changeUsername(std::move(username));
+        mClient->changeUsername(username);
         Solstice::Prefs->mIrcName = username;
         PreferenceManager::save(Solstice::Prefs);
-        spdlog::info("[irc] Changed username to {}", username);
+        spdlog::info("[irc] Changed username to {}", Solstice::Prefs->mIrcName);
     }
     else ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
 }
