@@ -7,13 +7,20 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
+#include <winrt/base.h>
+#include <winrt/windows.foundation.h>
+#include <winrt/windows.networking.sockets.h>
+#include <winrt/Windows.Data.Xml.Dom.h>
+#include <winrt/Windows.UI.Notifications.h>
+#include <winrt/windows.storage.streams.h>
 
 enum class IrcPacketType {
     Join,
     Leave,
     Message,
     QueryName,
-    ListUsers
+    ListUsers,
+    Ping,
 };
 
 // Base class for all IRC packets
@@ -113,27 +120,66 @@ public:
     }
 };
 
+// #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
+class IrcPingPacket : public IrcPacket {
+public:
+    uint64_t timestamp;
+
+    IrcPingPacket() : IrcPacket(IrcPacketType::Ping) {}
+
+    nlohmann::json serialize() const override {
+        nlohmann::json j;
+        j["type"] = "Ping";
+        j["timestamp"] = timestamp;
+        return j;
+    }
+
+    void deserialize(const nlohmann::json& j) override {
+        timestamp = j.at("timestamp").get<uint64_t>();
+    }
+
+    uint64_t getPingTime() {
+        return NOW - timestamp;
+    }
+};
+
+namespace Sockets = winrt::Windows::Networking::Sockets;
+namespace Streams = winrt::Windows::Storage::Streams;
+
+enum class ConnectionState {
+    Disconnected,
+    Connecting,
+    Connected,
+};
+
 class IrcClient {
 public:
     constexpr static const char* mServer = "irc.solstice.works";
     constexpr static int mPort = 27335;
 
-    SOCKET mSocket;
+    Sockets::MessageWebSocket mSocket = nullptr;
+    Streams::DataWriter mWriter = nullptr;
     char mBuffer[1024];
 
     std::thread mReceiveThread;
-
     std::string mCurrentUsername = "";
+    std::vector<std::string> mQueuedMessages;
+    uint64_t mLastPing = 0;
+    std::mutex mMutex;
+    ConnectionState mConnectionState = ConnectionState::Disconnected;
 
     IrcClient();
     ~IrcClient();
 
+    void onPacketOutEvent(PacketOutEvent& event);
+    void onBaseTickEvent(BaseTickEvent& event);
+    void displayMsg(std::string message);
     void queryName();
     bool isConnected();
     bool connectToServer();
     void disconnect();
-    void onPacketOutEvent(PacketOutEvent& event);
     void sendPacket(const IrcPacket* packet);
+    std::string getPreferredUsername();
     void receiveMessages();
     void sendMessage(std::string& message);
     void onMessageReceived(const char* message);
@@ -145,9 +191,11 @@ class IrcManager
 {
 public:
     static inline std::unique_ptr<IrcClient> mClient = nullptr;
+    static inline uint64_t mLastConnectAttempt = 0;
 
     static void init();
     static void deinit();
+    static void disconnectCallback();
     static void requestListUsers();
     static void requestChangeUsername(std::string username);
     static void sendMessage(std::string& message);

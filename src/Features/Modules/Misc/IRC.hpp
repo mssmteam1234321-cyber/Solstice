@@ -1,4 +1,5 @@
 #pragma once
+#include <Features/Events/BaseTickEvent.hpp>
 //
 // Created by vastrakai on 8/24/2024.
 //
@@ -17,4 +18,5 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void onBaseTickEvent(BaseTickEvent& event);
 };
