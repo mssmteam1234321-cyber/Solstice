@@ -366,6 +366,7 @@ void IrcClient::changeUsername(std::string username)
 
     IrcJoinPacket packet;
     packet.user = username;
+    packet.client = "§asolstice§r";
     sendPacket(&packet);
 }
 

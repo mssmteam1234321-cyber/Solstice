@@ -7,7 +7,7 @@
 
 class IRC : public ModuleBase<IRC> {
 public:
-    IRC() : ModuleBase("IRC", "IRC Chat", ModuleCategory::Misc, 0, false) {
+    IRC() : ModuleBase("IRC", "IRC Chat", ModuleCategory::Misc, 0, true) {
         mNames = {
             {Lowercase, "irc"},
             {LowercaseSpaced, "irc"},

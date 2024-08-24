@@ -34,6 +34,7 @@ constexpr int DEEPSLATE_GOLD_ORE = 657;
 constexpr int DEEPSLATE_IRON_ORE = 656;
 constexpr int DEEPSLATE_LAPIS_ORE = 655;
 constexpr int DEEPSLATE_COAL_ORE = 661;
+constexpr int PORTAL = 90;
 
 std::unordered_map<int, ImColor> blockColors = {
     { 73, ImColor(1.f, 0.f, 0.f, 1.f) },
@@ -51,17 +52,19 @@ std::unordered_map<int, ImColor> blockColors = {
     { 21, ImColor(0.f, 0.f, 1.f, 1.f) },
     { 655, ImColor(0.f, 0.f, 1.f, 1.f) },
     { 16, ImColor(0.f, 0.f, 0.f, 1.f) },
-    { 661, ImColor(0.f, 0.f, 0.f, 1.f) }
+    { 661, ImColor(0.f, 0.f, 0.f, 1.f) },
+    // purple portal
+    { 90, ImColor(0.5f, 0.f, 0.5f, 1.f) }
 };
 
 bool isValidBlock(int id)
 {
-    return blockColors.find(id) != blockColors.end();
+    return blockColors.contains(id);
 }
 
 ImColor getColorFromId(int id)
 {
-    if (blockColors.find(id) != blockColors.end())
+    if (blockColors.contains(id))
     {
         return blockColors[id];
     }
@@ -244,6 +247,11 @@ std::vector<int> BlockESP::getEnabledBlocks()
     {
         enabledBlocks.push_back(LAPIS_ORE);
         enabledBlocks.push_back(DEEPSLATE_LAPIS_ORE);
+    }
+
+    if (mPortal.mValue)
+    {
+        enabledBlocks.push_back(PORTAL);
     }
 
     return enabledBlocks;

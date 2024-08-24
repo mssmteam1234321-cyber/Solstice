@@ -57,6 +57,7 @@ public:
 class IrcJoinPacket : public IrcPacket {
 public:
     std::string user = "";
+    std::string client = "";
 
     IrcJoinPacket() : IrcPacket(IrcPacketType::Join) {}
 
@@ -64,11 +65,13 @@ public:
         nlohmann::json j;
         j["type"] = "Join";
         j["user"] = user;
+        j["client"] = client;
         return j;
     }
 
     void deserialize(const nlohmann::json& j) override {
         user = j.at("user").get<std::string>();
+        client = j.at("client").get<std::string>();
     }
 };
 

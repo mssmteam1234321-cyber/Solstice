@@ -22,6 +22,7 @@ public:
     BoolSetting mCoal = BoolSetting("Coal", "Draws around coal ore", true);
     BoolSetting mRedstone = BoolSetting("Redstone", "Draws around redstone ore", true);
     BoolSetting mLapis = BoolSetting("Lapis", "Draws around lapis ore", true);
+    BoolSetting mPortal = BoolSetting("Portal", "Draws around portal blocks", true);
 
     BlockESP() : ModuleBase("BlockESP", "Draws a box around selected blocks", ModuleCategory::Visual, 0, false) {
         addSettings(
@@ -37,7 +38,8 @@ public:
             &mIron,
             &mCoal,
             &mRedstone,
-            &mLapis
+            &mLapis,
+            &mPortal
         );
 
         mNames = {

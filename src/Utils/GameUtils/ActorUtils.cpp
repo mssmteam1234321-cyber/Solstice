@@ -32,7 +32,7 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
 
     try
     {
-        for (auto &&[entId, moduleOwner, type, ridc]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent>().each())
+        for (auto &&[entId, moduleOwner, type, ridc, balls]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent, AABBShapeComponent>().each())
         {
             // Check if the entity id exists
             if (!player->mContext.mRegistry->valid(entId))
