@@ -145,7 +145,7 @@ ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
     auto& [texture, loaded, id] = mTargetTextures[actor];
 
 
-    if (actor && actor->isPlayer())
+    if (actor)
     {
         auto skin = actor->getSkin();
         if (skin)
