@@ -24,6 +24,7 @@
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.UI.Core.h>
 #include <build_info.h>
+#include <Features/IRC/IrcClient.hpp>
 
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 
@@ -75,11 +76,11 @@ void Solstice::init(HMODULE hModule)
     // Change the window title
 
 
-
     setTitle(title);
 
     /*
     std::string lastHwidFile = FileUtils::getSolsticeDir() + "lasthwid.txt";
+
     if (FileUtils::fileExists(lastHwidFile))
     {
         std::ifstream file(lastHwidFile);
@@ -234,6 +235,8 @@ void Solstice::init(HMODULE hModule)
         gFeatureManager->mModuleManager->onClientTick();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+
 
     mRequestEject = true;
 

@@ -15,6 +15,7 @@
 #include "Misc/DeviceSpoof.hpp"
 #include "Misc/Disabler.hpp"
 #include "Misc/Friends.hpp"
+#include "Misc/IRC.hpp"
 #include "Misc/KickSounds.hpp"
 #include "Misc/Killsults.hpp"
 #include "Misc/NetSkip.hpp"
@@ -133,8 +134,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoCosmetic>());
     mModules.emplace_back(std::make_shared<AutoAccept>());
     mModules.emplace_back(std::make_shared<PartySpammer>());
-
-
+    mModules.emplace_back(std::make_shared<IRC>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
