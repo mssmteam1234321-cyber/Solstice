@@ -78,8 +78,8 @@ void Solstice::init(HMODULE hModule)
 
     setTitle(title);
 
-    /*
-    std::string lastHwidFile = FileUtils::getSolsticeDir() + "lasthwid.txt";
+
+    std::string lastHwidFile = FileUtils::getSolsticeDir() + xorstr_("lasthwid.txt");
 
     if (FileUtils::fileExists(lastHwidFile))
     {
@@ -90,12 +90,7 @@ void Solstice::init(HMODULE hModule)
 
         if (lastHwid != GET_HWID().toString())
         {
-            console->critical("HWID mismatch! Last HWID: {}, Current HWID: {}", lastHwid, GET_HWID().toString());
-            Sleep(2000);
-            // Delete the file
             FileUtils::deleteFile(lastHwidFile);
-        } else {
-            console->info("HWID: {}", GET_HWID().toString());
         }
     }
     else
@@ -103,8 +98,9 @@ void Solstice::init(HMODULE hModule)
         std::ofstream file(lastHwidFile);
         file << GET_HWID().toString();
         file.close();
-        console->info("HWID: {}", GET_HWID().toString());
-    }*/
+    }
+
+    sHWID = GET_HWID().toString();
 
     if (MH_Initialize() != MH_OK)
     {

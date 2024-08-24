@@ -6,6 +6,7 @@
 
 #include <codecvt>
 #include <utility>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 
 IrcClient::IrcClient()
@@ -18,6 +19,33 @@ IrcClient::~IrcClient()
 {
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &IrcClient::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &IrcClient::onBaseTickEvent>(this);
+}
+
+std::string IrcClient::getHwid()
+{
+    return Solstice::sHWID;
+}
+
+void IrcClient::sendIdentifySelf()
+{
+    if (!isConnected())
+    {
+        spdlog::error("[irc] Cannot send packet, not connected to server");
+        return;
+    }
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player)
+    {
+        spdlog::error("[irc] Cannot send identify packet, player is null");
+        return;
+    }
+
+    IrcIdentifySelfPacket packet;
+    packet.hwid = getHwid();
+    packet.xuid = "0"; // Temporary, until i impl getXuid
+    packet.playerName = player->getLocalName();
+    sendPacket(&packet);
 }
 
 void IrcClient::queryName()
@@ -104,14 +132,32 @@ bool IrcClient::connectToServer()
     mWriter = writer;
     mConnectionState = ConnectionState::Connecting;
 
-    mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
+    try
     {
-        mConnectionState = ConnectionState::Connected;
-        spdlog::info("[irc] Connected to server");
-        std::string username = getPreferredUsername();
-        changeUsername(username);
-    });
-
+        mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
+        {
+            mConnectionState = ConnectionState::Connected;
+            spdlog::info("[irc] Connected to server");
+            std::string username = getPreferredUsername();
+            changeUsername(username);
+            sendIdentifySelf();
+        });
+    } catch (winrt::hresult_error const& ex)
+    {
+        spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+        disconnect();
+        return false;
+    } catch (const std::exception& ex)
+    {
+        spdlog::error("[irc] Error: {}", ex.what());
+        disconnect();
+        return false;
+    } catch (...)
+    {
+        spdlog::error("[irc] Unknown error");
+        disconnect();
+        return false;
+    }
 
 
     spdlog::info("[irc] Connected to server");
@@ -165,6 +211,8 @@ void IrcClient::onPacketOutEvent(PacketOutEvent& event)
 
 void IrcClient::onBaseTickEvent(BaseTickEvent& event)
 {
+    auto player = event.mActor; // when this event is called, this will never be null
+
     if (mLastPing != 0 && NOW - mLastPing > 15000 && isConnected())
     {
         spdlog::info("[irc] Ping timeout, disconnecting");
@@ -172,6 +220,20 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
         disconnect();
         return;
     }
+
+    static std::string lastPlayerName = "";
+    if (player->getLocalName() != lastPlayerName)
+    {
+        lastPlayerName = player->getLocalName();
+        sendIdentifySelf();
+    }
+    static std::string lastXuid = "";
+    if (player->getXuid() != lastXuid)
+    {
+        lastXuid = player->getXuid();
+        sendIdentifySelf();
+    }
+
     static uint64_t lastPingSent = 0;
     if (NOW - lastPingSent > 3000 && isConnected())
     {

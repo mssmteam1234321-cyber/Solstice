@@ -16,6 +16,7 @@ public:
     static inline int64_t mLastTick = 0;
     static inline std::shared_ptr<spdlog::logger> console;
     static inline std::shared_ptr<Preferences> Prefs;
+    static inline std::string sHWID;
 
 
     /* Functions */

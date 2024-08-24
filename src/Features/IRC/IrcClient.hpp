@@ -21,6 +21,7 @@ enum class IrcPacketType {
     QueryName,
     ListUsers,
     Ping,
+    IdentifySelf,
 };
 
 // Base class for all IRC packets
@@ -146,6 +147,30 @@ public:
     }
 };
 
+class IrcIdentifySelfPacket : public IrcPacket {
+public:
+    std::string xuid = "";
+    std::string playerName = "";
+    std::string hwid = "";
+
+    IrcIdentifySelfPacket() : IrcPacket(IrcPacketType::Message) {}
+
+    nlohmann::json serialize() const override {
+        nlohmann::json j;
+        j["type"] = "IdentifySelf";
+        j["xuid"] = xuid;
+        j["playerName"] = playerName;
+        j["hwid"] = hwid;
+        return j;
+    }
+
+    void deserialize(const nlohmann::json& j) override {
+        playerName = j.at("playerName").get<std::string>();
+        xuid = j.at("xuid").get<std::string>();
+        hwid = j.at("hwid").get<std::string>();
+    }
+};
+
 namespace Sockets = winrt::Windows::Networking::Sockets;
 namespace Streams = winrt::Windows::Storage::Streams;
 
@@ -174,6 +199,9 @@ public:
     IrcClient();
     ~IrcClient();
 
+    std::string getHwid();
+
+    void sendIdentifySelf();
     void onPacketOutEvent(PacketOutEvent& event);
     void onBaseTickEvent(BaseTickEvent& event);
     void displayMsg(std::string message);

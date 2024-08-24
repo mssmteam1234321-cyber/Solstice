@@ -407,3 +407,14 @@ bool Actor::isOnFire()
 {
     return getFlag<OnFireComponent>();
 }
+
+std::string Actor::getLocalName()
+{
+    auto result = hat::member_at<std::string>(this, OffsetProvider::Actor_mLocalName);
+    return result.empty() ? getRawName() : result;
+}
+
+std::string Actor::getXuid()
+{
+    return "0";
+}

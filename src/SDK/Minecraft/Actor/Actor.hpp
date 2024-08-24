@@ -133,6 +133,8 @@ public:
     AttributeInstance* getAttribute(AttributeId id);
     AttributeInstance* getAttribute(int id);
     bool isOnFire();
+    std::string getLocalName();
+    std::string getXuid();
 };
 
 static_assert(sizeof(Actor) == 0x408, "Actor size is invalid");

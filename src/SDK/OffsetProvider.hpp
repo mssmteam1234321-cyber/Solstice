@@ -126,6 +126,7 @@ public:
     DEFINE_FIELD(ItemStack_reInit, 3);
     DEFINE_FIELD(MinecraftUIRenderContext_drawImage, 7);
     DEFINE_FIELD(Actor_mEntityIdentifier, 0x240);
+    DEFINE_FIELD(Actor_mLocalName, 0xC88);
     DEFINE_FIELD(ClientInstance_mViewMatrix, 0x330);
     DEFINE_FIELD(ClientInstance_mFovX, 0x6F0);
     DEFINE_FIELD(ClientInstance_mFovY, 0x704);
