@@ -46,6 +46,7 @@ void IrcClient::sendIdentifySelf()
     packet.xuid = "0"; // Temporary, until i impl getXuid
     packet.playerName = player->getLocalName();
     sendPacket(&packet);
+    mIdentifyNeeded = false;
 }
 
 void IrcClient::queryName()
@@ -232,6 +233,12 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
     {
         lastXuid = player->getXuid();
         sendIdentifySelf();
+    }
+
+    if (mIdentifyNeeded && isConnected())
+    {
+        sendIdentifySelf();
+        mIdentifyNeeded = false;
     }
 
     static uint64_t lastPingSent = 0;

@@ -195,6 +195,7 @@ public:
     uint64_t mLastPing = 0;
     std::mutex mMutex;
     ConnectionState mConnectionState = ConnectionState::Disconnected;
+    bool mIdentifyNeeded = true;
 
     IrcClient();
     ~IrcClient();

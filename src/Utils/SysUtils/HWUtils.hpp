@@ -47,7 +47,6 @@ public:
         hwid_parts.push_back(RegUtils::readReg(std::string(xorstr_("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")), std::string(xorstr_("ProductId")), std::string(xorstr_("Unknown")))); \
         std::string hwid_str; \
         for (const auto& part : hwid_parts) { \
-            spdlog::info("part: '{}'", part); \
             hwid_str += part; \
         } \
         return HWUtils::hashfnv1a(hwid_str); \
