@@ -66,6 +66,53 @@ bool IrcClient::isConnected()
     return mConnectionState == ConnectionState::Connected && mSocket != nullptr;
 }
 
+bool isPortOpen(const std::string& host, int port)
+{
+    try
+    {
+        SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
+        if (s == INVALID_SOCKET)
+        {
+            spdlog::error("[irc] Failed to create socket: {}", WSAGetLastError());
+            return false;
+        }
+
+        sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = inet_addr(host.c_str());
+
+        if (connect(s, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == SOCKET_ERROR)
+        {
+            spdlog::error("[irc] Failed to connect to server: {}", WSAGetLastError());
+            return false;
+        }
+
+        // Send test message
+        const char* testMessage = "GET / HTTP/1.1\r\n\r\n";
+        if (send(s, testMessage, strlen(testMessage), 0) == SOCKET_ERROR)
+        {
+            spdlog::error("[irc] Failed to send test message: {}", WSAGetLastError());
+            return false;
+        }
+
+        closesocket(s);
+        return true;
+    } catch (winrt::hresult_error const& ex)
+    {
+        spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+        return false;
+    } catch (const std::exception& ex)
+    {
+        spdlog::error("[irc] Error: {}", ex.what());
+        return false;
+    } catch (...)
+    {
+        spdlog::error("[irc] Unknown error");
+        return false;
+    }
+}
+
 bool IrcClient::connectToServer()
 {
     mLastPing = NOW;
@@ -73,11 +120,6 @@ bool IrcClient::connectToServer()
     if (mConnectionState == ConnectionState::Connecting)
     {
         spdlog::error("[irc] Cannot connect to server, already connecting");
-        return false;
-    }
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        spdlog::error("[irc] WSAStartup failed with error: {}", WSAGetLastError());
         return false;
     }
 
@@ -98,69 +140,66 @@ bool IrcClient::connectToServer()
 
     host = std::string(inet_ntoa(reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr));
 
-    // use da winrt socket api
-    Sockets::MessageWebSocket socket;
-    mSocket = socket;
-    mSocket.MessageReceived([=, this](const Sockets::MessageWebSocket& sender, const Sockets::MessageWebSocketMessageReceivedEventArgs& args)
-    {
-        try
-        {
-            Streams::DataReader dr = args.GetDataReader();
-                std::wstring wmessage{ dr.ReadString(dr.UnconsumedBufferLength()) };
-                std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-                std::string message = converter.to_bytes(wmessage);
-
-            onMessageReceived(message.c_str());
-        }
-        catch (winrt::hresult_error const& ex)
-        {
-            spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
-
-            disconnect();
-        } catch (const std::exception& ex)
-        {
-            spdlog::error("[irc] Error: {}", ex.what());
-        } catch (...)
-        {
-            spdlog::error("[irc] Unknown error");
-        }
-    });
-    mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
-        spdlog::info("[irc] Disconnected from server");
-        //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
-        disconnect();
-    });
-    Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
-    mWriter = writer;
-    mConnectionState = ConnectionState::Connecting;
-
     try
     {
+        // use da winrt socket api
+        Sockets::MessageWebSocket socket;
+        mSocket = socket;
+        mSocket.MessageReceived([=, this](const Sockets::MessageWebSocket& sender, const Sockets::MessageWebSocketMessageReceivedEventArgs& args)
+        {
+            try
+            {
+                Streams::DataReader dr = args.GetDataReader();
+                    std::wstring wmessage{ dr.ReadString(dr.UnconsumedBufferLength()) };
+                    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                    std::string message = converter.to_bytes(wmessage);
+
+                onMessageReceived(message.c_str());
+            }
+            catch (winrt::hresult_error const& ex)
+            {
+                spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+
+                disconnect();
+            } catch (const std::exception& ex)
+            {
+                spdlog::error("[irc] Error: {}", ex.what());
+            } catch (...)
+            {
+                spdlog::error("[irc] Unknown error");
+            }
+        });
+        mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
+            spdlog::info("[irc] Disconnected from server");
+            //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
+            disconnect();
+        });
+        Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
+        mWriter = writer;
+        mConnectionState = ConnectionState::Connecting;
+
         mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
         {
             mConnectionState = ConnectionState::Connected;
             spdlog::info("[irc] Connected to server");
+            ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");
             std::string username = getPreferredUsername();
             changeUsername(username);
             sendIdentifySelf();
         });
     } catch (winrt::hresult_error const& ex)
     {
-        spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
-        disconnect();
+        spdlog::error("[irc] Error: {} [{}]", winrt::to_string(ex.message()), ex.code());
         return false;
     } catch (const std::exception& ex)
     {
         spdlog::error("[irc] Error: {}", ex.what());
-        disconnect();
         return false;
     } catch (...)
     {
         spdlog::error("[irc] Unknown error");
-        disconnect();
         return false;
     }
-
 
     spdlog::info("[irc] Connected to server");
 
@@ -377,6 +416,8 @@ void IrcClient::onMessageReceived(const char* message)
     else if (type == "QueryName") packetType = IrcPacketType::QueryName;
     else if (type == "ListUsers") packetType = IrcPacketType::ListUsers;
     else if (type == "Ping") packetType = IrcPacketType::Ping;
+    else if (type == "IdentifySelf") packetType = IrcPacketType::IdentifySelf;
+    else if (type == "DiscordMessage") packetType = IrcPacketType::DiscordMessage;
     else
     {
         spdlog::error("[irc] Received message with unknown type: {}", type);
@@ -403,6 +444,13 @@ void IrcClient::onMessageReceived(const char* message)
             //spdlog::info("[irc] Received ping response from server");
             break;
     }
+    case IrcPacketType::IdentifySelf: {
+            spdlog::info("[irc] Identified self to server");
+            break;
+    }
+    case IrcPacketType::DiscordMessage: {
+            break;
+        }
     default: {
             spdlog::error("[irc] Received message with unknown type: {}", type);
             break;
@@ -447,9 +495,6 @@ void IrcManager::init()
     if (!mClient->connectToServer())
     {
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to connect to IRC server.");
-    } else
-    {
-        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");
     }
 
     mLastConnectAttempt = NOW;

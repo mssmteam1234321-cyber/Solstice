@@ -22,6 +22,7 @@ enum class IrcPacketType {
     ListUsers,
     Ping,
     IdentifySelf,
+    DiscordMessage,
 };
 
 // Base class for all IRC packets
@@ -55,6 +56,7 @@ public:
     }
 };
 
+
 class IrcJoinPacket : public IrcPacket {
 public:
     std::string user = "";
@@ -62,7 +64,7 @@ public:
 
     IrcJoinPacket() : IrcPacket(IrcPacketType::Join) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "Join";
         j["user"] = user;
@@ -80,7 +82,7 @@ class IrcLeavePacket : public IrcPacket {
 public:
     IrcLeavePacket() : IrcPacket(IrcPacketType::Leave) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "Leave";
         return j;
@@ -97,7 +99,7 @@ public:
 
     IrcQueryNamePacket() : IrcPacket(IrcPacketType::QueryName) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "QueryName";
         j["user"] = user;
@@ -113,7 +115,7 @@ class IrcListUsersPacket : public IrcPacket {
 public:
     IrcListUsersPacket() : IrcPacket(IrcPacketType::ListUsers) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "ListUsers";
         return j;
@@ -131,7 +133,7 @@ public:
 
     IrcPingPacket() : IrcPacket(IrcPacketType::Ping) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "Ping";
         j["timestamp"] = timestamp;
@@ -155,7 +157,7 @@ public:
 
     IrcIdentifySelfPacket() : IrcPacket(IrcPacketType::Message) {}
 
-    nlohmann::json serialize() const override {
+    [[nodiscard]] nlohmann::json serialize() const override {
         nlohmann::json j;
         j["type"] = "IdentifySelf";
         j["xuid"] = xuid;
