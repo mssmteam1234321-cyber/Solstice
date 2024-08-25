@@ -35,7 +35,7 @@ void Disabler::onPingUpdateEvent(PingUpdateEvent& event)
     if (mMode.mValue != Mode::FlareonOld) return;
     if (mDisablerType.mValue == DisablerType::PingSpoof)
     {
-        event.mPing = 0; // hide ping visually
+        //event.mPing = 0; // hide ping visually
     }
 }
 

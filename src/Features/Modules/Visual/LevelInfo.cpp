@@ -6,6 +6,7 @@
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/SendImmediateEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
@@ -15,19 +16,32 @@ void LevelInfo::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RenderEvent, &LevelInfo::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &LevelInfo::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<PingUpdateEvent, &LevelInfo::onPingUpdateEvent>(this);
+    gFeatureManager->mDispatcher->listen<SendImmediateEvent, &LevelInfo::onSendImmediateEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PingUpdateEvent, &LevelInfo::onPingUpdateEvent, nes::event_priority::VERY_LAST>(this);
 }
 
 void LevelInfo::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &LevelInfo::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &LevelInfo::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<SendImmediateEvent, &LevelInfo::onSendImmediateEvent>(this);
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &LevelInfo::onPingUpdateEvent>(this);
+}
+
+void LevelInfo::onSendImmediateEvent(SendImmediateEvent& event) {
+    uint8_t packetId = event.send[0];
+    if (packetId == 0)
+    {
+        uint64_t timestamp = *reinterpret_cast<uint64_t*>(&event.send[1]);
+        uint64_t timestamp64 = _byteswap_uint64(timestamp);
+        uint64_t now = NOW;
+        mEventDelay = now - timestamp64;
+    }
 }
 
 void LevelInfo::onPingUpdateEvent(PingUpdateEvent& event)
 {
-    mPing = event.mPing;
+    mPing = event.mPing - mEventDelay;
 }
 
 
