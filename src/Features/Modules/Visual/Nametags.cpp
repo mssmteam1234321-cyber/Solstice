@@ -5,6 +5,7 @@
 #include "Nametags.hpp"
 
 #include <Features/Events/CanShowNameTagEvent.hpp>
+#include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
@@ -107,6 +108,16 @@ void Nametags::onRenderEvent(RenderEvent& event)
             // Remove everything after the first newline
             name = name.substr(0, name.find('\n'));
             name = ColorUtils::removeColorCodes(name);
+        }
+
+        if (mShowIrcUsers.mValue && IrcManager::mClient){
+            auto ircUsers = IrcManager::mClient->getConnectedUsers();
+            for (const auto& user : ircUsers){
+                if (name.contains(user.playerName)){
+                    name = user.username + " (" + user.playerName + ")";
+                    break;
+                }
+            }
         }
 
         ImVec2 imFontSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());

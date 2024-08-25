@@ -15,9 +15,10 @@ public:
     BoolSetting mShowFriends = BoolSetting("Show Friends", "Whether or not to render the nametags on friends.", true);
     BoolSetting mRenderLocal = BoolSetting("Render Local", "Whether or not to render the nametags on the local player.", false);
     BoolSetting mDistanceScaledFont = BoolSetting("Distance Scaled Font", "Whether to scale the font based on distance", true);
+    BoolSetting mShowIrcUsers = BoolSetting("Show IRC Users", "Whether to show IRC users in the nametags", true);
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 20, 1, 40, 0.01);;
-    NumberSetting mScalingMultiplier = NumberSetting("Scaling Multiplier", "The multiplier to use for scaling the font", 1.25f, 0.f, 5.f, 0.01f);
-    NumberSetting mMinScale = NumberSetting("Minimum Scale", "The minimum scale to use for scaling the font", 1.f, 0.01f, 20.f, 0.01f);
+    NumberSetting mScalingMultiplier = NumberSetting("Scaling Multiplier", "The multiplier to use for scaling the font", 2.f, 0.f, 5.f, 0.01f);
+    NumberSetting mMinScale = NumberSetting("Minimum Scale", "The minimum scale to use for scaling the font", 7.f, 0.01f, 20.f, 0.01f);
 
     Nametags() : ModuleBase("Nametags", "Draws nametags above entities", ModuleCategory::Visual, 0, false) {
         addSettings(
@@ -25,6 +26,7 @@ public:
             &mShowFriends,
             &mRenderLocal,
             &mDistanceScaledFont,
+            &mShowIrcUsers,
             &mFontSize,
             &mScalingMultiplier,
             &mMinScale

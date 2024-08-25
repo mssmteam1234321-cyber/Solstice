@@ -5,6 +5,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <winrt/base.h>
@@ -23,6 +24,7 @@ enum class IrcPacketType {
     Ping,
     IdentifySelf,
     DiscordMessage,
+    ConnectedUsers
 };
 
 // Base class for all IRC packets
@@ -173,6 +175,122 @@ public:
     }
 };
 
+// Derived class for a "ConnectedUsers" packet.
+// This packet contains a dictionary of all connected users and their respective player names, if available.
+
+/*
+public struct ConnectedIrcUser
+{
+    public string Username;
+    public string Xuid;
+    public string PlayerName;
+
+    public ConnectedIrcUser(string username, string xuid, string playerName)
+    {
+        Username = username;
+        Xuid = xuid;
+        PlayerName = playerName;
+    }
+
+    public JObject Serialize()
+    {
+        JObject j = new();
+        j["username"] = Username;
+        j["xuid"] = Xuid;
+        j["playerName"] = PlayerName;
+        return j;
+    }
+
+    public void Deserialize(JObject j)
+    {
+        Username = j["username"]?.ToString() ?? "";
+        Xuid = j["xuid"]?.ToString() ?? "";
+        PlayerName = j["playerName"]?.ToString() ?? "";
+    }
+}
+public class IrcConnectedUsersPacket : IrcPacket
+{
+    public ConnectedIrcUser[] Users { get; set; }
+
+    public IrcConnectedUsersPacket()
+    {
+        Type = IrcPacketType.ConnectedUsers;
+    }
+
+    public override JObject Serialize()
+    {
+        JObject j = base.Serialize();
+        JArray users = new();
+        foreach (ConnectedIrcUser user in Users)
+        {
+            users.Add(user.Serialize());
+        }
+        j["users"] = users;
+        return j;
+    }
+
+    public override void Deserialize(JObject j)
+    {
+        base.Deserialize(j);
+        JArray users = j["users"] as JArray;
+        Users = new ConnectedIrcUser[users.Count];
+        for (int i = 0; i < users.Count; i++)
+        {
+            ConnectedIrcUser user = new();
+            user.Deserialize(users[i] as JObject);
+            Users[i] = user;
+        }
+    }
+}*/
+
+struct ConnectedIrcUser {
+    std::string username;
+    std::string xuid;
+    std::string playerName;
+
+    ConnectedIrcUser(std::string username, std::string xuid, std::string playerName) : username(username), xuid(xuid), playerName(playerName) {}
+
+    nlohmann::json serialize() const {
+        nlohmann::json j;
+        j["username"] = username;
+        j["xuid"] = xuid;
+        j["playerName"] = playerName;
+        return j;
+    }
+
+    void deserialize(const nlohmann::json& j) {
+        username = j.at("username").get<std::string>();
+        xuid = j.at("xuid").get<std::string>();
+        playerName = j.at("playerName").get<std::string>();
+    }
+};
+
+class IrcConnectedUsersPacket : public IrcPacket {
+public:
+    std::vector<ConnectedIrcUser> users;
+
+    IrcConnectedUsersPacket() : IrcPacket(IrcPacketType::ConnectedUsers) {}
+
+    [[nodiscard]] nlohmann::json serialize() const override {
+        nlohmann::json j;
+        j["type"] = "ConnectedUsers";
+        nlohmann::json userArray = nlohmann::json::array();
+        for (const auto& user : users) {
+            userArray.push_back(user.serialize());
+        }
+        j["users"] = userArray;
+        return j;
+    }
+
+    void deserialize(const nlohmann::json& j) override {
+        for (const auto& user : j.at("users")) {
+            ConnectedIrcUser connectedUser("", "", "");
+            connectedUser.deserialize(user);
+            users.push_back(connectedUser);
+        }
+    }
+};
+
 namespace Sockets = winrt::Windows::Networking::Sockets;
 namespace Streams = winrt::Windows::Storage::Streams;
 
@@ -199,14 +317,28 @@ public:
     ConnectionState mConnectionState = ConnectionState::Disconnected;
     bool mIdentifyNeeded = true;
 
+    // this is because the mConnectedUsers map WILL be accessed from multiple threads
+    std::mutex mConnectedUsersMutex;
+    std::vector<ConnectedIrcUser> mConnectedUsers;
+
+    bool mShowNamesInChat = false;
+
+    // copied because we need to access it from multiple threads
+    std::vector<ConnectedIrcUser> getConnectedUsers();
+    void setConnectedUsers(const std::vector<ConnectedIrcUser>& users);
+
     IrcClient();
     ~IrcClient();
 
     std::string getHwid();
 
-    void sendIdentifySelf();
-    void onPacketOutEvent(PacketOutEvent& event);
+    // Minecraft events
     void onBaseTickEvent(BaseTickEvent& event);
+    void onPacketInEvent(PacketInEvent& event);
+    void onPacketOutEvent(PacketOutEvent& event);
+
+    // IRC functions
+    void sendIdentifySelf();
     void displayMsg(std::string message);
     void queryName();
     bool isConnected();
@@ -227,6 +359,7 @@ public:
     static inline std::unique_ptr<IrcClient> mClient = nullptr;
     static inline uint64_t mLastConnectAttempt = 0;
 
+    static bool setShowNamesInChat(bool showNamesInChat);
     static void init();
     static void deinit();
     static void disconnectCallback();

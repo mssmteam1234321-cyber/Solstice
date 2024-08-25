@@ -10,6 +10,7 @@
 #include <Features/Configs/ConfigManager.hpp>
 #include <Hook/HookManager.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+
 #include <SDK/OffsetProvider.hpp>
 
 #include <SDK/SigManager.hpp>
@@ -25,6 +26,7 @@
 #include <winrt/Windows.UI.Core.h>
 #include <build_info.h>
 #include <Features/IRC/IrcClient.hpp>
+#include <Features/Modules/Misc/IRC.hpp>
 
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 
@@ -206,6 +208,9 @@ void Solstice::init(HMODULE hModule)
         {
             isLpValid = true;
             HookManager::init(true); // Initialize the base tick hook
+
+            auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
+            if (!ircModule->mEnabled) ircModule->toggle();
 
             if (!Prefs->mDefaultConfigName.empty())
             {

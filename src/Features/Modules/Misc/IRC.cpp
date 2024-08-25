@@ -5,22 +5,39 @@
 #include "IRC.hpp"
 
 #include <Features/IRC/IrcClient.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 void IRC::onEnable()
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player)
+    {
+        NotifyUtils::notify("Please don't enable IRC until you're in game!", 10.0f, Notification::Type::Error);
+        setEnabled(false);
+        return;
+    }
+
     IrcManager::init();
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &IRC::onBaseTickEvent>(this);
+    IrcManager::setShowNamesInChat(mShowNamesInChat.mValue);
+
 }
 
 void IRC::onDisable()
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    bool isConnected = IrcManager::mClient && IrcManager::mClient->mConnectionState == ConnectionState::Connected;
+    // if we're not in game AND not connected, don't deinit
+    if (!player && !isConnected) return;
+
     IrcManager::deinit();
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &IRC::onBaseTickEvent>(this);
+
 }
 
 void IRC::onBaseTickEvent(BaseTickEvent& event)
 {
+    if (!mEnabled) return;
 
+    IrcManager::setShowNamesInChat(mShowNamesInChat.mValue);
     if (IrcManager::mClient && IrcManager::mLastConnectAttempt + 5000 < NOW && IrcManager::mClient->mConnectionState == ConnectionState::Disconnected)
     {
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §eAttempting to reconnect to IRC...");

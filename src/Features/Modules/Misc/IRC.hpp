@@ -7,13 +7,19 @@
 
 class IRC : public ModuleBase<IRC> {
 public:
-    IRC() : ModuleBase("IRC", "IRC Chat", ModuleCategory::Misc, 0, true) {
+    BoolSetting mShowNamesInChat = BoolSetting("Show Names in Chat", "Shows the names of IRC users in the normal minecraft chat when they send a message", true);
+    IRC() : ModuleBase("IRC", "IRC Chat", ModuleCategory::Misc, 0, false) {
+
+        addSetting(&mShowNamesInChat);
+
         mNames = {
             {Lowercase, "irc"},
             {LowercaseSpaced, "irc"},
             {Normal, "IRC"},
             {NormalSpaced, "IRC"}
         };
+
+        gFeatureManager->mDispatcher->listen<BaseTickEvent, &IRC::onBaseTickEvent>(this);
     }
 
     void onEnable() override;
