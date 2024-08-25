@@ -336,37 +336,13 @@ void IrcClient::onPacketInEvent(PacketInEvent& event)
     if (std::ranges::none_of(users, [&message](const ConnectedIrcUser& user) { return message.find(user.playerName) != std::string::npos; }))
         return;
 
-    std::regex colorCodeRegex("§[0-9a-z]");
-    std::smatch match;
-
     for (const auto& user : users) {
-        size_t pos = 0;
-        std::string playerName = user.playerName;
-        std::string username = user.username;
-
-        while ((pos = message.find(playerName, pos)) != std::string::npos) {
-            // Check if there's a color code preceding the player name
-            std::string replacement;
-            std::string substring = message.substr(0, pos);
-            if (std::regex_search(substring, match, colorCodeRegex)) {
-                replacement = match.str() + username + " (" + playerName + ")";
-            } else {
-                replacement = username + " (" + playerName + ")";
-            }
-
-            // Replace the player name with the username (playerName)
-            message.replace(pos, playerName.length(), replacement);
-
-            // Move past the replacement to avoid infinite loop
-            pos += replacement.length();
-        }
+        std::regex regex(user.playerName);
+        message = std::regex_replace(message, regex, user.username + " (" + user.playerName + ")");
     }
 
     // Update the packet's message
     packet->mMessage = message;
-
-    // Continue with other processing if needed
-    // ...
 }
 
 
