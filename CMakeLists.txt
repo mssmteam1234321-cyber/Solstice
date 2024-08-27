@@ -64,6 +64,13 @@ CPMAddPackage(
         GIT_TAG main
 )
 
+# https://github.com/abdes/cryptopp-cmake.git
+CPMAddPackage(
+        NAME cryptopp-cmake
+        GITHUB_REPOSITORY abdes/cryptopp-cmake
+        GIT_TAG master
+)
+
 
 set(SHADER_DIR ${CMAKE_CURRENT_LIST_DIR}/src/Utils/Shaders)
 set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/SolsticeShaders)
@@ -288,9 +295,9 @@ add_subdirectory(include/Kiero)
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)
 
-target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 version.lib nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib ws2_32.lib)
+target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 version.lib nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib ws2_32.lib cryptopp)
 
-set_property(TARGET Solstice nlohmann_json minhook spdlog DirectXTK glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
+set_property(TARGET Solstice nlohmann_json minhook spdlog cryptopp DirectXTK glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 
 
 target_precompile_headers(Solstice PRIVATE

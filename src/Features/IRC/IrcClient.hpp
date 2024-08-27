@@ -14,236 +14,231 @@
 #include <winrt/Windows.Data.Xml.Dom.h>
 #include <winrt/Windows.UI.Notifications.h>
 #include <winrt/windows.storage.streams.h>
+#include "WorkingVM.hpp"
 
-enum class IrcPacketType {
-    Join,
-    Leave,
-    Message,
-    QueryName,
-    ListUsers,
-    Ping,
-    IdentifySelf,
-    DiscordMessage,
-    ConnectedUsers
+class EncryptedOp;
+
+enum class OpCode
+{
+    /* Authentication OpCodes. The client must complete these before sending any other messages */
+    Work, // proof of work for client
+    CompleteWork, // proof of work for server
+    KeyIn, // key in for client
+    KeyOut, // key out for server
+    AuthFinish, // authentication finish to client
+
+    /* Normal OpCodes */
+    IdentifyClient, // identify for client
+    IdentifyPlayer, // identify for player
+    ServerMessage, // server message to client
+    Error, // error message to client
+    Ping, // ping message to client
+    Announcement, // announcement message to client
+    Join, // join message to client
+    Leave, // leave message to client
+    Message, // message to client
+    ListUsers, // list users to client
+    ConnectedUserList, // connected user list to client
+
+    /* Specialized OpCodes */
+    DiscordMessage = 0x8461, // discord message to client
 };
-
-// Base class for all IRC packets
-class IrcPacket {
-public:
-    IrcPacketType mType;
-
-    IrcPacket(IrcPacketType type) : mType(type) {}
-    virtual ~IrcPacket() = default;
-
-    virtual nlohmann::json serialize() const = 0;
-    virtual void deserialize(const nlohmann::json& j) = 0;
-};
-
-// Derived class for a "Message" packet
-class IrcMessagePacket : public IrcPacket {
-public:
-    std::string message;
-
-    IrcMessagePacket() : IrcPacket(IrcPacketType::Message) {}
-
-    nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "Message";
-        j["message"] = message;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        message = j.at("message").get<std::string>();
-    }
-};
-
-
-class IrcJoinPacket : public IrcPacket {
-public:
-    std::string user = "";
-    std::string client = "";
-
-    IrcJoinPacket() : IrcPacket(IrcPacketType::Join) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "Join";
-        j["user"] = user;
-        j["client"] = client;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        user = j.at("user").get<std::string>();
-        client = j.at("client").get<std::string>();
-    }
-};
-
-class IrcLeavePacket : public IrcPacket {
-public:
-    IrcLeavePacket() : IrcPacket(IrcPacketType::Leave) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "Leave";
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        // Nothing to deserialize, this packet simply disconnects the user
-    }
-};
-
-class IrcQueryNamePacket : public IrcPacket {
-public:
-    std::string user = "";
-
-    IrcQueryNamePacket() : IrcPacket(IrcPacketType::QueryName) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "QueryName";
-        j["user"] = user;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        user = j.at("user").get<std::string>();
-    }
-};
-
-class IrcListUsersPacket : public IrcPacket {
-public:
-    IrcListUsersPacket() : IrcPacket(IrcPacketType::ListUsers) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "ListUsers";
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        // Nothing to deserialize, this packet simply lists all users
-    }
-};
-
-// #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
-class IrcPingPacket : public IrcPacket {
-public:
-    uint64_t timestamp;
-
-    IrcPingPacket() : IrcPacket(IrcPacketType::Ping) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "Ping";
-        j["timestamp"] = timestamp;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        timestamp = j.at("timestamp").get<uint64_t>();
-    }
-
-    uint64_t getPingTime() {
-        return NOW - timestamp;
-    }
-};
-
-class IrcIdentifySelfPacket : public IrcPacket {
-public:
-    std::string xuid = "";
-    std::string playerName = "";
-    std::string hwid = "";
-
-    IrcIdentifySelfPacket() : IrcPacket(IrcPacketType::Message) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "IdentifySelf";
-        j["xuid"] = xuid;
-        j["playerName"] = playerName;
-        j["hwid"] = hwid;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        playerName = j.at("playerName").get<std::string>();
-        xuid = j.at("xuid").get<std::string>();
-        hwid = j.at("hwid").get<std::string>();
-    }
-};
-
-// Derived class for a "ConnectedUsers" packet.
-// This packet contains a dictionary of all connected users and their respective player names, if available.
 
 /*
-public struct ConnectedIrcUser
+public class ChatOp
 {
-    public string Username;
-    public string Xuid;
-    public string PlayerName;
+    public OpCode OpCode;
+    public string data;
+    public bool success;
 
-    public ConnectedIrcUser(string username, string xuid, string playerName)
+    public ChatOp(OpCode opCode, string data, bool success)
     {
-        Username = username;
-        Xuid = xuid;
-        PlayerName = playerName;
+        OpCode = opCode;
+        this.data = data;
+        this.success = success;
     }
 
     public JObject Serialize()
     {
-        JObject j = new();
-        j["username"] = Username;
-        j["xuid"] = Xuid;
-        j["playerName"] = PlayerName;
-        return j;
+        return new JObject
+        {
+            ["o"] = (int) OpCode,
+            ["d"] = data,
+            ["s"] = success
+        };
     }
 
-    public void Deserialize(JObject j)
+    public static ChatOp Deserialize(JObject obj)
     {
-        Username = j["username"]?.ToString() ?? "";
-        Xuid = j["xuid"]?.ToString() ?? "";
-        PlayerName = j["playerName"]?.ToString() ?? "";
+        return new ChatOp((OpCode) obj["o"].Value<int>(), obj["d"].Value<string>(), obj["s"].Value<bool>());
+    }
+
+    public static string SerializeString(ChatOp chatOp)
+    {
+        return JsonConvert.SerializeObject(chatOp.Serialize());
+    }
+
+    public ChatOp(EncryptedOp encryptedOp, string key)
+    {
+        if (!encryptedOp.decrypted)
+        {
+            Console.WriteLine("Decrypting encrypted op...");
+            encryptedOp.Decrypt(key);
+        }
+        ChatOp chatOp = Deserialize(JObject.Parse(encryptedOp.Encrypted));
+        OpCode = chatOp.OpCode;
+        data = chatOp.data;
+        success = chatOp.success;
     }
 }
-public class IrcConnectedUsersPacket : IrcPacket
-{
-    public ConnectedIrcUser[] Users { get; set; }
 
-    public IrcConnectedUsersPacket()
+public class EncryptedOp
+{
+    public string Encrypted;
+    public bool decrypted = false;
+
+    public EncryptedOp(string toEncrypt, string key)
     {
-        Type = IrcPacketType.ConnectedUsers;
+        Encrypted = EncUtils.Encrypt(toEncrypt, key);
+        decrypted = false;
     }
 
-    public override JObject Serialize()
+    public EncryptedOp(string encrypted)
     {
-        JObject j = base.Serialize();
-        JArray users = new();
-        foreach (ConnectedIrcUser user in Users)
+        Encrypted = encrypted;
+        decrypted = false;
+    }
+
+    public void Decrypt(string key)
+    {
+        if (decrypted)
         {
-            users.Add(user.Serialize());
+            return;
         }
-        j["users"] = users;
+
+        Encrypted = EncUtils.Decrypt(Encrypted, key);
+        decrypted = true;
+
+        if (!IsValidJson(Encrypted))
+        {
+            throw new InvalidOperationException("Decryption failed, resulting in invalid JSON.");
+        }
+    }
+
+    private bool IsValidJson(string str)
+    {
+        try
+        {
+            JToken.Parse(str);
+            return true;
+        }
+        catch (JsonReaderException)
+        {
+            return false;
+        }
+    }
+
+    public JObject Serialize()
+    {
+        return new JObject
+        {
+            ["e"] = Encrypted
+        };
+    }
+}
+*/
+
+class EncryptedOp {
+public:
+    std::string Encrypted;
+    bool decrypted = false;
+
+    EncryptedOp(std::string toEncrypt, std::string key) {
+        Encrypted = StringUtils::encrypt(toEncrypt, key);
+        decrypted = false;
+    }
+
+    EncryptedOp(std::string encrypted) : Encrypted(encrypted), decrypted(false) {}
+
+    void decrypt(const std::string& key) {
+        if (decrypted) {
+            spdlog::warn("Already decrypted, skipping...");
+            return;
+        }
+
+        Encrypted = StringUtils::decrypt(Encrypted, key);
+        decrypted = true;
+
+        if (!nlohmann::json::accept(Encrypted)) {
+            spdlog::error("JSON parse error: {}", Encrypted);
+            throw std::runtime_error("Decryption failed, resulting in invalid JSON.");
+        }
+    }
+
+    nlohmann::json serialize() const {
+        nlohmann::json j;
+        j["e"] = Encrypted;
+        return j;
+    }
+};
+
+class ChatOp {
+public:
+    OpCode opCode;
+    std::string data;
+    bool success;
+
+    ChatOp(OpCode opCode, std::string data, bool success) : opCode(opCode), data(data), success(success) {}
+
+    nlohmann::json serialize() const {
+        nlohmann::json j;
+        j["o"] = opCode;
+        j["d"] = data;
+        j["s"] = success;
         return j;
     }
 
-    public override void Deserialize(JObject j)
-    {
-        base.Deserialize(j);
-        JArray users = j["users"] as JArray;
-        Users = new ConnectedIrcUser[users.Count];
-        for (int i = 0; i < users.Count; i++)
-        {
-            ConnectedIrcUser user = new();
-            user.Deserialize(users[i] as JObject);
-            Users[i] = user;
-        }
+    static ChatOp deserialize(nlohmann::json& j) {
+        OpCode opCode = static_cast<OpCode>(j["o"].get<int>());
+        std::string data = j["d"].get<std::string>();
+        bool success = j["s"].get<bool>();
+        return ChatOp(opCode, data, success);
     }
-}*/
+
+    static ChatOp deserializeStr(std::string data) {
+        auto j = nlohmann::json::parse(data);
+        return deserialize(j);
+    }
+
+    static std::string serializeString(const ChatOp& chatOp) {
+        return nlohmann::json(chatOp.serialize()).dump();
+    }
+
+    ChatOp(EncryptedOp& encryptedOp, const std::string& key) {
+        if (!encryptedOp.decrypted) {
+            encryptedOp.decrypt(key);
+        }
+        nlohmann::json j = nlohmann::json::parse(encryptedOp.Encrypted);
+        ChatOp chatOp = deserialize(j);
+        opCode = chatOp.opCode;
+        data = chatOp.data;
+        success = chatOp.success;
+    }
+};
+
+
+
 
 struct ConnectedIrcUser {
+    /*
+            userList[clientInfo.Username] = new JObject
+            {
+                ["0"] = clientInfo.ClientName,
+                ["1"] = clientInfo.Username,
+                ["2"] = clientInfo.PlayerName,
+                ["3"] = clientInfo.Xuid
+            };*/
+    std::string clientName;
     std::string username;
     std::string xuid;
     std::string playerName;
@@ -252,42 +247,18 @@ struct ConnectedIrcUser {
 
     nlohmann::json serialize() const {
         nlohmann::json j;
-        j["username"] = username;
-        j["xuid"] = xuid;
-        j["playerName"] = playerName;
+        j["0"] = clientName;
+        j["1"] = username;
+        j["2"] = playerName;
+        j["3"] = xuid;
         return j;
     }
 
     void deserialize(const nlohmann::json& j) {
-        username = j.at("username").get<std::string>();
-        xuid = j.at("xuid").get<std::string>();
-        playerName = j.at("playerName").get<std::string>();
-    }
-};
-
-class IrcConnectedUsersPacket : public IrcPacket {
-public:
-    std::vector<ConnectedIrcUser> users;
-
-    IrcConnectedUsersPacket() : IrcPacket(IrcPacketType::ConnectedUsers) {}
-
-    [[nodiscard]] nlohmann::json serialize() const override {
-        nlohmann::json j;
-        j["type"] = "ConnectedUsers";
-        nlohmann::json userArray = nlohmann::json::array();
-        for (const auto& user : users) {
-            userArray.push_back(user.serialize());
-        }
-        j["users"] = userArray;
-        return j;
-    }
-
-    void deserialize(const nlohmann::json& j) override {
-        for (const auto& user : j.at("users")) {
-            ConnectedIrcUser connectedUser("", "", "");
-            connectedUser.deserialize(user);
-            users.push_back(connectedUser);
-        }
+        clientName = j["0"].get<std::string>();
+        username = j["1"].get<std::string>();
+        playerName = j["2"].get<std::string>();
+        xuid = j["3"].get<std::string>();
     }
 };
 
@@ -302,8 +273,10 @@ enum class ConnectionState {
 
 class IrcClient {
 public:
-    constexpr static const char* mServer = "irc.solstice.works";
-    constexpr static int mPort = 27335;
+    /*constexpr static const char* mServer = "irc.solstice.works";
+    constexpr static int mPort = 27335;*/
+    constexpr static const char* mServer = "127.0.0.1";
+    constexpr static int mPort = 6667;
 
     Sockets::MessageWebSocket mSocket = nullptr;
     Streams::DataWriter mWriter = nullptr;
@@ -323,34 +296,35 @@ public:
 
     bool mShowNamesInChat = false;
 
+    bool mEncrypted = false;
+    std::string mServerKey = "";
+    std::string mClientKey = "";
+
     // copied because we need to access it from multiple threads
     std::vector<ConnectedIrcUser> getConnectedUsers();
     void setConnectedUsers(const std::vector<ConnectedIrcUser>& users);
 
     IrcClient();
     ~IrcClient();
+    bool isConnected() const;
 
+    void sendOpAuto(const ChatOp& op);
+    ChatOp parseOpAuto(std::string data);
+    void sendData(std::string data);
     std::string getHwid();
+    void genClientKey();
 
     // Minecraft events
     void onBaseTickEvent(BaseTickEvent& event);
     void onPacketInEvent(PacketInEvent& event);
+    void sendPlayerIdentity();
     void onPacketOutEvent(PacketOutEvent& event);
 
-    // IRC functions
-    void sendIdentifySelf();
     void displayMsg(std::string message);
-    void queryName();
-    bool isConnected();
+
     bool connectToServer();
+    void onConnected();
     void disconnect();
-    void sendPacket(const IrcPacket* packet);
-    std::string getPreferredUsername();
-    void receiveMessages();
-    void sendMessage(std::string& message);
-    void onMessageReceived(const char* message);
-    void listUsers();
-    void changeUsername(std::string username);
 };
 
 class IrcManager

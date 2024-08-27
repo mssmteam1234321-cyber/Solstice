@@ -111,3 +111,15 @@ std::string Base64::decode(const std::string& input)
 {
    return base64_decode(input);
 }
+
+std::string Base64::encodeBytes(std::vector<uint8_t>& input)
+{
+    std::string str(input.begin(), input.end());
+    return base64_encode(str);
+}
+
+std::vector<uint8_t> Base64::decodeBytes(const std::string& input)
+{
+    std::string decoded = base64_decode(input);
+    return std::vector<uint8_t>(decoded.begin(), decoded.end());
+}

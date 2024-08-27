@@ -5,9 +5,14 @@
 #include "StringUtils.hpp"
 
 #include <algorithm>
+#include <hex.h>
 #include <windows.h>
 #include "spdlog/spdlog.h"
-
+#include <cryptopp/files.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/base64.h>
 
 std::string StringUtils::generateUUID()
 {
@@ -208,4 +213,195 @@ std::string StringUtils::getRelativeTime(std::chrono::system_clock::time_point t
 
     auto years = std::chrono::duration_cast<std::chrono::years>(diff);
     return std::to_string(years.count()) + " years ago";
+}
+
+/*
+public class StringCipher
+{
+    public static string Encode(string input)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(input);
+
+        for (int i = 0; i < bytes.Length - 1; i += 2) (bytes[i], bytes[i + 1]) = (bytes[i + 1], bytes[i]);
+        for (int i = 0; i < bytes.Length; i++) bytes[i] = (byte)~bytes[i];
+
+        return Convert.ToBase64String(bytes);
+    }
+
+    public static string Decode(string input)
+    {
+        byte[] bytes = Convert.FromBase64String(input);
+
+        for (int i = 0; i < bytes.Length; i++) bytes[i] = (byte)~bytes[i];
+        for (int i = 0; i < bytes.Length - 1; i += 2) (bytes[i], bytes[i + 1]) = (bytes[i + 1], bytes[i]);
+
+        return Encoding.UTF8.GetString(bytes);
+    }
+}
+*/
+
+
+
+
+std::string StringUtils::decode(const std::string& str)
+{
+    std::vector<uint8_t> bytes = Base64::decodeBytes(str);
+
+    for (auto& byte : bytes) {
+        byte = ~byte;
+    }
+
+    for (size_t i = 0; i < bytes.size() - 1; i += 2) {
+        std::swap(bytes[i], bytes[i + 1]);
+    }
+
+    return std::string(bytes.begin(), bytes.end());
+}
+
+std::string StringUtils::encode(const std::string& input)
+{
+    std::vector<uint8_t> bytes(input.begin(), input.end());
+
+    for (size_t i = 0; i < bytes.size() - 1; i += 2) {
+        std::swap(bytes[i], bytes[i + 1]);
+    }
+
+    for (auto& byte : bytes) {
+        byte = ~byte;
+    }
+
+    return Base64::encodeBytes(bytes);
+}
+/*
+public static class EncUtils
+{
+    // String encryption, using AES.
+    public static string Encrypt(string plaintext, string key)
+    {
+        // Truncate key to 16 bytes
+        string truncatedKey = key.Substring(0, 16);
+
+        // Convert plaintext to bytes
+        byte[] plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
+
+        // Create AES object
+        using Aes aes = Aes.Create();
+
+        // Set key and IV
+        aes.Key = Encoding.UTF8.GetBytes(truncatedKey);
+        aes.IV = Encoding.UTF8.GetBytes(truncatedKey);
+
+        // Create memory stream
+        using MemoryStream ms = new();
+
+        // Create crypto stream
+        using CryptoStream cs = new(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
+
+        // Write plaintext bytes to crypto stream
+        cs.Write(plaintextBytes, 0, plaintextBytes.Length);
+        cs.Close();
+
+        // Return base64 encoded ciphertext
+        return Convert.ToBase64String(ms.ToArray());
+    }
+
+    public static string Decrypt(string ciphertext, string key)
+    {
+        // Truncate key to 16 bytes
+        string truncatedKey = key.Substring(0, 16);
+
+        // Convert ciphertext to bytes
+        byte[] ciphertextBytes = Convert.FromBase64String(ciphertext);
+
+        // Create AES object
+        using Aes aes = Aes.Create();
+
+        // Set key and IV
+        aes.Key = Encoding.UTF8.GetBytes(truncatedKey);
+        aes.IV = Encoding.UTF8.GetBytes(truncatedKey);
+
+        // Create memory stream
+        using MemoryStream ms = new(ciphertextBytes);
+
+        // Create crypto stream
+        using CryptoStream cs = new(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
+
+        // Create stream reader
+        using StreamReader sr = new(cs);
+
+        // Return decrypted plaintext
+        return sr.ReadToEnd();
+    }
+}*/
+
+using namespace CryptoPP;
+class EncUtils
+{
+public:
+    static std::string Encrypt(const std::string& plaintext, const std::string& key) {
+        // Truncate key to 16 bytes (128-bit)
+        std::string truncatedKey = key.substr(0, AES::DEFAULT_KEYLENGTH);
+
+        // Convert plaintext to byte vector
+        std::vector<byte> plaintextBytes(plaintext.begin(), plaintext.end());
+
+        // blank 16 bytes for iv
+        std::vector<byte> iv(AES::BLOCKSIZE);
+
+        // Create AES object with CFB mode
+        CFB_Mode<AES>::Encryption aes;
+        aes.SetKeyWithIV((byte*)truncatedKey.data(), truncatedKey.size(), iv.data());
+
+        // Create string to hold ciphertext
+        std::string ciphertext;
+
+        // Encrypt plaintext bytes
+        StringSource ss(plaintextBytes.data(), plaintextBytes.size(), true,
+                        new StreamTransformationFilter(aes,
+                        new StringSink(ciphertext), StreamTransformationFilter::NO_PADDING));
+
+        // Return base64 encoded ciphertext
+        std::string base64Ciphertext;
+        StringSource ss2(ciphertext, true, new Base64Encoder(new StringSink(base64Ciphertext), false));
+        return base64Ciphertext;
+    }
+
+    static std::string Decrypt(const std::string& ciphertext, const std::string& key) {
+        // Truncate key to 16 bytes (128-bit)
+        std::string truncatedKey = key.substr(0, AES::DEFAULT_KEYLENGTH);
+
+        // Decode base64 encoded ciphertext
+        std::string decodedCiphertext;
+        StringSource ss(ciphertext, true, new Base64Decoder(new StringSink(decodedCiphertext)));
+
+        // Convert decoded ciphertext to byte vector
+        std::vector<byte> ciphertextBytes(decodedCiphertext.begin(), decodedCiphertext.end());
+
+        // blank 16 bytes for iv
+        std::vector<byte> iv(AES::BLOCKSIZE);
+
+        // Create AES object with CFB mode
+        CFB_Mode<AES>::Decryption aes;
+        aes.SetKeyWithIV((byte*)truncatedKey.data(), truncatedKey.size(), iv.data());
+
+        // Decrypt ciphertext bytes
+        std::string plaintext;
+        StringSource ss2(ciphertextBytes.data(), ciphertextBytes.size(), true,
+                         new StreamTransformationFilter(aes,
+                         new StringSink(plaintext), StreamTransformationFilter::NO_PADDING));
+
+        return plaintext;
+    }
+};
+
+std::string StringUtils::encrypt(const std::string& input, const std::string& key) {
+    // Truncate key to 16 bytes
+    std::string truncatedKey = key.substr(0, 16);
+    return Base64::encode( EncUtils::Encrypt(input, truncatedKey) );
+}
+
+std::string StringUtils::decrypt(const std::string& input, const std::string& key) {
+    // Truncate key to 16 bytes
+    std::string truncatedKey = key.substr(0, 16);
+    return EncUtils::Decrypt(Base64::decode(input), truncatedKey);
 }

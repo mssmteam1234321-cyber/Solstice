@@ -18,11 +18,20 @@ void TestCommand::execute(const std::vector<std::string>& args)
     // get the first argument, if any
     if (args.size() <= 1)
     {
-        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug");
+        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug, enctest");
         return;
     }
 
     const std::string& arg = args[1];
+
+    if (arg == "enctest")
+    {
+        std::string input = "z8/Pz8/PzM3MzM3Pz8/Pz8rOx8/Nz8/Pz8/OzsjMzc/Pz8/PvM+5vs3Pubm5ubu7zL7Oz8/Pz8/Iz769zs+5ubm5vLq7vMzPz8/Pz8/Pu7nPz7m5ubnMusjNzc/Pz8/Pus+5uc3Pz8/Pz8fOucfPz7m5ubm5ucjJz8+5ubm5zLnPz87Pz8/Pz83Ny8/Oz7m5ubm+u8u+z8+5ubm5vLq7us7Pubm5ucm5urnPz7m5ubnLuszNzc+5ubm5x7q9zs3Pz8/Pz7rPx7zOz8/Pz8/OzcvLzs+5ubm5vLnGyM3Pubm5ucu5vrnOz8/Pz8+8zrnNzs/Pz8/Pys+7z87Pubm5ub25yL3Pz8/Pz8/Hz866z8/Pz8/Puc7Mzs7Pubm5ubu6x8/Nz8/Pz8+9zs2+zc/Pz8/Pyc3HvcvPz8/Pz8/Pz88=";
+        std::string key = "UMBQ0l9YCSdxkeV+5LgD4SESbE2dk0aCBU+iYROttFM7bQJ72iRhuFV8MMcuJESQdzhbKgykC7dDiohNUWgOLA==";
+        std::string output = StringUtils::decrypt(input, key);
+        ChatUtils::displayClientMessage("Decrypted: " + output);
+        return;
+    }
 
     if (arg == "showconsole")
     {

@@ -32,6 +32,10 @@ public:
     static std::string fromBase64(const std::string& str);
     static std::string toBase64(const std::string& str);
     static std::string getRelativeTime(std::chrono::system_clock::time_point time);
+    static std::string encode(const std::string& str);
+    static std::string decode(const std::string& str);
+    static std::string encrypt(const std::string& str, const std::string& key);
+    static std::string decrypt(const std::string& str, const std::string& key);
 };
 
 
