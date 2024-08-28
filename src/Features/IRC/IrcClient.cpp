@@ -9,6 +9,12 @@
 #include <utility>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
+// so that irc strings dont appear in release builds
+#ifdef __DEBUG__
+#define logm(...) spdlog::info("[irc] " __VA_ARGS__)
+#else
+#define logm(...)
+#endif
 
 std::vector<ConnectedIrcUser> IrcClient::getConnectedUsers()
 {
@@ -20,6 +26,24 @@ void IrcClient::setConnectedUsers(const std::vector<ConnectedIrcUser>& users)
 {
     std::lock_guard<std::mutex> lock(mConnectedUsersMutex);
     mConnectedUsers = users;
+    logm("Updated connected users list, size: {}", mConnectedUsers.size());
+}
+
+void IrcClient::sendMessage(const std::string& string)
+{
+    auto op = ChatOp(OpCode::Message, string, true);
+    sendOpAuto(op);
+}
+
+void IrcClient::listUsers()
+{
+    auto op = ChatOp(OpCode::ListUsers, "", true);
+    sendOpAuto(op);
+}
+
+void IrcClient::changeUsername()
+{
+    sendPlayerIdentity(true);
 }
 
 IrcClient::IrcClient()
@@ -44,10 +68,10 @@ bool IrcClient::isConnected() const
 void IrcClient::sendOpAuto(const ChatOp& op)
 {
     if (mEncrypted) {
-        spdlog::info("[irc] sending as encrypted");
+        std::string serialized = op.serialize().dump(4);
         // Encrypt the message
-        auto encryptedOp = EncryptedOp(op.serialize().dump(4), mClientKey);
-        sendData(encryptedOp.serialize());
+        auto encryptedOp = EncryptedOp(serialized, mClientKey);
+        sendData(serialized);
         return;
     }
 
@@ -57,12 +81,12 @@ void IrcClient::sendOpAuto(const ChatOp& op)
 ChatOp IrcClient::parseOpAuto(std::string data)
 {
     if (mEncrypted) {
+        // If the data contains "e" key, write the value of e to data
         auto encryptedOp = EncryptedOp(data);
         encryptedOp.decrypt(mServerKey);
         return ChatOp::deserializeStr(encryptedOp.Encrypted);
     }
 
-    spdlog::info("[irc] Parsing message: {}", data);
     return ChatOp::deserializeStr(data);
 }
 
@@ -70,7 +94,7 @@ void IrcClient::sendData(std::string data)
 {
     if (!isConnected())
     {
-        spdlog::error("[irc] Cannot send data, not connected to server");
+        logm("Cannot send data, not connected to server");
         return;
     }
 
@@ -84,13 +108,13 @@ void IrcClient::sendData(std::string data)
         mWriter.FlushAsync();
     } catch (winrt::hresult_error const& ex)
     {
-        spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+        logm("Error: {}", winrt::to_string(ex.message()));
     } catch (const std::exception& ex)
     {
-        spdlog::error("[irc] Error: {}", ex.what());
+        logm("Error: {}", ex.what());
     } catch (...)
     {
-        spdlog::error("[irc] Unknown error");
+        logm("Unknown error");
     }
 }
 
@@ -102,6 +126,7 @@ std::string IrcClient::getHwid()
 void IrcClient::genClientKey()
 {
     mClientKey = StringUtils::sha256(getHwid());
+    mClientKey = mClientKey.substr(0, 16);
 }
 
 bool IrcClient::connectToServer()
@@ -110,7 +135,7 @@ bool IrcClient::connectToServer()
     // If we are connecting, return false
     if (mConnectionState == ConnectionState::Connecting)
     {
-        spdlog::error("[irc] Cannot connect to server, already connecting");
+        logm("Cannot connect to server, already connecting");
         return false;
     }
 
@@ -123,7 +148,6 @@ bool IrcClient::connectToServer()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     if (getaddrinfo(host.c_str(), port.c_str(), &hints, &result) != 0) {
-        spdlog::error("[irc] getaddrinfo failed with error: {}", WSAGetLastError());
         return false;
     }
 
@@ -147,24 +171,20 @@ bool IrcClient::connectToServer()
                 // continue if this isnt valid json
                 if (message.empty() || message[0] != '{' || message[message.size() - 1] != '}')
                 {
-                    spdlog::error("[irc] Invalid message: {}", message);
                     return;
                 }
 
                 auto op = parseOpAuto(message);
-                spdlog::info("[irc] Received message: {}", magic_enum::enum_name(op.opCode));
 
                 if (op.opCode == OpCode::KeyOut)
                 {
                     mServerKey = op.data;
-                    spdlog::info("[irc] Server key received: {}", mServerKey);
+                    mServerKey = mServerKey.substr(0, 16);
                     genClientKey();
-                    spdlog::info("[irc] Client key generated: {}", mClientKey);
                     auto op = ChatOp(OpCode::KeyIn, mClientKey, true);
-                    spdlog::info("[irc] Sending client key");
                     sendOpAuto(op);
-                    spdlog::info("[irc] Client key sent, encryption enabled");
                     mEncrypted = true; // from now on, we will encrypt messages
+                    return;
                 }
 
                 if (op.opCode == OpCode::Ping)
@@ -172,6 +192,7 @@ bool IrcClient::connectToServer()
                     auto op = ChatOp(OpCode::Ping, std::to_string(NOW), true);
                     sendOpAuto(op);
                     mLastPing = NOW;
+                    return;
                 }
 
                 if (op.opCode == OpCode::Work)
@@ -179,31 +200,34 @@ bool IrcClient::connectToServer()
                     int result = WorkingVM::SolveProofTask(op.data);
                     auto op = ChatOp(OpCode::CompleteWork, std::to_string(result), true);
                     sendOpAuto(op);
+                    return;
                 }
 
                 if (op.opCode == OpCode::AuthFinish)
                 {
-                    spdlog::info("[irc] Authenticated with server");
+                    logm("Authentication complete");
                     onConnected();
+                    return;
                 }
 
+                onReceiveOp(op);
 
             }
             catch (winrt::hresult_error const& ex)
             {
-                spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+                logm("Error: {}", winrt::to_string(ex.message()));
 
                 disconnect();
             } catch (const std::exception& ex)
             {
-                spdlog::error("[irc] StdError: {}", ex.what());
+                logm("StdError: {}", ex.what());
             } catch (...)
             {
-                spdlog::error("[irc] Unknown error");
+                logm("Unknown error");
             }
         });
         mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
-            spdlog::info("[irc] Disconnected from server");
+            logm("Disconnected from server");
             //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
             disconnect();
         });
@@ -214,25 +238,23 @@ bool IrcClient::connectToServer()
         mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
         {
             mConnectionState = ConnectionState::Connected;
-            spdlog::info("[irc] Connected to server");
-            ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");
-
+            logm("Connected to server");
         });
     } catch (winrt::hresult_error const& ex)
     {
-        spdlog::error("[irc] Error: {} [{}]", winrt::to_string(ex.message()), ex.code());
+        logm("Error: {} [{}]", winrt::to_string(ex.message()), ex.code());
         return false;
     } catch (const std::exception& ex)
     {
-        spdlog::error("[irc] Error: {}", ex.what());
+        logm("Error: {}", ex.what());
         return false;
     } catch (...)
     {
-        spdlog::error("[irc] Unknown error");
+        logm("Unknown error");
         return false;
     }
 
-    spdlog::info("[irc] Connected to server");
+    logm("Connected to server");
 
     // Start receiving messages in a separate thread
     //mReceiveThread = std::thread(&IrcClient::receiveMessages, this);
@@ -243,22 +265,75 @@ bool IrcClient::connectToServer()
 
 void IrcClient::onConnected()
 {
-    spdlog::info("[irc] Connected to server");
+    mOldPreferredUsername = "";
+    mOldLocalName = "";
+    mOldXuid = "";
     mConnectionState = ConnectionState::Connected;
     mLastPing = NOW;
+
+    std::string jsonStr = "";
+    /*JObject data = JObject.Parse(chatOp.data);
+    clients[client].ClientName = data["0"].Value<string>();
+    clients[client].Hwid = data["1"].Value<string>();
+
+    Console.WriteLine($"[{endPoint}] Identified client as {clients[client].ClientName} with HWID {clients[client].Hwid}");*/
+    nlohmann::json j;
+    j["0"] = "§asolstice§r";
+    j["1"] = getHwid();
+    jsonStr = j.dump(4);
+    auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
+    sendOpAuto(op);
+    sendPlayerIdentity();
+    logm("Connected and identified client!");
+    ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");
+}
+
+void IrcClient::onReceiveOp(const ChatOp& op)
+{
+    if (op.opCode == OpCode::Join || op.opCode == OpCode::Leave || op.opCode == OpCode::Message)
+    {
+        displayMsg("§7[§dirc§7] " + op.data);
+    }
+
+    if (op.opCode == OpCode::Announcement)
+    {
+        displayMsg("§7[§dirc§7] §6[Server Announcement] §f" + op.data);
+    }
+
+    if (op.opCode == OpCode::Error)
+    {
+        logm("Error: {}", op.data);
+        displayMsg("§7[§dirc§7] §6[Server §cError§6] §f" + op.data);
+    }
+    if (op.opCode == OpCode::ConnectedUserList)
+    {
+        nlohmann::json j = nlohmann::json::parse(op.data);
+        std::vector<ConnectedIrcUser> users;
+        for (auto& [key, value] : j.items())
+        {
+            ConnectedIrcUser user(value["0"].get<std::string>(), value["1"].get<std::string>(), value["3"].get<std::string>(), value["2"].get<std::string>());
+            users.push_back(user);
+        }
+        setConnectedUsers(users);
+
+    }
+
 }
 
 void IrcClient::disconnect()
 {
     try
     {
+        mOldPreferredUsername = "";
+        mOldLocalName = "";
+        mOldXuid = "";
         mEncrypted = false;
         mClientKey = "";
         mServerKey = "";
 
         if (!isConnected())
         {
-            spdlog::error("[irc] Cannot disconnect, not connected to server");
+            logm("Cannot disconnect, not connected to server");
             return;
         }
 
@@ -270,17 +345,17 @@ void IrcClient::disconnect()
         mSocket = Sockets::MessageWebSocket();
         mWriter = Streams::DataWriter();
 
-        spdlog::info("[irc] Disconnected from server");
+        logm("Disconnected from server");
         IrcManager::mLastConnectAttempt = NOW;
     } catch (winrt::hresult_error const& ex)
     {
-        spdlog::error("[irc] Error: {}", winrt::to_string(ex.message()));
+        logm("Error: {}", winrt::to_string(ex.message()));
     } catch (const std::exception& ex)
     {
-        spdlog::error("[irc] Error: {}", ex.what());
+        logm("Error: {}", ex.what());
     } catch (...)
     {
-        spdlog::error("[irc] Unknown error");
+        logm("Unknown error");
     }
     mConnectedUsers.clear();
 
@@ -302,6 +377,8 @@ void IrcClient::onPacketOutEvent(PacketOutEvent& event)
         }
         message = message.substr(1);
         event.cancel();
+
+        sendMessage(message);
     }
 }
 
@@ -311,7 +388,7 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
 
     if (mLastPing != 0 && NOW - mLastPing > 15000 && isConnected())
     {
-        spdlog::info("[irc] Ping timeout, disconnecting");
+        logm("Ping timeout, disconnecting");
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cTimed out.");
         disconnect();
         return;
@@ -371,21 +448,6 @@ void IrcClient::onPacketInEvent(PacketInEvent& event)
     packet->mMessage = message;
 }
 
-void IrcClient::sendPlayerIdentity()
-{
-    if (!isConnected()) return;
-
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
-
-    // TODO: Implement this
-}
-
-void IrcClient::displayMsg(std::string message)
-{
-    mQueuedMessages.push_back(message);
-}
-
 std::string fnv1a_hash32(const std::string& str)
 {
     const uint32_t FNV_prime = 16777619;
@@ -398,6 +460,48 @@ std::string fnv1a_hash32(const std::string& str)
     }
     return fmt::format("{:x}", hash);
 }
+
+std::string IrcClient::getPreferredUsername()
+{
+    return Solstice::Prefs->mIrcName == "" ? fnv1a_hash32(Solstice::sHWID) : Solstice::Prefs->mIrcName;
+}
+
+void IrcClient::sendPlayerIdentity(bool forced)
+{
+    if (!isConnected()) return;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+
+    std::string newPreferredUsername = getPreferredUsername();
+    std::string newLocalName = player->getLocalName();
+    std::string newXuid = player->getXuid();
+    if (mOldPreferredUsername == newPreferredUsername && mOldLocalName == newLocalName && mOldXuid == newXuid && !forced)
+    {
+        logm("Player identity hasn't changed, not sending");
+        return;
+    }
+    mOldPreferredUsername = newPreferredUsername;
+    mOldLocalName = newLocalName;
+    mOldXuid = newXuid;
+
+    std::string jsonStr = "";
+    nlohmann::json j;
+    j["0"] = newPreferredUsername;
+    j["1"] = newLocalName;
+    j["2"] = newXuid;
+    jsonStr = j.dump(4);
+    auto op = ChatOp(OpCode::IdentifyPlayer, jsonStr, true);
+    sendOpAuto(op);
+}
+
+void IrcClient::displayMsg(std::string message)
+{
+    mQueuedMessages.push_back(message);
+}
+
+
 
 bool IrcManager::setShowNamesInChat(bool showNamesInChat)
 {
@@ -425,31 +529,31 @@ void IrcManager::deinit()
 
 void IrcManager::disconnectCallback()
 {
-    spdlog::info("[irc] Client dallocated.");
+    logm("Client dallocated.");
 }
 
 void IrcManager::requestListUsers()
 {
-    /*if (mClient) mClient->listUsers();
-    else*/ ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
+    if (mClient) mClient->listUsers();
+    else ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
 }
 
 void IrcManager::requestChangeUsername(std::string username)
 {
     if (mClient)
     {
-        // mClient->changeUsername(username);
         Solstice::Prefs->mIrcName = username;
         PreferenceManager::save(Solstice::Prefs);
-        spdlog::info("[irc] Changed username to {}", Solstice::Prefs->mIrcName);
+        mClient->changeUsername();
+        logm("Changed username to {}", Solstice::Prefs->mIrcName);
     }
     else ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
 }
 
 void IrcManager::sendMessage(std::string& message)
 {
-    /*if (mClient) mClient->sendMessage(message);
-    else*/ ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
+    if (mClient) mClient->sendMessage(message);
+    else ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cYou aren't connected to IRC!");
 }
 
 bool IrcManager::isConnected()

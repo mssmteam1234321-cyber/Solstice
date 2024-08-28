@@ -41,7 +41,7 @@ enum class OpCode
     ConnectedUserList, // connected user list to client
 
     /* Specialized OpCodes */
-    DiscordMessage = 0x8461, // discord message to client
+    //DiscordMessage = 0x8461, // discord message to client
 };
 
 /*
@@ -158,21 +158,37 @@ public:
         decrypted = false;
     }
 
-    EncryptedOp(std::string encrypted) : Encrypted(encrypted), decrypted(false) {}
+    EncryptedOp(std::string encrypted)
+    {
+        // if the encrypted is a json object, properly parse it and write E to Encrypted (this doesn't mean its decrypted)
+        Encrypted = encrypted;
+    }
 
     void decrypt(const std::string& key) {
-        if (decrypted) {
-            spdlog::warn("Already decrypted, skipping...");
-            return;
-        }
+        if (decrypted) return;
 
+        std::string enc = Encrypted;
+        // if this is a json object, parse it and write E to Encrypted
+        if (nlohmann::json::accept(Encrypted))
+        {
+            nlohmann::json j = nlohmann::json::parse(Encrypted);
+            for (auto& [key, value] : j.items())
+            {
+                std::string encrypted = value.get<std::string>();
+                Encrypted = encrypted;
+                break;
+
+            }
+        }
         Encrypted = StringUtils::decrypt(Encrypted, key);
         decrypted = true;
 
-        if (!nlohmann::json::accept(Encrypted)) {
-            spdlog::error("JSON parse error: {}", Encrypted);
+#ifdef __DEBUG__
+        if (!nlohmann::json::accept(Encrypted))
+        {
             throw std::runtime_error("Decryption failed, resulting in invalid JSON.");
         }
+#endif
     }
 
     nlohmann::json serialize() const {
@@ -243,7 +259,7 @@ struct ConnectedIrcUser {
     std::string xuid;
     std::string playerName;
 
-    ConnectedIrcUser(std::string username, std::string xuid, std::string playerName) : username(username), xuid(xuid), playerName(playerName) {}
+    ConnectedIrcUser(const std::string& clientName, const std::string& username, const std::string& xuid, const std::string& playerName) : clientName(clientName), username(username), xuid(xuid), playerName(playerName) {}
 
     nlohmann::json serialize() const {
         nlohmann::json j;
@@ -300,9 +316,16 @@ public:
     std::string mServerKey = "";
     std::string mClientKey = "";
 
+    std::string mOldPreferredUsername = "";
+    std::string mOldLocalName = "";
+    std::string mOldXuid = "";
+
     // copied because we need to access it from multiple threads
     std::vector<ConnectedIrcUser> getConnectedUsers();
     void setConnectedUsers(const std::vector<ConnectedIrcUser>& users);
+    void sendMessage(const std::string& string);
+    void listUsers();
+    void changeUsername();
 
     IrcClient();
     ~IrcClient();
@@ -317,13 +340,15 @@ public:
     // Minecraft events
     void onBaseTickEvent(BaseTickEvent& event);
     void onPacketInEvent(PacketInEvent& event);
-    void sendPlayerIdentity();
+    std::string getPreferredUsername();
+    void sendPlayerIdentity(bool forced = false);
     void onPacketOutEvent(PacketOutEvent& event);
 
     void displayMsg(std::string message);
 
     bool connectToServer();
     void onConnected();
+    void onReceiveOp(const ChatOp& op);
     void disconnect();
 };
 

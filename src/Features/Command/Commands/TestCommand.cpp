@@ -6,6 +6,7 @@
 
 #include <Utils/GameUtils/ChatUtils.hpp>
 #include <magic_enum.hpp>
+#include <Features/IRC/WorkingVM.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 
 void TestCommand::execute(const std::vector<std::string>& args)
@@ -26,11 +27,21 @@ void TestCommand::execute(const std::vector<std::string>& args)
 
     if (arg == "enctest")
     {
-        std::string input = "z8/Pz8/PzM3MzM3Pz8/Pz8rOx8/Nz8/Pz8/OzsjMzc/Pz8/PvM+5vs3Pubm5ubu7zL7Oz8/Pz8/Iz769zs+5ubm5vLq7vMzPz8/Pz8/Pu7nPz7m5ubnMusjNzc/Pz8/Pus+5uc3Pz8/Pz8fOucfPz7m5ubm5ucjJz8+5ubm5zLnPz87Pz8/Pz83Ny8/Oz7m5ubm+u8u+z8+5ubm5vLq7us7Pubm5ucm5urnPz7m5ubnLuszNzc+5ubm5x7q9zs3Pz8/Pz7rPx7zOz8/Pz8/OzcvLzs+5ubm5vLnGyM3Pubm5ucu5vrnOz8/Pz8+8zrnNzs/Pz8/Pys+7z87Pubm5ub25yL3Pz8/Pz8/Hz866z8/Pz8/Puc7Mzs7Pubm5ubu6x8/Nz8/Pz8+9zs2+zc/Pz8/Pyc3HvcvPz8/Pz8/Pz88=";
-        std::string key = "UMBQ0l9YCSdxkeV+5LgD4SESbE2dk0aCBU+iYROttFM7bQJ72iRhuFV8MMcuJESQdzhbKgykC7dDiohNUWgOLA==";
-        std::string output = StringUtils::decrypt(input, key);
-        ChatUtils::displayClientMessage("Decrypted: " + output);
-        return;
+        /*string sample = "Hello, World!";
+        string key = "Eh/fS4Q90JlI2ERc";
+        string encrypted = EncUtils.Encrypt(sample, key);
+        string decrypted = EncUtils.Decrypt(encrypted, key);
+        Console.WriteLine("Original: " + sample);
+        Console.WriteLine("Encrypted: " + encrypted);
+        Console.WriteLine("Decrypted: " + decrypted);
+        Console.WriteLine("Key: " + key);
+        */
+        std::string proofTask = "zc/Pz8/Pzs/OvM3Pz8/Pz87Px8zNz8/Pz8/Nz7vMzs/Pz8/Pz8/NvsvPz8/Pz8/Pz88=";
+        int result = WorkingVM::SolveProofTask(proofTask);
+        ChatUtils::displayClientMessage("Proof task result: " + std::to_string(result));
+        ChatUtils::displayClientMessage("Proof task string: " + proofTask);
+        ChatUtils::displayClientMessage("Expected result: 1952345");
+        ChatUtils::displayClientMessage("Matches: " + std::to_string(result == 1952345));
     }
 
     if (arg == "showconsole")

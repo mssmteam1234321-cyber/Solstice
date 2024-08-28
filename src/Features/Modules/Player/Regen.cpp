@@ -581,7 +581,6 @@ void Regen::onRenderEvent(RenderEvent& event)
 {
     // NOTE: Keep in mind if you have a RenderEvent that needs something to animate out when disabled,
     //       you need to put the listen call in the module's constructor without any deafen call.
-    // TODO: Regen progress bar
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
