@@ -31,9 +31,11 @@ public:
     float mAveragedBps = 0.f;
     std::map<uint64_t, float> mBpsHistory;
     __int64 mPing = 0;
+    __int64 mEventDelay = 0;
 
     void onEnable() override;
     void onDisable() override;
+    void onSendImmediateEvent(class SendImmediateEvent& event);
     void onPingUpdateEvent(class PingUpdateEvent& event);
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);

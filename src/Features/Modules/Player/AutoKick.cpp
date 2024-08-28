@@ -10,7 +10,6 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/SendImmediateEvent.hpp>
-#include <Features/Modules/Combat/Aura.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -87,6 +86,20 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
     auto supplies = player->getSupplies();
+    Actor* target = nullptr;
+    auto actors = ActorUtils::getActorList(false, true);
+    std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+        {
+            return a->distanceTo(player) < b->distanceTo(player);
+        });
+
+    for (auto actor : actors) {
+        if (actor == player) continue;
+        if (actor->distanceTo(player) > mRange.mValue) continue;
+
+        target = actor;
+    }
+    
 
     // Ghost checks
     for (auto pos : mRecentlyUpdatedBlockPositions) {
@@ -113,19 +126,19 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (!Aura::sHasTarget || !Aura::sTarget->getActorTypeComponent()) return;
-    if (!Aura::sTarget->isPlayer()) return;
+    if (target == nullptr || !target->getActorTypeComponent()) return;
+    if (!target->isPlayer()) return;
 
     if (ItemUtils::getAllPlaceables(mHotbarOnly.mValue) < 1) return;
 
     // Flagged Check
-    std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks(Aura::sTarget);
+    std::vector<glm::ivec3> collidingBlocks = getCollidingBlocks(target);
     if (std::find(collidingBlocks.begin(), collidingBlocks.end(), mLastServerBlockPos) != collidingBlocks.end() && NOW - mLastBlockUpdated <= 1000) {
         if (!mFlagged) {
-            int flagCount = mFlagCounter[Aura::sTarget->getRawName()];
-            mFlagCounter[Aura::sTarget->getRawName()] = flagCount + 1;
+            int flagCount = mFlagCounter[target->getRawName()];
+            mFlagCounter[target->getRawName()] = flagCount + 1;
             if (mDebug.mValue) {
-                ChatUtils::displayClientMessage(Aura::sTarget->getRawName() + " has been flagged (x" + std::to_string(flagCount + 1) + ")");
+                ChatUtils::displayClientMessage(target->getRawName() + " has been flagged (x" + std::to_string(flagCount + 1) + ")");
             }
         }
         mFlagged = true;
@@ -134,7 +147,7 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
         mFlagged = false;
     }
 
-    glm::vec3 targetPos = *Aura::sTarget->getPos();
+    glm::vec3 targetPos = *target->getPos();
     glm::vec3 prediction = { 0, 0, 0 };
     float PingTime = ((mPing / 50) * 2) + ((mOpponentPing.mValue / 50) * 2);
     float PredictedTime = PingTime + 1;
@@ -149,7 +162,7 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
     glm::vec3 predictionBlockPos = targetPos + glm::vec3(prediction.x * PredictedTime, 0, prediction.z * PredictedTime);
     mUsePrediction = true;
     mLastTargetPos = targetPos;
-    if (predictionPos == predictionBlockPos) return;
+    if (floor(predictionPos.x) == floor(predictionBlockPos.x) && floor(predictionPos.z) == floor(predictionBlockPos.z)) return;
     targetPos = predictionPos;
 
     if (mOnGroundOnly.mValue) {

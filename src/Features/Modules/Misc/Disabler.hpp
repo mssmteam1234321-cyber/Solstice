@@ -7,13 +7,14 @@ class Disabler : public ModuleBase<Disabler> {
 public:
     enum class Mode {
         FlareonOld,
+        Sentinel
     };
     enum class DisablerType {
         PingSpoof,
         PingHolder
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::FlareonOld, "FlareonOld");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::FlareonOld, "FlareonOld", "Sentinel");
     EnumSettingT<DisablerType> mDisablerType = EnumSettingT<DisablerType>("Disabler Type", "The type of disabler to use.", DisablerType::PingSpoof, "Ping Spoof", "Ping Holder");
     BoolSetting mRandomizeDelay = BoolSetting("Randomize Delay", "Whether or not to randomize the delay", true);
     NumberSetting mDelay = NumberSetting("Delay", "The delay to use for the disabler", 10000, 0, 100000, 1);
@@ -31,9 +32,9 @@ public:
         VISIBILITY_CONDITION(mDisablerType, mMode.mValue == Mode::FlareonOld);
         VISIBILITY_CONDITION(mRandomizeDelay, mDisablerType.mValue == DisablerType::PingSpoof);
 
-        VISIBILITY_CONDITION(mDelay, mDisablerType.mValue == DisablerType::PingSpoof && !mRandomizeDelay.mValue);
-        VISIBILITY_CONDITION(mMinDelay, mDisablerType.mValue == DisablerType::PingSpoof && mRandomizeDelay.mValue);
-        VISIBILITY_CONDITION(mMaxDelay, mDisablerType.mValue == DisablerType::PingSpoof && mRandomizeDelay.mValue);
+        VISIBILITY_CONDITION(mDelay, mMode.mValue == Mode::FlareonOld && mDisablerType.mValue == DisablerType::PingSpoof && !mRandomizeDelay.mValue);
+        VISIBILITY_CONDITION(mMinDelay, mMode.mValue == Mode::FlareonOld && mDisablerType.mValue == DisablerType::PingSpoof && mRandomizeDelay.mValue);
+        VISIBILITY_CONDITION(mMaxDelay, mMode.mValue == Mode::FlareonOld && mDisablerType.mValue == DisablerType::PingSpoof && mRandomizeDelay.mValue);
 
 
         mNames = {
@@ -44,8 +45,14 @@ public:
         };
     }
 
+    uint64_t mClientTicks = 0;
+    bool mShouldUpdateClientTicks = false;
+    glm::vec3 mLastPosition = { 0, 0, 0 };
+
     void onEnable() override;
     void onDisable() override;
+    void onPacketOutEvent(class PacketOutEvent& event);
+    void onRunUpdateCycleEvent(class RunUpdateCycleEvent& event);
     int64_t getDelay() const;
     void onPingUpdateEvent(class PingUpdateEvent& event);
     void onSendImmediateEvent(class SendImmediateEvent& event);

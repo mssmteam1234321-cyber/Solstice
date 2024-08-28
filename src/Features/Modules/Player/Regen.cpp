@@ -14,6 +14,7 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/LevelEventPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/UpdateBlockPacket.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
@@ -274,34 +275,64 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Ore Blocker
-    if (mBlockOre.mValue && !miningRedstones.empty()) {
-        if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
-            for (auto& pos : miningRedstones)
+    if (mBlockOre.mValue) {
+        if (!miningRedstones.empty()) {
+            if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
+                for (auto& pos : miningRedstones)
+                {
+                    int exposedFace = BlockUtils::getExposedFace(pos);
+                    if (exposedFace == -1 || !isValidRedstone(pos)) continue;
+                    glm::ivec3 placePos = pos + mOffsetList[exposedFace];
+                    glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
+                    if (ClientInstance::get()->getBlockSource()->getBlock(hitPos)->mLegacy->isAir()) continue;
+                    if (player->getPos()->y < placePos.y) continue;
+
+                    mCurrentPlacePos = placePos;
+                    mShouldRotate = true;
+                    mPreviousSlot = supplies->mSelectedSlot;
+                    int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
+                    if (blockSlot == -1) continue;
+
+                    supplies->mSelectedSlot = blockSlot;
+                    PacketUtils::spoofSlot(blockSlot);
+                    if (mSwing.mValue) player->swing();
+                    BlockUtils::placeBlock(placePos, 1);
+                    if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
+                    mShouldSetbackSlot = true;
+                    mShouldSpoofSlot = true;
+                    supplies->mSelectedSlot = mPreviousSlot;
+                }
+            }
+        }
+        else if (!queuedPlacePositions.empty()) {
+            for (auto& pos : queuedPlacePositions)
             {
-                int exposedFace = BlockUtils::getExposedFace(pos);
-                if (exposedFace == -1 || !isValidRedstone(pos)) continue;
-                glm::ivec3 placePos = pos + mOffsetList[exposedFace];
+                glm::ivec3 placePos = pos;
                 glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
-                if (ClientInstance::get()->getBlockSource()->getBlock(placePos + glm::ivec3(0, -1, 0))->getmLegacy()->isAir()) continue;
+                if (ClientInstance::get()->getBlockSource()->getBlock(hitPos)->mLegacy->isAir()) continue;
+                if (!BlockUtils::isAirBlock(placePos)) continue;
                 if (player->getPos()->y < placePos.y) continue;
 
                 mCurrentPlacePos = placePos;
                 mShouldRotate = true;
                 mPreviousSlot = supplies->mSelectedSlot;
                 int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
+                if (blockSlot == -1) continue;
 
                 supplies->mSelectedSlot = blockSlot;
                 PacketUtils::spoofSlot(blockSlot);
                 if (mSwing.mValue) player->swing();
                 BlockUtils::placeBlock(placePos, 1);
-                if (mDebug.mValue && mCoverNotify.mValue) ChatUtils::displayClientMessage("Covered ore");
+                if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked uncover");
                 mShouldSetbackSlot = true;
                 mShouldSpoofSlot = true;
                 supplies->mSelectedSlot = mPreviousSlot;
+                break;
             }
         }
-
+        
         miningRedstones.clear();
+        queuedPlacePositions.clear();
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
@@ -830,6 +861,29 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (glm::ivec3(levelEvent->mPos) == mBlackListedOrePos) {
                 if (mAntiSteal.mValue) {
                     mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
+                }
+            }
+        }
+    }
+    else if (event.mPacket->getId() == PacketID::UpdateBlock) {
+        auto pkt = event.getPacket<UpdateBlockPacket>();
+        auto updateBlockPacket = pkt.get();
+
+        if (mBlockOre.mValue && mAdvancedBlock.mValue && player->distanceTo(updateBlockPacket->mPos) <= mBlockRange.mValue) {
+            int brokenBlockId = ClientInstance::get()->getBlockSource()->getBlock(updateBlockPacket->mPos)->mLegacy->getBlockId();
+            if (brokenBlockId != 73 && brokenBlockId != 74 && brokenBlockId != 0) {
+                std::vector<BlockInfo> blocks = BlockUtils::getBlockList(updateBlockPacket->mPos, mSearchRange.mValue);
+                bool found = false;
+                for (int i = 0; i < blocks.size(); i++) {
+                    glm::ivec3 blockPos = blocks[i].mPosition;
+                    int blockId = blocks[i].mBlock->mLegacy->getBlockId();
+
+                    if ((blockId != 73 && blockId != 74) || blockPos == glm::ivec3(updateBlockPacket->mPos)) continue;
+                    found = true;
+                    break;
+                }
+                if (found) {
+                    queuedPlacePositions.push_back(glm::ivec3(updateBlockPacket->mPos));
                 }
             }
         }

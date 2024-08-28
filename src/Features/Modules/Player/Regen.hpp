@@ -46,6 +46,8 @@ public:
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
     NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
+    BoolSetting mAdvancedBlock = BoolSetting("Advanced Block", "Prevent opponent uncover redstone", false);
+    NumberSetting mSearchRange = NumberSetting("Search Range", "The max search range for advanced ore blocker", 2, 1, 3, 1);
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
@@ -58,7 +60,7 @@ public:
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
     BoolSetting mConfuseNotify = BoolSetting("Confuse Notify", "Send message in chat when confused stealer", false);
-    BoolSetting mCoverNotify = BoolSetting("Cover Notify", "Send message in chat when you covered ore", false);
+    BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/uncover", false);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
     BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
@@ -90,6 +92,8 @@ public:
             &mAntiConfuse,
             &mBlockOre,
             &mBlockRange,
+            &mAdvancedBlock,
+            &mSearchRange,
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
@@ -102,7 +106,7 @@ public:
             &mDebug,
             &mStealNotify,
             &mConfuseNotify,
-            &mCoverNotify,
+            &mBlockNotify,
             &mFastOreNotify,
             &mSyncSpeedNotify,
             &mPriorityNotify,
@@ -121,6 +125,8 @@ public:
         VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
 
         VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
+        VISIBILITY_CONDITION(mAdvancedBlock, mBlockOre.mValue);
+        VISIBILITY_CONDITION(mSearchRange, mBlockOre.mValue && mAdvancedBlock.mValue);
 
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
@@ -132,7 +138,7 @@ public:
         // Debug
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mConfuseNotify, mDebug.mValue);
-        VISIBILITY_CONDITION(mCoverNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mBlockNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
@@ -180,6 +186,7 @@ public:
     int mToolSlot = -1;
 
     std::vector<glm::ivec3> miningRedstones;
+    std::vector<glm::ivec3> queuedPlacePositions;
     glm::ivec3 mCurrentPlacePos = { INT_MAX, INT_MAX, INT_MAX };
 
     uint64_t mLastBlockPlace = 0;

@@ -12,6 +12,7 @@ public:
     };
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode for auto kick", Mode::Push, "Push");
+    NumberSetting mRange = NumberSetting("Range", "The range at which to push entities", 5, 3, 8, 0.1);
     NumberSetting mDelay = NumberSetting("Delay", "The delay in ms to place block", 1000, 100, 5000, 10);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to boomboxes in the hotbar", true);
     BoolSetting mAllowDiagonal = BoolSetting("Allow Diagonal", "Allow diagonal prediction", true);
@@ -23,6 +24,7 @@ public:
     AutoKick() : ModuleBase("AutoKick", "Automatically kicks player in the hive", ModuleCategory::Player, 0, false)
     {
         addSetting(&mMode);
+        addSetting(&mRange);
         addSetting(&mDelay);
         addSetting(&mHotbarOnly);
         addSetting(&mAllowDiagonal);
