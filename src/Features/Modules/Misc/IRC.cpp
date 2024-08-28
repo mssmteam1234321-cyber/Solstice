@@ -19,6 +19,8 @@ void IRC::onEnable()
 
     IrcManager::init();
     IrcManager::setShowNamesInChat(mShowNamesInChat.mValue);
+    IrcManager::setAlwaysSendToIrc(mAlwaysSendToIrc.mValue);
+    IrcManager::mLastConnectAttempt = NOW;
 
 }
 
@@ -38,6 +40,7 @@ void IRC::onBaseTickEvent(BaseTickEvent& event)
     if (!mEnabled) return;
 
     IrcManager::setShowNamesInChat(mShowNamesInChat.mValue);
+    IrcManager::setAlwaysSendToIrc(mAlwaysSendToIrc.mValue);
     if (IrcManager::mClient && IrcManager::mLastConnectAttempt + 5000 < NOW && IrcManager::mClient->mConnectionState == ConnectionState::Disconnected)
     {
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §eAttempting to reconnect to IRC...");

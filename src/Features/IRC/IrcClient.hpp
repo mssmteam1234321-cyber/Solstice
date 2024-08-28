@@ -320,6 +320,8 @@ public:
     std::string mOldLocalName = "";
     std::string mOldXuid = "";
 
+    bool mAlwaysSendToIrc = false;
+
     // copied because we need to access it from multiple threads
     std::vector<ConnectedIrcUser> getConnectedUsers();
     void setConnectedUsers(const std::vector<ConnectedIrcUser>& users);
@@ -359,6 +361,7 @@ public:
     static inline uint64_t mLastConnectAttempt = 0;
 
     static bool setShowNamesInChat(bool showNamesInChat);
+    static bool setAlwaysSendToIrc(bool alwaysSendToIrc);
     static void init();
     static void deinit();
     static void disconnectCallback();

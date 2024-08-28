@@ -374,7 +374,7 @@ void IrcClient::onPacketOutEvent(PacketOutEvent& event)
     auto packet = event.getPacket<TextPacket>();
     std::string message = packet->mMessage;
 
-    if (message.starts_with("#"))
+    if (message.starts_with("#") && !mAlwaysSendToIrc)
     {
         if (!isConnected())
         {
@@ -385,7 +385,27 @@ void IrcClient::onPacketOutEvent(PacketOutEvent& event)
         event.cancel();
 
         sendMessage(message);
+        return;
     }
+    else if (message.starts_with("#") && mAlwaysSendToIrc)
+    {
+        packet->mMessage = message.substr(1);
+        return; // Send the message to the game instead
+    }
+
+    if (mAlwaysSendToIrc)
+    {
+        if (!isConnected())
+        {
+            displayMsg("§7[§dirc§7] §cYou aren't connected to IRC!");
+            return;
+        }
+        event.cancel();
+        sendMessage(message);
+    }
+
+
+
 }
 
 void IrcClient::onBaseTickEvent(BaseTickEvent& event)
@@ -513,6 +533,13 @@ bool IrcManager::setShowNamesInChat(bool showNamesInChat)
 {
     if (!mClient) return false;
     mClient->mShowNamesInChat = showNamesInChat;
+    return true;
+}
+
+bool IrcManager::setAlwaysSendToIrc(bool alwaysSendToIrc)
+{
+    if (!mClient) return false;
+    mClient->mAlwaysSendToIrc = alwaysSendToIrc;
     return true;
 }
 
