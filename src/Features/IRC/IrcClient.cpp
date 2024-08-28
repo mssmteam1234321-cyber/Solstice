@@ -39,6 +39,7 @@ void IrcClient::listUsers()
 {
     auto op = ChatOp(OpCode::ListUsers, "", true);
     sendOpAuto(op);
+    logm("Requested user list");
 }
 
 void IrcClient::changeUsername()
@@ -293,6 +294,11 @@ void IrcClient::onReceiveOp(const ChatOp& op)
     if (op.opCode == OpCode::Join || op.opCode == OpCode::Leave || op.opCode == OpCode::Message)
     {
         displayMsg("§7[§dirc§7] " + op.data);
+    }
+
+    if (op.opCode == OpCode::ServerMessage)
+    {
+        displayMsg("§7[§dirc§7] §6[Server] §f" + op.data);
     }
 
     if (op.opCode == OpCode::Announcement)

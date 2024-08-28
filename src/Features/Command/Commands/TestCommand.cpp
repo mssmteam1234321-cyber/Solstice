@@ -19,30 +19,11 @@ void TestCommand::execute(const std::vector<std::string>& args)
     // get the first argument, if any
     if (args.size() <= 1)
     {
-        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug, enctest");
+        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug");
         return;
     }
 
     const std::string& arg = args[1];
-
-    if (arg == "enctest")
-    {
-        /*string sample = "Hello, World!";
-        string key = "Eh/fS4Q90JlI2ERc";
-        string encrypted = EncUtils.Encrypt(sample, key);
-        string decrypted = EncUtils.Decrypt(encrypted, key);
-        Console.WriteLine("Original: " + sample);
-        Console.WriteLine("Encrypted: " + encrypted);
-        Console.WriteLine("Decrypted: " + decrypted);
-        Console.WriteLine("Key: " + key);
-        */
-        std::string proofTask = "zc/Pz8/Pzs/OvM3Pz8/Pz87Px8zNz8/Pz8/Nz7vMzs/Pz8/Pz8/NvsvPz8/Pz8/Pz88=";
-        int result = WorkingVM::SolveProofTask(proofTask);
-        ChatUtils::displayClientMessage("Proof task result: " + std::to_string(result));
-        ChatUtils::displayClientMessage("Proof task string: " + proofTask);
-        ChatUtils::displayClientMessage("Expected result: 1952345");
-        ChatUtils::displayClientMessage("Matches: " + std::to_string(result == 1952345));
-    }
 
     if (arg == "showconsole")
     {
