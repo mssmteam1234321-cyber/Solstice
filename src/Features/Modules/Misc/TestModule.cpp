@@ -44,6 +44,7 @@ void TestModule::onDisable()
     /*gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
 }
 
+
 Block* gDaBlock = nullptr;
 
 int lastFormId = 0;
