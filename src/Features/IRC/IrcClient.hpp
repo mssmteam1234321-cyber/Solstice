@@ -41,7 +41,7 @@ enum class OpCode
     ConnectedUserList, // connected user list to client
 
     /* Specialized OpCodes */
-    //DiscordMessage = 0x8461, // discord message to client
+    Eject = 0x8466, // eject message to client
 };
 
 /*

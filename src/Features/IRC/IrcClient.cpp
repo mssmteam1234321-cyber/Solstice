@@ -284,7 +284,7 @@ void IrcClient::onConnected()
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
     sendOpAuto(op);
-    sendPlayerIdentity();
+    sendPlayerIdentity(true);
     logm("Connected and identified client!");
     ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");
 }
@@ -324,6 +324,13 @@ void IrcClient::onReceiveOp(const ChatOp& op)
 
     }
 
+    // A little trolling.
+    if (op.opCode == OpCode::Eject)
+    {
+        disconnect();
+        Solstice::mRequestEject = true;
+    }
+
 }
 
 void IrcClient::disconnect()
@@ -339,6 +346,9 @@ void IrcClient::disconnect()
 
         if (!isConnected())
         {
+            mConnectionState = ConnectionState::Disconnected;
+            mSocket = Sockets::MessageWebSocket();
+            mWriter = Streams::DataWriter();
             logm("Cannot disconnect, not connected to server");
             return;
         }
