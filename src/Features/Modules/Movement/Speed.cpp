@@ -154,6 +154,9 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
                 break;
         }
         tickFrictionPreset(preset);
+    } else if (mMode.mValue == Mode::Legit)
+    {
+        tickLegit(player);
     }
 }
 
@@ -205,6 +208,87 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
             if (!player->isOnGround() && player->wasOnGround() && Keyboard::isUsingMoveKeys()) {
                 paip->mInputData |= AuthInputAction::START_JUMPING;
             }
+    }
+}
+
+void Speed::tickLegit(Actor* player)
+{
+    if (!mDamageTimerApplied)
+    {
+        if (mTimerBoost.mValue) ClientInstance::get()->getMinecraftSim()->setSimTimer(mTimerSpeed.as<float>());
+        else ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
+    }
+
+    static int tick = 0;
+    if (player->isOnGround()) tick = 0;
+    else tick++;
+
+    if (mFastFall.mValue == FastfallMode::Predict)
+    {
+        if (tick == mFallTicks.as<int>())
+        {
+            auto fallSpeed = mFallSpeed.as<float>();
+            auto stateVector = player->getStateVectorComponent();
+            for (int i = 0; i < fallSpeed; i++)
+            {
+                stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
+            }
+        }
+        if (mFastFall2.mValue && tick == mFallTicks2.as<int>())
+        {
+            auto fallSpeed = mFallSpeed2.as<float>();
+            auto stateVector = player->getStateVectorComponent();
+            for (int i = 0; i < fallSpeed; i++)
+            {
+                stateVector->mVelocity.y = (stateVector->mVelocity.y - 0.08f) * 0.98f;
+            }
+        }
+    } // Sets the velocity directly
+    else if (mFastFall.mValue == FastfallMode::SetVel)
+    {
+        if (tick == mFallTicks.as<int>())
+        {
+            auto fallSpeed = mFallSpeed.as<float>() / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
+        if (mFastFall2.mValue && tick == mFallTicks2.as<int>())
+        {
+            auto fallSpeed = mFallSpeed2.as<float>() / 10;
+            auto stateVector = player->getStateVectorComponent();
+            stateVector->mVelocity.y = -fallSpeed;
+        }
+    }
+
+    glm::vec3 velocity = player->getStateVectorComponent()->mVelocity;
+    float movementSpeed = sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+
+    if (!player->isOnGround() && Keyboard::isUsingMoveKeys() && player->wasOnGround())
+    {
+        movementSpeed += (mSpeed.as<float>() / 10 / 10) * mDamageBoostVal;
+    }
+    else if (Keyboard::isUsingMoveKeys() && !player->isOnGround() && !player->wasOnGround() && player->getFallDistance() > 0) {
+        movementSpeed *= mFriction.as<float>();
+    }
+
+    float movementYaw = atan2(velocity.z, velocity.x);
+    float movementYawDegrees = movementYaw * (180.0f / M_PI) - 90.f;
+    float newMovementYaw = movementYaw;
+
+    glm::vec3 newVelocity = {cos(newMovementYaw) * movementSpeed, velocity.y, sin(newMovementYaw) * movementSpeed};
+    player->getStateVectorComponent()->mVelocity = newVelocity;
+
+    bool usingMoveKeys = Keyboard::isUsingMoveKeys();
+    if (usingMoveKeys && mJumpType.mValue == JumpType::Vanilla) {
+        if (player->isOnGround())
+        {
+            player->jumpFromGround();
+            player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+        }
+    } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
+        if (player->isOnGround()) {
+            player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+        }
     }
 }
 

@@ -49,7 +49,8 @@ class Speed : public ModuleBase<Speed> {
 public:
     enum class Mode {
         Friction,
-        Hive
+        Hive,
+        Legit
     };
 
     enum class FlareonPreset {
@@ -57,7 +58,7 @@ public:
     };
 
 
-    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Hive");
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Hive", "Legit");
     EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT("Type", "The preset for Flareon", FlareonPreset::Semi, "Semi");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
@@ -136,20 +137,25 @@ public:
         VISIBILITY_CONDITION(mDamageTimer, mDamageBoost.mValue);
         VISIBILITY_CONDITION(mDamageTimerSpeed, mDamageBoost.mValue && mDamageTimer.mValue);
 
+        VISIBILITY_CONDITION(mStrafe, mMode.mValue != Mode::Legit);
+        VISIBILITY_CONDITION(mUseStrafeSpeed, mMode.mValue != Mode::Legit);
+        VISIBILITY_CONDITION(mStrafeSpeed, mMode.mValue != Mode::Legit);
+
+
         VISIBILITY_CONDITION(mFlareonPreset, mMode.mValue == Mode::Hive);
-        VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mFriction, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mTimerBoost, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mTimerSpeed, mMode.mValue == Mode::Friction && mTimerBoost.mValue);
-        VISIBILITY_CONDITION(mFastFall, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mFallTicks, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None);
-        VISIBILITY_CONDITION(mFallSpeed, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None);
-        VISIBILITY_CONDITION(mFastFall2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None);
-        VISIBILITY_CONDITION(mFallTicks2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue);
-        VISIBILITY_CONDITION(mFallSpeed2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue);
-        VISIBILITY_CONDITION(mJumpType, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mJumpHeight, mMode.mValue == Mode::Friction);
-        VISIBILITY_CONDITION(mApplyNetskip, mMode.mValue == Mode::Friction);
+        VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mFriction, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mTimerBoost, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mTimerSpeed, mMode.mValue == Mode::Friction && mTimerBoost.mValue || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mFastFall, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mFallTicks, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None || mMode.mValue == Mode::Legit && mFastFall.mValue != FastfallMode::None);
+        VISIBILITY_CONDITION(mFallSpeed, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None || mMode.mValue == Mode::Legit && mFastFall.mValue != FastfallMode::None);
+        VISIBILITY_CONDITION(mFastFall2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None || mMode.mValue == Mode::Legit && mFastFall.mValue != FastfallMode::None);
+        VISIBILITY_CONDITION(mFallTicks2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue || mMode.mValue == Mode::Legit && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue);
+        VISIBILITY_CONDITION(mFallSpeed2, mMode.mValue == Mode::Friction && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue || mMode.mValue == Mode::Legit && mFastFall.mValue != FastfallMode::None && mFastFall2.mValue);
+        VISIBILITY_CONDITION(mJumpType, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
+        VISIBILITY_CONDITION(mJumpHeight, mMode.mValue == Mode::Friction && mJumpType.mValue != JumpType::None || mMode.mValue == Mode::Legit && mJumpType.mValue != JumpType::None);
+        VISIBILITY_CONDITION(mApplyNetskip, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
 
         mNames = {
             {Lowercase, "speed"},
@@ -172,6 +178,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
+    void tickLegit(Actor* player);
     void tickFriction(Actor* player);
     void tickFrictionPreset(FrictionPreset& preset);
 
