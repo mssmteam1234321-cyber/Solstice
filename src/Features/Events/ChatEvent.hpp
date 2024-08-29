@@ -8,8 +8,10 @@
 
 
 class ChatEvent : public CancelableEvent {
-    std::string mMessage;
 public:
+    std::string mMessage;
+    bool mSpecial = false;
+
     explicit ChatEvent(const std::string_view message) {
         this->mMessage = message;
     }

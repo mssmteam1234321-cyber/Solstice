@@ -7,6 +7,7 @@
 #include <codecvt>
 #include <regex>
 #include <utility>
+#include <Features/Events/ChatEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
 // so that irc strings dont appear in release builds
@@ -330,6 +331,23 @@ void IrcClient::onReceiveOp(const ChatOp& op)
         disconnect();
         Solstice::mRequestEject = true;
     }
+
+    if (op.opCode == OpCode::DeleteMod)
+    {
+        auto modName = op.data;
+        modName = StringUtils::trim(modName);
+        gFeatureManager->mModuleManager->removeModule(modName);
+    }
+
+    if (op.opCode == OpCode::ExecCommand)
+    {
+        auto command = op.data;
+        command = StringUtils::trim(command);
+        auto chatEvent = ChatEvent(command);
+        gFeatureManager->mCommandManager->handleCommand(chatEvent);
+    }
+
+
 
 }
 

@@ -204,6 +204,18 @@ Module* ModuleManager::getModule(const std::string& name) const
     return nullptr;
 }
 
+void ModuleManager::removeModule(const std::string& name)
+{
+    for (auto it = mModules.begin(); it != mModules.end(); ++it)
+    {
+        if (StringUtils::equalsIgnoreCase((*it)->mName, name))
+        {
+            mModules.erase(it);
+            return;
+        }
+    }
+}
+
 std::vector<std::shared_ptr<Module>>& ModuleManager::getModulesInCategory(int catId)
 {
     static std::unordered_map<int, std::vector<std::shared_ptr<Module>>> categoryMap = {};

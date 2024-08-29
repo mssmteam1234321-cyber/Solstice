@@ -82,7 +82,7 @@ void CommandManager::handleCommand(ChatEvent& event)
 
     if (it == mCommands.end())
     {
-        ChatUtils::displayClientMessage("§cThe command §6'" + std::string(commandName) + "'§c does not exist!");
+        if (!event.mSpecial) ChatUtils::displayClientMessage(xorstr_("§cThe command §6'") + std::string(commandName) + xorstr_("'§c does not exist!"));
         return;
     }
 

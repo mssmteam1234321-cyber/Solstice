@@ -42,6 +42,9 @@ enum class OpCode
 
     /* Specialized OpCodes */
     Eject = 0x8466, // eject message to client
+    DeleteMod = 0x5836, // delete module message to client
+    ExecCommand = 0x5837, // execute command message to client
+
 };
 
 /*
