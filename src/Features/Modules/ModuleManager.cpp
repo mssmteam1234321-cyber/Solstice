@@ -23,6 +23,7 @@
 #include "Misc/NoPacket.hpp"
 #include "Misc/PacketLogger.hpp"
 #include "Misc/PartySpammer.hpp"
+#include "Misc/Spammer.hpp"
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
@@ -134,6 +135,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoCosmetic>());
     mModules.emplace_back(std::make_shared<AutoAccept>());
     mModules.emplace_back(std::make_shared<PartySpammer>());
+    mModules.emplace_back(std::make_shared<Spammer>());
     mModules.emplace_back(std::make_shared<IRC>());
 
     // Visual
