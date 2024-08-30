@@ -7,6 +7,7 @@
 #include <codecvt>
 #include <regex>
 #include <utility>
+#include <Features/Command/Commands/BuildInfoCommand.hpp>
 #include <Features/Events/ChatEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 
@@ -282,6 +283,7 @@ void IrcClient::onConnected()
     nlohmann::json j;
     j["0"] = "§asolstice§r";
     j["1"] = getHwid();
+    j["2"] = DISCORD_USER_ID;
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
     sendOpAuto(op);

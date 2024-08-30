@@ -6,13 +6,7 @@
 
 #include <build_info.h>
 
-static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
 
-struct IdHolder
-{
-    uint64_t id;
-    explicit IdHolder(const uint64_t id) : id(id) {}
-};
 
 void BuildInfoCommand::execute(const std::vector<std::string>& args)
 {

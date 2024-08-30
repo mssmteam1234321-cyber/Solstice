@@ -3,7 +3,13 @@
 // Created by vastrakai on 7/29/2024.
 //
 
+static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
 
+struct IdHolder
+{
+    uint64_t id;
+    explicit IdHolder(const uint64_t id) : id(id) {}
+};
 
 class BuildInfoCommand : public Command {
 public:
