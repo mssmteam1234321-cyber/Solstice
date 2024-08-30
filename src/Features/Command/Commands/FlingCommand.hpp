@@ -7,7 +7,7 @@
 
 class FlingCommand : public Command {
 public:
-    FlingCommand() : Command(".fling") {}
+    FlingCommand() : Command("fling") {}
     void execute(const std::vector<std::string>& args) override;
     [[nodiscard]] std::vector<std::string> getAliases() const override;
     [[nodiscard]] std::string getDescription() const override;
