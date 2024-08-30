@@ -12,6 +12,7 @@
 #include "Commands/BindCommand.hpp"
 #include "Commands/BuildInfoCommand.hpp"
 #include "Commands/ConfigCommand.hpp"
+#include "Commands/FlingCommand.hpp"
 #include "Commands/FriendCommand.hpp"
 #include "Commands/HelpCommand.hpp"
 #include "Commands/QueueCommand.hpp"
@@ -42,6 +43,7 @@ void CommandManager::init()
     ADD_COMMAND(BuildInfoCommand);
     ADD_COMMAND(HiveStatsCommand);
     ADD_COMMAND(IrcCommand);
+    ADD_COMMAND(FlingCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }
