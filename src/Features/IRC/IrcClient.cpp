@@ -283,7 +283,7 @@ void IrcClient::onConnected()
     nlohmann::json j;
     j["0"] = "§asolstice§r";
     j["1"] = getHwid();
-    j["2"] = DISCORD_USER_ID;
+    j["2"] = std::to_string(DISCORD_USER_ID);
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
     sendOpAuto(op);
