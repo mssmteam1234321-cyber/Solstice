@@ -50,6 +50,7 @@
 #include "Player/Freecam.hpp"
 #include "Player/InvManager.hpp"
 #include "Player/MidclickAction.hpp"
+#include "Player/NoFall.hpp"
 #include "Player/Nuker.hpp"
 #include "Player/OreMiner.hpp"
 #include "Player/Regen.hpp"
@@ -112,7 +113,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
     mModules.emplace_back(std::make_shared<Freecam>());
-
+    mModules.emplace_back(std::make_shared<NoFall>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());

@@ -50,9 +50,9 @@ void IrcClient::changeUsername()
 
 IrcClient::IrcClient()
 {
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &IrcClient::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &IrcClient::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &IrcClient::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &IrcClient::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &IrcClient::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &IrcClient::onPacketInEvent, nes::event_priority::VERY_LAST>(this);
 }
 
 IrcClient::~IrcClient()
