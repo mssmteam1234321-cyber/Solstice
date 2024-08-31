@@ -4,6 +4,7 @@
 
 #pragma once
 
+
 #include "HashedString.hpp"
 #include "Structs.hpp"
 #include "StringUtils.hpp"
