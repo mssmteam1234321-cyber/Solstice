@@ -586,6 +586,7 @@ void IrcClient::sendPlayerIdentity(bool forced)
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyPlayer, jsonStr, true);
     sendOpAuto(op);
+    sendSkin();
 }
 
 void IrcClient::displayMsg(std::string message)
