@@ -36,6 +36,8 @@ public:
     static std::string decode(const std::string& str);
     static std::string encrypt(const std::string& str, const std::string& key);
     static std::string decrypt(const std::string& str, const std::string& key);
+    static std::string toHex(const std::vector<uint8_t>& data);
+
 };
 
 

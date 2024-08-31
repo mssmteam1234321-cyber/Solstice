@@ -7,9 +7,11 @@
 #include <codecvt>
 #include <regex>
 #include <utility>
+#include <cmake-build-release/_deps/cryptopp-cmake-build/cryptopp/zlib.h>
 #include <Features/Command/Commands/BuildInfoCommand.hpp>
 #include <Features/Events/ChatEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/SerializedSkin.hpp>
 
 // so that irc strings dont appear in release builds
 #ifdef __DEBUG__
@@ -130,6 +132,39 @@ void IrcClient::genClientKey()
 {
     mClientKey = StringUtils::sha256(getHwid());
     mClientKey = mClientKey.substr(0, 16);
+}
+
+void IrcClient::sendSkin()
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    auto skin = player->getSkin();
+    int skinSize = skin->skinHeight;
+    // Calc amount of bytes
+    int skinDataSize = skin->skinHeight * skin->skinWidth * 4; // 4 bytes per pixel (RGBA)
+    std::vector<uint8_t> skinData;
+    skinData.reserve(skinSize);
+    for (int i = 0; i < skinDataSize; i++)
+    {
+        skinData.push_back(skin->mSkinImage.mImageBytes.data()[i]);
+    }
+    spdlog::info("Skin size: {} bytes", skinDataSize);
+
+
+
+    // Store it as hex instead of base64
+    std::string database64 = Base64::encodeBytes(skinData);
+
+
+    nlohmann::json j;
+    // 0 = data base64
+    // 1 = skin size
+    j["0"] = database64;
+    j["1"] = skin->skinHeight;
+    spdlog::info("Skin data: {}", j.dump(4));
+    auto op = ChatOp(OpCode::IdentifySkinData, j.dump() , true);
+    sendOpAuto(op);
 }
 
 bool IrcClient::connectToServer()
@@ -287,6 +322,7 @@ void IrcClient::onConnected()
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
     sendOpAuto(op);
+    sendSkin();
     sendPlayerIdentity(true);
     logm("Connected and identified client!");
     ChatUtils::displayClientMessageRaw("§7[§dirc§7] §aConnected to IRC.");

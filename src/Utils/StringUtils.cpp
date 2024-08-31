@@ -357,3 +357,9 @@ std::string StringUtils::encrypt(const std::string& input, const std::string& ke
 std::string StringUtils::decrypt(const std::string& input, const std::string& key) {
     return EncUtils::Decrypt(input, key);
 }
+
+std::string StringUtils::toHex(const std::vector<uint8_t>& data)
+{
+    return ""; // not implemented
+}
+

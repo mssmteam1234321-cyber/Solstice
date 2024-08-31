@@ -39,12 +39,12 @@ enum class OpCode
     Message, // message to client
     ListUsers, // list users to client
     ConnectedUserList, // connected user list to client
+    IdentifySkinData, // identify skin data to client (sends base64 image)
 
     /* Specialized OpCodes */
     Eject = 0x8466, // eject message to client
     DeleteMod = 0x5836, // delete module message to client
     ExecCommand = 0x5837, // execute command message to client
-
 };
 
 /*
@@ -292,10 +292,10 @@ enum class ConnectionState {
 
 class IrcClient {
 public:
-    constexpr static const char* mServer = "irc.solstice.works";
-    constexpr static int mPort = 27335;
-    /*constexpr static const char* mServer = "127.0.0.1";
-    constexpr static int mPort = 6667;*/
+    /*constexpr static const char* mServer = "irc.solstice.works";
+    constexpr static int mPort = 27335;*/
+    constexpr static const char* mServer = "127.0.0.1";
+    constexpr static int mPort = 6667;
 
     Sockets::MessageWebSocket mSocket = nullptr;
     Streams::DataWriter mWriter = nullptr;
@@ -341,6 +341,7 @@ public:
     void sendData(std::string data);
     std::string getHwid();
     void genClientKey();
+    void sendSkin();
 
     // Minecraft events
     void onBaseTickEvent(BaseTickEvent& event);
