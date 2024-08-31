@@ -79,9 +79,10 @@ void SkinStealer::saveSkin(Actor* actor)
     if (!skin) return;
 
     const uint8_t* skinData = skin->mSkinImage.mImageBytes.data();
-    int size = skin->mSkinImage.mWidth;
-    int bytes = size * size * 4;
-    std::vector<uint8_t> pngData = convToPng(std::vector<uint8_t>(skinData, skinData + bytes), size, size);
+    int width = skin->mSkinImage.mWidth;
+    int height = skin->mSkinImage.mHeight;
+    int bytes = width * height * 4;
+    std::vector<uint8_t> pngData = convToPng(std::vector<uint8_t>(skinData, skinData + bytes), width, height);
     if (pngData.empty()) return;
 
     std::string path = FileUtils::getSolsticeDir() + "Skins\\" + actor->getRawName() + "_skin.png";
@@ -90,11 +91,12 @@ void SkinStealer::saveSkin(Actor* actor)
     file.close();
 
     const uint8_t* capeData = skin->mCapeImage.mImageBytes.data();
-    size = skin->mCapeImage.mWidth;
-    bytes = size * size * 4;
-    if (size != 0)
+    width = skin->mCapeImage.mWidth;
+    height = skin->mCapeImage.mHeight;
+    bytes = width * height * 4;
+    if (bytes > 0)
     {
-        pngData = convToPng(std::vector<uint8_t>(capeData, capeData + bytes), size, size);
+        pngData = convToPng(std::vector<uint8_t>(capeData, capeData + bytes), width, height);
 
         if (!pngData.empty())
         {
