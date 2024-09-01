@@ -154,4 +154,9 @@ public:
     bool                                                 mIsPersonaCapeOnClassicSkin;     // this+0x1DE
     bool                                                 mIsPrimaryUser;                  // this+0x1DF
     bool                                                 mOverridesPlayerAppearance;      // this+0x1E0
+
+    void operator= (const SerializedSkin& other) {
+        // use memcpy to copy the data
+        memcpy(this, &other, sizeof(SerializedSkin));
+    }
 };

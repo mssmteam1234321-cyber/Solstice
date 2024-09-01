@@ -9,21 +9,24 @@
 #include <SDK/Minecraft/Actor/Components/FlagComponent.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 
-bool Teams::isTeams = false;
 
 void Teams::onEnable()
 {
-    isTeams = true;
 }
 
 void Teams::onDisable()
 {
-    isTeams = false;
 }
 
-bool Teams::IsOnTeam(class Actor* actor)
+bool Teams::isOnTeam(class Actor* actor)
 {
-    if(!isTeams) return false;
+    if (!this)
+    {
+        spdlog::error("Teams module is null");
+        return false;
+    }
+    if (!mEnabled) return false;
+
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
     if (!localPlayer) return false;
 
