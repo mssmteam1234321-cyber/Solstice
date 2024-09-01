@@ -6,6 +6,7 @@
 
 #include <Features/FeatureManager.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <Features/Modules/Player/Teams.hpp>
 
 void AntiBot::onEnable()
 {
@@ -46,8 +47,7 @@ float normalPlayerWidthMax = 0.66f;*/
 #define NORMAL_PLAYER_WIDTH_MIN 0.54f
 #define NORMAL_PLAYER_WIDTH_MAX 0.66f
 
-bool AntiBot::isBot(Actor* actor) const
-{
+bool AntiBot::isBot(Actor* actor) const {
     if (!mEnabled) return false;
     if (mPlayerCheck.mValue && !actor->isPlayer()) return true;
     auto aabbShapeComponent = actor->getAABBShapeComponent();
@@ -56,7 +56,9 @@ bool AntiBot::isBot(Actor* actor) const
     float hitboxWidth = aabbShapeComponent->mWidth;
     float hitboxHeight = aabbShapeComponent->mHeight;
     // Return if the hitbox dimensions are incorrect
-    if (mHitboxCheck.mValue && (hitboxWidth < NORMAL_PLAYER_WIDTH_MIN || hitboxWidth > NORMAL_PLAYER_WIDTH_MAX || hitboxHeight < NORMAL_PLAYER_HEIGHT_MIN || hitboxHeight > NORMAL_PLAYER_HEIGHT_MAX)) return true;
+    if (mHitboxCheck.mValue && (hitboxWidth < NORMAL_PLAYER_WIDTH_MIN || hitboxWidth > NORMAL_PLAYER_WIDTH_MAX ||
+                                hitboxHeight < NORMAL_PLAYER_HEIGHT_MIN || hitboxHeight > NORMAL_PLAYER_HEIGHT_MAX))
+        return true;
 
     if (mInvisibleCheck.mValue && actor->getStatusFlag(ActorFlags::Invisible)) return true;
 
@@ -65,6 +67,10 @@ bool AntiBot::isBot(Actor* actor) const
         if (std::ranges::count(nameTagString, '\n') > 0) {
             return true;
         }
+    }
+
+    if (Teams::IsOnTeam(actor)) {
+        return true;
     }
 
     return false;

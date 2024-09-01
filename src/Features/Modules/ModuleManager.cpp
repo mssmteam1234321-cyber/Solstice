@@ -43,6 +43,7 @@
 #include "Movement/Sprint.hpp"
 #include "Movement/Step.hpp"
 #include "Movement/Velocity.hpp"
+
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
 #include "Player/AutoTool.hpp"
@@ -57,7 +58,10 @@
 #include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
+#include "Player/Teams.hpp"
+
 #include "spdlog/spdlog.h"
+
 #include "Visual/Animations.hpp"
 #include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
@@ -115,6 +119,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Derp>());
     mModules.emplace_back(std::make_shared<Freecam>());
     mModules.emplace_back(std::make_shared<NoFall>());
+    mModules.emplace_back(std::make_shared<Teams>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
