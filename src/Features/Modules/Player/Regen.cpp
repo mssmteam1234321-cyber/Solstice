@@ -281,67 +281,73 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
                 for (auto& pos : miningRedstones)
                 {
-                    int exposedFace = BlockUtils::getExposedFace(pos);
-                    if (exposedFace == -1 || !isValidRedstone(pos)) continue;
-                    glm::ivec3 placePos = pos + mOffsetList[exposedFace];
-                    glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
-                    if (ClientInstance::get()->getBlockSource()->getBlock(hitPos)->mLegacy->isAir()) continue;
-                    if (!BlockUtils::isAirBlock(placePos)) continue;
-                    if (player->getPos()->y < placePos.y) continue;
+                    if (mMulti.mValue) {
+                        // Multi ore blocker
+                        std::vector<glm::ivec3> placePositions;
+                        int exposedFace = BlockUtils::getExposedFace(pos);
+                        if (exposedFace == -1 || !isValidRedstone(pos)) continue;
+                        for (int i = 0; i < 6; i++) {
+                            glm::ivec3 placePos = pos + mOffsetList[i];
+                            glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
+                            if (!BlockUtils::isAirBlock(placePos) || BlockUtils::isAirBlock(hitPos)) continue;
+                            if (player->getPos()->y < placePos.y) continue;
+                            placePositions.push_back(placePos);
+                        }
 
-                    mCurrentPlacePos = placePos;
-                    mShouldRotate = true;
-                    mPreviousSlot = supplies->mSelectedSlot;
-                    int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
-                    if (blockSlot == -1) continue;
+                        // avoid crash
+                        if (placePositions.empty()) continue;
 
-                    supplies->mSelectedSlot = blockSlot;
-                    PacketUtils::spoofSlot(blockSlot);
-                    if (mSwing.mValue) player->swing();
-                    BlockUtils::placeBlock(placePos, 1);
-                    if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
-                    mShouldSetbackSlot = true;
-                    mShouldSpoofSlot = true;
-                    supplies->mSelectedSlot = mPreviousSlot;
-                    placedBlock = true;
-                    break;
+                        mCurrentPlacePos = pos;
+                        mShouldRotate = true;
+                        mPreviousSlot = supplies->mSelectedSlot;
+                        int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePositions[0], mHotbarOnly.mValue, false);
+                        if (blockSlot == -1) continue;
+
+                        supplies->mSelectedSlot = blockSlot;
+                        PacketUtils::spoofSlot(blockSlot);
+                        if (mSwing.mValue) player->swing();
+                        for (auto& placePos : placePositions) {
+                            BlockUtils::placeBlock(placePos, 1);
+                        }
+                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
+                        mShouldSetbackSlot = true;
+                        mShouldSpoofSlot = true;
+                        supplies->mSelectedSlot = mPreviousSlot;
+                        placedBlock = true;
+                        break;
+                    }
+                    else
+                    {
+                        // Single ore blocker
+                        int exposedFace = BlockUtils::getExposedFace(pos);
+                        if (exposedFace == -1 || !isValidRedstone(pos)) continue;
+                        glm::ivec3 placePos = pos + mOffsetList[exposedFace];
+                        glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
+                        if (ClientInstance::get()->getBlockSource()->getBlock(hitPos)->mLegacy->isAir()) continue;
+                        if (!BlockUtils::isAirBlock(placePos)) continue;
+                        if (player->getPos()->y < placePos.y) continue;
+
+                        mCurrentPlacePos = placePos;
+                        mShouldRotate = true;
+                        mPreviousSlot = supplies->mSelectedSlot;
+                        int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
+                        if (blockSlot == -1) continue;
+
+                        supplies->mSelectedSlot = blockSlot;
+                        PacketUtils::spoofSlot(blockSlot);
+                        if (mSwing.mValue) player->swing();
+                        BlockUtils::placeBlock(placePos, 1);
+                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
+                        mShouldSetbackSlot = true;
+                        mShouldSpoofSlot = true;
+                        supplies->mSelectedSlot = mPreviousSlot;
+                        placedBlock = true;
+                        break;
+                    }
                 }
             }
         }
-        if (!coveredBlocks.empty()) {
-            if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
-                for (auto& pos : coveredBlocks)
-                {
-                    int exposedFace = BlockUtils::getExposedFace(pos);
-                    if (exposedFace == -1 || BlockUtils::isAirBlock(pos)) continue;
-                    glm::ivec3 placePos = pos + mOffsetList[exposedFace];
-                    glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
-                    if (ClientInstance::get()->getBlockSource()->getBlock(hitPos)->mLegacy->isAir()) continue;
-                    if (!BlockUtils::isAirBlock(placePos)) continue;
-                    if (player->getPos()->y < placePos.y) continue;
-
-                    mCurrentPlacePos = placePos;
-                    mShouldRotate = true;
-                    mPreviousSlot = supplies->mSelectedSlot;
-                    int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
-                    if (blockSlot == -1) continue;
-
-                    supplies->mSelectedSlot = blockSlot;
-                    PacketUtils::spoofSlot(blockSlot);
-                    if (mSwing.mValue) player->swing();
-                    BlockUtils::placeBlock(placePos, 1);
-                    if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked uncover");
-                    mShouldSetbackSlot = true;
-                    mShouldSpoofSlot = true;
-                    supplies->mSelectedSlot = mPreviousSlot;
-                    placedBlock = true;
-                    break;
-                }
-            }
-        }
-        
         miningRedstones.clear();
-        coveredBlocks.clear();
         if (placedBlock) return;
     }
 
@@ -862,26 +868,6 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (mBlockOre.mValue) {
                 // normal ore blocker
                 if(isValidRedstone(levelEvent->mPos)) miningRedstones.push_back(levelEvent->mPos);
-
-                // expanded ore blocker
-                if (mBlockUncover.mValue && player->distanceTo(levelEvent->mPos) <= mBlockRange.mValue) {
-                    int brokenBlockId = ClientInstance::get()->getBlockSource()->getBlock(levelEvent->mPos)->mLegacy->getBlockId();
-                    if (brokenBlockId != 73 && brokenBlockId != 74) {
-                        std::vector<BlockInfo> blocks = BlockUtils::getBlockList(levelEvent->mPos, mSearchRange.mValue);
-                        bool found = false;
-                        for (int i = 0; i < blocks.size(); i++) {
-                            glm::ivec3 blockPos = blocks[i].mPosition;
-                            int blockId = blocks[i].mBlock->mLegacy->getBlockId();
-
-                            if ((blockId != 73 && blockId != 74) || blockPos == glm::ivec3(levelEvent->mPos)) continue;
-                            found = true;
-                            break;
-                        }
-                        if (found) {
-                            coveredBlocks.push_back(glm::ivec3(levelEvent->mPos));
-                        }
-                    }
-                }
             }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block

@@ -46,8 +46,7 @@ public:
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
     NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
-    BoolSetting mBlockUncover = BoolSetting("Block Uncover", "Prevent opponent uncover redstone", false);
-    NumberSetting mSearchRange = NumberSetting("Search Range", "The max ore search range for uncover blocker", 2, 1, 3, 1);
+    BoolSetting mMulti = BoolSetting("Multi", "Allows placing multiple blocks", false);
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
@@ -92,8 +91,7 @@ public:
             &mAntiConfuse,
             &mBlockOre,
             &mBlockRange,
-            &mBlockUncover,
-            &mSearchRange,
+            &mMulti,
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
@@ -125,8 +123,7 @@ public:
         VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
 
         VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
-        VISIBILITY_CONDITION(mBlockUncover, mBlockOre.mValue);
-        VISIBILITY_CONDITION(mSearchRange, mBlockOre.mValue && mBlockUncover.mValue);
+        VISIBILITY_CONDITION(mMulti, mBlockOre.mValue);
 
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
 
@@ -186,7 +183,6 @@ public:
     int mToolSlot = -1;
 
     std::vector<glm::ivec3> miningRedstones;
-    std::vector<glm::ivec3> coveredBlocks;
     glm::ivec3 mCurrentPlacePos = { INT_MAX, INT_MAX, INT_MAX };
 
     uint64_t mLastBlockPlace = 0;
