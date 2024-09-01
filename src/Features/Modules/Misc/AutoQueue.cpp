@@ -9,6 +9,7 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 
@@ -80,6 +81,18 @@ void AutoQueue::onPacketInEvent(PacketInEvent& event)
             mLastQueueTime = NOW;
             NotifyUtils::notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
             return;
+        }
+
+        std::string playerName = player->getNameTag();
+        if (playerName.find("§r") != std::string::npos) playerName.erase(playerName.find("§r"), 2);
+        if (playerName.find("§l") != std::string::npos) playerName.erase(playerName.find("§l"), 2);
+
+        std::string playerTeam = "§" + playerName.substr(playerName.find("§") + 2, 1);
+
+        if (StringUtils::containsIgnoreCase(tp->mMessage, "§7has been §cELIMINATED§7!") && StringUtils::startsWith(tp->mMessage, playerTeam + "§l»") && mQueueOnDeath) {
+            mQueueForGame = true;
+            mLastQueueTime = NOW;
+            NotifyUtils::notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
         }
 
         static std::vector<std::string> ignored = {

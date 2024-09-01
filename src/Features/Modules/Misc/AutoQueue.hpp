@@ -19,7 +19,7 @@ public:
     BoolSetting mQueueOnGameEnd = BoolSetting("Queue On Game End", "Queue for a game when the game ends", true);
 
     AutoQueue() : ModuleBase("AutoQueue", "Automatically queues for games", ModuleCategory::Misc, 0, false){
-        addSettings(&mMode, &mQueueDelay, &mShowInChat, /*&mQueueOnDeath,*/ &mQueueOnGameEnd);
+        addSettings(&mMode, &mQueueDelay, &mShowInChat, &mQueueOnDeath, &mQueueOnGameEnd);
 
         mNames = {
             {NamingStyle::Lowercase, "autoqueue"},
