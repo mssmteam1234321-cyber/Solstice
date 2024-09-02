@@ -24,6 +24,7 @@
 #include "Commands/GamemodeCommand.hpp"
 #include "Commands/HiveStatsCommand.hpp"
 #include "Commands/IrcCommand.hpp"
+#include "Commands/VclipCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -44,6 +45,7 @@ void CommandManager::init()
     ADD_COMMAND(HiveStatsCommand);
     ADD_COMMAND(IrcCommand);
     ADD_COMMAND(FlingCommand);
+    ADD_COMMAND(VclipCommand);
 
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }
