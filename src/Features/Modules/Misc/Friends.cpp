@@ -5,6 +5,7 @@
 #include "Friends.hpp"
 
 #include <Solstice.hpp>
+#include <Features/Modules/Player/Teams.hpp>
 
 void Friends::onInit()
 {
@@ -20,7 +21,7 @@ bool Friends::isFriend(const std::string& name)
 
 bool Friends::isFriend(Actor* actor)
 {
-    return isFriend(actor->getRawName());
+    return isFriend(actor->getRawName()) || Teams::instance->isOnTeam(actor);
 }
 
 void Friends::addFriend(const std::string& name)

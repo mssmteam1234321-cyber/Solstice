@@ -6,6 +6,7 @@
 
 class Teams : public ModuleBase<Teams> {
 public:
+    static inline Teams* instance = nullptr;
 
     enum class Mode {
         Hive
@@ -23,11 +24,12 @@ public:
                 {Normal, "Teams"},
                 {NormalSpaced, "Teams"},
         };
-    }
 
-    static bool isTeams;
+        instance = this;
+        spdlog::info("Teams module initialized");
+    }
 
     void onEnable() override;
     void onDisable() override;
-    static bool IsOnTeam(class Actor* actor);
+    bool isOnTeam(class Actor* actor);
 };

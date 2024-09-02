@@ -69,9 +69,5 @@ bool AntiBot::isBot(Actor* actor) const {
         }
     }
 
-    if (Teams::IsOnTeam(actor)) {
-        return true;
-    }
-
     return false;
 }
