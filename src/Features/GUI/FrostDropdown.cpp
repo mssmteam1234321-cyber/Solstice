@@ -667,6 +667,9 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                     if (modRect.y > catRect.y + 0.5f)
                     {
                         // Draw the rect
+
+                        modRect.y -= 1;
+
                         if (mod->cScale <= 1)
                         {
                             ImRenderUtils::fillRectangle(modRect, moduleBackgroundColor, animation, ModuleRounding, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
@@ -702,6 +705,7 @@ void FrostGui::render(float animation, float inScale, int& scrollDirection, char
                             ImColor rgb2 = ColorUtils::getThemedColor(scaledRect.y + ((scaledRect.z - scaledRect.x)));
                             //ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation, animation); // Erm, what the sigma...
 
+                            scaledRect.y -= 1;
                             ImRenderUtils::fillRectangle(scaledRect, rgb, animation, ModuleRounding, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom); // very sigma
 
                             // UnCommit this line under if u want gradient
