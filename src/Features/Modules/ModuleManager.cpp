@@ -81,6 +81,7 @@
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/TargetHUD.hpp"
 #include "Visual/Watermark.hpp"
+#include "Visual/NoHurttime.hpp"
 
 void ModuleManager::init()
 {
@@ -167,7 +168,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TargetHUD>());
     mModules.emplace_back(std::make_shared<ItemESP>());
     mModules.emplace_back(std::make_shared<Nametags>());
-
+    mModules.emplace_back(std::make_shared<NoHurtcam>());
 
 
 
