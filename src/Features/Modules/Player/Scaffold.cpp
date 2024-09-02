@@ -319,6 +319,7 @@ void Scaffold::onRenderEvent(RenderEvent& event)
 
 }
 
+
 void Scaffold::onPacketOutEvent(PacketOutEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
