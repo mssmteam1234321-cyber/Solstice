@@ -26,7 +26,7 @@ public:
     EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::Normal, "lowercase", "lower spaced", "Normal", "Spaced");
     EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Custom, "Trans", "Rainbow", "Custom");
     // make sure you actually have the fonts u put here lol
-    EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::SFProDisplay, "Mojangles" /*"Product Sans", "Comfortaa"*/, "SF Pro Display");
+    EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::Mojangles, "Mojangles" /*"Product Sans", "Comfortaa"*/, "SF Pro Display");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     // Colors will be Fire-themed by default
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);
@@ -35,7 +35,7 @@ public:
     ColorSetting mColor4 = ColorSetting("Color 4", "The fourth color of the interface.", 0xFF00FF00);
     ColorSetting mColor5 = ColorSetting("Color 5", "The fifth color of the interface.", 0xFF0000FF);
     ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF8B00FF);
-    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 8.f, 0.01f, 20.f, 0.01);
+    NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 3.f, 0.01f, 20.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
     BoolSetting mSlotEasing = BoolSetting("Slot Easing", "Eases the selection of slots", true);
     NumberSetting mSlotEasingSpeed = NumberSetting("Easing Speed", "The speed of the slot easing", 20.f, 0.1f, 20.f, 0.01f);

@@ -27,14 +27,14 @@ public:
         Bound,
     };
 
-    EnumSettingT<BackgroundStyle> mBackground = EnumSettingT("Background", "Background style", BackgroundStyle::Opacity, "Opacity", "Shadow", "Both");
-    NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 0.f, 0.0f, 1.f, 0.01f);
-    EnumSettingT<Display> mDisplay = EnumSettingT("Display", "Outline style", Display::Outline, "Outline", "Bar", "Split", "None");
+    EnumSettingT<BackgroundStyle> mBackground = EnumSettingT("Background", "Background style", BackgroundStyle::Shadow, "Opacity", "Shadow", "Both");
+    NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 0.50f, 0.0f, 1.f, 0.01f);
+    EnumSettingT<Display> mDisplay = EnumSettingT("Display", "Outline style", Display::Bar, "Outline", "Bar", "Split", "None");
     EnumSettingT<ModuleVisibility> mVisibility = EnumSettingT("Visibility", "Module visibility", ModuleVisibility::All, "All", "Bound");
     BoolSetting mRenderMode = BoolSetting("Render Mode", "Renders the module mode next to the module name", true);
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
-    BoolSetting mBoldText = BoolSetting("Bold Text", "Makes the text bold", true);
+    BoolSetting mBoldText = BoolSetting("Bold Text", "Makes the text bold", false);
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 25.f, 10.f, 40.f, 0.01f);
 
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
