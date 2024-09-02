@@ -17,7 +17,6 @@ LOAD_RESOURCE(fonts_SF_Pro_Display_Bold_ttf);
 LOAD_RESOURCE(fonts_SF_Pro_Display_ttf);
 LOAD_RESOURCE(fonts_Sarabun_Light_ttf);
 LOAD_RESOURCE(fonts_Tenacity_Icons_ttf);
-LOAD_RESOURCE(fonts_icons_v1_ttf);
 LOAD_RESOURCE(notch_png);
 LOAD_RESOURCE(seven_days_png);
 LOAD_RESOURCE(smooth_off_wav);

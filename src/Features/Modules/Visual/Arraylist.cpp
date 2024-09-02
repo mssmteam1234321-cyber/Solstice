@@ -97,7 +97,6 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         return ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, aName.c_str()).x > ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, bName.c_str()).x;
     });
 
-    // Render in top-right corner
     ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 10);
 
     ImVec2 displayRes = ImGui::GetIO().DisplaySize;
@@ -121,7 +120,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-        if (mDisplay.mValue == Display::Bar)
+        if (mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split)
         {
             textPos.x -= 7;
         }
@@ -135,23 +134,36 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         textPos.x = MathUtils::lerp(displayRes.x + 14.f, endPos, mod->mArrayListAnim);
         ImVec2 mousePos = ImGui::GetIO().MousePos;
-        if (glow && mDisplay.mValue != Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        if (glow && (mDisplay.mValue != Display::Bar && mDisplay.mValue != Display::Split))
+        {
+            drawList->AddShadowRect(ImVec2(textPos.x, textPos.y), ImVec2(textPos.x + ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.83f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+        }
 
-        // Else, only draw glow on bar
         ImVec4 rect = {textPos.x, textPos.y, textPos.x + textSize.x + displaySize.x, textPos.y + textSize.y};
-        rect.x -= 3; // Padding
+        rect.x -= 3;
         rect.z += 1;
-        rect.z += 3; // Padding
+        rect.z += 3;
 
         if (mBackground.mValue == BackgroundStyle::Shadow || mBackground.mValue == BackgroundStyle::Both)
         {
             drawList->AddShadowRect(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(0.f, 0.f, 0.f, 1.f * mBackgroundOpacity.mValue), 200.f, ImVec2(0.f, 0.f), 0, 12);
-            //drawList->AddRect(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(1.f, 0.f, 0.f, 1.f));
+        }
+
+        if (mDisplay.mValue == Display::Split)
+        {
+            ImVec2 lineStart = ImVec2(rect.z + 2, textPos.y + 4);
+            ImVec2 lineEnd = ImVec2(lineStart.x + 4, lineStart.y + textSize.y - 6);
+            drawList->AddRectFilled(lineStart, lineEnd, color, 3.f);
+
+            if (glow)
+            {
+                drawList->AddShadowRect(ImVec2(lineStart.x, lineStart.y), ImVec2(lineEnd.x, lineEnd.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+            }
         }
 
         pos.y += (textSize.y * mod->mArrayListAnim);
-
     }
+
 
     pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 10); // Reset position
 
@@ -174,7 +186,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
         bool addedPadding = false;
-        if (mDisplay.mValue == Display::Bar)
+        if (mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split)
         {
             textPos.x -= 7;
             addedPadding = true;
@@ -246,7 +258,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
             ImVec2 textPos = ImVec2(pos.x, pos.y);
 
-            if (mDisplay.mValue == Display::Bar)
+            if (mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split)
             {
                 textPos.x -= 7;
             }
@@ -262,7 +274,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
             ImVec2 mousePos = ImGui::GetIO().MousePos;
             constexpr float glowPadding = 0.f;
             float textX = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, (name + settingDisplay).c_str()).x;
-            if (glow && mDisplay.mValue == Display::Bar) drawList->AddShadowRect(ImVec2(textPos.x + textX - glowPadding, textPos.y), ImVec2(textPos.x + textX + glowPadding, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
+            if (glow && mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split) drawList->AddShadowRect(ImVec2(textPos.x + textX - glowPadding, textPos.y), ImVec2(textPos.x + textX + glowPadding, textPos.y + textSize.y), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.7f * mod->mArrayListAnim), glowStrength * mod->mArrayListAnim, ImVec2(0.f, 0.f), 0, 12);
             // Else, only draw glow on bar
 
             pos.y += (textSize.y * mod->mArrayListAnim);

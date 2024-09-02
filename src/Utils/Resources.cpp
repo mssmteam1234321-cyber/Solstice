@@ -49,10 +49,6 @@ void ResourceLoader::loadResources() {
     Resources.emplace("tenacity_icons", fonts_Tenacity_Icons_ttf);
     FontHelper::Fonts.emplace("tenacity_icons", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 20));
     FontHelper::Fonts.emplace("tenacity_icons_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 84));
-    auto fonts_icons_v1_ttf = GET_RESOURCE(fonts_icons_v1_ttf);
-    Resources.emplace("icons_v1", fonts_icons_v1_ttf);
-    FontHelper::Fonts.emplace("icons_v1", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 20));
-    FontHelper::Fonts.emplace("icons_v1_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_icons_v1_ttf.data2(), fonts_icons_v1_ttf.size(), 84));
     auto notch_png = GET_RESOURCE(notch_png);
     Resources.emplace("notch.png", notch_png);
     auto seven_days_png = GET_RESOURCE(seven_days_png);
