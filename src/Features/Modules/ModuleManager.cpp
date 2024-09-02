@@ -39,6 +39,7 @@
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Phase.hpp"
 #include "Movement/SafeWalk.hpp"
+#include "Movement/ServerSneak.hpp"
 #include "Movement/Speed.hpp"
 #include "Movement/Spider.hpp"
 #include "Movement/Sprint.hpp"
@@ -104,7 +105,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Step>());
     mModules.emplace_back(std::make_shared<LongJump>());
     mModules.emplace_back(std::make_shared<Spider>());
-
+    mModules.emplace_back(std::make_shared<ServerSneak>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
