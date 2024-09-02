@@ -28,6 +28,7 @@
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
+#include "Misc/AutoLootbox.hpp"
 
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
@@ -145,7 +146,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Spammer>());
     mModules.emplace_back(std::make_shared<IRC>());
     mModules.emplace_back(std::make_shared<SkinStealer>());
-
+    mModules.emplace_back(std::make_shared<AutoLootbox>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
