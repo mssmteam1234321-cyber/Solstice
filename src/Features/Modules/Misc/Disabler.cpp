@@ -110,13 +110,6 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
         if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
 
-        bool forward = newMoveVec.y > 0;
-        bool backward = newMoveVec.y < 0;
-        bool left = newMoveVec.x > 0;
-        bool right = newMoveVec.x < 0;
-        bool upright = right && forward;
-        bool upleft = left && forward;
-
         // Remove all old flags
         pkt->mInputData &= ~AuthInputAction::UP;
         pkt->mInputData &= ~AuthInputAction::DOWN;
@@ -124,14 +117,6 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         pkt->mInputData &= ~AuthInputAction::RIGHT;
         pkt->mInputData &= ~AuthInputAction::UP_RIGHT;
         pkt->mInputData &= ~AuthInputAction::UP_LEFT;
-
-        // Set new flags
-        if (forward) pkt->mInputData |= AuthInputAction::UP;
-        if (backward) pkt->mInputData |= AuthInputAction::DOWN;
-        if (left) pkt->mInputData |= AuthInputAction::LEFT;
-        if (right) pkt->mInputData |= AuthInputAction::RIGHT;
-        if (upright) pkt->mInputData |= AuthInputAction::UP_RIGHT;
-        if (upleft) pkt->mInputData |= AuthInputAction::UP_LEFT;
 
         pkt->mMove = newMoveVec;
         pkt->mInputMode = InputMode::GamePad;

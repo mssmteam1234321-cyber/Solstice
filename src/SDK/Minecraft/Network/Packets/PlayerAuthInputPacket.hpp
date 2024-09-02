@@ -331,5 +331,25 @@ public:
             mInputData |= static_cast<AuthInputAction>(1ULL << i);
         }
     }
+
+    std::string toString()
+    {
+        // Display all input data (use magic_enum)
+        std::string inputString = "";
+        for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
+            // Continue if this input data isn't valid
+            if (i == 2 || i == 27 || i == 31 || i == 0x22 || i == 0x23 || i == 0x24) {
+                continue;
+            }
+            if (hasInputData(static_cast<AuthInputAction>(1ULL << i)) && inputString.empty()) {
+                inputString = std::string(magic_enum::enum_name(static_cast<InputData>(i)).data());
+            }
+            else if (hasInputData(static_cast<AuthInputAction>(1ULL << i))) {
+                inputString += ", " + std::string(magic_enum::enum_name(static_cast<InputData>(i)).data());
+            }
+        }
+
+        return inputString;
+    }
 };
 
