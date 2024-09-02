@@ -8,16 +8,11 @@
 class AutoLootbox : public ModuleBase<AutoLootbox> {
 public:
 
-    enum class Mode {
-        Open,
-        Break
-    };
-
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use", Mode::Open, "Open", "Break");
+    NumberSetting mRange = NumberSetting("Range", "range to break lootbox", 5.f, 0.f, 10.f, 1.f);
 
     AutoLootbox() : ModuleBase("AutoLootbox", "automaticly breaks death treasures on hive", ModuleCategory::Player, 0, false) {
 
-        addSettings(&mMode);
+        addSettings(&mRange);
 
         mNames = {
                 {Lowercase, "autolootbox"},

@@ -19,7 +19,6 @@
 #include <SDK/Minecraft/Actor/Components/ActorTypeComponent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 
-static glm::vec3 lastTreasurePos;
 AABB AutoLootbox::mTargetedAABB = AABB();
 bool AutoLootbox::mRotating = false;
 uint64_t AutoLootbox::lastHit = 0;
@@ -30,7 +29,6 @@ void AutoLootbox::onEnable() {
 }
 
 void AutoLootbox::onDisable() {
-    lastTreasurePos = {0.f,0.f,0.f};
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoLootbox::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &AutoLootbox::onPacketOutEvent>(this);
 }
@@ -52,10 +50,10 @@ void AutoLootbox::onBaseTickEvent(BaseTickEvent& event) {
             continue;
         };
 
-        if(moduleOwner.mActor->mEntityIdentifier != "hivesky:death_crate")
+        if (moduleOwner.mActor->mEntityIdentifier != "hivesky:death_crate")
             continue;
 
-        if(player->distanceTo(moduleOwner.mActor) > 4)
+        if (player->distanceTo(moduleOwner.mActor) > mRange.mValue)
             continue;
 
         actors.push_back(moduleOwner.mActor);
@@ -75,22 +73,12 @@ void AutoLootbox::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     if (!closestActor) return;
-    if (lastTreasurePos == *closestActor->getPos()) return;
-
     lastHit = NOW;
 
     RotateToTreasure(closestActor);
 
-    if (mMode.mValue == Mode::Open) {
-        player->swing();
-        player->getGameMode()->interact(closestActor, *closestActor->getPos());
-        player->getGameMode()->buildBlock(*closestActor->getPos(), BlockUtils::getExposedFace(*closestActor->getPos()), 0);
-    } else if (mMode.mValue == Mode::Break) {
-        player->swing();
-        player->getGameMode()->attack(closestActor);
-    }
-
-    lastTreasurePos = *closestActor->getPos();
+    player->swing();
+    player->getGameMode()->attack(closestActor);
 }
 
 void AutoLootbox::onPacketOutEvent(PacketOutEvent& event) {
@@ -112,14 +100,4 @@ void AutoLootbox::onPacketOutEvent(PacketOutEvent& event) {
     }
 
     mRotating = false;
-}
-
-void AutoLootbox::onPacketInEvent(class PacketInEvent& event) {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
-
-    if(event.mPacket->getId() == PacketID::ChangeDimension)
-    {
-        lastTreasurePos = {0.f,0.f,0.f};
-    }
 }
