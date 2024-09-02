@@ -45,6 +45,7 @@
 #include "Movement/Sprint.hpp"
 #include "Movement/Step.hpp"
 #include "Movement/Velocity.hpp"
+#include "Movement/HiveFly.hpp"
 
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
@@ -123,6 +124,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Freecam>());
     mModules.emplace_back(std::make_shared<NoFall>());
     mModules.emplace_back(std::make_shared<Teams>());
+    mModules.emplace_back(std::make_shared<HiveFly>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
