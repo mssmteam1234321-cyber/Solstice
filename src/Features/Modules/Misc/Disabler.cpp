@@ -29,7 +29,116 @@ void Disabler::onDisable()
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &Disabler::onPingUpdateEvent>(this);
 }
 
+/*glm::vec2 MathUtils::getMovement() {
+    glm::vec2 ret = glm::vec2(0, 0);
+    float forward = 0.0f;
+    float side = 0.0f;
+
+    bool w = Keyboard::mPressedKeys['W'];
+    bool a = Keyboard::mPressedKeys['A'];
+    bool s = Keyboard::mPressedKeys['S'];
+    bool d = Keyboard::mPressedKeys['D'];
+
+    if (!w && !a && !s && !d)
+        return ret;
+
+    static constexpr float forwardF = 1;
+    static constexpr float sideF = 0.7071067691f;
+
+    if (w) {
+        if (!a && !d)
+            forward = forwardF;
+        if (a) {
+            forward = sideF;
+            side = sideF;
+        }
+        else if (d) {
+            forward = sideF;
+            side = -sideF;
+        }
+    }
+    else if (s) {
+        if (!a && !d)
+            forward = -forwardF;
+        if (a) {
+            forward = -sideF;
+            side = sideF;
+        }
+        else if (d) {
+            forward = -sideF;
+            side = -sideF;
+        }
+    }
+    else if (!w && !s) {
+        if (!a && d) side = -forwardF;
+        else side = forwardF;
+    }
+
+    ret.x = side;
+    ret.y = forward;
+    return ret;
+}*/
+
 void Disabler::onPacketOutEvent(PacketOutEvent& event) {
+#ifdef __DEBUG__
+    if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
+        if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
+
+        // I hate math so much
+
+        auto pkt = event.getPacket<PlayerAuthInputPacket>();
+        glm::vec2 moveVec = pkt->mMove;
+        glm::vec2 xzVel = { pkt->mPosDelta.x, pkt->mPosDelta.z };
+        float yaw = pkt->mRot.y;
+        yaw = -yaw;
+
+        if (moveVec.x == 0 && moveVec.y == 0 && xzVel.x == 0 && xzVel.y == 0) return;
+
+        float moveVecYaw = atan2(moveVec.x, moveVec.y);
+        moveVecYaw = glm::degrees(moveVecYaw);
+
+        float movementYaw = atan2(xzVel.x, xzVel.y);
+        float movementYawDegrees = movementYaw * (180.0f / M_PI);
+
+        float yawDiff = movementYawDegrees - yaw;
+
+        float newMoveVecX = sin(glm::radians(yawDiff));
+        float newMoveVecY = cos(glm::radians(yawDiff));
+        glm::vec2 newMoveVec = { newMoveVecX, newMoveVecY };
+
+        if (abs(newMoveVec.x) < 0.001) newMoveVec.x = 0;
+        if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
+        if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
+
+        bool forward = newMoveVec.y > 0;
+        bool backward = newMoveVec.y < 0;
+        bool left = newMoveVec.x > 0;
+        bool right = newMoveVec.x < 0;
+        bool upright = right && forward;
+        bool upleft = left && forward;
+
+        // Remove all old flags
+        pkt->mInputData &= ~AuthInputAction::UP;
+        pkt->mInputData &= ~AuthInputAction::DOWN;
+        pkt->mInputData &= ~AuthInputAction::LEFT;
+        pkt->mInputData &= ~AuthInputAction::RIGHT;
+        pkt->mInputData &= ~AuthInputAction::UP_RIGHT;
+        pkt->mInputData &= ~AuthInputAction::UP_LEFT;
+
+        // Set new flags
+        if (forward) pkt->mInputData |= AuthInputAction::UP;
+        if (backward) pkt->mInputData |= AuthInputAction::DOWN;
+        if (left) pkt->mInputData |= AuthInputAction::LEFT;
+        if (right) pkt->mInputData |= AuthInputAction::RIGHT;
+        if (upright) pkt->mInputData |= AuthInputAction::UP_RIGHT;
+        if (upleft) pkt->mInputData |= AuthInputAction::UP_LEFT;
+
+        pkt->mMove = newMoveVec;
+        pkt->mInputMode = InputMode::GamePad;
+        return;
+
+    }
+#endif
     if (mMode.mValue != Mode::Sentinel) return;
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
@@ -42,7 +151,7 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         glm::vec3 deltaPos = pkt->mPosDelta;
         glm::vec3 lastPos = pkt->mPos - deltaPos;
 
-        // send tampared packet
+        // send tampered packet
         pkt->mClientTick = mClientTicks;
         pkt->mPos = { INT_MAX, INT_MAX, INT_MAX };
         ClientInstance::get()->getPacketSender()->sendToServer(pkt);
@@ -84,7 +193,7 @@ int64_t Disabler::getDelay() const
 
 void Disabler::onPingUpdateEvent(PingUpdateEvent& event)
 {
-    if (mMode.mValue != Mode::FlareonOld) return;
+    if (mMode.mValue != Mode::Flareon) return;
     if (mDisablerType.mValue == DisablerType::PingSpoof)
     {
         //event.mPing = 0; // hide ping visually
@@ -94,7 +203,10 @@ void Disabler::onPingUpdateEvent(PingUpdateEvent& event)
 void Disabler::onSendImmediateEvent(SendImmediateEvent& event)
 {
 
-    if (mMode.mValue != Mode::FlareonOld) return;
+    if (mMode.mValue != Mode::Flareon) return;
+#ifdef __DEBUG__
+    if (mDisablerType.mValue == DisablerType::MoveFix) return;
+#endif
     uint8_t packetId = event.send[0];
     if (packetId == 0)
     {
@@ -111,7 +223,6 @@ void Disabler::onSendImmediateEvent(SendImmediateEvent& event)
         *reinterpret_cast<uint64_t*>(&event.send[1]) = timestamp;
 
         event.mModified = true;
-        spdlog::info("Updated disabler");
     }
 }
 

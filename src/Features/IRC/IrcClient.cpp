@@ -204,6 +204,12 @@ bool IrcClient::connectToServer()
                     std::wstring wmessage{ dr.ReadString(dr.UnconsumedBufferLength()) };
                     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
                     std::string message = converter.to_bytes(wmessage);
+                if (std::ranges::all_of(message, [](char c) { return c == '\0'; }) || message == "\0" || message.empty())
+                {
+                    logm("Error: Received empty message");
+                    disconnect();
+                    return;
+                }
                 message = StringUtils::decode(message);
                 message = StringUtils::trim(message);
                 // continue if this isnt valid json

@@ -8,9 +8,9 @@
 class AutoLootbox : public ModuleBase<AutoLootbox> {
 public:
 
-    NumberSetting mRange = NumberSetting("Range", "range to break lootbox", 5.f, 0.f, 10.f, 1.f);
+    NumberSetting mRange = NumberSetting("Range", "The max range for the lootboxes", 5.f, 0.f, 10.f, 1.f);
 
-    AutoLootbox() : ModuleBase("AutoLootbox", "automaticly breaks death treasures on hive", ModuleCategory::Player, 0, false) {
+    AutoLootbox() : ModuleBase("AutoLootbox", "Automatically breaks death treasures on The Hive", ModuleCategory::Player, 0, false) {
 
         addSettings(&mRange);
 
