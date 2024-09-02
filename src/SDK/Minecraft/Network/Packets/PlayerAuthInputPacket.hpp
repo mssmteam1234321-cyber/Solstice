@@ -334,8 +334,17 @@ public:
 
     std::string toString()
     {
-        // Display all input data (use magic_enum)
         std::string inputString = "";
+        // add fields
+        inputString += "mRot: " + std::to_string(mRot.x) + ", " + std::to_string(mRot.y) + "\n";
+        inputString += "mPos: " + std::to_string(mPos.x) + ", " + std::to_string(mPos.y) + ", " + std::to_string(mPos.z) + "\n";
+        inputString += "mYHeadRot: " + std::to_string(mYHeadRot) + "\n";
+        inputString += "mPosDelta: " + std::to_string(mPosDelta.x) + ", " + std::to_string(mPosDelta.y) + ", " + std::to_string(mPosDelta.z) + "\n";
+        inputString += "mAnalogMoveVector: " + std::to_string(mAnalogMoveVector.x) + ", " + std::to_string(mAnalogMoveVector.y) + "\n";
+        inputString += "mVehicleRotation: " + std::to_string(mVehicleRotation.x) + ", " + std::to_string(mVehicleRotation.y) + "\n";
+        inputString += "mMove: " + std::to_string(mMove.x) + ", " + std::to_string(mMove.y) + "\n";
+        inputString += "mGazeDir: " + std::to_string(mGazeDir.x) + ", " + std::to_string(mGazeDir.y) + ", " + std::to_string(mGazeDir.z) + "\n";
+        inputString += "mInputData: ";
         for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
             // Continue if this input data isn't valid
             if (i == 2 || i == 27 || i == 31 || i == 0x22 || i == 0x23 || i == 0x24) {
@@ -348,6 +357,20 @@ public:
                 inputString += ", " + std::string(magic_enum::enum_name(static_cast<InputData>(i)).data());
             }
         }
+        inputString += "\n";
+        inputString += "mInputMode: " + std::string(magic_enum::enum_name(mInputMode).data()) + "\n";
+        inputString += "mPlayMode: " + std::string(magic_enum::enum_name(mPlayMode).data()) + "\n";
+        inputString += "mNewInteractionModel: " + std::string(magic_enum::enum_name(mNewInteractionModel).data()) + "\n";
+        inputString += "mClientTick: " + std::to_string(mClientTick) + "\n";
+        inputString += "mPlayerBlockActions: ";
+        for (auto& action : mPlayerBlockActions.mActions) {
+            inputString += "\n\tmAction: " + std::string(magic_enum::enum_name(action.mAction).data());
+            inputString += "\n\tmPos: " + std::to_string(action.mPos.x) + ", " + std::to_string(action.mPos.y) + ", " + std::to_string(action.mPos.z);
+            inputString += "\n\tmFace: " + std::to_string(action.mFace);
+        }
+
+
+
 
         return inputString;
     }

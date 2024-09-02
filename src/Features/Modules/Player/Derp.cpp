@@ -47,6 +47,13 @@ void Derp::onPacketOutEvent(PacketOutEvent& event)
             paip->mRot.y = yaw;
             paip->mYHeadRot = yaw;
             paip->mRot.x = 89.99f; // Max look down angle
+        } else if (mMode.mValue == Mode::Random)
+        {
+            // pitch: -90 to 90, yaw: -180 to 180
+            paip->mRot.x = (float)(rand() % 180 - 90);
+            paip->mRot.y = (float)(rand() % 360 - 180);
+            paip->mVehicleRotation = paip->mRot;
+            paip->mYHeadRot = paip->mRot.y;
         }
     }
 }

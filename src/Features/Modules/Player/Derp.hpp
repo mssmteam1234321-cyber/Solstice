@@ -11,10 +11,11 @@ public:
     enum class Mode
     {
         None,
-        Spin
+        Spin,
+        Random
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the derp", Mode::None, "None", "Spin");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the derp", Mode::None, "None", "Spin", "Random");
     NumberSetting mSpeed = NumberSetting("Speed", "The speed of the derp", 1.0f, 0.1f, 10.0f, 0.01f);
     BoolSetting mHeadYawDesync = BoolSetting("Head Yaw Desync", "Whether to desync the head yaw", false);
     BoolSetting mHeadYawFlip = BoolSetting("Head Yaw Flip", "Whether to flip the head yaw", false);

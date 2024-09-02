@@ -119,6 +119,7 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         pkt->mInputData &= ~AuthInputAction::UP_LEFT;
 
         pkt->mMove = newMoveVec;
+        pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
         pkt->mInputMode = InputMode::GamePad;
         return;
 

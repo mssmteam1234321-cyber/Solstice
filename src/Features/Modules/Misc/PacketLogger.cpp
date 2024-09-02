@@ -9,11 +9,14 @@
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+
+class PlayerAuthInputPacket;
 
 void PacketLogger::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &PacketLogger::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &PacketLogger::onPacketOutEvent, nes::event_priority::ABSOLUTE_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &PacketLogger::onPacketInEvent, nes::event_priority::ABSOLUTE_LAST>(this);
 }
 
 void PacketLogger::onDisable()
@@ -22,7 +25,7 @@ void PacketLogger::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::PlayerAuthInput, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
 
 void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {
@@ -36,6 +39,11 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
         auto packet = event.getPacket<Packet>();
         spdlog::info("Packet: {}", "Login");
     };
+
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
+        auto packet = event.getPacket<PlayerAuthInputPacket>();
+        spdlog::info("Packet: PlayerAuthInput, info: {}", packet->toString());
+    }
 
     if (event.mPacket->getId() == PacketID::InventoryTransaction)
     {
