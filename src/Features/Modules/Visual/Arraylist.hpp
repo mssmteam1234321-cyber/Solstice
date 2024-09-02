@@ -29,7 +29,7 @@ public:
 
     EnumSettingT<BackgroundStyle> mBackground = EnumSettingT("Background", "Background style", BackgroundStyle::Shadow, "Opacity", "Shadow", "Both");
     NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 0.50f, 0.0f, 1.f, 0.01f);
-    EnumSettingT<Display> mDisplay = EnumSettingT("Display", "Outline style", Display::Bar, "Outline", "Bar", "Split", "None");
+    EnumSettingT<Display> mDisplay = EnumSettingT("Display", "Outline style", Display::Split, "Outline", "Bar", "Split", "None");
     EnumSettingT<ModuleVisibility> mVisibility = EnumSettingT("Visibility", "Module visibility", ModuleVisibility::All, "All", "Bound");
     BoolSetting mRenderMode = BoolSetting("Render Mode", "Renders the module mode next to the module name", true);
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);

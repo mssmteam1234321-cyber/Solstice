@@ -352,31 +352,29 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
                                         float scaledWidth = rect.getWidth();
                                         float scaledHeight = rect.getHeight();
-                                        ImVec2 center = ImVec2(
-                                            rect.x + rect.getWidth() / 2.f, rect.y + rect.getHeight() / 2.f);
-                                        ImVec4 scaledRect = ImVec4(
-                                            center.x - scaledWidth / 2.f, center.y - scaledHeight / 2.f,
-                                            center.x + scaledWidth / 2.f, center.y + scaledHeight / 2.f);
 
-                                        ImVec4 smoothScaledRect = ImVec4(
-                                            scaledRect.z - 19, scaledRect.y + 5, scaledRect.z - 5,
-                                            scaledRect.w - 5);
-                                        ImVec2 circleRect = ImVec2(
-                                            smoothScaledRect.getCenter().x, smoothScaledRect.getCenter().y);
+                                        ImVec2 center = ImVec2(rect.x + rect.getWidth() / 2.f, rect.y + rect.getHeight() / 2.f);
+                                        ImVec4 scaledRect = ImVec4(center.x - scaledWidth / 2.f, center.y - scaledHeight / 2.f, center.x + scaledWidth / 2.f, center.y + scaledHeight / 2.f);
 
-                                        ImRenderUtils::fillCircle(circleRect, 5,
-                                                                 ImColor(15, 15, 15), animation, 12.f);
-                                        ImRenderUtils::fillCircle(circleRect, 5 * boolSetting->boolScale, rgb,
-                                                                 animation  * boolSetting->boolScale, 40);
-
-
-                                        if (boolSetting->mValue) ImRenderUtils::fillShadowCircle(
-                                            circleRect, 5 * boolSetting->boolScale, boolSetting->mValue ? rgb : ImColor(15, 15, 15),
-                                            animation, 40, 0);
-
-                                        float cSetRectCentreX = rect.x + ((rect.z - rect.x) -
-                                            ImRenderUtils::getTextWidth(&setName, textSize)) / 2;
+                                        float cSetRectCentreX = rect.x + ((rect.z - rect.x) - ImRenderUtils::getTextWidth(&setName, textSize)) / 2;
                                         float cSetRectCentreY = rect.y + ((rect.w - rect.y) - textHeight) / 2;
+
+                                        ImVec4 smoothScaledRect = ImVec4(scaledRect.z - 19, scaledRect.y + 5, scaledRect.z - 5, scaledRect.w - 5);//
+                                        ImVec2 circleRect = ImVec2(smoothScaledRect.getCenter().x, smoothScaledRect.getCenter().y);
+
+                                        ImRenderUtils::fillShadowCircle(circleRect, 5, boolSetting->mValue ? rgb : ImColor(15, 15, 15), animation, 40, 0);
+
+                                        ImVec4 booleanRect = ImVec4(rect.z - 23.5f, cSetRectCentreY - 2.5f, rect.z - 5, cSetRectCentreY + 17.5f);
+
+                                        if (boolSetting->mValue) {
+                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4,
+                                                                                booleanRect.getCenter().y - 1), 1.3,
+                                                                         rgb, mod->cAnim);
+                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4,
+                                                                                booleanRect.getCenter().y - 1), 1.3,
+                                                                         rgb, mod->cAnim);
+                                        }
+
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), setName,
                                                                ImColor(255, 255, 255), textSize, animation, true);
                                     }
@@ -688,7 +686,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                         // Draw the rect
                         if (mod->cScale <= 1)
                         {
-                            ImRenderUtils::fillRectangle(modRect, mainColor, animation);
+                            ImRenderUtils::fillRectangle(modRect, grayColor, animation);
                         }
 
                         std::string modName = mod->getName();
@@ -825,7 +823,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
             ImVec4 lineRect = ImVec4(catRect.x, catRect.w - 0.75f, catRect.z, catRect.w + 0.75f);
 
-            ImRenderUtils::fillGradientOpaqueRectangle(lineRect, rgb, ColorUtils::getThemedColor(catRect.y + ((catRect.z - catRect.x))), animation, animation);
+            //ImRenderUtils::fillGradientOpaqueRectangle(lineRect, rgb, ColorUtils::getThemedColor(catRect.y + ((catRect.z - catRect.x))), animation, animation);
 
 
 

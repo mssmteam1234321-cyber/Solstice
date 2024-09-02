@@ -41,7 +41,7 @@ public:
 
     // Colour
     ImColor textColor = ImColor(255, 255, 255);
-    ImColor darkBlack = ImColor(15, 15, 15);
+    ImColor darkBlack = ImColor(24, 24, 24 );
     ImColor mainColor = ImColor(22, 22, 22);
     ImColor grayColor = ImColor(40, 40, 40);
     ImColor enumBackGround = ImColor(30, 30, 30);
