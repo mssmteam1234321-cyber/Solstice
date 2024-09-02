@@ -23,6 +23,11 @@ public:
         Always,
         Auto
     };
+    enum class ProgressBarStyle
+    {
+        Old,
+        New
+    };
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
     EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Custom", "Static");
     NumberSetting mOffGroundSpeed = NumberSetting("Off Ground Speed", "The multiplie value for destroy speed while off ground", 0.5, 0, 1, 0.01);
@@ -64,6 +69,7 @@ public:
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
     BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
+    EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
@@ -109,6 +115,7 @@ public:
             &mSyncSpeedNotify,
             &mPriorityNotify,
             &mRenderBlock,
+            &mProgressBarStyle,
             &mRenderProgressBar
         );
 
@@ -205,6 +212,7 @@ public:
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
     void renderProgressBar();
+    void renderNewProgressBar();
     void renderBlock();
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
