@@ -20,6 +20,11 @@ void VclipCommand::execute(const std::vector<std::string>& args)
         auto pos = *player->getPos();
         auto amount = std::stof(amountOfBlocks);
         player->setPosition({pos.x, pos.y+ amount, pos.z});
+
+        bool negative = amount < 0;
+        std::string direction = negative ? "down" : "up";
+        int absValue = abs(amount);
+        ChatUtils::displayClientMessaget.("Teleported " + direction + " " + std::to_string(absValue) + " blocks");
     }
 }
 
