@@ -162,7 +162,6 @@ void IrcClient::sendSkin()
     // 1 = skin size
     j["0"] = database64;
     j["1"] = skin->skinHeight;
-    spdlog::info("Skin data: {}", j.dump(4));
     auto op = ChatOp(OpCode::IdentifySkinData, j.dump() , true);
     sendOpAuto(op);
 }

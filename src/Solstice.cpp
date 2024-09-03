@@ -27,6 +27,7 @@
 #include <build_info.h>
 #include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/IRC.hpp>
+#include <Utils/OAuthUtils.hpp>
 
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 
@@ -186,6 +187,15 @@ void Solstice::init(HMODULE hModule)
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
+
+    if (OAuthUtils::hasValidToken())
+    {
+        ChatUtils::displayClientMessage("§aDiscord authenticated!");
+    } else {
+        ChatUtils::displayClientMessage("§eWarning: Discord not authenticated!");
+        ChatUtils::displayClientMessage("§ePlease authenticate using the injector!!");
+        ChatUtils::displayClientMessage("§eThis will be required for IRC in a future update.");
+    }
 
     // Create a thead to wait for all futures in hooks then load a default config if any
     console->info("Press END to eject dll.");

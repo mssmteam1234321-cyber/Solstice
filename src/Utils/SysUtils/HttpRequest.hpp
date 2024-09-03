@@ -41,6 +41,7 @@ public:
     HttpRequest(const HttpMethod method, const std::string& url, const std::string& body, const std::string& headers, const std::function<void(HttpResponseEvent)>& callback, void* sender) :
         mMethod(method), mUrl(url), mBody(body), mHeaders(headers), mCallback(callback), mSender(sender) {}
     void sendAsync();
+    HttpResponseEvent send();
 
     ~HttpRequest() {
         if (mFuture.valid()) {
