@@ -120,7 +120,7 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
 
         pkt->mMove = newMoveVec;
         pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
-        pkt->mInputMode = InputMode::GamePad;
+        pkt->mInputMode = InputMode::MotionController;
         return;
 
     }
