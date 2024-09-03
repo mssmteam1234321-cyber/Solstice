@@ -57,6 +57,7 @@ public:
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mTest = BoolSetting("Test", "test", false);
     BoolSetting mTest2 = BoolSetting("Test2", "test", false);
+    BoolSetting mTest3 = BoolSetting("Test3", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
@@ -103,6 +104,7 @@ public:
             &mInfiniteDurability,
             &mTest,
             &mTest2,
+            &mTest3,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
             &mNuke,
