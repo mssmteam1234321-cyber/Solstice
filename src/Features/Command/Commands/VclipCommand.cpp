@@ -24,7 +24,7 @@ void VclipCommand::execute(const std::vector<std::string>& args)
         bool negative = amount < 0;
         std::string direction = negative ? "down" : "up";
         int absValue = abs(amount);
-        ChatUtils::displayClientMessaget.("Teleported " + direction + " " + std::to_string(absValue) + " blocks");
+        ChatUtils::displayClientMessage("Teleported " + direction + " " + std::to_string(absValue) + " blocks");
     }
 }
 
