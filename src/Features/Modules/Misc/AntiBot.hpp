@@ -16,14 +16,16 @@ public:
     BoolSetting mPlayerCheck = BoolSetting("Player Check", "Whether or not to check if the entity is a player.", true);
     BoolSetting mInvisibleCheck = BoolSetting("Invisible Check", "Whether or not to check if the entity is invisible.", true);
     BoolSetting mNameCheck = BoolSetting("Name Check", "Whether or not to check if the entity name has more than one line.", true);
+    BoolSetting mPlayerListCheck = BoolSetting("PlayerList Check", "Whether or not to check if the entity is in playerlist.", true);
 
     AntiBot() : ModuleBase("AntiBot", "Filters out bots from the entity list", ModuleCategory::Misc, 0, true) {
-        addSettings(&mMode, &mHitboxCheck, &mPlayerCheck, &mInvisibleCheck, &mNameCheck);
+        addSettings(&mMode, &mHitboxCheck, &mPlayerCheck, &mInvisibleCheck, &mNameCheck, &mPlayerListCheck);
 
         VISIBILITY_CONDITION(mHitboxCheck, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mPlayerCheck, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mInvisibleCheck, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mNameCheck, mMode.mValue == Mode::Custom);
+        VISIBILITY_CONDITION(mPlayerListCheck, mMode.mValue == Mode::Custom);
 
         mNames = {
             {Lowercase, "antibot"},

@@ -7,6 +7,8 @@
 #include <Features/FeatureManager.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <Features/Modules/Player/Teams.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 
 void AntiBot::onEnable()
 {
@@ -47,6 +49,21 @@ float normalPlayerWidthMax = 0.66f;*/
 #define NORMAL_PLAYER_WIDTH_MIN 0.54f
 #define NORMAL_PLAYER_WIDTH_MAX 0.66f
 
+std::vector<std::string> getDaPlayerList() {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    std::vector<std::string> playerNames;
+    if(!player) return playerNames;
+
+    std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
+
+    for (auto& entry : *playerList | std::views::values)
+    {
+        playerNames.emplace_back(entry.mName);
+    }
+
+    return playerNames;
+}
+
 bool AntiBot::isBot(Actor* actor) const {
     if (!mEnabled) return false;
     if (mPlayerCheck.mValue && !actor->isPlayer()) return true;
@@ -66,6 +83,20 @@ bool AntiBot::isBot(Actor* actor) const {
         std::string nameTagString = actor->getNameTag();
         if (std::ranges::count(nameTagString, '\n') > 0) {
             return true;
+        }
+    }
+
+    if(mPlayerListCheck.mValue)
+    {
+        std::vector<std::string> playerList = getDaPlayerList();
+        std::string nickName = actor->getNameTag();
+
+        for (auto it = playerList.begin(); it != playerList.end(); ) {
+            if (*it == nickName) {
+                return true;
+            } else {
+                ++it;
+            }
         }
     }
 
