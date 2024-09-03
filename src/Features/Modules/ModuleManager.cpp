@@ -29,6 +29,7 @@
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AutoLootbox.hpp"
+#include "Misc/AutoDodge.hpp"
 
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
@@ -151,6 +152,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<IRC>());
     mModules.emplace_back(std::make_shared<SkinStealer>());
     mModules.emplace_back(std::make_shared<AutoLootbox>());
+    mModules.emplace_back(std::make_shared<AutoDodge>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());

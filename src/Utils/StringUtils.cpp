@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <hex.h>
 #include <windows.h>
+#include <regex>
 #include "spdlog/spdlog.h"
 #include <cryptopp/files.h>
 #include <cryptopp/aes.h>
@@ -43,6 +44,10 @@ bool StringUtils::startsWith(std::string_view str, std::string_view prefix)
 bool StringUtils::endsWith(std::string_view str, std::string_view suffix)
 {
     return str.substr(str.size() - suffix.size(), suffix.size()) == suffix;
+}
+
+std::string StringUtils::RemoveColorCodes(std::string str) {
+    return std::regex_replace(std::regex_replace(str, std::regex("§."), ""), std::regex("&."), "");
 }
 
 std::string_view StringUtils::trim(std::string_view str)
