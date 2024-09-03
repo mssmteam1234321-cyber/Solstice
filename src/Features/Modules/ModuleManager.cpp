@@ -30,6 +30,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AutoLootbox.hpp"
 #include "Misc/AutoDodge.hpp"
+#include "Misc/AutoSnipe.hpp"
 
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
@@ -153,6 +154,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<SkinStealer>());
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
+    mModules.emplace_back(std::make_shared<AutoSnipe>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
