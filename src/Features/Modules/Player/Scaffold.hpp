@@ -67,7 +67,7 @@ public:
     NumberSetting mCluchPlaces = NumberSetting("Clutch Places", "The amount of blocks to place per tick", 1, 0, 20, 0.01);
     BoolSetting mLockY = BoolSetting("Lock Y", "Whether or not to lock the Y position", false);
     BoolSetting mSwing = BoolSetting("Swing", "Whether or not to swing the arm", false);
-    BoolSetting mTest = BoolSetting("Test", "Test", false);
+    BoolSetting mTest = BoolSetting("Diagonal bypass", "Test", false);
 
     Scaffold() : ModuleBase("Scaffold", "Automatically places blocks below you", ModuleCategory::Player, 0, false) {
         addSettings(
