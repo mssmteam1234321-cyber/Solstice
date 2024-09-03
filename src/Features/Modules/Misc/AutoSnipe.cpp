@@ -62,6 +62,8 @@ void AutoSnipe::onBaseTickEvent(class BaseTickEvent &event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;
 
+    if(Targets.empty()) return;
+
     static std::vector<std::string> oldPlayerList;
     auto playerList = getDaPlayerList();
 
@@ -136,6 +138,8 @@ void AutoSnipe::onBaseTickEvent(class BaseTickEvent &event) {
 }
 
 void AutoSnipe::onPacketInEvent(class PacketInEvent &event) {
+    if(Targets.empty()) return;
+
     if (event.mPacket->getId() == PacketID::Text) {
         auto tp = event.getPacket<TextPacket>();
         auto player = ClientInstance::get()->getLocalPlayer();
