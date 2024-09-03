@@ -969,19 +969,21 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
-        if (levelEvent->mEventId == 3600) { // Start destroying block
+        if (levelEvent->mEventId == 3600 || (mTest3.mValue && levelEvent->mEventId == 3602)) { // Start destroying block or Continue destroying block
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
-            for (auto& offset : mOffsetList) {
-                glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
-                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
-                    mEnemyTargettingBlockPos = blockPos;
-                    mLastEnemyLayerBlockPos = levelEvent->mPos;
-                    mCanSteal = true;
-                    mLastStealerUpdate = NOW;
+            if (levelEvent->mEventId == 3600) {
+                for (auto& offset : mOffsetList) {
+                    glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
+                    if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
+                        mEnemyTargettingBlockPos = blockPos;
+                        mLastEnemyLayerBlockPos = levelEvent->mPos;
+                        mCanSteal = true;
+                        mLastStealerUpdate = NOW;
+                    }
                 }
             }
-
+            
             // Anti Steal
             glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {

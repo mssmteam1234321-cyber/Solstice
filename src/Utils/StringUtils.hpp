@@ -26,7 +26,7 @@ public:
     static std::string getClipboardText();
     static std::string join(const std::vector<std::string>& strings, const std::string& delimiter);
     static std::string replaceAll(std::string& string, const std::string& from, const std::string& to);
-
+    static std::string RemoveColorCodes(std::string str);
     // hashing functions
     static std::string sha256(const std::string& str);
     static std::string fromBase64(const std::string& str);

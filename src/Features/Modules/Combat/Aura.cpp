@@ -23,6 +23,7 @@
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/RemoveActorPacket.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 
 int Aura::getSword(Actor* target) {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -227,6 +228,16 @@ void Aura::throwProjectiles(Actor* target)
 
 }
 
+float EaseInOutExpo(float pct)
+{
+    if (pct < 0.5f) {
+        return (pow(2.f, 16.f * pct) - 1.f) / 510.f;
+    }
+    else {
+        return 1.f - 0.5f * pow(2.f, -16.f * (pct - 0.5f));
+    }
+}
+
 void Aura::onRenderEvent(RenderEvent& event)
 {
     if (mAPSMin.mValue < 0) mAPSMin.mValue = 0;
@@ -248,6 +259,95 @@ void Aura::onRenderEvent(RenderEvent& event)
 
         }
     }
+
+    if (mVisuals.mValue) {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+
+        auto actor = Aura::sTarget;
+
+        if (!actor || !actor->isPlayer()) return;
+
+        auto playerPos = player->getRenderPositionComponent()->mPosition;
+        auto actorPos = actor->getRenderPositionComponent()->mPosition;
+
+        float distance = glm::distance(playerPos, actorPos) + 2.5f;
+        if (distance < 0) distance = 0;
+
+        float scaledSphereSize = 1.0f / distance * 100.0f * mSpheresSizeMultiplier.mValue;
+        if (scaledSphereSize < 1.0f) scaledSphereSize = 1.0f;
+        if (scaledSphereSize < mSpheresMinSize.mValue) scaledSphereSize = mSpheresMinSize.mValue;
+
+        float height = actor->getAABBShapeComponent()->mHeight;
+        auto realPos = actorPos;
+        realPos.y = realPos.y - 1.62f;
+        realPos.y += height;
+        static auto oldPos = realPos;
+        glm::vec3 pos = realPos;
+        pos = MathUtils::lerp(oldPos, pos, ImGui::GetIO().DeltaTime * 40.f);
+
+        glm::vec3 bottomOfHitbox = mTargetedAABB.mMin;
+        glm::vec3 topOfHitbox = mTargetedAABB.mMax;
+        bottomOfHitbox.x = pos.x;
+        bottomOfHitbox.z = pos.z;
+        topOfHitbox.x = pos.x;
+        topOfHitbox.z = pos.z;
+        topOfHitbox.y += 0.1f;
+
+        static float pct = 0.f;
+        static bool reversed = false;
+        static uint64_t lastTime = NOW;
+
+        float speed = mUpDownSpeed.mValue;
+        uint64_t visualTime = 800 / (speed - 0.2);
+
+        if (NOW - lastTime > visualTime) {
+            reversed = !reversed;
+            lastTime = NOW;
+            pct = reversed ? 1.f : 0.f;
+        }
+
+        pct += !reversed ? (speed * ImGui::GetIO().DeltaTime) : -(speed * ImGui::GetIO().DeltaTime);
+        pct = MathUtils::lerp(0.f, 1.f, pct);
+        oldPos = pos;
+        pos = MathUtils::lerp(bottomOfHitbox, topOfHitbox, EaseInOutExpo(pct));
+
+        auto corrected = RenderUtils::transform.mMatrix;
+
+        glm::vec2 screenPos = {0, 0};
+
+        static float angleOffset = 0.f;
+        angleOffset += (mUpDownSpeed.mValue * 30.f) * ImGui::GetIO().DeltaTime;
+        float radius = (float)mSpheresRadius.mValue;
+
+        for (int i = 0; i < mSpheresAmount.mValue; i++) {
+            float angle = (i / (float)mSpheresAmount.mValue) * 360.f;
+            angle += angleOffset;
+            angle = MathUtils::wrap(angle, -180.f, 180.f);
+
+            float rad = angle * (PI / 180.0f);
+
+            float x = pos.x + radius * cosf(rad);
+            float y = pos.y;
+            float z = pos.z + radius * sinf(rad);
+
+            glm::vec3 thisPos = { x, y, z };
+
+            if (!corrected.OWorldToScreen(
+                    RenderUtils::transform.mOrigin,
+                    thisPos, screenPos, MathUtils::fov,
+                    ClientInstance::get()->getGuiData()->mResolution))
+                continue;
+
+            ImColor color = ColorUtils::getThemedColor(0);
+            ImColor glowColor = color;
+            glowColor.Value.w = 0.3f;
+
+            ImGui::GetBackgroundDrawList()->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), scaledSphereSize * 1.5f, glowColor);
+            ImGui::GetBackgroundDrawList()->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), scaledSphereSize, color);
+        }
+    }
+
 }
 
 void Aura::onBaseTickEvent(BaseTickEvent& event)

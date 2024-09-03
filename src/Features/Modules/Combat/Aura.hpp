@@ -58,6 +58,13 @@ public:
     BoolSetting mSwingDelay = BoolSetting("Swing Delay", "Whether or not to delay the swing", false);
     NumberSetting mSwingDelayValue = NumberSetting("Swing Delay Value", "The delay between swings (in seconds)", 4.5f, 0.f, 10.f, 0.01f);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
+    BoolSetting mVisuals = BoolSetting("Visuals", "Whether or not to render visuals around the target", true);
+    NumberSetting mUpDownSpeed = NumberSetting("Up-Down Speed", "Speed of spheres rotate", 1.2, 0, 20, 0.01);
+    NumberSetting mSpheresAmount = NumberSetting("Spheres Amount", "Amount of spheres to draw", 12, 0, 20, 1);
+    NumberSetting mSpheresSizeMultiplier = NumberSetting("Spheres Size multiplier", "Multiplied size of spheres", 0.2, 0, 3, 0.01);
+    NumberSetting mSpheresSize = NumberSetting("Spheres Size", "Size of spheres", 4, 0, 20, 0.01);
+    NumberSetting mSpheresMinSize = NumberSetting("Spheres Min Size", "Min size of spheres", 2.60, 0, 20, 0.01);
+    NumberSetting mSpheresRadius = NumberSetting("Spheres radius", "Distance from speheres to target", 0.9, 0, 2, 0.1);
     BoolSetting mDebug = BoolSetting("Debug", "Whether or not to display debug information", false);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
@@ -82,7 +89,14 @@ public:
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,
-            &mStrafe
+            &mStrafe,
+            &mVisuals,
+            &mUpDownSpeed,
+            &mSpheresAmount,
+            &mSpheresSizeMultiplier,
+            &mSpheresSize,
+            &mSpheresMinSize,
+            &mSpheresRadius
             //&mDebug
         );
 
