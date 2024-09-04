@@ -97,7 +97,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         return ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, aName.c_str()).x > ImGui::GetFont()->CalcTextSizeA(mFontSize.mValue, FLT_MAX, 0, bName.c_str()).x;
     });
 
-    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 10);
+    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x - 10, 5);
 
     ImVec2 displayRes = ImGui::GetIO().DisplaySize;
 
@@ -183,7 +183,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         if (!settingDisplay.empty()) settingDisplay = " " + settingDisplay;
         ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
 
-        ImVec2 textPos = ImVec2(pos.x, pos.y);
+        ImVec2 textPos = ImVec2(pos.x, pos.y - 5);
 
         bool addedPadding = false;
         if (mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split)

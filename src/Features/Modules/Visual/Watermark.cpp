@@ -47,21 +47,18 @@ void Watermark::onRenderEvent(RenderEvent& event)
 
         // Add a red shadow circle
         if (mGlow.mValue)
-            ImGui::GetBackgroundDrawList()->AddShadowCircle(centeredImgPos, (width / 2) * 1.05f, ImColor(1.f, 0.f, 0.f, anim), 100, ImVec2(0.f, 0.f), 0, 100);
+            ImGui::GetBackgroundDrawList()->AddShadowCircle(centeredImgPos, (width / 2) * 1.05f, ImColor(1.f, 0.f, 0.f, anim), 5, ImVec2(0.f, 0.f), 0, 5);
 
         ImGui::GetBackgroundDrawList()->AddImage(texture, renderPosition, ImVec2(renderPosition.x + width, renderPosition.y + height));
         return;
     }
-    renderPosition.x = MathUtils::lerp(initialPos, 20.f, anim);
-    renderPosition.y = MathUtils::lerp(initialPos, 20.f, anim);
+    renderPosition.x = MathUtils::lerp(initialPos, 12.f, anim);
+    renderPosition.y = MathUtils::lerp(initialPos, 6.f, anim);
 
     FontHelper::pushPrefFont(true, mBold.mValue);
 
     static std::string watermarkText = "solstice";
-    static float size = 45;
-
-
-
+    static float size = 32;
 
     for (int i = 0; i < watermarkText.length(); i++)
     {
@@ -75,7 +72,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
 
         if (mGlow.mValue)
             ImGui::GetBackgroundDrawList()->AddShadowCircle(ImVec2(renderPosition.x + (charSize.x / 2), renderPosition.y + (charSize.y / 2)),
-                                                            size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim * 0.75f), 100, ImVec2(0.f, 0.f), 0, 12);
+                                                            size / 3, ImColor(color.Value.x, color.Value.y, color.Value.z, anim * 0.75f), 50, ImVec2(0.f, 0.f), 0, 100);
         // draw a shadow
         ImColor shadowColor = ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 0.925f);
         ImVec2 shadowPos = renderPosition;
