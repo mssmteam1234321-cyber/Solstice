@@ -18,13 +18,13 @@ void IRC::onEnable()
         return;
     }
 
-    if (!OAuthUtils::hasValidToken())
+    /*if (!OAuthUtils::hasValidToken())
     {
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §eFailed to authenticate with Discord. Please authenticate with the injector.");
         NotifyUtils::notify("Failed to authenticate with Discord. Please authenticate with the injector.", 10.0f, Notification::Type::Error);
         setEnabled(false);
         return;
-    }
+    }*/
 
     IrcManager::init();
     IrcManager::setShowNamesInChat(mShowNamesInChat.mValue);

@@ -174,12 +174,12 @@ bool IrcClient::connectToServer()
         return false;
     }
 
-    if (!OAuthUtils::hasValidToken()) {
+    /*if (!OAuthUtils::hasValidToken()) {
         logm("Cannot connect to server, invalid token");
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate you with Discord!");
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cPlease authenticate using the Solstice Injector to use IRC.");
         return false;
-    }
+    }*/
 
     std::string host = mServer;
     std::string port = std::to_string(mPort);
