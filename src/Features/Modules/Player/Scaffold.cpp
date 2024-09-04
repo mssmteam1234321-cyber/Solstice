@@ -220,7 +220,7 @@ void Scaffold::onRenderEvent(RenderEvent& event)
 
     if (anim < 0.0001f) return;
 
-    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y * 0.75f);
+    ImVec2 pos = ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y * 0.75f - 40);
 
     int totalBlocks = ItemUtils::getAllPlaceables(mHotbarOnly.mValue);
 
