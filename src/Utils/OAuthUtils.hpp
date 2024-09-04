@@ -10,4 +10,5 @@ public:
 
     static bool hasValidToken();
     static std::string getToken();
+    static std::string getLatestCommitHash();
 };

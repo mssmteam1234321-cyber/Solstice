@@ -29,7 +29,7 @@
 #include <Features/Modules/Misc/IRC.hpp>
 #include <Utils/OAuthUtils.hpp>
 
-std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
+std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 
 void setTitle(std::string title)
 {
@@ -188,12 +188,6 @@ void Solstice::init(HMODULE hModule)
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
-    if (!OAuthUtils::hasValidToken()) {
-        ChatUtils::displayClientMessage("§eWarning: Discord not authenticated!");
-        ChatUtils::displayClientMessage("§ePlease authenticate using the injector.");
-        ChatUtils::displayClientMessage("§eAuthenticating with the Injector is necessary for IRC.");
-    }
-
     // Create a thead to wait for all futures in hooks then load a default config if any
     console->info("Press END to eject dll.");
 
@@ -209,6 +203,16 @@ void Solstice::init(HMODULE hModule)
         {
             NotifyUtils::notify("Solstice initialized!", 5.0f, Notification::Type::Info);
             firstCall = false;
+
+            std::string latestHash = OAuthUtils::getLatestCommitHash();
+            if (latestHash != SOLSTICE_BUILD_VERSION)
+            {
+                console->warn("Solstice is out of date! Latest commit: {}", latestHash);
+                NotifyUtils::notify("There is a new version of Solstice available!\nIt is recommended to update.", 10.0f, Notification::Type::Warning);
+                ChatUtils::displayClientMessage("§aThere is a new version of Solstice available! Download it from the Discord server.");
+            } else {
+                console->info("Solstice is up to date!");
+            }
         }
 
         if (!isLpValid && ClientInstance::get()->getLocalPlayer())
