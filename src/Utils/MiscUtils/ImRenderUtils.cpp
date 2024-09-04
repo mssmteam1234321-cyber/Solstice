@@ -54,9 +54,9 @@ void ImRenderUtils::drawShadowText(ImDrawList* drawList, const std::string& text
 	// Needed for ItemESP because of dynamic font size, but it causes issues with other text
 	float shadowPosMultiplier = specializedMultiplier ? fontSize / 24.f : 1.f;
 
-    shadowPos.x += 2.25f * shadowPosMultiplier;
-    shadowPos.y += 2.25f * shadowPosMultiplier;
-    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.25f, color.Value.y * 0.25f, color.Value.z * 0.25f, 1.f * color.Value.w), text.c_str());
+    shadowPos.x += 1.25f * shadowPosMultiplier;
+    shadowPos.y += 1.25f * shadowPosMultiplier;
+    drawList->AddText(ImGui::GetFont(), fontSize, shadowPos, ImColor(color.Value.x * 0.35f, color.Value.y * 0.35f, color.Value.z * 0.35f, 1.f * color.Value.w), text.c_str());
     drawList->AddText(ImGui::GetFont(), fontSize, pos, color, text.c_str());
 }
 

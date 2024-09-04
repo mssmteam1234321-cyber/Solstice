@@ -7,6 +7,10 @@ void ResourceLoader::loadResources() {
     Resources.emplace("cash.wav", cash_wav);
     auto cash_register_sound_wav = GET_RESOURCE(cash_register_sound_wav);
     Resources.emplace("cash_register_sound.wav", cash_register_sound_wav);
+    auto celestial_off_wav = GET_RESOURCE(celestial_off_wav);
+    Resources.emplace("celestial_off.wav", celestial_off_wav);
+    auto celestial_on_wav = GET_RESOURCE(celestial_on_wav);
+    Resources.emplace("celestial_on.wav", celestial_on_wav);
     auto fard_wav = GET_RESOURCE(fard_wav);
     Resources.emplace("fard.wav", fard_wav);
     auto fonts_Comfortaa_Bold_ttf = GET_RESOURCE(fonts_Comfortaa_Bold_ttf);
@@ -25,6 +29,14 @@ void ResourceLoader::loadResources() {
     Resources.emplace("mojangles", fonts_Mojangles_ttf);
     FontHelper::Fonts.emplace("mojangles", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 20));
     FontHelper::Fonts.emplace("mojangles_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Mojangles_ttf.data2(), fonts_Mojangles_ttf.size(), 84));
+    auto fonts_Open_Sans_Bold_ttf = GET_RESOURCE(fonts_Open_Sans_Bold_ttf);
+    Resources.emplace("open_sans_bold", fonts_Open_Sans_Bold_ttf);
+    FontHelper::Fonts.emplace("open_sans_bold", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Open_Sans_Bold_ttf.data2(), fonts_Open_Sans_Bold_ttf.size(), 20));
+    FontHelper::Fonts.emplace("open_sans_bold_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Open_Sans_Bold_ttf.data2(), fonts_Open_Sans_Bold_ttf.size(), 84));
+    auto fonts_Open_Sans_ttf = GET_RESOURCE(fonts_Open_Sans_ttf);
+    Resources.emplace("open_sans", fonts_Open_Sans_ttf);
+    FontHelper::Fonts.emplace("open_sans", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Open_Sans_ttf.data2(), fonts_Open_Sans_ttf.size(), 20));
+    FontHelper::Fonts.emplace("open_sans_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Open_Sans_ttf.data2(), fonts_Open_Sans_ttf.size(), 84));
     auto fonts_Product_Sans_Bold_ttf = GET_RESOURCE(fonts_Product_Sans_Bold_ttf);
     Resources.emplace("product_sans_bold", fonts_Product_Sans_Bold_ttf);
     FontHelper::Fonts.emplace("product_sans_bold", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Product_Sans_Bold_ttf.data2(), fonts_Product_Sans_Bold_ttf.size(), 20));
@@ -51,6 +63,10 @@ void ResourceLoader::loadResources() {
     FontHelper::Fonts.emplace("tenacity_icons_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 84));
     auto notch_png = GET_RESOURCE(notch_png);
     Resources.emplace("notch.png", notch_png);
+    auto nursultan_off_wav = GET_RESOURCE(nursultan_off_wav);
+    Resources.emplace("nursultan_off.wav", nursultan_off_wav);
+    auto nursultan_on_wav = GET_RESOURCE(nursultan_on_wav);
+    Resources.emplace("nursultan_on.wav", nursultan_on_wav);
     auto seven_days_png = GET_RESOURCE(seven_days_png);
     Resources.emplace("seven_days.png", seven_days_png);
     auto smooth_off_wav = GET_RESOURCE(smooth_off_wav);

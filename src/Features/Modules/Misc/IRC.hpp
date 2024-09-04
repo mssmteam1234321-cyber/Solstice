@@ -9,7 +9,7 @@ class IRC : public ModuleBase<IRC> {
 public:
     BoolSetting mShowNamesInChat = BoolSetting("Show Names in Chat", "Shows the names of IRC users in the normal minecraft chat when they send a message", true);
     BoolSetting mAlwaysSendToIrc = BoolSetting("Always Send to IRC", "Sends all chat messages to IRC without prefixing them with #", false);
-    IRC() : ModuleBase("IRC", "Chat with other players using IRC", ModuleCategory::Misc, 0, false) {
+    IRC() : ModuleBase("IRC", "Chat with other players using IRC", ModuleCategory::Misc, 0, true) {
         addSetting(&mShowNamesInChat);
         addSetting(&mAlwaysSendToIrc);
 
