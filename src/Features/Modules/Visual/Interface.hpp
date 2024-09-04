@@ -13,6 +13,8 @@ public:
     enum ColorTheme {
         Trans,
         Rainbow,
+        Bubblegum,
+        Watermelon,
         Custom
     };
 
@@ -25,7 +27,7 @@ public:
     };
 
     EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::NormalSpaced, "lowercase", "lower spaced", "Normal", "Spaced");
-    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Trans, "Trans", "Rainbow", "Custom");
+    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Bubblegum, "Trans", "Rainbow", "Bubblegum", "Test", "Custom");
     // make sure you actually have the fonts u put here lol
     EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::ProductSans, "Mojangles", "Product Sans", "Open Sans", "Comfortaa", "SF Pro Display");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
@@ -72,14 +74,28 @@ public:
     }
 
     static inline std::unordered_map<int, std::vector<ImColor>> ColorThemes = {
-        {Trans, {
-            ImColor(91, 206, 250, 255),
-            ImColor(245, 169, 184, 255),
-            ImColor(255, 255, 255, 255),
-            ImColor(245, 169, 184, 255),
-        }},
-        {Rainbow, {}},
-        {Custom, {}}
+            {Trans,     {
+                                ImColor(91, 206, 250, 255),
+                                ImColor(245, 169, 184, 255),
+                                ImColor(255, 255, 255, 255),
+                                ImColor(245, 169, 184, 255),
+                        }},
+            {Rainbow,   {}},
+            {Bubblegum, {
+                                ImColor(255, 99, 202, 255),
+                                ImColor(255, 195, 195, 255),
+                                ImColor(146, 245, 255, 255),
+                                ImColor(249, 255, 148, 255),
+                                ImColor(135, 255, 176, 255),
+                        }},
+            {Watermelon, {
+                           ImColor(255, 70, 70, 255),
+                           ImColor(139, 0, 0, 255),
+                           ImColor(144, 238, 144, 255),
+                           ImColor(34, 139, 34, 255),
+                           ImColor(204, 255, 204, 255),
+            }},
+            {Custom,    {}}
     };
 
     std::vector<ImColor> getCustomColors() {
