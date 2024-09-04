@@ -71,6 +71,7 @@ public:
     BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
+    NumberSetting mOffset = NumberSetting("Offeset From Center", "render pos offset from center", 20, 0, 200, 0.1);
     BoolSetting mRenderProgressBar = BoolSetting("Render Progress Bar", "Renders the progress bar", true);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
@@ -118,6 +119,7 @@ public:
             &mPriorityNotify,
             &mRenderBlock,
             &mProgressBarStyle,
+            &mOffset,
             &mRenderProgressBar
         );
 
@@ -148,6 +150,8 @@ public:
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
+
+        VISIBILITY_CONDITION(mOffset, mProgressBarStyle.mValue == ProgressBarStyle::New);
 
         mNames = {
             {Lowercase, "regen"},

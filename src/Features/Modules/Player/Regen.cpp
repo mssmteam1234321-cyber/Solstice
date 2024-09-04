@@ -806,6 +806,8 @@ void Regen::renderNewProgressBar()
     pos.x -= boxSize.x / 2;
     pos.y -= boxSize.y / 2;
 
+    pos.y += mOffset.mValue;
+
     ImVec2 progressPos = ImVec2(pos.x, pos.y);
     ImVec2 progressSize = ImVec2(boxSize.x * percentDone, boxSize.y);
 
