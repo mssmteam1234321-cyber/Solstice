@@ -150,9 +150,6 @@ void IrcClient::sendSkin()
     {
         skinData.push_back(skin->mSkinImage.mImageBytes.data()[i]);
     }
-    spdlog::info("Skin size: {} bytes", skinDataSize);
-
-
 
     // Store it as hex instead of base64
     std::string database64 = Base64::encodeBytes(skinData);
