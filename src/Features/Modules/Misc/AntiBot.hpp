@@ -40,6 +40,7 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    static std::vector<std::string> getDaPlayerList();
     bool isBot(class Actor* actor) const;
 
     std::string getSettingDisplay() override {

@@ -49,7 +49,7 @@ float normalPlayerWidthMax = 0.66f;*/
 #define NORMAL_PLAYER_WIDTH_MIN 0.54f
 #define NORMAL_PLAYER_WIDTH_MAX 0.66f
 
-std::vector<std::string> getDaPlayerList() {
+std::vector<std::string> AntiBot::getDaPlayerList() {
     auto player = ClientInstance::get()->getLocalPlayer();
     std::vector<std::string> playerNames;
     if(!player) return playerNames;
