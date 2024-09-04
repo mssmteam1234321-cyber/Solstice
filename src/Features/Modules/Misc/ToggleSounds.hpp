@@ -9,10 +9,12 @@ class ToggleSounds : public ModuleBase<ToggleSounds> {
 public:
     enum class Sound {
         Lever,
-        Smooth
+        Smooth,
+        Celestial,
+        Nursultan
     };
-    EnumSettingT<Sound> mSound = EnumSettingT<Sound>("Sound", "The sound to play on module toggle", Sound::Lever, "Lever", "Smooth");
-    ToggleSounds() : ModuleBase("ToggleSounds", "Plays a sound on module toggle", ModuleCategory::Misc, 0, false) {
+    EnumSettingT<Sound> mSound = EnumSettingT<Sound>("Sound", "The sound to play on module toggle", Sound::Celestial, "Lever", "Smooth", "Celestial", "Nursultan");
+    ToggleSounds() : ModuleBase("ToggleSounds", "Plays a sound on module toggle", ModuleCategory::Misc, 0, true) {
         addSetting(&mSound);
 
         mNames = {

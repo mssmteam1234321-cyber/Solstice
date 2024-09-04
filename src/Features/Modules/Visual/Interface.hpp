@@ -19,14 +19,15 @@ public:
     enum class FontType {
         Mojangles,
         ProductSans,
+        OpenSans,
         Comfortaa,
         SFProDisplay
     };
 
-    EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::Normal, "lowercase", "lower spaced", "Normal", "Spaced");
+    EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::NormalSpaced, "lowercase", "lower spaced", "Normal", "Spaced");
     EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Trans, "Trans", "Rainbow", "Custom");
     // make sure you actually have the fonts u put here lol
-    EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::ProductSans, "Mojangles", "Product Sans", "Comfortaa", "SF Pro Display");
+    EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::ProductSans, "Mojangles", "Product Sans", "Open Sans", "Comfortaa", "SF Pro Display");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
     // Colors will be Fire-themed by default
     ColorSetting mColor1 = ColorSetting("Color 1", "The first color of the interface.", 0xFFFF0000);
