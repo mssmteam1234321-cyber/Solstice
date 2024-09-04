@@ -13,7 +13,7 @@ public:
     };
     EnumSettingT<Style> mStyle = EnumSettingT<Style>("Style", "The style of the watermark.", Style::Solstice, "Solstice", "7 Days");
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
-    BoolSetting mBold = BoolSetting("Bold", "Enables bold text", false);
+    BoolSetting mBold = BoolSetting("Bold", "Enables bold text", true);
     Watermark() : ModuleBase("Watermark", "Displays a watermark on the screen", ModuleCategory::Visual, 0, true) {
         addSetting(&mStyle);
         addSetting(&mGlow);

@@ -381,7 +381,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     if (mAbsorption != 0)
     {
         drawList->PushClipRect(textStartPos, textEndPos, true);
-        ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
+        //ImRenderUtils::drawShadowText(drawList, healthStr, textHealthPos, ImColor(255, 255, 255, static_cast<int>(255 * anim)), mFontSize.mValue * anim, false);
         drawList->PopClipRect();
     }
 
