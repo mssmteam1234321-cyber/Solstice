@@ -165,7 +165,7 @@ void Interface::onPacketOutEvent(PacketOutEvent& event)
     if (!level) return;
     auto moveSettings = level->getPlayerMovementSettings();
     if (!moveSettings) return;
-    bool isServerAuthoritative = moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritative;
+    bool isServerAuthoritative = moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritative || moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritativeWithRewind;
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput && isServerAuthoritative)
     {
