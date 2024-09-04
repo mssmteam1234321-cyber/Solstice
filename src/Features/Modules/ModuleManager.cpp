@@ -7,6 +7,7 @@
 #include "Combat/Aura.hpp"
 #include "Combat/TriggerBot.hpp"
 #include "Combat/AutoClicker.hpp"
+#include "Combat/Reach.hpp"
 
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
@@ -98,6 +99,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Aura>());
     mModules.emplace_back(std::make_shared<TriggerBot>());
     mModules.emplace_back(std::make_shared<AutoClicker>());
+    mModules.emplace_back(std::make_shared<Reach>());
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
