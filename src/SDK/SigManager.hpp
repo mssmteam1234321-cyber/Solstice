@@ -43,6 +43,7 @@ public:
     static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
+    DEFINE_SIG(Reach, "F3 0F 10 05 ? ? ? ? 44 0F 2F D0", SigType::Sig, 0);
     DEFINE_SIG(Actor_setPosition, "E8 ? ? ? ? 48 8B ? 48 8B ? E8 ? ? ? ? 48 8B ? 33 D2 48 8B ? 48 8B ? ? FF 15 ? ? ? ? EB", SigType::RefSig, 1);
     /*DEFINE_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", SigType::RefSig, 1);
     DEFINE_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", SigType::RefSig, 1);*/
