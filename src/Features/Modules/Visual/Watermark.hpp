@@ -13,14 +13,11 @@ public:
     };
     EnumSettingT<Style> mStyle = EnumSettingT<Style>("Style", "The style of the watermark.", Style::Solstice, "Solstice", "7 Days");
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
-    BoolSetting mBold = BoolSetting("Bold", "Enables bold text", true);
-    NumberSetting mSize = NumberSetting("Size", "the size of watermark.", 38.f, 0.f, 100.f, 0.01);
-
+    BoolSetting mBold = BoolSetting("Bold", "Enables bold text", false);
     Watermark() : ModuleBase("Watermark", "Displays a watermark on the screen", ModuleCategory::Visual, 0, true) {
         addSetting(&mStyle);
         addSetting(&mGlow);
         addSetting(&mBold);
-        addSetting(&mSize);
         gFeatureManager->mDispatcher->listen<RenderEvent, &Watermark::onRenderEvent>(this);
 
         mNames = {
