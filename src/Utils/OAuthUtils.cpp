@@ -64,3 +64,36 @@ std::string OAuthUtils::getLatestCommitHash()
 
     return json["commitHash"].get<std::string>();
 }
+
+std::vector<std::string> OAuthUtils::getCommitsBetweenHash(const std::string& startHash, const std::string& endHash)
+{
+    HttpRequest request(HttpMethod::GET, sEndpoint + "getCommitsBetween?startHash=" + startHash + "&endHash=" + endHash, "", "", [](HttpResponseEvent event) {}, nullptr);
+
+    HttpResponseEvent event = request.send();
+    // sample response: ["commit1", "commit2", "commit3"]
+
+    nlohmann::json json = nlohmann::json::parse(event.mResponse);
+    return json.get<std::vector<std::string>>();
+}
+
+std::string OAuthUtils::getLastCommitHash()
+{
+    std::string commitPath = FileUtils::getSolsticeDir() + xorstr_("commitHash.txt");
+    if (FileUtils::fileExists(commitPath))
+    {
+        std::ifstream file(commitPath);
+        std::string commit;
+        std::getline(file, commit);
+        return commit;
+    }
+
+    return "";
+}
+
+void OAuthUtils::saveCommitHash(const std::string& commitHash)
+{
+    std::string commitPath = FileUtils::getSolsticeDir() + xorstr_("commitHash.txt");
+    std::ofstream file(commitPath);
+    file << commitHash;
+    file.close();
+}

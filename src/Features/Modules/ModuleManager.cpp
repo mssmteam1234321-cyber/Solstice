@@ -2,7 +2,9 @@
 // Created by vastrakai on 6/28/2024.
 //
 
+#include <build_info.h>
 #include <Features/Modules/ModuleManager.hpp>
+#include <Utils/OAuthUtils.hpp>
 
 #include "Combat/Aura.hpp"
 #include "Combat/TriggerBot.hpp"
@@ -91,6 +93,7 @@
 #include "Visual/TargetHUD.hpp"
 #include "Visual/Watermark.hpp"
 #include "Visual/NoHurttime.hpp"
+#include "Visual/UpdateForm.hpp"
 
 void ModuleManager::init()
 {
@@ -187,9 +190,17 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoHurtcam>());
 
 
-
-
-
+    // Determine if we should add UpdateForm
+    std::string oldHash = OAuthUtils::getLastCommitHash();
+    std::string latestHash = SOLSTICE_BUILD_VERSION;
+    if (oldHash != latestHash && oldHash != "")
+    {
+        spdlog::info("Adding UpdateForm module, oldHash: {}, latestHash: {}", oldHash, latestHash);
+        mModules.emplace_back(std::make_shared<UpdateForm>());
+    } else
+    {
+        spdlog::info("Not adding UpdateForm module, oldHash: {}, latestHash: {}", oldHash, latestHash);
+    }
 
     for (auto& module : mModules)
     {

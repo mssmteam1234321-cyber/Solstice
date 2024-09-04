@@ -291,3 +291,8 @@ bool ImRenderUtils::isMouseOver(ImVec4 pos)
     ImVec2 mousePos = getMousePos();
     return mousePos.x >= pos.x && mousePos.y >= pos.y && mousePos.x < pos.z && mousePos.y < pos.w;
 }
+
+bool ImRenderUtils::isPointInRect(ImVec2 point, ImVec2 rectMin, ImVec2 rectMax)
+{
+	return point.x >= rectMin.x && point.y >= rectMin.y && point.x <= rectMax.x && point.y <= rectMax.y;
+}

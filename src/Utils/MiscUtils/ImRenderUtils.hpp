@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <Features/Events/MouseEvent.hpp>
 #include <Features/Modules/Setting.hpp>
 //
 // Created by vastrakai on 6/29/2024.
@@ -32,4 +33,5 @@ public:
 	static float getDeltaTime();
 	static ImVec2 getMousePos();
 	static bool isMouseOver(ImVec4(pos));
+	static bool isPointInRect(ImVec2 point, ImVec2 rectMin, ImVec2 rectMax);
 };
