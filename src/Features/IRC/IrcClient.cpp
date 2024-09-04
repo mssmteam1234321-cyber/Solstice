@@ -12,6 +12,7 @@
 #include <Features/Events/ChatEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/SerializedSkin.hpp>
+#include <Utils/OAuthUtils.hpp>
 
 // so that irc strings dont appear in release builds
 #ifdef __DEBUG__
@@ -176,6 +177,13 @@ bool IrcClient::connectToServer()
         return false;
     }
 
+    if (!OAuthUtils::hasValidToken()) {
+        logm("Cannot connect to server, invalid token");
+        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate you with Discord!");
+        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cPlease authenticate using the Solstice Injector to use IRC.");
+        return false;
+    }
+
     std::string host = mServer;
     std::string port = std::to_string(mPort);
     addrinfo* result = nullptr;
@@ -232,7 +240,8 @@ bool IrcClient::connectToServer()
 
                 if (op.opCode == OpCode::Ping)
                 {
-                    auto op = ChatOp(OpCode::Ping, std::to_string(NOW), true);
+                    uint64_t utcNow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                    auto op = ChatOp(OpCode::Ping, std::to_string(utcNow), true);
                     sendOpAuto(op);
                     mLastPing = NOW;
                     return;
@@ -324,6 +333,7 @@ void IrcClient::onConnected()
     j["0"] = "§asolstice§r";
     j["1"] = getHwid();
     j["2"] = std::to_string(DISCORD_USER_ID);
+    j["3"] = OAuthUtils::getToken();
     jsonStr = j.dump(4);
     auto op = ChatOp(OpCode::IdentifyClient, jsonStr, true);
     sendOpAuto(op);

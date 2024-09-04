@@ -188,13 +188,10 @@ void Solstice::init(HMODULE hModule)
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
-    if (OAuthUtils::hasValidToken())
-    {
-        ChatUtils::displayClientMessage("§aDiscord authenticated!");
-    } else {
+    if (!OAuthUtils::hasValidToken()) {
         ChatUtils::displayClientMessage("§eWarning: Discord not authenticated!");
-        ChatUtils::displayClientMessage("§ePlease authenticate using the injector!!");
-        ChatUtils::displayClientMessage("§eThis will be required for IRC in a future update.");
+        ChatUtils::displayClientMessage("§ePlease authenticate using the injector.");
+        ChatUtils::displayClientMessage("§eAuthenticating with the Injector is necessary for IRC.");
     }
 
     // Create a thead to wait for all futures in hooks then load a default config if any

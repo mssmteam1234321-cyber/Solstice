@@ -292,10 +292,10 @@ enum class ConnectionState {
 
 class IrcClient {
 public:
-    constexpr static const char* mServer = "ircserver.solstice.works";
-    constexpr static int mPort = 33651;
-    /*constexpr static const char* mServer = "127.0.0.1";
-    constexpr static int mPort = 6667;*/
+    /*constexpr static const char* mServer = "ircserver.solstice.works";
+    constexpr static int mPort = 33651;*/
+    constexpr static const char* mServer = "127.0.0.1";
+    constexpr static int mPort = 6667;
 
     Sockets::MessageWebSocket mSocket = nullptr;
     Streams::DataWriter mWriter = nullptr;
