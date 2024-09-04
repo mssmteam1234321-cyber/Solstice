@@ -58,7 +58,7 @@ void Watermark::onRenderEvent(RenderEvent& event)
     FontHelper::pushPrefFont(true, mBold.mValue);
 
     static std::string watermarkText = "solstice";
-    static float size = 32;
+    static float size = mSize.mValue;
 
     for (int i = 0; i < watermarkText.length(); i++)
     {
