@@ -48,6 +48,7 @@
 #include "Movement/Step.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/HiveFly.hpp"
+#include "Movement/AirJump.hpp"
 
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
@@ -109,6 +110,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<LongJump>());
     mModules.emplace_back(std::make_shared<Spider>());
     mModules.emplace_back(std::make_shared<ServerSneak>());
+    mModules.emplace_back(std::make_shared<AirJump>());
 
     // Player
     mModules.emplace_back(std::make_shared<Timer>());
