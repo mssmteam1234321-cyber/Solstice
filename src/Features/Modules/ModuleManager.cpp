@@ -5,6 +5,8 @@
 #include <Features/Modules/ModuleManager.hpp>
 
 #include "Combat/Aura.hpp"
+#include "Combat/TriggerBot.hpp"
+
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
 #include "Misc/AutoAccept.hpp"
@@ -93,6 +95,7 @@ void ModuleManager::init()
 
     // Combat
     mModules.emplace_back(std::make_shared<Aura>());
+    mModules.emplace_back(std::make_shared<TriggerBot>());
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
