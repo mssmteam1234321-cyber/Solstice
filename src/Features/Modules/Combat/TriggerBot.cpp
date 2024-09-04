@@ -37,7 +37,7 @@ Actor* TriggerBot::getActorFromEntityId(EntityId entityId)
         if(mHive.mValue && actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
         if(actor == player) continue;
 
-        return actor;
+        if(actor->mContext.mEntityId == entityId) return actor;
     }
 
     return nullptr;

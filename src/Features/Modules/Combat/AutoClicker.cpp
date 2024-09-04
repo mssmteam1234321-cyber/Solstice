@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <Features/Modules/Misc/AntiBot.hpp>
+#include <SDK/Minecraft/Actor/Components/RuntimeIDComponent.hpp>
 
 void AutoClicker::onEnable() {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
@@ -37,7 +38,8 @@ Actor* AutoClicker::GetActorFromEntityId(EntityId entityId)
         if(actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
         if(actor == player) continue;
 
-        return actor;
+        if(actor->mContext.mEntityId == entityId) return actor;
+
     }
 
     return nullptr;
@@ -54,8 +56,9 @@ void AutoClicker::onBaseTickEvent(class BaseTickEvent &event) {
 
     if (NOW - lastAttack < 1000 / mCPS.mValue) return;
 
-    player->swing();
     HitResult* hitResult = player->getLevel()->getHitResult();
+
+    player->swing();
 
     if(hitResult->mType == HitType::ENTITY)
     {
