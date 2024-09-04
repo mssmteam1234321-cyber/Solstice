@@ -9,14 +9,14 @@
 class TriggerBot : public ModuleBase<TriggerBot>
 {
 public:
-    NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 12, 0, 20, 1);
-    NumberSetting mAPSMax = NumberSetting("APS Max", "The maximum APS to randomize", 16, 0, 20, 1);
+    NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 12, 1, 20, 1);
+    NumberSetting mAPSMax = NumberSetting("APS Max", "The maximum APS to randomize", 16, 1, 20, 1);
     BoolSetting mUseAntibot = BoolSetting("Use Antibot", "Whether or not to use antibot for exclude actors", true);
     BoolSetting mHive = BoolSetting("Hive", "Hive bipass hehe", true);
 
     TriggerBot() : ModuleBase<TriggerBot>("TriggerBot", "automaticly attacks entity u aiming at", ModuleCategory::Combat, 0, false) {
         mNames = {
-                {Lowercase, "trigger bot"},
+                {Lowercase, "triggerbot"},
                 {LowercaseSpaced, "trigger bot"},
                 {Normal, "TriggerBot"},
                 {NormalSpaced, "Trigger Bot"}

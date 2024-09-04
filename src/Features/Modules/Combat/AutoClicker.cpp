@@ -2,7 +2,7 @@
 // Created by alteik on 04/09/2024.
 //
 
-#include "TriggerBot.hpp"
+#include "AutoClicker.hpp"
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -12,15 +12,15 @@
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <Features/Modules/Misc/AntiBot.hpp>
 
-void TriggerBot::onEnable() {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &TriggerBot::onBaseTickEvent>(this);
+void AutoClicker::onEnable() {
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
 }
 
-void TriggerBot::onDisable() {
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &TriggerBot::onBaseTickEvent>(this);
+void AutoClicker::onDisable() {
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
 }
 
-Actor* TriggerBot::getActorFromEntityId(EntityId entityId)
+Actor* AutoClicker::GetActorFromEntityId(EntityId entityId)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     auto antiBot = gFeatureManager->mModuleManager->getModule<AntiBot>();
@@ -33,8 +33,8 @@ Actor* TriggerBot::getActorFromEntityId(EntityId entityId)
     std::vector<Actor*> actors= ActorUtils::getActorList(false, false);
     for (auto actor : actors)
     {
-        if(mUseAntibot.mValue && antiBot->isBot(actor)) continue;
-        if(mHive.mValue && actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
+        if(antiBot->isBot(actor)) continue;
+        if(actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
         if(actor == player) continue;
 
         return actor;
@@ -45,27 +45,24 @@ Actor* TriggerBot::getActorFromEntityId(EntityId entityId)
 
 static uint64_t lastAttack;
 
-void TriggerBot::onBaseTickEvent(class BaseTickEvent &event) {
+void AutoClicker::onBaseTickEvent(class BaseTickEvent &event) {
+
+    if(!ImGui::IsMouseDown(0)) return;
+
     auto player = event.mActor;
     if(!player) return;
 
+    if (NOW - lastAttack < 1000 / mCPS.mValue) return;
 
-    if (mAPSMax.mValue < mAPSMin.mValue + 1) mAPSMax.mValue = mAPSMin.mValue + 1;
-
-    int avgAps = MathUtils::random(mAPSMin.mValue, mAPSMax.mValue);
-
-    if (NOW - lastAttack < 1000 / avgAps) return;
-
+    player->swing();
     HitResult* hitResult = player->getLevel()->getHitResult();
 
     if(hitResult->mType == HitType::ENTITY)
     {
-        Actor* actor = getActorFromEntityId(hitResult->mEntity.id);
+        Actor* actor = GetActorFromEntityId(hitResult->mEntity.id);
         if(!actor) return;
 
         lastAttack = NOW;
-
-        player->swing();
         player->getGameMode()->attack(actor);
     }
 }
