@@ -74,6 +74,15 @@ public:
         return reinterpret_cast<Fn>(vtable[index])(_this, args...);
     }
 
+    template<typename T>
+    static void Write(uintptr_t address, T value) {
+        // oldProtect is a pointer to the old protection
+        DWORD oldProtect;
+        VirtualProtect((void*)address, sizeof(T), PAGE_EXECUTE_READWRITE, &oldProtect);
+        *(T*)address = value;
+        VirtualProtect((void*)address, sizeof(T), oldProtect, &oldProtect);
+    }
+
     /// <summary>
     /// Defines a function to byte-patch an address with a given byte array
     /// </summary>
