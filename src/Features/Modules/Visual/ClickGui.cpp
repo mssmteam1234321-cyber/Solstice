@@ -55,6 +55,7 @@ void ClickGui::onKeyEvent(KeyEvent& event)
 
     // Consume all key events to prevent unintended module toggles
     if (modernGui.isBinding) {
+        event.mCancelled = true;
         return;
     }
 
