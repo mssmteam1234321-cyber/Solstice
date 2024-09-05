@@ -363,6 +363,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                            modRect.z, screen.y / 2),
                                             inScale);
                                     rect.y = std::floor(rect.y);
+                                    // Clamp rect start Y to top of the modRect
+                                    if (rect.y < modRect.y)
+                                    {
+                                        rect.y = modRect.y;
+                                    }
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {
@@ -452,11 +457,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
-                                    if (rect.y < modRect.y + 2)
-                                    {
-                                        rect.y = modRect.y + 2;
-                                    }
                                     rect.y = std::floor(rect.y);
+                                    if (rect.y < modRect.y)
+                                    {
+                                        rect.y = modRect.y;
+                                    }
 
                                     float targetAnim = setting->enumExtended && mod->showSettings ? 1.f : 0.f;
                                     setting->enumSlide = MathUtils::animate(
@@ -568,11 +573,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                            modRect.z, screen.y / 2),
                                             inScale);
 
-                                    if (backGroundRect.y < modRect.y + 2)
-                                    {
-                                        backGroundRect.y = modRect.y + 2;
-                                    }
                                     backGroundRect.y = std::floor(backGroundRect.y);
+                                    if (backGroundRect.y < modRect.y)
+                                    {
+                                        backGroundRect.y = modRect.y;
+                                    }
 
                                     ImVec4 rect = ImVec4(
                                             modRect.x + 7, (catPositions[i].y + catHeight + moduleY + setPadding), modRect.z - 7,
@@ -581,12 +586,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
-
-                                    if (rect.y < modRect.y + 2)
-                                    {
-                                        rect.y = modRect.y + 2;
-                                    }
                                     rect.y = std::floor(rect.y);
+                                    if (rect.y < modRect.y)
+                                    {
+                                        rect.y = modRect.y;
+                                    }
 
                                     static float clickAnimation = 1.f;
 
@@ -717,12 +721,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
-
-                                    if (rect.y < modRect.y + 2)
-                                    {
-                                        rect.y = modRect.y + 2;
-                                    }
                                     rect.y = std::floor(rect.y);
+                                    if (rect.y < modRect.y)
+                                    {
+                                        rect.y = modRect.y;
+                                    }
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {

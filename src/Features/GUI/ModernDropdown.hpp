@@ -27,7 +27,7 @@ public:
     };
 
     const float catWidth = 200.f;
-    const float catHeight = 35.f;
+    const float catHeight = 30.f;
 
     const float catGap = 40;
     int lastDragged = -1;
