@@ -60,6 +60,9 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                 CategoryPosition pos;
                 pos.x = xPos;
                 pos.y = catGap * 2;
+                pos.x = std::round(pos.x / 2) * 2;
+                pos.y = std::round(pos.y / 2) * 2;
+
                 xPos += catWidth + catGap;
                 catPositions.push_back(pos);
             }
@@ -146,6 +149,8 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             CategoryPosition pos;
             pos.x = xPos;
             pos.y = catGap * 2;
+            pos.x = std::round(pos.x / 2) * 2;
+            pos.y = std::round(pos.y / 2) * 2;
             xPos += catWidth + catGap;
             catPositions.push_back(pos);
         }
@@ -268,8 +273,19 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             ImVec4 clipRect = ImVec4(catRect.x, catRect.w, catRect.z, screen.y);
             drawList->PushClipRect(ImVec2(clipRect.x, clipRect.y), ImVec2(clipRect.z, clipRect.w), true);
 
+            int modIndex = 0;
+            int modCount = modsInCategory.size();
+            bool endMod = false;
+
             for (const auto& mod : modsInCategory)
             {
+                ImDrawFlags flags = ImDrawFlags_RoundCornersBottom;
+                float radius = 0.f;
+                if (modIndex == modsInCategory.size() - 1) {
+                    endMod = true;
+                    radius = 15.f * (1.f - mod->cAnim);
+                }
+
                 std::string modLower = mod->getName();
 
                 std::transform(modLower.begin(), modLower.end(), modLower.begin(), [](unsigned char c)
@@ -291,6 +307,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                      screen.y / 2,
                                                      screen.x / 2,
                                                      screen.y / 2), inScale);
+                    //modRect.y -= 4.f;
+                    // floor the y value of the modRect
+                    modRect.y = std::floor(modRect.y);
+                    modRect.x = std::floor(modRect.x);
 
                     // Animate the setting animation percentage
                     float targetAnim = mod->showSettings ? 1.f : 0.f;
@@ -302,6 +322,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                     {
                         static bool wasDragging = false;
                         Setting* lastDraggedSetting = nullptr;
+                        int sIndex = 0;
                         for (const auto& setting : mod->mSettings)
                         {
                             if (!setting->mIsVisible())
@@ -312,11 +333,22 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                 continue;
                             }
 
+                            float radius = 0.f;
+                            if (endMod && sIndex == mod->mSettings.size() - 1)
+                                radius = 15.f;
+                            else if (endMod)
+                                radius = 15.f * (1.f - mod->cAnim);
+
+
+
+                            bool endSetting = sIndex == mod->mSettings.size() - 1;
+                            float setPadding = endSetting ? (-2.f * animation) : 0.f;
+
                             ImColor rgb = ColorUtils::getThemedColor(moduleY * 2);
                             // Base the alpha off the animation percentage
                             rgb.Value.w = animation;
-
                             switch (setting->mType)
+
                             {
                             case SettingType::Bool:
                                 {
@@ -324,17 +356,18 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
 
                                     ImVec4 rect = ImVec4(
-                                            modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
+                                            modRect.x, catPositions[i].y + catHeight + moduleY + setPadding, modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
+                                    rect.y = std::floor(rect.y);
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {
                                         std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
-                                        ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation);
+                                        ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
@@ -362,17 +395,32 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         ImVec4 smoothScaledRect = ImVec4(scaledRect.z - 19, scaledRect.y + 5, scaledRect.z - 5, scaledRect.w - 5);//
                                         ImVec2 circleRect = ImVec2(smoothScaledRect.getCenter().x, smoothScaledRect.getCenter().y);
 
-                                        ImRenderUtils::fillShadowCircle(circleRect, 5, boolSetting->mValue ? rgb : ImColor(15, 15, 15), animation, 40, 0);
+                                        // Lerp shadow color using boolScale
+                                        ImColor targetShadowCol = ImColor(15, 15, 15);
+                                        ImColor shadowCol = MathUtils::lerpImColor(targetShadowCol, rgb, setting->boolScale);
+
+                                        ImRenderUtils::fillShadowCircle(circleRect, 5, shadowCol, animation * mod->cAnim, 40, 0);
 
                                         ImVec4 booleanRect = ImVec4(rect.z - 23.5f, cSetRectCentreY - 2.5f, rect.z - 5, cSetRectCentreY + 17.5f);
+                                        booleanRect = booleanRect.scaleToPoint(ImVec4(rect.z, rect.y, rect.z, rect.w), animation);
 
-                                        if (boolSetting->mValue) {
-                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4,
-                                                                                booleanRect.getCenter().y - 1), 1.3,
-                                                                         rgb, mod->cAnim);
-                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - 4,
-                                                                                booleanRect.getCenter().y - 1), 1.3,
-                                                                         rgb, mod->cAnim);
+                                        float rectXDiff = booleanRect.z - booleanRect.x;
+
+                                        if (setting->boolScale > 0.01) {
+                                            // Make the min y of the boolean rect the top of the setting rect
+                                            if (booleanRect.y < modRect.w) {
+                                                booleanRect.y = modRect.w;
+                                            }
+                                            ImGui::GetForegroundDrawList()->PushClipRect(ImVec2(booleanRect.x, booleanRect.y), ImVec2(booleanRect.x + rectXDiff * setting->boolScale, booleanRect.w), true);
+
+                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - (4 * animation),
+                                                                                booleanRect.getCenter().y - (1 * animation)), 1.3 * animation,
+                                                                         rgb, mod->cAnim * animation);
+                                            ImRenderUtils::drawCheckMark(ImVec2(booleanRect.getCenter().x - (4 * animation),
+                                                                                booleanRect.getCenter().y - (1 * animation)), 1.3 * animation,
+                                                                         rgb, mod->cAnim * animation);
+
+                                            ImGui::GetForegroundDrawList()->PopClipRect();
                                         }
 
                                         ImRenderUtils::drawText(ImVec2(rect.x + 5.f, cSetRectCentreY), setName,
@@ -398,12 +446,17 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
 
                                     ImVec4 rect = ImVec4(
-                                            modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
+                                            modRect.x, catPositions[i].y + catHeight + moduleY + setPadding, modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
+                                    if (rect.y < modRect.y + 2)
+                                    {
+                                        rect.y = modRect.y + 2;
+                                    }
+                                    rect.y = std::floor(rect.y);
 
                                     float targetAnim = setting->enumExtended && mod->showSettings ? 1.f : 0.f;
                                     setting->enumSlide = MathUtils::animate(
@@ -419,7 +472,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, setting->enumSlide);
 
                                             ImVec4 rect2 = ImVec4(
-                                                    modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
+                                                    modRect.x, catPositions[i].y + catHeight + moduleY + setPadding, modRect.z,
                                                     catPositions[i].y + catHeight + moduleY + modHeight)
                                                 .scaleToPoint(
                                                     ImVec4(modRect.x, screen.y / 2,
@@ -431,7 +484,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 float cSetRectCentreY = rect2.y + ((rect2.w - rect2.y) - textHeight)
                                                     / 2;
 
-                                                ImRenderUtils::fillRectangle(rect2, ImColor(20, 20, 20), animation);
+                                                ImRenderUtils::fillRectangle(rect2, ImColor(20, 20, 20), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
                                                 if (*iterator == j)
                                                     ImRenderUtils::fillRectangle(
@@ -453,7 +506,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {
-                                        ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation);
+                                        ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
@@ -515,13 +568,25 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                            modRect.z, screen.y / 2),
                                             inScale);
 
+                                    if (backGroundRect.y < modRect.y + 2)
+                                    {
+                                        backGroundRect.y = modRect.y + 2;
+                                    }
+                                    backGroundRect.y = std::floor(backGroundRect.y);
+
                                     ImVec4 rect = ImVec4(
-                                            modRect.x + 7, (catPositions[i].y + catHeight + moduleY), modRect.z - 7,
+                                            modRect.x + 7, (catPositions[i].y + catHeight + moduleY + setPadding), modRect.z - 7,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
+
+                                    if (rect.y < modRect.y + 2)
+                                    {
+                                        rect.y = modRect.y + 2;
+                                    }
+                                    rect.y = std::floor(rect.y);
 
                                     static float clickAnimation = 1.f;
 
@@ -537,7 +602,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
                                     if (backGroundRect.y > catRect.y + 0.5f)
                                     {
-                                        ImRenderUtils::fillRectangle(backGroundRect, ImColor(30, 30, 30), animation);
+                                        ImRenderUtils::fillRectangle(backGroundRect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
                                         const float sliderPos = (value - min) / (max - min) * (rect.z - rect.x);
 
@@ -616,7 +681,8 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                             circlePos.x = sliderRect.z + 2.25f;
                                         }
 
-                                        ImRenderUtils::fillCircle(circlePos, 5.5f * clickAnimation, rgb, animation, 12);
+
+                                        ImRenderUtils::fillCircle(circlePos, 5.5f * clickAnimation * animation, rgb, animation, 12);
 
                                         // Push a clip rect to prevent the shadow from going outside the slider bar
                                         ImGui::GetBackgroundDrawList()->PushClipRect(ImVec2(sliderRect.x, sliderRect.y), ImVec2(sliderRect.z, sliderRect.w), true);
@@ -645,12 +711,18 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     moduleY = MathUtils::lerp(moduleY, moduleY + modHeight, mod->cAnim);
 
                                     ImVec4 rect = ImVec4(
-                                            modRect.x, catPositions[i].y + catHeight + moduleY, modRect.z,
+                                            modRect.x, catPositions[i].y + catHeight + moduleY + setPadding, modRect.z,
                                             catPositions[i].y + catHeight + moduleY + modHeight)
                                         .scaleToPoint(
                                             ImVec4(modRect.x, screen.y / 2,
                                                            modRect.z, screen.y / 2),
                                             inScale);
+
+                                    if (rect.y < modRect.y + 2)
+                                    {
+                                        rect.y = modRect.y + 2;
+                                    }
+                                    rect.y = std::floor(rect.y);
 
                                     if (rect.y > catRect.y + 0.5f)
                                     {
@@ -677,7 +749,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     break;
                                 }
                             }
+
+                            sIndex++;
                         }
+
                     }
 
 
@@ -686,7 +761,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                         // Draw the rect
                         if (mod->cScale <= 1)
                         {
-                            ImRenderUtils::fillRectangle(modRect, grayColor, animation);
+                            if (mod->mEnabled)
+                                ImRenderUtils::fillRectangle(modRect, rgb, animation, radius, ImGui::GetBackgroundDrawList(), ImDrawCornerFlags_BotRight | ImDrawCornerFlags_BotLeft);
+                            else
+                                ImRenderUtils::fillRectangle(modRect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawCornerFlags_BotRight | ImDrawCornerFlags_BotLeft);
+                            ImRenderUtils::fillRectangle(modRect, grayColor, animation, radius, ImGui::GetBackgroundDrawList(), ImDrawCornerFlags_BotRight | ImDrawCornerFlags_BotLeft);
                         }
 
                         std::string modName = mod->getName();
@@ -717,7 +796,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                             float modIndexY = moduleY + (scaledRect.y - scaledRect.w);
 
                             ImColor rgb2 = ColorUtils::getThemedColor(scaledRect.y + ((scaledRect.z - scaledRect.x)));
-                            ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation * mod->cScale, animation * mod->cScale);
+                            //ImRenderUtils::fillGradientOpaqueRectangle(scaledRect, rgb1, rgb2, animation * mod->cScale, animation * mod->cScale);
+                            // Round only if we are rendering the last module and the settings aren't expanded
+                            //ImRenderUtils::fillRectangle(scaledRect, rgb1, animation * mod->cScale, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
+                            ImRenderUtils::fillRoundedGradientRectangle(scaledRect, rgb1, rgb2, radius, animation * mod->cScale, animation * mod->cScale, flags);
                         }
 
                         float cRectCentreX = modRect.x + ((modRect.z - modRect.x) - ImRenderUtils::getTextWidth(
@@ -788,6 +870,8 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                             ImColor(0, 0, 0), 0.F * animation, 0.55F * animation);
                     }
                     moduleY += modHeight;
+
+                    modIndex++;
                 }
             }
             drawList->PopClipRect();
@@ -877,6 +961,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                screen.x - catWidth);
                     newPosition.y = std::clamp(newPosition.y, 0.f,
                                                screen.y - catHeight);
+                    // Round the position to an even number
+                    newPosition.x = std::round(newPosition.x / 2) * 2;
+                    newPosition.y = std::round(newPosition.y / 2) * 2;
+
                     catPositions[i].x = newPosition.x;
                     catPositions[i].y = newPosition.y;
                 }
@@ -929,9 +1017,9 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
             tooltipRect = tooltipRect.scaleToCenter(alpha);
 
-            ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation * alpha, 0.f);
+            ImRenderUtils::fillRectangle(tooltipRect, ImColor(20, 20, 20), animation * alpha, 0.f, ImGui::GetForegroundDrawList());
             ImRenderUtils::drawText(ImVec2(tooltipRect.x + padding, tooltipRect.y + padding), tooltip,
-                                   ImColor(255, 255, 255), (textSize * 0.8f) * alpha, animation * alpha, true);
+                                   ImColor(255, 255, 255), (textSize * 0.8f) * alpha, animation * alpha, true, 0, ImGui::GetForegroundDrawList());
         }
 
         if (isEnabled)

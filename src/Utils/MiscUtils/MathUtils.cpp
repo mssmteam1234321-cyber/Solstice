@@ -37,6 +37,11 @@ ImVec4 MathUtils::lerp(ImVec4& a, ImVec4& b, float t)
     return ImVec4(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t), lerp(a.w, b.w, t));
 }
 
+ImColor MathUtils::lerpImColor(ImColor& a, ImColor& b, float t)
+{
+    return ImColor(lerp(a.Value.x, b.Value.x, t), lerp(a.Value.y, b.Value.y, t), lerp(a.Value.z, b.Value.z, t), lerp(a.Value.w, b.Value.w, t));
+}
+
 float MathUtils::getRotationKeyOffset(bool raw, bool allowStrafe)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
