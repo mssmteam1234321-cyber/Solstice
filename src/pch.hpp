@@ -54,5 +54,6 @@ enum struct EventPriorities {
 
 #include <nlohmann/json.hpp>
 #include <Utils/Utils.hpp>
+#include <imgui_freetype.h>
 
 #endif //PCH_HPP
