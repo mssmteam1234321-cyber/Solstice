@@ -22,7 +22,7 @@ void ClickGui::onEnable()
     ci->releaseMouse();
 
     gFeatureManager->mDispatcher->listen<MouseEvent, &ClickGui::onMouseEvent>(this);
-    gFeatureManager->mDispatcher->listen<KeyEvent, &ClickGui::onKeyEvent>(this);
+    gFeatureManager->mDispatcher->listen<KeyEvent, &ClickGui::onKeyEvent, nes::event_priority::FIRST>(this);
 }
 
 void ClickGui::onDisable()
@@ -51,6 +51,11 @@ void ClickGui::onKeyEvent(KeyEvent& event)
     if (event.mKey == VK_ESCAPE) {
         if (!modernGui.isBinding && event.mPressed) this->toggle();
         event.mCancelled = true;
+    }
+
+    // Consume all key events to prevent unintended module toggles
+    if (modernGui.isBinding) {
+        return;
     }
 
     if (event.mKey == VK_SHIFT && event.mPressed) {
