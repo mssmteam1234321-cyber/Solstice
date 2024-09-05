@@ -33,13 +33,15 @@ ImFont* FontHelper::getFont(bool large, bool bold)
         return Fonts[large ? (bold ? "mojangles_bold_large" : "mojangles_large") : (bold ? "mojangles_bold" : "mojangles")];
     if (fontSel == Interface::FontType::ProductSans)
         return Fonts[large ? (bold ? "product_sans_bold_large" : "product_sans_large") : (bold ? "product_sans_bold" : "product_sans")];
+    /*
     if (fontSel == Interface::FontType::Comfortaa)
         return Fonts[large ? (bold ? "comfortaa_bold_large" : "comfortaa_large") : (bold ? "comfortaa_bold" : "comfortaa")];
     if (fontSel == Interface::FontType::SFProDisplay)
         return Fonts[large ? (bold ? "sf_pro_display_bold_large" : "sf_pro_display_large") : (bold ? "sf_pro_display_bold" : "sf_pro_display")];
     if (fontSel == Interface::FontType::OpenSans)
         return Fonts[large ? (bold ? "open_sans_bold_large" : "open_sans_large") : (bold ? "open_sans_bold" : "open_sans")];
-    return nullptr;
+    */
+     return nullptr;
 
 }
 
