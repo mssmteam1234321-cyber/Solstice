@@ -377,7 +377,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0))
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
                                             {
                                                 //*(bool*)setting->getValue() = !*(bool*)setting->getValue();
                                                 boolSetting->mValue = !boolSetting->mValue;
@@ -497,7 +497,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                         rgb, animation);
 
                                                 if (ImRenderUtils::isMouseOver(rect2) && ImGui::IsMouseClicked(0) &&
-                                                    isEnabled)
+                                                    isEnabled && !displayColorPicker)
                                                 {
                                                     *iterator = j;
                                                 }
@@ -516,11 +516,11 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0))
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
                                             {
                                                 *iterator = (*iterator + 1) % enumValues.size();
                                             }
-                                            else if (ImGui::IsMouseClicked(1) && mod->showSettings)
+                                            else if (ImGui::IsMouseClicked(1) && mod->showSettings && !displayColorPicker)
                                             {
                                                 setting->enumExtended = !setting->enumExtended;
                                             }
@@ -734,7 +734,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         if (ImRenderUtils::isMouseOver(rect) && isEnabled)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0))
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
                                             {
                                                 displayColorPicker = !displayColorPicker;
                                                 lastColorSetting = colorSetting;
@@ -846,17 +846,17 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                 tooltip = mod->mDescription;
                             }
 
-                            if (ImGui::IsMouseClicked(0))
+                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
                             {
                                 mod->toggle();
                                 ClientInstance::get()->playUi("random.pop", 0.75f, 1.0f);
                             }
-                            else if (ImGui::IsMouseClicked(1))
+                            else if (ImGui::IsMouseClicked(1) && !displayColorPicker)
                             {
                                 // Only show if the module has settings
                                 if (!mod->mSettings.empty()) mod->showSettings = !mod->showSettings;
                             }
-                            else if (ImGui::IsMouseClicked(2))
+                            else if (ImGui::IsMouseClicked(2)  && !displayColorPicker)
                             {
                                 lastMod = mod;
                                 isBinding = true;
