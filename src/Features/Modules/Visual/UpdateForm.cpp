@@ -7,6 +7,7 @@
 #include <build_info.h>
 #include <Features/Events/KeyEvent.hpp>
 #include <Features/Events/MouseEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <Utils/OAuthUtils.hpp>
 
 void UpdateForm::getCommits()
@@ -73,7 +74,9 @@ ImVec2 lastrectmax = ImVec2(0, 0);
 
 void UpdateForm::onRenderEvent(RenderEvent& event)
 {
-    auto drawlist = ImGui::GetBackgroundDrawList();
+    if (ClientInstance::get()->getMouseGrabbed()) ClientInstance::get()->releaseMouse();
+
+    auto drawlist = ImGui::GetForegroundDrawList();
 
     FontHelper::pushPrefFont(true);
 
@@ -100,6 +103,29 @@ void UpdateForm::onRenderEvent(RenderEvent& event)
     // Set the render size based on the calculated heights
     float rectHeight = titleHeight + commitHeight + 70.0f; // Extra space for padding and button
 
+    // Determine rect width based on the longest commit + padding
+    float longestCommit = 0.0f;
+    if (mGatheredCommits)
+        for (const auto& commit : mCommits)
+        {
+            std::string finalStr = std::to_string(&commit - &mCommits[0] + 1) + ": " + commit;
+            ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(20, FLT_MAX, 0, finalStr.c_str());
+            if (textSize.x > longestCommit)
+                longestCommit = textSize.x;
+        }
+    else
+    {
+        std::string finalStr = "Gathering commits...";
+        ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(20, FLT_MAX, 0, finalStr.c_str());
+        if (textSize.x > longestCommit)
+            longestCommit = textSize.x;
+    }
+
+    // if longest commit is shorter than title, use title width
+    if (longestCommit < ImGui::GetFont()->CalcTextSizeA(30, FLT_MAX, 0, "New Solstice update installed!").x)
+        longestCommit = ImGui::GetFont()->CalcTextSizeA(30, FLT_MAX, 0, "New Solstice update installed!").x;
+
+    rectWidth = longestCommit + 2 * padding;
 
     ImVec2 renderSize = ImVec2(rectWidth, rectHeight);
     ImVec2 renderPos = ImVec2((ImGui::GetIO().DisplaySize.x - rectWidth) / 2, (ImGui::GetIO().DisplaySize.y - rectHeight) / 2);
@@ -107,7 +133,7 @@ void UpdateForm::onRenderEvent(RenderEvent& event)
     lastrectmin = renderPos;
     lastrectmax = renderPos + renderSize;
 
-    ImRenderUtils::addBlur(ImVec4(renderPos.x, renderPos.y, renderPos.x + renderSize.x, renderPos.y + renderSize.y), 4.f, 10.0f);
+    ImRenderUtils::addBlur(ImVec4(renderPos.x, renderPos.y, renderPos.x + renderSize.x, renderPos.y + renderSize.y), 4.f, 10.0f, drawlist);
     drawlist->AddRectFilled(renderPos, renderPos + renderSize, IM_COL32(0, 0, 0, 100), 10.0f);
 
     ImColor prefColor = ColorUtils::getThemedColor(0);
@@ -146,6 +172,7 @@ void UpdateForm::onRenderEvent(RenderEvent& event)
             commitPos.y += textSize.y + 5.0f;
         }
 
+    commitPos.y += padding;
     // Okay button
     ImVec2 buttonSize = ImVec2(80, 30);
     ImVec2 buttonPos = ImVec2(renderPos.x + renderSize.x - buttonSize.x - padding, renderPos.y + renderSize.y - buttonSize.y - padding);
@@ -168,16 +195,7 @@ void UpdateForm::onRenderEvent(RenderEvent& event)
 
 void UpdateForm::onMouseEvent(MouseEvent& event)
 {
-    // If the mouse is clicked outside of the form, disable it
-    if (event.mButtonData == 0x1 && !ImRenderUtils::isPointInRect(ImRenderUtils::getMousePos(), lastrectmin, lastrectmax))
-    {
-        setEnabled(false);
-        event.cancel();
-    } // Else, continue with the event
-    else
-    {
-        event.cancel();
-    }
+    event.cancel();
 }
 
 void UpdateForm::onKeyEvent(KeyEvent& event)

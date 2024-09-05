@@ -105,12 +105,14 @@ void ClientInstance::grabMouse()
 {
     static uintptr_t func = SigManager::ClientInstance_grabMouse;
     MemUtils::callFastcall<void>(func, this);
+
 }
 
 void ClientInstance::releaseMouse()
 {
     static uintptr_t func = SigManager::ClientInstance_releaseMouse;
     MemUtils::callFastcall<void>(func, this);
+    getMinecraftGame()->setMouseGrabbed(false);
 }
 
 void ClientInstance::playUi(const std::string& soundName, float volume, float pitch)
