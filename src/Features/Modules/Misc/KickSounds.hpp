@@ -12,8 +12,10 @@ public:
         Fard
     };
     EnumSettingT<Sound> mSound = EnumSettingT<Sound>("Sound", "The sound to play when a DisconnectPacket is received", Sound::Fard, "Fard");
+    NumberSetting mVolume = NumberSetting("Volume", "The volume of the sound", 1.f, 0.f, 1.f, 0.1f);
     KickSounds() : ModuleBase("KickSounds", "Plays a sound when a DisconnectPacket is received", ModuleCategory::Misc, 0, false) {
         addSetting(&mSound);
+        addSetting(&mVolume);
 
         mNames = {
             {Lowercase, "kicksounds"},

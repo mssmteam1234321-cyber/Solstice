@@ -24,7 +24,7 @@ void KickSounds::onPacketInEvent(PacketInEvent& event)
     {
         if (mSound.mValue == Sound::Fard)
         {
-            SoundUtils::playSoundFromEmbeddedResource("fard.wav", 1.0f);
+            SoundUtils::playSoundFromEmbeddedResource("fard.wav", mVolume.mValue);
         }
     }
 }
