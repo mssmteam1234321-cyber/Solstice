@@ -35,7 +35,7 @@ public:
     BoolSetting mGlow = BoolSetting("Glow", "Enables glow", true);
     NumberSetting mGlowStrength = NumberSetting("Glow Strength", "The strength of the glow", 1.f, 0.5f, 1.f, 0.1f);
     BoolSetting mBoldText = BoolSetting("Bold Text", "Makes the text bold", true);
-    NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 22.f, 10.f, 40.f, 0.01f);
+    NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 25.f, 10.f, 40.f, 0.01f);
 
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
         addSettings(
