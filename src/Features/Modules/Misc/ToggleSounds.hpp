@@ -33,6 +33,6 @@ public:
     void onModuleStateChange(ModuleStateChangeEvent& event);
 
     std::string getSettingDisplay() override {
-        return mSound.mValue == Sound::Lever ? "Lever" : "Smooth";
+        return mSound.mValues[mSound.as<int>()];
     }
 };
