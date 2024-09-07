@@ -131,7 +131,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Nuker>());
     mModules.emplace_back(std::make_shared<OreMiner>());
     mModules.emplace_back(std::make_shared<AutoBoombox>());
-    mModules.emplace_back(std::make_shared<AutoKick>());
+    //mModules.emplace_back(std::make_shared<AutoKick>());
     mModules.emplace_back(std::make_shared<AutoTool>());
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
