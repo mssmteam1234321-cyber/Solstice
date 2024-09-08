@@ -17,6 +17,7 @@ public:
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::ClipTest, "ClipTest", "OnGroundSpeedTest", "VerticalTest");
     BoolSetting mOnGroundOnly = BoolSetting("On Ground Only", "Only run the module when the player is on the ground", false);
     NumberSetting mMaxDistance = NumberSetting("Max Distance", "The maximum distance to run the module at", 5, 0, 30, 0.1);
+    BoolSetting mDisableAfterClip = BoolSetting("Disable After Clip", "Disable the module after the player is clipped", true);
     BoolSetting mManuallyApplyFlags = BoolSetting("Manually Apply Flags", "Manually apply flags to the player", false);
     NumberSetting mClipDistance = NumberSetting("Clip Distance", "The distance to clip the player at", 0.01, 0, 4, 0.1);
 
@@ -24,11 +25,13 @@ public:
         addSetting(&mMode);
         addSetting(&mOnGroundOnly);
         addSetting(&mMaxDistance);
+        addSetting(&mDisableAfterClip);
         addSetting(&mManuallyApplyFlags);
         addSetting(&mClipDistance);
 
         VISIBILITY_CONDITION(mOnGroundOnly, mMode.mValue == Mode::ClipTest);
         VISIBILITY_CONDITION(mMaxDistance, mMode.mValue == Mode::ClipTest);
+        VISIBILITY_CONDITION(mDisableAfterClip, mMode.mValue == Mode::ClipTest);
         VISIBILITY_CONDITION(mManuallyApplyFlags, mMode.mValue == Mode::OnGroundSpeedTest);
         VISIBILITY_CONDITION(mClipDistance, mMode.mValue == Mode::VerticalTest);
 

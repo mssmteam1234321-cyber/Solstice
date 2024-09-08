@@ -61,6 +61,7 @@ bool formOpen = false;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
+    if (!mWantedState) return;
     auto player = event.mActor;
     if (!player) return;
 
@@ -128,6 +129,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     }
 
     player->setPosition(newPos);
+    if (mDisableAfterClip.mValue) setEnabled(false);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
