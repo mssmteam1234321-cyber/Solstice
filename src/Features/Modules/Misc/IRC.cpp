@@ -31,6 +31,8 @@ void IRC::onEnable()
     IrcManager::setAlwaysSendToIrc(mAlwaysSendToIrc.mValue);
     IrcManager::mLastConnectAttempt = NOW;
 
+
+
 }
 
 void IRC::onDisable()
@@ -42,6 +44,17 @@ void IRC::onDisable()
 
     IrcManager::deinit();
 
+}
+
+void IRC::onModuleStateChangeEvent(ModuleStateChangeEvent& event)
+{
+    if (event.mModule != this) return;
+
+    if (IrcManager::mClient && IrcManager::mClient->mConnectionState == ConnectionState::Connecting)
+    {
+        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §eYou can't disable IRC while it's connecting!");
+        event.cancel();
+    }
 }
 
 void IRC::onBaseTickEvent(BaseTickEvent& event)

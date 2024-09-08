@@ -21,9 +21,11 @@ public:
         };
 
         gFeatureManager->mDispatcher->listen<BaseTickEvent, &IRC::onBaseTickEvent>(this);
+        gFeatureManager->mDispatcher->listen<ModuleStateChangeEvent, &IRC::onModuleStateChangeEvent, nes::event_priority::FIRST>(this);
     }
 
     void onEnable() override;
     void onDisable() override;
+    void onModuleStateChangeEvent(ModuleStateChangeEvent& event);
     void onBaseTickEvent(BaseTickEvent& event);
 };

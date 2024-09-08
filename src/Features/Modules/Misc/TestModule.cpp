@@ -219,6 +219,7 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
+#ifdef __DEBUG__
     FontHelper::pushPrefFont(false, false);
     auto player = ClientInstance::get()->getLocalPlayer();
 
@@ -286,5 +287,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
     FontHelper::popPrefFont();
     ImGui::End();
+
+#endif
 
 }
