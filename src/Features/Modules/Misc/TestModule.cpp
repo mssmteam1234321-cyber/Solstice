@@ -122,6 +122,11 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
     glm::vec3 newPos = glm::vec3(pos.x, highestBlock.y + 1.01 + PLAYER_HEIGHT, pos.z);
 
+    if (!BlockUtils::isAirBlock(newPos - PLAYER_HEIGHT_VEC))
+    {
+        spdlog::info("Clip failed: block at new pos");
+    }
+
     player->setPosition(newPos);
 }
 
