@@ -16,6 +16,13 @@ public:
     PAD(0x120);
 };
 
+void GuiData::displayClientMessageQueued(const std::string& msg)
+{
+    if (!ClientInstance::get()->getLocalPlayer()) return;
+
+    BaseTickHook::queueMsg(msg);
+}
+
 void GuiData::displayClientMessage(const std::string& msg)
 {
     if (!ClientInstance::get()->getLocalPlayer()) return;

@@ -17,5 +17,6 @@ public:
     CLASS_FIELD(float, mGuiScale, 0x4C);
     CLASS_FIELD(float, mScalingMultiplier, 0x50);
 
+    void displayClientMessageQueued(const std::string& msg);
     void displayClientMessage(const std::string& msg);
 };

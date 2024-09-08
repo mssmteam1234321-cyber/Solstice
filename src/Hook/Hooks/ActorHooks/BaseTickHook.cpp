@@ -11,6 +11,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 
 std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
@@ -18,6 +19,17 @@ void BaseTickHook::onBaseTick(Actor* actor)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onBaseTick)>();
     if (actor != ClientInstance::get()->getLocalPlayer()) return oFunc(actor);
+
+    mQueueMutex.lock();
+    auto messages = mQueuedMessages;
+    if (!messages.empty())
+    {
+        std::string messageStr = "";
+        for (auto& message : messages) messageStr += message + "\n";
+        ClientInstance::get()->getGuiData()->displayClientMessage(messageStr);
+        mQueuedMessages.clear();
+    }
+    mQueueMutex.unlock();
 
     if (auto supplies = actor->getSupplies())
     {

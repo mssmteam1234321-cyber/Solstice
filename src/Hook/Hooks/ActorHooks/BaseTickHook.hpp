@@ -31,10 +31,32 @@ public:
     /// Can be used for various purposes, such as delaying packets to match rotation.
     /// </summary>
     static inline std::vector<QueuedPacket> mQueuedPackets;
-
     static std::unique_ptr<Detour> mDetour;
 
     static void onBaseTick(class Actor* actor);
     void init() override;
+
+    static inline std::vector<std::string> mQueuedMessages;
+    static inline std::mutex mQueueMutex;
+
+    static void queueMsg(const std::string& msg)
+    {
+        mQueueMutex.lock();
+        mQueuedMessages.push_back(msg);
+        mQueueMutex.unlock();
+    }
+
+    // should only be used by this hook
+private:
+    static void setMessageQueue(std::vector<std::string> messages)
+    {
+        mQueuedMessages = messages;
+    }
+
+    static std::vector<std::string> getMessageQueue()
+    {
+        auto messages = mQueuedMessages;
+        return messages;
+    }
 };
 
