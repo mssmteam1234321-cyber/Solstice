@@ -110,6 +110,15 @@ public:
         VISIBILITY_CONDITION(mSwingDelay, mSwing.mValue);
         VISIBILITY_CONDITION(mSwingDelayValue, mSwingDelay.mValue && mSwing.mValue);
 
+        // vis conditions for visuals
+        VISIBILITY_CONDITION(mUpDownSpeed, mVisuals.mValue);
+        VISIBILITY_CONDITION(mSpheresAmount, mVisuals.mValue);
+        VISIBILITY_CONDITION(mSpheresSizeMultiplier, mVisuals.mValue);
+        VISIBILITY_CONDITION(mSpheresSize, mVisuals.mValue);
+        VISIBILITY_CONDITION(mSpheresMinSize, mVisuals.mValue);
+        VISIBILITY_CONDITION(mSpheresRadius, mVisuals.mValue);
+
+
 
         mNames = {
             {Lowercase, "aura"},

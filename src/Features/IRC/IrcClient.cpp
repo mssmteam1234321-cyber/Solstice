@@ -224,6 +224,8 @@ bool IrcClient::connectToServer()
 
                 auto op = parseOpAuto(message);
 
+                //displayMsg("§7[§dirc§7] " + std::string(magic_enum::enum_name(op.opCode).data()) + " " + op.data);
+
                 if (op.opCode == OpCode::KeyOut)
                 {
                     mServerKey = op.data;

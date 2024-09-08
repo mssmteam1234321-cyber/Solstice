@@ -137,8 +137,7 @@ void TargetHUD::validateTextures()
 
 ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
 {
-    /*auto player = ClientInstance::get()->getLocalPlayer();
-    if (actor && !actor->isPlayer()) actor = player;*/
+    auto player = ClientInstance::get()->getLocalPlayer();
 
     if (!mTargetTextures.contains(actor)) mTargetTextures[actor] = TargetTextureHolder();
 
@@ -151,6 +150,13 @@ ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
         if (skin)
         {
             if (!loaded) {
+                bool isPlayer = true;
+                if (actor->isValid() && !actor->isPlayer())
+                {
+                    isPlayer = false;
+                    skin = player->getSkin();
+                    spdlog::warn("Falling back to default LP skin for actor"); // Don't display da actor name
+                }
                 // Calculate head dimensions and offsets based on skin width
                 int headSize = skin->skinWidth / 8; // 64x64 -> 8, 128x128 -> 16
                 int headOffsetX = skin->skinWidth / 8; // Offset starts at 1/8th of the skin width
@@ -184,7 +190,7 @@ ID3D11ShaderResourceView* TargetHUD::getActorSkinTex(Actor* actor)
                 headSize *= scalingFactor;
 
                 headData = std::move(scaledHeadData);
-                spdlog::info("Loading skin texture for {}", actor->getRawName());
+                spdlog::info("Loading skin texture for {}", isPlayer ? actor->getRawName() : "Mob");
                 D3DHook::createTextureFromData(headData.data(), headSize, headSize, &texture);
                 loaded = true;
                 id = actor->mContext.mEntityId;

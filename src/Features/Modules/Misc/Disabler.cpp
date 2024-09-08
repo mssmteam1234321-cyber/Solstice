@@ -121,6 +121,35 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         pkt->mMove = newMoveVec;
         pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
         pkt->mInputMode = InputMode::MotionController;
+
+        // Get the move direction
+        bool forward = newMoveVec.y > 0;
+        bool backward = newMoveVec.y < 0;
+        bool left = newMoveVec.x < 0;
+        bool right = newMoveVec.x > 0;
+
+        static bool isSprinting = false;
+        bool startedThisTick = false;
+        // if the flags contain isSprinting, set the flag
+        if (pkt->hasInputData(AuthInputAction::START_SPRINTING)) {
+            isSprinting = true;
+            startedThisTick = true;
+        } else if (pkt->hasInputData(AuthInputAction::STOP_SPRINTING)) {
+            isSprinting = false;
+        }
+
+        if (!forward)
+        {
+            // Remove all sprint flags
+            pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
+            if (isSprinting && !startedThisTick) {
+                pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
+            }
+
+            pkt->mInputData &= ~AuthInputAction::SPRINTING;
+            pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+        }
+
         return;
 
     }

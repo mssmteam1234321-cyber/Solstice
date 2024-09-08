@@ -135,6 +135,7 @@ public:
     bool isOnFire();
     std::string getLocalName();
     std::string getXuid();
+    bool isValid();
 };
 
 static_assert(sizeof(Actor) == 0x408, "Actor size is invalid");

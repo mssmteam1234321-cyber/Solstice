@@ -418,3 +418,9 @@ std::string Actor::getXuid()
 {
     return "0";
 }
+
+bool Actor::isValid()
+{
+    if (this == nullptr) return false;
+    return mContext.mRegistry->valid(this->mContext.mEntityId);
+}
