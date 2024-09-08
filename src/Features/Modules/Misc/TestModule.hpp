@@ -11,22 +11,26 @@ public:
     enum class Mode {
         ClipTest,
         OnGroundSpeedTest,
+        VerticalTest
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::ClipTest, "ClipTest", "OnGroundSpeedTest");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::ClipTest, "ClipTest", "OnGroundSpeedTest", "VerticalTest");
     BoolSetting mOnGroundOnly = BoolSetting("On Ground Only", "Only run the module when the player is on the ground", false);
     NumberSetting mMaxDistance = NumberSetting("Max Distance", "The maximum distance to run the module at", 5, 0, 30, 0.1);
     BoolSetting mManuallyApplyFlags = BoolSetting("Manually Apply Flags", "Manually apply flags to the player", false);
+    NumberSetting mClipDistance = NumberSetting("Clip Distance", "The distance to clip the player at", 0.01, 0, 4, 0.1);
 
     TestModule() : ModuleBase("TestModule", "A module for testing purposes", ModuleCategory::Misc, 0, false) {
         addSetting(&mMode);
         addSetting(&mOnGroundOnly);
         addSetting(&mMaxDistance);
         addSetting(&mManuallyApplyFlags);
+        addSetting(&mClipDistance);
 
         VISIBILITY_CONDITION(mOnGroundOnly, mMode.mValue == Mode::ClipTest);
         VISIBILITY_CONDITION(mMaxDistance, mMode.mValue == Mode::ClipTest);
         VISIBILITY_CONDITION(mManuallyApplyFlags, mMode.mValue == Mode::OnGroundSpeedTest);
+        VISIBILITY_CONDITION(mClipDistance, mMode.mValue == Mode::VerticalTest);
 
         mNames = {
             {Lowercase, "testmodule"},

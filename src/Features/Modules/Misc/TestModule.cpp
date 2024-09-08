@@ -17,6 +17,7 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
+#include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/World/Block.hpp>
@@ -27,6 +28,7 @@
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
 float lastOnGroundY = 0.f;
+uint64_t lastLagback = 0;
 
 void TestModule::onEnable()
 {
@@ -59,9 +61,31 @@ bool formOpen = false;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
-    if (mMode.mValue != Mode::ClipTest) return;
     auto player = event.mActor;
     if (!player) return;
+
+    if (mMode.mValue == Mode::VerticalTest)
+    {
+        if (BlockUtils::isOverVoid(*player->getPos()))
+        {
+            spdlog::info("Over void");
+            return;
+        }
+
+        glm::vec3 pos = *player->getPos();
+        player->getStateVectorComponent()->mVelocity.y = mClipDistance.mValue;
+
+        return;
+    }
+
+    if (mMode.mValue != Mode::ClipTest) return;
+
+
+    if (lastLagback + 200 > NOW)
+    {
+        spdlog::info("Lagback detected, avoiding desync");
+        return;
+    }
 
     bool onGround = player->isOnGround();
     if (!onGround && mOnGroundOnly.mValue) return;
@@ -70,13 +94,21 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
     auto blockSource = ClientInstance::get()->getBlockSource();
     glm::vec3 highestBlock = glm::floor(pos);
+    bool blockFound = false;
     for (int y = 0; y < 256; y++)
     {
         auto block = blockSource->getBlock(pos.x, y, pos.z);
         if (block->toLegacy()->getBlockId() != 0)
         {
             highestBlock.y = y;
+            blockFound = true;
         }
+    }
+
+    if (!blockFound)
+    {
+        spdlog::info("No block found");
+        return;
     }
 
     // if the y is too far away, log it and return
@@ -140,6 +172,17 @@ void TestModule::onPacketOutEvent(PacketOutEvent& event)
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if (event.mPacket->getId() == PacketID::MovePlayer)
+    {
+        auto packet = event.getPacket<MovePlayerPacket>();
+        if (packet->mResetPosition == PositionMode::Teleport && packet->mPlayerID == player->getRuntimeID())
+        {
+            lastLagback = NOW;
+        }
+    }
     /*if (event.mPacket->getId() == PacketID::ModalFormRequest)
     {
         auto packet = event.getPacket<ModalFormRequestPacket>();
