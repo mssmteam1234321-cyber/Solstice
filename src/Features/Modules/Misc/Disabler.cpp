@@ -8,6 +8,7 @@
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/SendImmediateEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
@@ -81,6 +82,9 @@ void Disabler::onDisable()
 
 void Disabler::onPacketOutEvent(PacketOutEvent& event) {
 #ifdef __DEBUG__
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
     if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
         if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
 
@@ -138,20 +142,29 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
             isSprinting = false;
         }
 
+        spdlog::info("Forward: {}, Backward: {}, Left: {}, Right: {}", forward ? "true" : "false", backward ? "true" : "false", left ? "true" : "false", right ? "true" : "false");
+
         if (!forward)
         {
             // Remove all sprint flags
             pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
             if (isSprinting && !startedThisTick) {
                 pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
+                spdlog::info("Stopping sprint");
             }
+
+            spdlog::info("Not moving forward");
 
             pkt->mInputData &= ~AuthInputAction::SPRINTING;
             pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+
+            spdlog::info("Removed sprinting and sneaking flags");
+
+            // Stop the player from sprinting
+            player->getMoveInputComponent()->setmIsSprinting(false);
         }
 
         return;
-
     }
 #endif
     if (mMode.mValue != Mode::Sentinel) return;

@@ -47,6 +47,27 @@ std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, floa
     return newBlocks;
 }
 
+bool BlockUtils::isOverVoid(glm::vec3 vec)
+{
+    std::vector<Block*> blocksUntilZero;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    // get all the blocks from vec.y to 0
+    for (int i = vec.y; i >= 0; i--)
+    {
+        auto block = ClientInstance::get()->getBlockSource()->getBlock({ vec.x, i, vec.z });
+        blocksUntilZero.push_back(block);
+    }
+
+    // Return false if any of them are not air
+    for (auto block : blocksUntilZero)
+    {
+        if (block->toLegacy()->getBlockId() != 0) return false;
+    }
+
+    return true;
+}
+
 /*
 std::vector<BlockInfo> BlockUtils::getChunkBasedBlockList(const glm::ivec3& position, float r)
 {

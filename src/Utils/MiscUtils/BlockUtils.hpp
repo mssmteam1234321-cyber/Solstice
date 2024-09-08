@@ -31,6 +31,7 @@ struct DestroySpeedInfo {
 class BlockUtils {
 public:
     static std::vector<BlockInfo> getBlockList(const glm::ivec3& position, float r);
+    static bool isOverVoid(glm::vec3 vec);
     //static std::vector<BlockInfo> getChunkBasedBlockList(const glm::ivec3& position, float r);
 
     /*if (!IsAirBlock(pos + BlockPos(0, -1, 0))) return 1;

@@ -25,15 +25,20 @@
 #define COMPONENT_GET_FUNC(funcName, componentType) \
 componentType* Actor::funcName() \
 { \
-    if (!mContext.mRegistry->valid(this->mContext.mEntityId)) \
+    if (!isValid()) \
     { \
-        spdlog::critical("Actor::{}: Invalid entity id", #funcName); \
+        spdlog::critical("Actor::{}: isValid() failed", #funcName); \
         return nullptr; \
     } \
     auto component = mContext.getComponent<componentType>(); \
     if (!component) \
     { \
         spdlog::critical("Actor::{}: No {} found", #funcName, #componentType); \
+    } \
+    if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(component))) \
+    { \
+        spdlog::critical("Actor::{}: {} is not a valid ptr", #funcName, #componentType); \
+        return nullptr; \
     } \
     return component; \
 }
@@ -422,5 +427,9 @@ std::string Actor::getXuid()
 bool Actor::isValid()
 {
     if (this == nullptr) return false;
-    return mContext.mRegistry->valid(this->mContext.mEntityId);
+    // Make sure mRegistry is a valid ptr
+    if (!mContext.mRegistry) return false;
+    // Make sure the ptr is readable
+    if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(mContext.mRegistry))) return false;
+    return mContext.mRegistry->valid(mContext.mEntityId);
 }

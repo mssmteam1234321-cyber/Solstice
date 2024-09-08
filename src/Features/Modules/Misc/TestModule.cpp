@@ -26,6 +26,8 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
+float lastOnGroundY = 0.f;
+
 void TestModule::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
@@ -33,6 +35,11 @@ void TestModule::onEnable()
     gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
     /*gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player)
+    {
+        lastOnGroundY = player->getPos()->y - 0.01;
+    }
 }
 
 void TestModule::onDisable()
@@ -52,61 +59,83 @@ bool formOpen = false;
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
+    if (mMode.mValue != Mode::ClipTest) return;
     auto player = event.mActor;
     if (!player) return;
 
-    /*if (formOpen && mMode.mValue == Mode::Mode3)
-    {
-        auto packet = MinecraftPackets::createPacket<ModalFormResponsePacket>();
-        packet->mFormId = lastFormId;
-        MinecraftJson::Value json;
-        json.mType = MinecraftJson::ValueType::Int;
-        json.mValue.mInt = 0;
-        packet->mJSONResponse = json;
-        ClientInstance::get()->getPacketSender()->send(packet.get());
-    }*/
+    bool onGround = player->isOnGround();
+    if (!onGround && mOnGroundOnly.mValue) return;
 
-    /*
-    std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
-    std::vector<std::string> playerNames;
-    for (auto& [uuid, entry] : *playerList)
-    {
-        playerNames.emplace_back(entry.name);
-    }
-    static std::vector<std::string> lastPlayerNames = playerNames;
+    glm::vec3 pos = *player->getPos();
 
-    // Check if the player list has changed
-    // Use ChatUtils::displayClientMessageRaw to display a message in the chat, depending on the player list
-    // example: "§a§l» §r§7player has joined." or "§c§l» §r§7player has left."
-
-    for (auto& playerName : playerNames)
+    auto blockSource = ClientInstance::get()->getBlockSource();
+    glm::vec3 highestBlock = glm::floor(pos);
+    for (int y = 0; y < 256; y++)
     {
-        if (std::ranges::find(lastPlayerNames, playerName) == lastPlayerNames.end())
+        auto block = blockSource->getBlock(pos.x, y, pos.z);
+        if (block->toLegacy()->getBlockId() != 0)
         {
-            ChatUtils::displayClientMessageRaw("§a§l» §r§7" + playerName + " has joined.");
+            highestBlock.y = y;
         }
     }
 
-    for (auto& playerName : lastPlayerNames)
+    // if the y is too far away, log it and return
+    if (highestBlock.y - pos.y > mMaxDistance.mValue)
     {
-        if (std::ranges::find(playerNames, playerName) == playerNames.end())
-        {
-            ChatUtils::displayClientMessageRaw("§c§l» §r§7" + playerName + " has left.");
-        }
+        spdlog::info("highestBlock.y - pos.y: {} [too far]", highestBlock.y - pos.y);
+        return;
     }
 
-    // Store the last player list
-    lastPlayerNames = playerNames;*/
+    spdlog::info("highestBlock: {}", highestBlock.y);
+
+    glm::vec3 newPos = glm::vec3(pos.x, highestBlock.y + 1.01 + PLAYER_HEIGHT, pos.z);
+
+    player->setPosition(newPos);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-    /*if (event.mPacket->getId() == PacketID::ModalFormResponse)
+    if (mMode.mValue != Mode::OnGroundSpeedTest) return;
+
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
-        auto packet = event.getPacket<ModalFormResponsePacket>();
-        formOpen = false;
-        spdlog::info("ModalFormResponsePacket: FormId: {}, ValueType: {}", packet->mFormId, std::string(magic_enum::enum_name(packet->mJSONResponse->mType)));
-    }*/
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+
+        bool isMoving = paip->mMove != glm::vec2(0, 0);
+        static int tick = 0;
+
+        if (isMoving)
+        {
+            if (mManuallyApplyFlags.mValue)
+            {
+                paip->addInputData(AuthInputAction::JUMPING);
+                paip->addInputData(AuthInputAction::JUMP_DOWN);
+                paip->addInputData(AuthInputAction::WANT_UP);
+            }
+
+            bool jumped = false;
+            if (tick > 10)
+            {
+                jumped = true;
+                if (mManuallyApplyFlags.mValue)
+                    paip->addInputData(AuthInputAction::START_JUMPING);
+                tick = 0;
+            }
+
+            if (mManuallyApplyFlags.mValue)
+                spdlog::info("tick: {} jumped: {}", tick, jumped ? "true" : "false");
+            tick++;
+
+        } else tick = 0;
+        float oldY = paip->mPos.y;
+        paip->mPos.y = lastOnGroundY - 0.01;
+
+        // Check if we are over the void
+        if (BlockUtils::isOverVoid(paip->mPos))
+        {
+            paip->mPos.y = oldY;
+        }
+    }
 }
 
 void TestModule::onPacketInEvent(PacketInEvent& event)

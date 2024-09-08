@@ -191,6 +191,7 @@ public:
     static uintptr_t findString(const std::string& string);
     static uintptr_t findReference(uintptr_t address);
     static uintptr_t getTopOfFunction(uintptr_t address);
+    static bool isValidPtr(uintptr_t address);
 
 private:
     template<typename T>

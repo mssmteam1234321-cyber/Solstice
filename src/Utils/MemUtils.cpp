@@ -316,3 +316,13 @@ uintptr_t MemUtils::getTopOfFunction(uintptr_t address)
         current--;
     }
 }
+
+bool MemUtils::isValidPtr(uintptr_t address)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(reinterpret_cast<void*>(address), &mbi, sizeof(mbi)))
+    {
+        return mbi.State == MEM_COMMIT;
+    }
+    return false;
+}

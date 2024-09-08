@@ -131,7 +131,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Nuker>());
     mModules.emplace_back(std::make_shared<OreMiner>());
     mModules.emplace_back(std::make_shared<AutoBoombox>());
-    //mModules.emplace_back(std::make_shared<AutoKick>());
     mModules.emplace_back(std::make_shared<AutoTool>());
     mModules.emplace_back(std::make_shared<MidclickAction>());
     mModules.emplace_back(std::make_shared<Derp>());
@@ -189,6 +188,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Nametags>());
     mModules.emplace_back(std::make_shared<NoHurtcam>());
 
+#ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<AutoKick>());
+#endif
 
     // Determine if we should add UpdateForm
     std::string oldHash = OAuthUtils::getLastCommitHash();
