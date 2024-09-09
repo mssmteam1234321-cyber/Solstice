@@ -30,7 +30,6 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
     {
         mLastOnGroundPos = BlockUtils::findClosestBlockToPos(*player->getPos());
         mTeleported = false;
-        spdlog::info("Set last on ground pos to ({}, {}, {})", mLastOnGroundPos.x, mLastOnGroundPos.y, mLastOnGroundPos.z);
         return;
     }
 
