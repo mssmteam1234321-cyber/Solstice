@@ -39,6 +39,8 @@ void Regen::initializeRegen()
     mIsStealing = false;
     mToolSlot = -1;
     mOffGround = false;
+
+    mDecoyPositions.clear();
 }
 
 void Regen::resetSyncSpeed() 
@@ -444,7 +446,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else {
             resetSyncSpeed();
         }
-
+        bool nukedBlock = false;
         if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
             if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
             else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
@@ -454,11 +456,16 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
             if (mOnGroundOnly.mValue && mNuke.mValue) {
-                for (auto& c : BlockUtils::mNukeSpeeds) {
-                    if (c.blockName == blockName) {
-                        mCurrentDestroySpeed = c.destroySpeed;
-                        found = true;
-                        break;
+                ItemStack* stack = supplies->getContainer()->getItem(mToolSlot);
+                bool selectedShovel = stack && stack->mItem && stack->getItem()->getItemType() == SItemType::Shovel;
+                if (selectedShovel) {
+                    for (auto& c : BlockUtils::mNukeSpeeds) {
+                        if (c.blockName == blockName) {
+                            mCurrentDestroySpeed = c.destroySpeed;
+                            found = true;
+                            nukedBlock = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -497,12 +504,16 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
-            if (mDebug.mValue && mStealNotify.mValue && mIsStealing)
-                ChatUtils::displayClientMessage("Stole ore");
+            if (mDebug.mValue) {
+                if(mStealNotify.mValue && mIsStealing)
+                    ChatUtils::displayClientMessage("Stole ore");
 
-            if (mDebug.mValue && mSyncSpeedNotify.mValue && synchedSpeed)
-                ChatUtils::displayClientMessage("Synched destroy speed");
+                if(mSyncSpeedNotify.mValue && synchedSpeed)
+                    ChatUtils::displayClientMessage("Synched destroy speed");
 
+                if (nukedBlock)
+                    ChatUtils::displayClientMessage("Nuked block");
+            }
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
 
@@ -557,7 +568,23 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     return;
                 }
             }
-
+#ifdef __DEBUG__
+            // fucker
+            if (mOreFaker.mValue) {
+                if (mExposed.mValue) {
+                    for (int i = 0; i < exposedBlockList.size(); i++) {
+                        BlockUtils::startDestroyBlock(exposedBlockList[i].mPosition, 0);
+                        mDecoyPositions.push_back(exposedBlockList[i].mPosition);
+                    }
+                }
+                if (mUnexposed.mValue) {
+                    for (int i = 0; i < unexposedBlockList.size(); i++) {
+                        BlockUtils::startDestroyBlock(unexposedBlockList[i].mPosition, 0);
+                        mDecoyPositions.push_back(unexposedBlockList[i].mPosition);
+                    }
+                }
+            }
+#endif
             float closestDistance = INT_MAX;
             bool foundTargettingBlock = false;
             for (int i = 0; i < exposedBlockList.size(); i++) {
@@ -576,6 +603,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     if (mDebug.mValue && mPriorityNotify.mValue) ChatUtils::displayClientMessage("Prioritized ore");
                 }
             }
+            
             // queue block
             queueBlock(pos);
             mTargettingBlockPos = targettingPos;
@@ -998,6 +1026,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 
             // Ore Blocker
             if (mBlockOre.mValue) {
+                if (std::find(mDecoyPositions.begin(), mDecoyPositions.end(), glm::ivec3(levelEvent->mPos)) != mDecoyPositions.end()) return;
                 // normal ore blocker
                 if(isValidRedstone(levelEvent->mPos)) miningRedstones.push_back(levelEvent->mPos);
             }
