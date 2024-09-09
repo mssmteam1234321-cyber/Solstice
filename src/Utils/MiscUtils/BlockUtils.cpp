@@ -68,6 +68,42 @@ bool BlockUtils::isOverVoid(glm::vec3 vec)
     return true;
 }
 
+glm::vec3 BlockUtils::findClosestBlockToPos(glm::vec3 pos)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return pos;
+
+    glm::vec3 playerPos = *player->getPos() - glm::vec3(0, PLAYER_HEIGHT, 0);
+    glm::vec3 closestBlock = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+    float closestDist = FLT_MAX;
+
+    for (int x = pos.x - 5; x < pos.x + 5; x++)
+        for (int y = pos.y - 5; y < pos.y + 5; y++)
+            for (int z = pos.z - 5; z < pos.z + 5; z++)
+            {
+                auto blockPos = glm::vec3(x, y, z);
+                if (isAirBlock(blockPos)) {
+                    if (isAirBlock(blockPos + glm::vec3(0, 1, 0)) && isAirBlock(blockPos + glm::vec3(0, 2, 0)))
+                    {
+                        float distance = glm::distance(playerPos, blockPos);
+                        if (distance < closestDist) {
+                            closestDist = distance;
+                            closestBlock = blockPos;
+                        }
+                    }
+                }
+            }
+
+    if (closestBlock.x != FLT_MAX && closestBlock.y != FLT_MAX && closestBlock.z != FLT_MAX) {
+        spdlog::info("Closest block to ({}, {}, {}) is at ({}, {}, {})", pos.x, pos.y, pos.z, closestBlock.x, closestBlock.y, closestBlock.z);
+    }
+    else {
+        spdlog::info("No blocks found near ({}, {}, {})", pos.x, pos.y, pos.z);
+    }
+
+    return closestBlock;
+}
+
 /*
 std::vector<BlockInfo> BlockUtils::getChunkBasedBlockList(const glm::ivec3& position, float r)
 {

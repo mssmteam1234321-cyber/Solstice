@@ -310,6 +310,11 @@ float Actor::getFallDistance()
     return mContext.getComponent<FallDistanceComponent>()->mFallDistance;
 }
 
+void Actor::setFallDistance(float distance)
+{
+    mContext.getComponent<FallDistanceComponent>()->mFallDistance = distance;
+}
+
 std::string Actor::getRawName()
 {
     auto actorType = getActorTypeComponent();

@@ -55,6 +55,7 @@
 #include "Movement/Velocity.hpp"
 #include "Movement/HiveFly.hpp"
 #include "Movement/AirJump.hpp"
+#include "Player/AntiVoid.hpp"
 
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
@@ -138,6 +139,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoFall>());
     mModules.emplace_back(std::make_shared<Teams>());
     mModules.emplace_back(std::make_shared<HiveFly>());
+    mModules.emplace_back(std::make_shared<AntiVoid>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());

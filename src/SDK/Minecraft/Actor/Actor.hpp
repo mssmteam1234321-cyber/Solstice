@@ -122,6 +122,7 @@ public:
     bool isCollidingHorizontal();
     void jumpFromGround();
     float getFallDistance();
+    void setFallDistance(float distance);
     std::string getRawName();
     const std::string& getNameTag();
     void setNametag(const std::string& name);
