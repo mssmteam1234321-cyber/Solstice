@@ -26,7 +26,7 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (player->isOnGround() && player->wasOnGround())
+    if (player->isOnGround())
     {
         mLastOnGroundPos = BlockUtils::findClosestBlockToPos(*player->getPos());
         mTeleported = false;
@@ -42,6 +42,13 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
             NotifyUtils::notify("Couldn't find a block to teleport to!", 5.0f, Notification::Type::Error);
             return;
         }
+
+        /*// If the block below the pos is air, we need to find the closest block to the player
+        if (BlockUtils::isAirBlock(mLastOnGroundPos))
+        {
+            mLastOnGroundPos = BlockUtils::findClosestBlockToPos(*player->getPos());
+        }
+        */
 
         mLastOnGroundPos = mLastOnGroundPos + glm::vec3(0.f, 1.f + PLAYER_HEIGHT + 0.01, 0.f);
 
