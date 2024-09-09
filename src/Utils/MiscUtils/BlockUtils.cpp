@@ -25,6 +25,18 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
+
+bool BlockUtils::isGoodBlock(glm::ivec3 blockPos)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return false;
+    Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
+    int blockId = block->toLegacy()->getBlockId();
+    bool isLiquid = 8 <= blockId && blockId <= 11;
+    return blockId != 0 && !isLiquid && block->toLegacy()->mSolid;
+}
+
+
 std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, float r)
 {
     std::vector<BlockInfo> blocks = {};
@@ -70,10 +82,6 @@ bool BlockUtils::isOverVoid(glm::vec3 vec)
 
 glm::vec3 BlockUtils::findClosestBlockToPos(glm::vec3 pos)
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return pos;
-
-    glm::vec3 playerPos = *player->getPos() - glm::vec3(0, PLAYER_HEIGHT, 0);
     glm::vec3 closestBlock = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
     float closestDist = FLT_MAX;
 
@@ -82,10 +90,12 @@ glm::vec3 BlockUtils::findClosestBlockToPos(glm::vec3 pos)
             for (int z = pos.z - 5; z < pos.z + 5; z++)
             {
                 auto blockPos = glm::vec3(x, y, z);
-                if (isAirBlock(blockPos)) {
-                    if (isAirBlock(blockPos + glm::vec3(0, 1, 0)) && isAirBlock(blockPos + glm::vec3(0, 2, 0)))
+                Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
+
+                if (isGoodBlock(blockPos)) {
+                    if (isGoodBlock(blockPos + glm::vec3(0, 1, 0)) && isGoodBlock(blockPos + glm::vec3(0, 2, 0)))
                     {
-                        float distance = glm::distance(playerPos, blockPos);
+                        float distance = glm::distance(pos, blockPos);
                         if (distance < closestDist) {
                             closestDist = distance;
                             closestBlock = blockPos;

@@ -13,7 +13,7 @@ void AntiVoid::onEnable()
     auto player = ClientInstance::get()->getLocalPlayer();
 
     if (!player) return;
-    mLastOnGroundPos = *player->getPos();
+
 }
 
 void AntiVoid::onDisable()
@@ -28,8 +28,14 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
 
     if (player->isOnGround())
     {
-        mLastOnGroundPos = BlockUtils::findClosestBlockToPos(*player->getPos());
+        mOnGroundPositions.push_back(*player->getPos());
         mTeleported = false;
+
+        // if we have more than 40 positions, remove the first one
+        if (mOnGroundPositions.size() > 40)
+        {
+            mOnGroundPositions.erase(mOnGroundPositions.begin());
+        }
         return;
     }
 
@@ -37,24 +43,33 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
 
     if (player->getFallDistance() > mFallDistance.mValue && (!hasTeleported || !mTpOnce.mValue))
     {
-        if (mLastOnGroundPos == glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX))
+        glm::vec3 bestPos = glm::ivec3(0, 0, 0);
+        bool found = false;
+        auto inverted = mOnGroundPositions;
+        std::reverse(inverted.begin(), inverted.end());
+        for (auto& pos : inverted)
         {
-            NotifyUtils::notify("Couldn't find a block to teleport to!", 5.0f, Notification::Type::Error);
+            glm::ivec3 blockPos = glm::ivec3(pos + glm::vec3(0, -1, 0) - PLAYER_HEIGHT_VEC);
+            if (BlockUtils::isGoodBlock(blockPos))
+            {
+                bestPos = blockPos;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            NotifyUtils::notify("Could not find a safe position to teleport to!", 5.0f, Notification::Type::Error);
             return;
         }
 
-        /*// If the block below the pos is air, we need to find the closest block to the player
-        if (BlockUtils::isAirBlock(mLastOnGroundPos))
-        {
-            mLastOnGroundPos = BlockUtils::findClosestBlockToPos(*player->getPos());
-        }
-        */
-
-        mLastOnGroundPos = mLastOnGroundPos + glm::vec3(0.f, 1.f + PLAYER_HEIGHT + 0.01, 0.f);
-
-        player->setPosition(glm::ivec3(mLastOnGroundPos));
+        player->setPosition(bestPos + glm::vec3(0, 2 + PLAYER_HEIGHT, 0));
         player->setFallDistance(0.0f);
         NotifyUtils::notify("Teleported!", 5.0f, Notification::Type::Info);
         mTeleported = true;
+        if (mTpOnce.mValue) {
+            mOnGroundPositions.clear();
+        }
     }
 }

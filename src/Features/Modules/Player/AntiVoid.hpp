@@ -21,7 +21,7 @@ public:
         };
     }
 
-    glm::vec3 mLastOnGroundPos = { FLT_MAX, FLT_MAX, FLT_MAX };
+    std::vector<glm::vec3> mOnGroundPositions;
     bool mTeleported = false;
 
     void onEnable() override;
