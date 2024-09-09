@@ -23,6 +23,7 @@ public:
     enum class RotateMode {
         None,
         Normal,
+        Flick
     };
 
     enum class SwitchMode {
@@ -39,7 +40,7 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
     EnumSettingT<AttackMode> mAttackMode = EnumSettingT("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
-    EnumSettingT<RotateMode> mRotateMode = EnumSettingT("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal");
+    EnumSettingT<RotateMode> mRotateMode = EnumSettingT("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Flick");
     EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
     EnumSettingT<AnticheatMode> mAnticheatMode = EnumSettingT("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
     BoolSetting mAutoFireSword = BoolSetting("Auto Fire Sword", "Whether or not to automatically use the fire sword", false);

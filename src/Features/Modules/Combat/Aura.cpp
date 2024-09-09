@@ -477,6 +477,7 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
         pkt->mRot = rots;
         pkt->mYHeadRot = rots.y;
+        if (mRotateMode.mValue == RotateMode::Flick) mRotating = false;
     } else if (event.mPacket->getId() == PacketID::MovePlayer) {
         auto pkt = event.getPacket<MovePlayerPacket>();
         glm::vec2 rots = MathUtils::getRots(*player->getPos(), mTargetedAABB);
