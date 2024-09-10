@@ -175,6 +175,11 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         if (mShouldUpdateClientTicks) mClientTicks = pkt->mClientTick;
         pkt->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN | AuthInputAction::NORTH_JUMP_DEPRECATED | AuthInputAction::START_JUMPING;
         pkt->mInputData &= ~AuthInputAction::STOP_GLIDING;
+        pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
+        pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
+        pkt->mInputData &= ~AuthInputAction::SNEAK_DOWN;
+        pkt->mInputData &= ~AuthInputAction::SNEAKING;
+        pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
         glm::vec3 pos = pkt->mPos;
         glm::vec3 deltaPos = pkt->mPosDelta;
         glm::vec3 lastPos = pkt->mPos - deltaPos;
@@ -198,6 +203,22 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
     else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
         event.mCancelled = true;
     }
+    else if (event.mPacket->getId() == PacketID::InventoryTransaction)
+    {
+        auto packet = event.getPacket<InventoryTransactionPacket>();
+
+        auto* ait = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(packet->mTransaction.get());
+        if (ait->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+        {
+            auto actor = ActorUtils::getActorFromUniqueId(ait->mActorId);
+            if (!actor) return;
+            if (mFirstAttackedActor && actor != mFirstAttackedActor) {
+                event.mCancelled = true;
+                return;
+            }
+            mFirstAttackedActor = actor;
+        }
+    }
 }
 
 void Disabler::onRunUpdateCycleEvent(RunUpdateCycleEvent& event) {
@@ -206,6 +227,7 @@ void Disabler::onRunUpdateCycleEvent(RunUpdateCycleEvent& event) {
     if (event.isCancelled() || event.mApplied) return;
 
     Sleep(101);
+    mFirstAttackedActor = nullptr;
 }
 
 static constexpr unsigned char newTimestamp[9] = { 0x3, 0x0, 0x0, 0x0, 0x0, 0xFF, 0xFF, 0xFF, 0xFF };
