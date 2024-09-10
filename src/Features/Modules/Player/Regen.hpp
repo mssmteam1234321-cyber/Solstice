@@ -65,7 +65,7 @@ public:
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
     BoolSetting mConfuseNotify = BoolSetting("Confuse Notify", "Send message in chat when confused stealer", false);
-    BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/uncover", false);
+    BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/ore got covered", false);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
     BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);

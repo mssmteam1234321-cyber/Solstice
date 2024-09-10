@@ -379,9 +379,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    // Stolen notify
-    if (mDebug.mValue && mStealNotify.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-        ChatUtils::displayClientMessage("Your ore was stolen!");
+    if (mDebug.mValue) {
+        // Stolen notify
+        if(mStealNotify.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir())
+            ChatUtils::displayClientMessage("Your ore was stolen!");
+
+        // Covered notify
+        if (mBlockNotify.mValue && mIsMiningBlock && isValidBlock(mCurrentBlockPos, true, false) && BlockUtils::getExposedFace(mCurrentBlockPos) == -1)
+            ChatUtils::displayClientMessage("Ore got covered");
     }
 
     bool shouldChangeOre = false;
