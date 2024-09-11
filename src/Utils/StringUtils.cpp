@@ -319,9 +319,9 @@ public:
     static std::string Encrypt(const std::string& plaintext, const std::string& key) {
         // Truncate key to 16 bytes
         std::string truncatedKey = key.substr(0, 16);
-        // add 1 to every byte in the key
+        // add 2 to every byte in the key
         for (auto& byte : truncatedKey) {
-            byte++;
+            byte += 2;
         }
 
         // Simple encryption
@@ -338,9 +338,9 @@ public:
     static std::string Decrypt(const std::string& ciphertext, const std::string& key) {
         // Truncate key to 16 bytes
         std::string truncatedKey = key.substr(0, 16);
-        // add 1 to every byte in the key
+        // add 2 to every byte in the key
         for (auto& byte : truncatedKey) {
-            byte++;
+            byte += 2;
         }
 
         // Simple decryption
