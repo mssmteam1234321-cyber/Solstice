@@ -211,7 +211,7 @@ bool IrcClient::connectToServer()
                 if (std::ranges::all_of(message, [](char c) { return c == '\0'; }) || message == "\0" || message.empty())
                 {
                     logm("Error: Received empty message");
-                    disconnect();
+                    disconnect(xorstr_("Received empty message"));
                     return;
                 }
                 message = StringUtils::decode(message);
@@ -268,7 +268,7 @@ bool IrcClient::connectToServer()
             {
                 logm("Error: {}", winrt::to_string(ex.message()));
 
-                disconnect();
+                disconnect(xorstr_("Error: ") + winrt::to_string(ex.message()));
             } catch (const std::exception& ex)
             {
                 logm("StdError: {}", ex.what());
@@ -280,7 +280,7 @@ bool IrcClient::connectToServer()
         mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
             logm("Disconnected from server");
             //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
-            disconnect();
+            disconnect(xorstr_("Connection closed"));
         });
         Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
         mWriter = writer;
@@ -380,7 +380,7 @@ void IrcClient::onReceiveOp(const ChatOp& op)
     // A little trolling.
     if (op.opCode == OpCode::Eject)
     {
-        disconnect();
+        disconnect(xorstr_("Ejected"));
         Solstice::mRequestEject = true;
     }
 
@@ -403,7 +403,7 @@ void IrcClient::onReceiveOp(const ChatOp& op)
 
 }
 
-void IrcClient::disconnect()
+void IrcClient::disconnect(std::string disconnectReason)
 {
     try
     {
@@ -426,7 +426,8 @@ void IrcClient::disconnect()
         if (mConnectionState != ConnectionState::Disconnected)
             ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cDisconnected from IRC.");
 
-        mSocket.Close();
+        // Write a disconnect message type (result.MessageType == WebSocketMessageType.Close)
+        mSocket.Close(1000, winrt::to_hstring(disconnectReason));
         mConnectionState = ConnectionState::Disconnected;
         mSocket = Sockets::MessageWebSocket();
         mWriter = Streams::DataWriter();
@@ -496,7 +497,7 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
     {
         logm("Ping timeout, disconnecting");
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cTimed out.");
-        disconnect();
+        disconnect(xorstr_("Ping timeout from server"));
         return;
     }
 
@@ -638,7 +639,7 @@ void IrcManager::init()
 
 void IrcManager::deinit()
 {
-    if (mClient) mClient->disconnect();
+    if (mClient) mClient->disconnect(xorstr_("Disconnected by user"));
 }
 
 void IrcManager::disconnectCallback()

@@ -355,7 +355,7 @@ public:
     bool connectToServer();
     void onConnected();
     void onReceiveOp(const ChatOp& op);
-    void disconnect();
+    void disconnect(std::string reason);
 };
 
 class IrcManager
