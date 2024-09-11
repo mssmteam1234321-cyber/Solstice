@@ -405,7 +405,8 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             }
         }
 
-        rotate(actor);
+        if (mRotateMode.mValue == RotateMode::Normal)
+            rotate(actor);
         foundAttackable = true;
         sTarget = actor;
 
@@ -434,6 +435,11 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         if (mSwitchMode.mValue == SwitchMode::Full)
         {
             supplies->mSelectedSlot = bestWeapon;
+        }
+
+        if (mRotateMode.mValue == RotateMode::Flick)
+        {
+            rotate(actor);
         }
 
         player->getLevel()->getHitResult()->mType = HitType::ENTITY;
