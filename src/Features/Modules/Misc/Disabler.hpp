@@ -55,6 +55,7 @@ public:
     uint64_t mClientTicks = 0;
     bool mShouldUpdateClientTicks = false;
     glm::vec3 mLastPosition = { 0, 0, 0 };
+    Actor* mFirstAttackedActor = nullptr;
 
     void onEnable() override;
     void onDisable() override;
