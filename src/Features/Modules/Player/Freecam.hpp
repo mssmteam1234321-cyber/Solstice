@@ -21,7 +21,7 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the freecam\nNormal: Fakes the player's position\nDetached: Moves independently of the player", Mode::Normal, "Normal", "Detached");
     NumberSetting mSpeed = NumberSetting("Speed", "Speed of the freecam", 5.5f, 0.1f, 10.0f, 0.1f);
-    BoolSetting mDisableOnLagback = BoolSetting("Disable On Lagback", "Disable freecam if you get lagback", true);
+    BoolSetting mDisableOnLagback = BoolSetting("Disable On Lagback", "Disable freecam if you receive a teleport", true);
 
     Freecam() : ModuleBase<Freecam>("Freecam", "Move independently of your player", ModuleCategory::Player, 0, false) {
         addSetting(&mMode);

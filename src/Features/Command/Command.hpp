@@ -17,4 +17,5 @@ public:
     [[nodiscard]] virtual std::string getDescription() const = 0;
     [[nodiscard]] virtual std::string getUsage() const = 0;
     [[nodiscard]] bool matchName(std::string_view toMatch) const;
+    [[nodiscard]] std::vector<std::string> getNames() const;
 };

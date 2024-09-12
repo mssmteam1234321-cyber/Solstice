@@ -35,7 +35,7 @@ void ToggleCommand::execute(const std::vector<std::string>& args)
 
 std::vector<std::string> ToggleCommand::getAliases() const
 {
-    return {"t", "tg"};
+    return {"t"};
 }
 
 std::string ToggleCommand::getDescription() const

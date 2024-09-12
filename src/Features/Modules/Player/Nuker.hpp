@@ -7,7 +7,7 @@ public:
         All,
         Specified
     };
-    EnumSettingT<BlockType> mBlockType = EnumSettingT<BlockType>("BlockType", "type of block to destroy", BlockType::All, "All", "Specified");
+    EnumSettingT<BlockType> mBlockType = EnumSettingT<BlockType>("BlockType", "The type of block to destroy", BlockType::All, "All", "Specified");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Nuker", 1, 0.01, 1, 0.01);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
@@ -15,7 +15,7 @@ public:
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mTest = BoolSetting("Test", "test", false);
-    BoolSetting mInstaBreak = BoolSetting("Instant Break", "do start destroy block and destroy block in same tick", false);
+    BoolSetting mInstaBreak = BoolSetting("Instant Break", "Executes StartDestroy and DestroyBlock in the same tick", false);
 
     Nuker() : ModuleBase("Nuker", "Automatically breaks blocks", ModuleCategory::Player, 0, false) {
         addSettings(&mBlockType, &mRange, &mDestroySpeed, &mSwing, &mHotbarOnly, &mRenderBlock, &mInfiniteDurability, &mTest, &mInstaBreak);

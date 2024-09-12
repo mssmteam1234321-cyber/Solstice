@@ -26,7 +26,6 @@ public:
         };
 
         instance = this;
-        spdlog::info("Teams module initialized");
     }
 
     void onEnable() override;

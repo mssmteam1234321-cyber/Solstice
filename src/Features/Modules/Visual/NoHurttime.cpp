@@ -17,6 +17,7 @@ void NoHurtcam::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &NoHurtcam::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &NoHurtcam::onRenderEvent>(this);
 }
+// TODO: Replace this with a camera event from a hook to intercept the camera rotation and cancel it
 
 void NoHurtcam::onBaseTickEvent(class BaseTickEvent &event) {
     auto player = ClientInstance::get()->getLocalPlayer();

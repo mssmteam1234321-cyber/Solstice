@@ -28,3 +28,12 @@ bool Command::matchName(std::string_view toMatch) const
 
 	return found;
 }
+
+std::vector<std::string> Command::getNames() const
+{
+	std::vector<std::string> names;
+	names.push_back(this->name);
+	const auto aliases = this->getAliases();
+	names.insert(names.end(), aliases.begin(), aliases.end());
+	return names;
+}

@@ -13,7 +13,7 @@ void VclipCommand::execute(const std::vector<std::string>& args)
         const std::string& amountOfBlocks = args[1];
         if(!isNumber(amountOfBlocks))
         {
-            ChatUtils::displayClientMessage("Amount must be a number");
+            ChatUtils::displayClientMessage("§cInvalid input. Please enter a number!");
         }
 
         auto player = ClientInstance::get()->getLocalPlayer();
@@ -24,7 +24,7 @@ void VclipCommand::execute(const std::vector<std::string>& args)
         bool negative = amount < 0;
         std::string direction = negative ? "down" : "up";
         int absValue = abs(amount);
-        ChatUtils::displayClientMessage("Teleported " + direction + " " + std::to_string(absValue) + " blocks");
+        ChatUtils::displayClientMessage("§aTeleported §7" + direction + " §6" + std::to_string(absValue) + " §ablocks.");
     }
 }
 
@@ -35,7 +35,7 @@ std::vector<std::string> VclipCommand::getAliases() const
 
 std::string VclipCommand::getDescription() const
 {
-    return "Vclips u up or down.";
+    return "Teleport yourself up or down by a certain amount of blocks.";
 }
 
 std::string VclipCommand::getUsage() const

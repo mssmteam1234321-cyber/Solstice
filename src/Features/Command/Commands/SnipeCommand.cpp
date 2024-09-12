@@ -59,12 +59,12 @@ void SnipeCommand::execute(const std::vector<std::string>& args)
 
 std::vector<std::string> SnipeCommand::getAliases() const
 {
-    return {"t"};
+    return {"tg"};
 }
 
 std::string SnipeCommand::getDescription() const
 {
-    return "Automaticly find added targets.";
+    return "Add or remove a target to the AutoSnipe module.";
 }
 
 std::string SnipeCommand::getUsage() const

@@ -49,6 +49,28 @@ void CommandManager::init()
     ADD_COMMAND(VclipCommand);
     ADD_COMMAND(SnipeCommand);
 
+    // Look for any commands that have duplicate names
+    for (size_t i = 0; i < mCommands.size(); i++)
+    {
+        for (size_t j = i + 1; j < mCommands.size(); j++)
+        {
+            auto names1 = mCommands[i]->getNames();
+            auto names2 = mCommands[j]->getNames();
+
+            for (const auto& name1 : names1)
+            {
+                for (const auto& name2 : names2)
+                {
+                    if (name1 == name2)
+                    {
+                        spdlog::error("Commands [{}] and [{}] have the same name: {}", names1[0], names2[0], name1);
+                        throw std::runtime_error("Duplicate command names: " + std::string(name1));
+                    }
+                }
+            }
+        }
+    }
+
     gFeatureManager->mDispatcher->listen<ChatEvent, &CommandManager::handleCommand>(this);
 }
 

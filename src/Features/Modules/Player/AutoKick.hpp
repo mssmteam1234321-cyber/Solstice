@@ -21,7 +21,7 @@ public:
     NumberSetting mOpponentPing = NumberSetting("Opponent Ping", "Specify opponent ping time", 90, 0, 300, 10);
     BoolSetting mSpamPlace = BoolSetting("Spam Place", "Reset delay if block ghosted", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
-    AutoKick() : ModuleBase("AutoKick", "Automatically kicks player in the hive", ModuleCategory::Player, 0, false)
+    AutoKick() : ModuleBase("AutoKick", "Attempts to kick players by placing blocks in front of them", ModuleCategory::Player, 0, false)
     {
         addSetting(&mMode);
         addSetting(&mRange);

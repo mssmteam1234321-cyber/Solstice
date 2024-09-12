@@ -43,7 +43,7 @@ public:
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
 
-    OreMiner() : ModuleBase("OreMiner", "Automatically breaks ore", ModuleCategory::Player, 0, false) {
+    OreMiner() : ModuleBase("OreMiner", "Automatically breaks ores", ModuleCategory::Player, 0, false) {
         addSetting(&mUncoverMode);
         addSetting(&mCalcMode);
         addSetting(&mOnGroundOnly);
