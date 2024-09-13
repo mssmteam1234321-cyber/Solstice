@@ -7,7 +7,6 @@
 #include <codecvt>
 #include <regex>
 #include <utility>
-#include <cmake-build-release/_deps/cryptopp-cmake-build/cryptopp/zlib.h>
 #include <Features/Command/Commands/BuildInfoCommand.hpp>
 #include <Features/Events/ChatEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
