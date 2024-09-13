@@ -63,6 +63,8 @@ void ResourceLoader::loadResources() {
     Resources.emplace("tenacity_icons", fonts_Tenacity_Icons_ttf);
     FontHelper::Fonts.emplace("tenacity_icons", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 20, &font_config));
     FontHelper::Fonts.emplace("tenacity_icons_large", ImGui::GetIO().Fonts->AddFontFromMemoryTTF(fonts_Tenacity_Icons_ttf.data2(), fonts_Tenacity_Icons_ttf.size(), 42, &font_config));
+    auto mariodeath_wav = GET_RESOURCE(mariodeath_wav);
+    Resources.emplace("mariodeath.wav", mariodeath_wav);
     auto notch_png = GET_RESOURCE(notch_png);
     Resources.emplace("notch.png", notch_png);
     auto nursultan_off_wav = GET_RESOURCE(nursultan_off_wav);

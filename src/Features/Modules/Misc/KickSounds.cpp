@@ -25,6 +25,9 @@ void KickSounds::onPacketInEvent(PacketInEvent& event)
         if (mSound.mValue == Sound::Fard)
         {
             SoundUtils::playSoundFromEmbeddedResource("fard.wav", mVolume.mValue);
+        } else if (mSound.mValue == Sound::Mario)
+        {
+            SoundUtils::playSoundFromEmbeddedResource("mariodeath.wav", mVolume.mValue);
         }
     }
 }

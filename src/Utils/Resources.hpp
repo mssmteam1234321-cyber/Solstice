@@ -21,6 +21,7 @@ LOAD_RESOURCE(fonts_SF_Pro_Display_Bold_ttf);
 LOAD_RESOURCE(fonts_SF_Pro_Display_ttf);
 LOAD_RESOURCE(fonts_Sarabun_Light_ttf);
 LOAD_RESOURCE(fonts_Tenacity_Icons_ttf);
+LOAD_RESOURCE(mariodeath_wav);
 LOAD_RESOURCE(notch_png);
 LOAD_RESOURCE(nursultan_off_wav);
 LOAD_RESOURCE(nursultan_on_wav);
