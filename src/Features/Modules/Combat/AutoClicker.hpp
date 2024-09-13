@@ -9,20 +9,59 @@
 class AutoClicker : public ModuleBase<AutoClicker>
 {
 public:
-    NumberSetting mCPS = NumberSetting("CPS", "clicks per second", 16, 1, 20, 1);
+    enum class ClickMode
+    {
+        Left,
+        Right
+    };
 
-    AutoClicker() : ModuleBase<AutoClicker>("AutoClicker", "automaticly clicks while holding mouse button", ModuleCategory::Combat, 0, false) {
+    EnumSettingT<ClickMode> mClickMode = EnumSettingT<ClickMode>("Click Mode", "The click mode", ClickMode::Left, "Left", "Right");
+    BoolSetting mHold = BoolSetting("Hold", "Only click when holding", false);
+    BoolSetting mRandomizeCPS = BoolSetting("Randomize CPS", "Randomize the CPS", false);
+    NumberSetting mCPS = NumberSetting("CPS", "The amount of times to click every second.", 16, 1, 20, 1);
+    NumberSetting mRandomCPSMin = NumberSetting("CPS Min", "The minimum amount of times to click every second.", 10, 1, 20, 1);
+    NumberSetting mRandomCPSMax = NumberSetting("CPS Max", "The maximum amount of times to click every second.", 20, 1, 20, 1);
+
+
+    AutoClicker() : ModuleBase<AutoClicker>("AutoClicker", "Automatically clicks for you", ModuleCategory::Combat, 0, false) {
+        addSettings(
+            &mClickMode,
+            &mRandomizeCPS,
+            &mCPS,
+            &mRandomCPSMin,
+            &mRandomCPSMax,
+            &mHold
+        );
+
+        VISIBILITY_CONDITION(mCPS, !mRandomizeCPS.mValue);
+        VISIBILITY_CONDITION(mRandomCPSMin, mRandomizeCPS.mValue);
+        VISIBILITY_CONDITION(mRandomCPSMax, mRandomizeCPS.mValue);
+
         mNames = {
                 {Lowercase, "autoclicker"},
                 {LowercaseSpaced, "auto clicker"},
                 {Normal, "AutoClicker"},
                 {NormalSpaced, "Auto Clicker"}
         };
-
-        addSettings(&mCPS);
     }
 
-    Actor* GetActorFromEntityId(EntityId entityId);
+    int mCurrentCPS = 10;
+
+    void randomizeCPS()
+    {
+        mCurrentCPS = getCPS();
+    }
+
+    int getCPS()
+    {
+        if (mRandomizeCPS.mValue)
+        {
+            return MathUtils::random(mRandomCPSMin.as<int>(), mRandomCPSMax.as<int>());
+        }
+
+        return mCPS.mValue;
+    }
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);

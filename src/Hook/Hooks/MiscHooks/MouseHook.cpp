@@ -10,13 +10,25 @@
 struct ImGuiWindow;
 std::unique_ptr<Detour> MouseHook::mDetour = nullptr;
 
+void* thisMouse = nullptr;
+
 void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short x, short y, short dx, short dy,
-    bool forceMotionlessPointer)
+    uint8_t forceMotionlessPointer)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onMouse)>();
 
+    thisMouse = _this;
+
+    if (forceMotionlessPointer == 2)
+    {
+        forceMotionlessPointer = true;
+        return oFunc(_this, actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
+    }
+
     auto holder = nes::make_holder<MouseEvent>(_this, actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
     gFeatureManager->mDispatcher->trigger(holder);
+
+    mButtonStates[actionButtonId] = buttonData;
 
     bool cancel = holder->isCancelled();
 
@@ -64,6 +76,20 @@ void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short 
     }
     else if (!cancel) return oFunc(_this, actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
 
+}
+
+void MouseHook::simulateMouseInput(char actionButtonId, int buttonData, short x, short y, short dx,
+    short dy)
+{
+    if (!thisMouse)
+    {
+        spdlog::error("MouseHook::simulateMouseInput: thisMouse is nullptr");
+        return;
+    }
+
+    static auto oFunc = SigManager::MouseDevice_feed;
+
+    MemUtils::callFastcall<void>(oFunc, thisMouse, actionButtonId, buttonData, x, y, dx, dy, 2);
 }
 
 void MouseHook::init()

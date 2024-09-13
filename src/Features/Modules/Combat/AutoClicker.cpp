@@ -11,61 +11,39 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <Features/Modules/Misc/AntiBot.hpp>
+#include <Hook/Hooks/MiscHooks/MouseHook.hpp>
 #include <SDK/Minecraft/Actor/Components/RuntimeIDComponent.hpp>
 
 void AutoClicker::onEnable() {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
+
+    randomizeCPS();
 }
 
 void AutoClicker::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
 }
 
-Actor* AutoClicker::GetActorFromEntityId(EntityId entityId)
-{
-    auto player = ClientInstance::get()->getLocalPlayer();
-    auto antiBot = gFeatureManager->mModuleManager->getModule<AntiBot>();
-    if (antiBot == nullptr)
-    {
-        ChatUtils::displayClientMessage("§cERROR: AntiBot module not found.");
-        return nullptr;
-    }
-
-    std::vector<Actor*> actors= ActorUtils::getActorList(false, false);
-    for (auto actor : actors)
-    {
-        if(antiBot->isBot(actor)) continue;
-        if(actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
-        if(actor == player) continue;
-
-        if(actor->mContext.mEntityId == entityId) return actor;
-
-    }
-
-    return nullptr;
-}
-
-static uint64_t lastAttack;
-
 void AutoClicker::onBaseTickEvent(class BaseTickEvent &event) {
+    auto ci = ClientInstance::get();
 
-    if(!ImGui::IsMouseDown(0)) return;
+    if (ci->getScreenName() != "hud_screen") return;
 
-    auto player = event.mActor;
-    if(!player) return;
+    if (mRandomCPSMin.as<int>() > mRandomCPSMax.as<int>())
+        mRandomCPSMin.mValue = mRandomCPSMax.mValue;
 
-    if (NOW - lastAttack < 1000 / mCPS.mValue) return;
+    int button = mClickMode.as<int>();
 
-    HitResult* hitResult = player->getLevel()->getHitResult();
+    if (mHold.mValue && !ImGui::IsMouseDown(button)) return;
 
-    player->swing();
+    static uint64_t lastAction = 0;
 
-    if(hitResult->mType == HitType::ENTITY)
-    {
-        Actor* actor = GetActorFromEntityId(hitResult->mEntity.id);
-        if(!actor) return;
+    if (NOW - lastAction < 1000 / mCurrentCPS) return;
 
-        lastAttack = NOW;
-        player->getGameMode()->attack(actor);
-    }
+    lastAction = NOW;
+
+    MouseHook::simulateMouseInput(button + 1, 1, 0, 0, 0, 0);
+    MouseHook::simulateMouseInput(button + 1, 0, 0, 0, 0, 0);
+
+    randomizeCPS();
 }
