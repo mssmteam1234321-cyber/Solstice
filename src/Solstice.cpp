@@ -266,7 +266,7 @@ void Solstice::init(HMODULE hModule)
     console->warn("Shutting down...");
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
-    ChatUtils::displayClientMessage("§cEjected!");
+    ChatUtils::displayClientMessageRaw("§asolstice§7 » §cEjected!");
 
     mInitialized = false;
     SigManager::deinitialize();

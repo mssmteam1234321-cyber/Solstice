@@ -1,7 +1,8 @@
 //
 // Created by alteik on 02/09/2024.
 //
-#include <Features/Modules/Module.hpp>
+
+#pragma once
 
 class NoHurtcam : public ModuleBase<NoHurtcam> {
 public:
@@ -16,6 +17,4 @@ public:
 
     void onEnable() override;
     void onDisable() override;
-    void onBaseTickEvent(class BaseTickEvent& event);
-    void onRenderEvent(class RenderEvent& event);
 };

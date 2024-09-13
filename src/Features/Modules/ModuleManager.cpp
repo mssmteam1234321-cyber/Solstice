@@ -93,7 +93,7 @@
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/TargetHUD.hpp"
 #include "Visual/Watermark.hpp"
-#include "Visual/NoHurttime.hpp"
+#include "Visual/NoHurtcam.hpp"
 #include "Visual/UpdateForm.hpp"
 
 void ModuleManager::init()
