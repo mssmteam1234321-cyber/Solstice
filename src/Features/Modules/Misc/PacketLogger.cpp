@@ -8,8 +8,12 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/ActorDataPacket.hpp>
+
 
 class PlayerAuthInputPacket;
 
@@ -25,12 +29,12 @@ void PacketLogger::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::SetActorData };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes };
 
 void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {
     if (!mOutgoing.mValue) return;
-    if (std::find(ignored.begin(), ignored.end(), event.mPacket->getId()) != ignored.end()) return;
+    if (std::ranges::find(ignored, event.mPacket->getId()) != ignored.end()) return;
 
     // Log the packet
     spdlog::info("[out] Packet: {}", event.mPacket->getName());
@@ -64,7 +68,21 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 void PacketLogger::onPacketInEvent(PacketInEvent& event)
 {
     if (!mIncoming.mValue) return;
-    if (std::find(ignored.begin(), ignored.end(), event.mPacket->getId()) != ignored.end()) return;
+    if (std::ranges::find(ignored, event.mPacket->getId()) != ignored.end()) return;
+
+    if (event.mPacket->getId() == PacketID::SetActorData)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+
+        auto packet = event.getPacket<ActorDataPacket>();
+        if (packet->mId == player->getRuntimeID())
+        {
+            spdlog::info("[in] Packet: " + packet->toString());
+        }
+
+        return;
+    }
+
     spdlog::info("[in] Packet: {}", event.mPacket->getName());
 
 }

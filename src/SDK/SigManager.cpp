@@ -50,6 +50,17 @@ void SigManager::initialize()
         if (sig.second == 0) Solstice::console->critical("[signatures] failed to find {}", sig.first);
 
     }
+
+#ifndef __DEBUG__
+    // Terminate if we failed to find a signature
+    for (const auto& sig : mSigs) {
+        if (sig.second == 0) {
+            __fastfail(0);
+            std::exit(0);
+        }
+    }
+#endif
+
     Solstice::console->info("[signatures] initialized in {}ms, {} total sigs scanned", diff, mSigScanCount);
     mIsInitialized = true;
 }

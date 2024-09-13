@@ -7,8 +7,12 @@
 class ServerSneak : public ModuleBase<ServerSneak>
 {
 public:
+    BoolSetting mCancelActorData = BoolSetting("Cancel Actor Data", "Cancel ActorData packets (Prevents the server from making you sneak client-sidedly)", true);
+
     ServerSneak() : ModuleBase("ServerSneak", "Sneak server-sidedly", ModuleCategory::Movement, 0, false)
     {
+        addSettings(&mCancelActorData);
+
         mNames = {
             {Lowercase, "serversneak"},
             {LowercaseSpaced, "server sneak"},
@@ -20,4 +24,5 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onPacketOutEvent(class PacketOutEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
 };
