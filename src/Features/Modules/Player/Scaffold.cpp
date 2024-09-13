@@ -8,6 +8,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Modules/Combat/Aura.hpp>
+#include <Features/Modules/Misc/TestModule.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -370,7 +371,16 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
             glm::vec3 side = BlockUtils::blockFaceOffsets[mLastFace] * 0.5f;
             glm::vec3 target = mLastBlock + side;
 
-            glm::vec2 rotations = MathUtils::getRots(*player->getPos(), target);
+            auto pos = *player->getPos();
+
+            static auto testMod = gFeatureManager->mModuleManager->getModule<TestModule>();
+            if (testMod->mEnabled && testMod->mMode.mValue == TestModule::Mode::OnGroundSpeedTest)
+            {
+                pos.y = testMod->mLastOnGroundY;
+            }
+
+            glm::vec2 rotations = MathUtils::getRots(pos, target);
+
 
             if (mRotateMode.mValue == RotateMode::Normal) {
                 rotations.y = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();

@@ -12,6 +12,7 @@ public:
         Fard,
         Mario
     };
+
     EnumSettingT<Sound> mSound = EnumSettingT<Sound>("Sound", "The sound to play when a DisconnectPacket is received", Sound::Fard, "Fard", "Mario");
     NumberSetting mVolume = NumberSetting("Volume", "The volume of the sound", 1.f, 0.f, 1.f, 0.1f);
 
@@ -33,7 +34,7 @@ public:
     void onPacketInEvent(class PacketInEvent& event);
 
     std::string getSettingDisplay() override {
-        return mSound.mValue == Sound::Fard ? "Fard" : "Custom";
+        return mSound.mValues[mSound.as<int>()];
     }
 
 };

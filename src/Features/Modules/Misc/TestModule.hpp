@@ -45,6 +45,9 @@ public:
 
     }
 
+    float mLastOnGroundY = 0.f;
+    uint64_t mLastLagback = 0;
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);

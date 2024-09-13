@@ -27,8 +27,7 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
-float lastOnGroundY = 0.f;
-uint64_t lastLagback = 0;
+
 
 void TestModule::onEnable()
 {
@@ -40,7 +39,7 @@ void TestModule::onEnable()
     auto player = ClientInstance::get()->getLocalPlayer();
     if (player)
     {
-        lastOnGroundY = player->getPos()->y - 0.01;
+        mLastOnGroundY = player->getPos()->y - 0.01;
     }
 }
 
@@ -82,7 +81,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     if (mMode.mValue != Mode::ClipTest) return;
 
 
-    if (lastLagback + 200 > NOW)
+    if (mLastLagback + 200 > NOW)
     {
         spdlog::info("Lagback detected, avoiding desync");
         return;
@@ -167,7 +166,7 @@ void TestModule::onPacketOutEvent(PacketOutEvent& event)
 
         } else tick = 0;
         float oldY = paip->mPos.y;
-        paip->mPos.y = lastOnGroundY - 0.01;
+        paip->mPos.y = mLastOnGroundY - 0.01;
 
         // Check if we are over the void
         if (BlockUtils::isOverVoid(paip->mPos))
@@ -187,7 +186,7 @@ void TestModule::onPacketInEvent(PacketInEvent& event)
         auto packet = event.getPacket<MovePlayerPacket>();
         if (packet->mResetPosition == PositionMode::Teleport && packet->mPlayerID == player->getRuntimeID())
         {
-            lastLagback = NOW;
+            mLastLagback = NOW;
         }
     }
     /*if (event.mPacket->getId() == PacketID::ModalFormRequest)
