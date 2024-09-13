@@ -15,19 +15,20 @@
 #include <SDK/Minecraft/Actor/Components/RuntimeIDComponent.hpp>
 
 void AutoClicker::onEnable() {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &AutoClicker::onRenderEvent>(this);
 
     randomizeCPS();
 }
 
 void AutoClicker::onDisable() {
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoClicker::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &AutoClicker::onRenderEvent>(this);
 }
 
-void AutoClicker::onBaseTickEvent(class BaseTickEvent &event) {
+void AutoClicker::onRenderEvent(RenderEvent& event)
+{
     auto ci = ClientInstance::get();
 
-    if (ci->getScreenName() != "hud_screen") return;
+    if (!ci->getLocalPlayer() || ci->getScreenName() != "hud_screen") return;
 
     if (mRandomCPSMin.as<int>() > mRandomCPSMax.as<int>())
         mRandomCPSMin.mValue = mRandomCPSMax.mValue;

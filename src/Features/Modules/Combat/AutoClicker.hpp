@@ -18,9 +18,9 @@ public:
     EnumSettingT<ClickMode> mClickMode = EnumSettingT<ClickMode>("Click Mode", "The click mode", ClickMode::Left, "Left", "Right");
     BoolSetting mHold = BoolSetting("Hold", "Only click when holding", false);
     BoolSetting mRandomizeCPS = BoolSetting("Randomize CPS", "Randomize the CPS", false);
-    NumberSetting mCPS = NumberSetting("CPS", "The amount of times to click every second.", 16, 1, 20, 1);
-    NumberSetting mRandomCPSMin = NumberSetting("CPS Min", "The minimum amount of times to click every second.", 10, 1, 20, 1);
-    NumberSetting mRandomCPSMax = NumberSetting("CPS Max", "The maximum amount of times to click every second.", 20, 1, 20, 1);
+    NumberSetting mCPS = NumberSetting("CPS", "The amount of times to click every second.", 16, 1, 60, 1);
+    NumberSetting mRandomCPSMin = NumberSetting("CPS Min", "The minimum amount of times to click every second.", 10, 1, 60, 1);
+    NumberSetting mRandomCPSMax = NumberSetting("CPS Max", "The maximum amount of times to click every second.", 20, 1, 60, 1);
 
 
     AutoClicker() : ModuleBase<AutoClicker>("AutoClicker", "Automatically clicks for you", ModuleCategory::Combat, 0, false) {
@@ -64,5 +64,5 @@ public:
 
     void onEnable() override;
     void onDisable() override;
-    void onBaseTickEvent(class BaseTickEvent& event);
+    void onRenderEvent(class RenderEvent& event);
 };
