@@ -9,11 +9,10 @@
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
 public:
-    BoolSetting mSpoofMboard = BoolSetting("Spoof Mboard", "Whether or not to spoof ur motherboard", true);
+    BoolSetting mSpoofMboard = BoolSetting("Spoof Mboard", "Whether or not to spoof your motherboard", true);
 
     DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs your device id, useful for bypassing bans", ModuleCategory::Misc, 0, true)
     {
-
         addSetting(&mSpoofMboard);
 
         mNames = {
@@ -29,9 +28,9 @@ public:
     static inline void* patchPtr = nullptr;
     static inline std::string DeviceModel;
 
-    void Inject();
-    void Eject();
-    void SpoofMboard();
+    void inject();
+    void eject();
+    void spoofMboard();
 
     void onInit() override;
     void onEnable() override;

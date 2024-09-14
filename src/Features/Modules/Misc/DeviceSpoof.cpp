@@ -20,7 +20,7 @@ void DeviceSpoof::onInit()
     Inject();
 }
 
-void DeviceSpoof::Inject()
+void DeviceSpoof::inject()
 {
     // backup original data
     MemUtils::ReadBytes((void*)deviceModelAddr, originalData, sizeof(originalData));
@@ -56,22 +56,22 @@ void DeviceSpoof::Inject()
     MemUtils::writeBytes(deviceModelAddr + 1, &newRelRip4, sizeof(int32_t));
 }
 
-void DeviceSpoof::Eject()
+void DeviceSpoof::eject()
 {
     if(deviceModelAddr) MemUtils::writeBytes(deviceModelAddr, originalData, sizeof(originalData));
 
     FreeBuffer(patchPtr);
 }
 
-void DeviceSpoof::SpoofMboard() {
+void DeviceSpoof::spoofMboard() {
     if (deviceModelAddr == 0) {
         return;
     }
 
     DeviceModel = StringUtils::generateMboard();
 
-    Eject();
-    Inject();
+    eject();
+    inject();
 }
 
 void DeviceSpoof::onEnable()
@@ -81,7 +81,7 @@ void DeviceSpoof::onEnable()
 
 void DeviceSpoof::onDisable()
 {
-    Eject();
+    eject();
     gFeatureManager->mDispatcher->deafen<ConnectionRequestEvent, &DeviceSpoof::onConnectionRequestEvent>(this);
 }
 
@@ -96,7 +96,7 @@ void DeviceSpoof::onConnectionRequestEvent(ConnectionRequestEvent& event)
     *event.mSelfSignedId = StringUtils::generateUUID();
     if(mSpoofMboard.mValue)
     {
-        SpoofMboard();
+        spoofMboard();
     }
     spdlog::info("[device spoof] successfully spoofed device information");
 }

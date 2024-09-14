@@ -21,7 +21,7 @@ public:
     NumberSetting mCPS = NumberSetting("CPS", "The amount of times to click every second.", 16, 1, 60, 1);
     NumberSetting mRandomCPSMin = NumberSetting("CPS Min", "The minimum amount of times to click every second.", 10, 1, 60, 1);
     NumberSetting mRandomCPSMax = NumberSetting("CPS Max", "The maximum amount of times to click every second.", 20, 1, 60, 1);
-
+    BoolSetting mAllowBlockBreaking = BoolSetting("Allow Block Breaking", "Allow block breaking", false);
 
     AutoClicker() : ModuleBase<AutoClicker>("AutoClicker", "Automatically clicks for you", ModuleCategory::Combat, 0, false) {
         addSettings(
@@ -30,12 +30,14 @@ public:
             &mCPS,
             &mRandomCPSMin,
             &mRandomCPSMax,
-            &mHold
+            &mHold,
+            &mAllowBlockBreaking
         );
 
         VISIBILITY_CONDITION(mCPS, !mRandomizeCPS.mValue);
         VISIBILITY_CONDITION(mRandomCPSMin, mRandomizeCPS.mValue);
         VISIBILITY_CONDITION(mRandomCPSMax, mRandomizeCPS.mValue);
+        VISIBILITY_CONDITION(mAllowBlockBreaking, mClickMode.mValue == ClickMode::Left);
 
         mNames = {
                 {Lowercase, "autoclicker"},

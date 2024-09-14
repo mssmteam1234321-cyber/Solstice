@@ -30,6 +30,10 @@ void AutoClicker::onRenderEvent(RenderEvent& event)
 
     if (!ci->getLocalPlayer() || ci->getScreenName() != "hud_screen") return;
 
+    auto hitres = ci->getLocalPlayer()->getLevel()->getHitResult();
+    if (mAllowBlockBreaking.mValue && hitres && hitres->mType == HitType::BLOCK)
+        return;
+
     if (mRandomCPSMin.as<int>() > mRandomCPSMax.as<int>())
         mRandomCPSMin.mValue = mRandomCPSMax.mValue;
 
