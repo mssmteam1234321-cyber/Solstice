@@ -29,9 +29,9 @@ public:
     static inline void* patchPtr = nullptr;
     static inline std::string DeviceModel;
 
-    void Inject();
-    void Eject();
-    void SpoofMboard();
+    void inject();
+    void eject();
+    void spoofMboard();
 
     void onInit() override;
     void onEnable() override;

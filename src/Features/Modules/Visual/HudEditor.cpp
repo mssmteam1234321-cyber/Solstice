@@ -9,6 +9,8 @@
 #include <SDK/Minecraft/MinecraftGame.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 
+#include "ClickGui.hpp"
+
 bool lastCscState = false;
 
 void HudEditor::showAllElements()
@@ -95,6 +97,9 @@ void HudEditor::onEnable()
 
     loadFromFile();
     showAllElements();
+
+    static auto clickGuiModule = gFeatureManager->mModuleManager->getModule<ClickGui>();
+    if (clickGuiModule) clickGuiModule->setEnabled(false);
 }
 
 void HudEditor::onDisable()
@@ -250,9 +255,11 @@ void HudEditor::onKeyEvent(KeyEvent& event)
         return;
     }
 
-    if (event.mKey == VK_LSHIFT)
+    if (event.mKey == VK_SHIFT)
     {
         mShiftHeld = event.mPressed;
+        event.cancel();
+        return;
     }
 
     if (event.mKey == VK_TAB)
