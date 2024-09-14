@@ -249,13 +249,13 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     if (mElement->mSampleMode && !hasTarget) {
         target = ClientInstance::get()->getLocalPlayer();
         hasTarget = true;
-        mHealth = 20;
-        mMaxHealth = 20;
-        mAbsorption = 0;
-        mMaxAbsorption = 20;
-        mLastPlayerName = "Player";
-        mLastHurtTime = 0;
-        mHurtTime = 0;
+        mHealth = target->getHealth();
+        mMaxHealth = target->getMaxHealth();
+        mAbsorption = target->getAbsorption();
+        mMaxAbsorption = target->getMaxAbsorption();
+        mLastPlayerName = target->getRawName();
+        mLastHurtTime = mHurtTime;
+        mHurtTime = target->getMobHurtTimeComponent()->mHurtTime;
     }
 
     static float anim = 0.f;

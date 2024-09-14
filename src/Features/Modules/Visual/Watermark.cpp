@@ -8,10 +8,12 @@
 
 void Watermark::onEnable()
 {
+    mElement->mVisible = true;
 }
 
 void Watermark::onDisable()
 {
+    mElement->mVisible = false;
 }
 
 void Watermark::onRenderEvent(RenderEvent& event)
@@ -22,14 +24,13 @@ void Watermark::onRenderEvent(RenderEvent& event)
 
     if (anim < 0.01f) return;
 
-    int initialPos = -50;
-    static auto renderPosition = ImVec2(initialPos, initialPos);
+    auto renderPosition = mElement->getPos();
+    renderPosition.x = MathUtils::lerp(-200.f, renderPosition.x, anim);
+    renderPosition.y = MathUtils::lerp(-200.f, renderPosition.y, anim);
 
 
     if (mStyle.mValue == Style::SevenDays)
     {
-        renderPosition.x = MathUtils::lerp(-200, 20.f, anim);
-        renderPosition.y = MathUtils::lerp(-200, 20.f, anim);
         static std::string filePath = "seven_days.png";
         static ID3D11ShaderResourceView* texture;
         static bool loaded = false;
@@ -42,6 +43,8 @@ void Watermark::onRenderEvent(RenderEvent& event)
             height /= 10;
         }
 
+        mElement->mSize = { width, height };
+
         // Get the exact center-point of the image
         ImVec2 centeredImgPos = ImVec2(renderPosition.x + width / 2, renderPosition.y + height / 2);
 
@@ -52,13 +55,14 @@ void Watermark::onRenderEvent(RenderEvent& event)
         ImGui::GetBackgroundDrawList()->AddImage(texture, renderPosition, ImVec2(renderPosition.x + width, renderPosition.y + height));
         return;
     }
-    renderPosition.x = MathUtils::lerp(initialPos, 20.f, anim);
-    renderPosition.y = MathUtils::lerp(initialPos, 20.f, anim);
 
     FontHelper::pushPrefFont(true, mBold.mValue);
 
     static std::string watermarkText = "solstice";
     static float size = 45;
+
+    ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(size, FLT_MAX, 0.0f, watermarkText.c_str(), nullptr);
+    mElement->mSize = { textSize.x, textSize.y };
 
 
 

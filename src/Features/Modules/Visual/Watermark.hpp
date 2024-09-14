@@ -5,6 +5,8 @@
 
 #include <Features/Modules/Module.hpp>
 
+#include "HudEditor.hpp"
+
 class Watermark : public ModuleBase<Watermark> {
 public:
     enum class Style {
@@ -26,7 +28,16 @@ public:
             {Normal, "Watermark"},
             {NormalSpaced, "Watermark"}
         };
+
+        mElement = std::make_unique<HudElement>();
+        mElement->mPos = { 20, 20 };
+
+        const char* ModuleBaseType = ModuleBase<Watermark>::getTypeID();;
+        mElement->mParentTypeIdentifier = const_cast<char*>(ModuleBaseType);
+        HudEditor::gInstance->registerElement(mElement.get());
     }
+
+    std::unique_ptr<HudElement> mElement;
 
     void onEnable() override;
     void onDisable() override;

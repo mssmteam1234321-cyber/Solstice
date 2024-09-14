@@ -49,35 +49,49 @@ void HudEditor::saveToFile()
 
 void HudEditor::loadFromFile()
 {
-    static std::string path = FileUtils::getSolsticeDir() + "hud.json";
-    if (!FileUtils::fileExists(path))
+    try
     {
-        spdlog::warn("No hud elements file found, creating one!");
+        static std::string path = FileUtils::getSolsticeDir() + "hud.json";
+        if (!FileUtils::fileExists(path))
+        {
+            spdlog::warn("No hud elements file found, creating one!");
+            saveToFile();
+            return;
+        }
+        nlohmann::json j;
+        std::ifstream file(path);
+        file >> j;
+        file.close();
+
+        for (auto element : mElements)
+        {
+            if (j.contains(element->mParentTypeIdentifier))
+            {
+                auto& data = j[element->mParentTypeIdentifier];
+                element->mPos = { data["pos"][0], data["pos"][1] };
+                element->mSize = { data["size"][0], data["size"][1] };
+                element->mAnchor = data["anchor"];
+            }
+
+            if (j.contains("snapDistance"))
+            {
+                mSnapDistance = j["snapDistance"];
+            }
+        }
+
+        spdlog::info("Loaded hud elements from file!");
+    } catch (const std::exception& e)
+    {
+        spdlog::error("Failed to load hud elements from file: {}", e.what());
+    } catch (const nlohmann::json::exception& e)
+    {
+        spdlog::error("Failed to load hud elements from file: {}", e.what());
+        // Save the file to prevent further errors (Exceptions here are usually caused by missing elements)
         saveToFile();
-        return;
-    }
-    nlohmann::json j;
-    std::ifstream file(path);
-    file >> j;
-    file.close();
-
-    for (auto element : mElements)
+    } catch (...)
     {
-        if (j.contains(element->mParentTypeIdentifier))
-        {
-            auto& data = j[element->mParentTypeIdentifier];
-            element->mPos = { data["pos"][0], data["pos"][1] };
-            element->mSize = { data["size"][0], data["size"][1] };
-            element->mAnchor = data["anchor"];
-        }
-
-        if (j.contains("snapDistance"))
-        {
-            mSnapDistance = j["snapDistance"];
-        }
+        spdlog::error("Failed to load hud elements from file: unknown error");
     }
-
-    spdlog::info("Loaded hud elements from file!");
 }
 
 void HudEditor::onInit()
