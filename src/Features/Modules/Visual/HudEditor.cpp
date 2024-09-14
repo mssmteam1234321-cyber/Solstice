@@ -129,27 +129,14 @@ void HudEditor::onRenderEvent(RenderEvent& event)
     // Draw background
     drawList->AddRectFilled(ImVec2(0, 0), display, IM_COL32(0, 0, 0, 50));
 
-    if (mSnapDistance != 0)
+    const int snapDistance = mSnapDistance; // Copy to prevent race conditions
+
+    if (snapDistance > 0)
     {
-        for (int i = 0; i < display.x; i += mSnapDistance)
+        for (int i = 0; i < display.x; i += snapDistance)
             drawList->AddLine(ImVec2(i, 0), ImVec2(i, display.y), IM_COL32(255, 255, 255, 100));
-        for (int i = 0; i < display.y; i += mSnapDistance)
+        for (int i = 0; i < display.y; i += snapDistance)
             drawList->AddLine(ImVec2(0, i), ImVec2(display.x, i), IM_COL32(255, 255, 255, 100));
-    }
-
-    for (auto element : mElements)
-    {
-        if (!element->mVisible) continue;
-
-        ImVec2 pos = element->getPos();
-        ImVec2 size = element->mSize;
-        if (element->mCentered)
-        {
-            pos.x -= size.x / 2;
-            pos.y -= size.y / 2;
-        }
-
-        drawList->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(255, 255, 255, 125));
     }
 
     static bool dragging = false;
@@ -243,6 +230,23 @@ void HudEditor::onRenderEvent(RenderEvent& event)
 
         element->setFromPos(glm::vec2(newPos.x, newPos.y));
     }
+
+
+    for (auto element : mElements)
+    {
+        if (!element->mVisible) continue;
+
+        ImVec2 pos = element->getPos();
+        ImVec2 size = element->mSize;
+        if (element->mCentered)
+        {
+            pos.x -= size.x / 2;
+            pos.y -= size.y / 2;
+        }
+
+        drawList->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(255, 255, 255, 125));
+    }
+
 }
 
 bool mShiftHeld = false;
