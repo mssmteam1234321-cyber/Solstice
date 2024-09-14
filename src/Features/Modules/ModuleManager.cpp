@@ -79,6 +79,7 @@
 #include "Visual/Arraylist.hpp"
 #include "Visual/AutoScale.hpp"
 #include "Visual/BlockESP.hpp"
+#include "Visual/BoneEsp.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/DestroyProgress.hpp"
 #include "Visual/ESP.hpp"
@@ -193,8 +194,10 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FullBright>());
 
 
+
 #ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<AutoKick>());
+    mModules.emplace_back(std::make_shared<BoneEsp>()); // (not finished)
 #endif
 
     // Determine if we should add UpdateForm

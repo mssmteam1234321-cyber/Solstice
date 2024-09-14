@@ -239,6 +239,10 @@ bool D3DHook::createTextureFromData(const uint8_t* data, int width, int height, 
 
 HRESULT D3DHook::present(IDXGISwapChain3* swapChain, UINT syncInterval, UINT flags)
 {
+    if (Solstice::mRequestEject)
+    {
+        return oPresent(swapChain, syncInterval, flags);
+    }
     gSwapChain = swapChain;
     static bool once = false;
     if (!once)

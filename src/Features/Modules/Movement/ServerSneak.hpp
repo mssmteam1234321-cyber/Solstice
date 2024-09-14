@@ -21,6 +21,8 @@ public:
         };
     }
 
+    uint64_t mLastInteract = 0;
+
     void onEnable() override;
     void onDisable() override;
     void onPacketOutEvent(class PacketOutEvent& event);
