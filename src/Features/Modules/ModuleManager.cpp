@@ -99,6 +99,7 @@
 #include "Visual/Watermark.hpp"
 #include "Visual/NoHurtcam.hpp"
 #include "Visual/UpdateForm.hpp"
+#include "Visual/ViewModel.hpp"
 
 void ModuleManager::init()
 {
@@ -197,8 +198,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoHurtcam>());
     mModules.emplace_back(std::make_shared<FullBright>());
     mModules.emplace_back(std::make_shared<Keystrokes>());
-
-
+    mModules.emplace_back(std::make_shared<ViewModel>());
 
 #ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<AutoKick>());
