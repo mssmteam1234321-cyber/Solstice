@@ -17,7 +17,7 @@ static uintptr_t deviceModelAddr;
 void DeviceSpoof::onInit()
 {
     deviceModelAddr = SigManager::ConnectionRequest_create_DeviceModel;
-    Inject();
+    inject();
 }
 
 void DeviceSpoof::inject()
