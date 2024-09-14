@@ -272,6 +272,7 @@ void HudEditor::onKeyEvent(KeyEvent& event)
             else mSnapDistance += 5;
 
             if (mSnapDistance > 100) mSnapDistance = 0;
+            if (mSnapDistance < 0) mSnapDistance = 100;
 
             NotifyUtils::notify("Snap distance: " + std::to_string(mSnapDistance), 2.f, Notification::Type::Info);
         }
