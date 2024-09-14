@@ -82,6 +82,7 @@
 #include "Visual/ClickGui.hpp"
 #include "Visual/DestroyProgress.hpp"
 #include "Visual/ESP.hpp"
+#include "Visual/FullBright.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
@@ -189,6 +190,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ItemESP>());
     mModules.emplace_back(std::make_shared<Nametags>());
     mModules.emplace_back(std::make_shared<NoHurtcam>());
+    mModules.emplace_back(std::make_shared<FullBright>());
+
 
 #ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<AutoKick>());

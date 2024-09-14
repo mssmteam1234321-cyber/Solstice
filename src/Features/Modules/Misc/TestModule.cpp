@@ -219,6 +219,8 @@ void TestModule::onLookInputEvent(LookInputEvent& event)
 void TestModule::onRenderEvent(RenderEvent& event)
 {
 #ifdef __DEBUG__
+    if (mMode.mValue != Mode::DebugUi) return;
+
     FontHelper::pushPrefFont(false, false);
     auto player = ClientInstance::get()->getLocalPlayer();
 
@@ -243,6 +245,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
         ImGui::BeginGroup();
         ImGui::Text("gameType: %d", player->getGameType());
+        displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("PlayerInventory", player->getSupplies());
         displayCopyableAddress("GameMode", player->getGameMode());
