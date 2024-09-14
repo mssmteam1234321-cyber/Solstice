@@ -134,6 +134,7 @@ public:
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
 #endif
+
         VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
 
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);

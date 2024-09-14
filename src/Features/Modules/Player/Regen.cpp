@@ -268,37 +268,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     ItemStack* stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
-    Actor* target = nullptr;
-    std::vector<BlockInfo> enemyExposedBlockList;
-    std::vector<BlockInfo> enemyUnexposedBlockList;
-    if (mOreFaker.mValue) {
-        auto actors = ActorUtils::getActorList(false, true);
-
-        std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
-            {
-                return a->distanceTo(player) < b->distanceTo(player);
-            });
-
-        for (auto actor : actors) {
-            if (actor == player) continue;
-            target = actor;
-            break;
-        }
-
-        if (target) {
-            std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*target->getPos(), mRange.mValue);
-
-            for (int i = 0; i < blockList.size(); i++) {
-                int blockId = blockList[i].mBlock->mLegacy->getBlockId();
-                if (blockId == 73 || blockId == 74) {
-                    if (BlockUtils::getExposedFace(blockList[i].mPosition) != -1) enemyExposedBlockList.push_back(blockList[i]);
-                    else enemyUnexposedBlockList.push_back(blockList[i]);
-                }
-                else continue;
-            }
-        }
-    }
-
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
@@ -620,19 +589,48 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             }
 #ifdef __DEBUG__
             // Ore Faker
-            if (mOreFaker.mValue && target) {
-                if (mExposed.mValue) {
-                    for (int i = 0; i < enemyExposedBlockList.size(); i++) {
-                        if (enemyExposedBlockList[i].mPosition == pos) continue;
+            if (mOreFaker.mValue) {
+                Actor* target = nullptr;
+                auto actors = ActorUtils::getActorList(false, true);
 
-                        BlockUtils::startDestroyBlock(enemyExposedBlockList[i].mPosition, 0);
-                        mFakePositions.push_back(enemyExposedBlockList[i].mPosition);
-                    }
+                std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+                    {
+                        return a->distanceTo(player) < b->distanceTo(player);
+                    });
+
+                for (auto actor : actors) {
+                    if (actor == player) continue;
+                    target = actor;
+                    break;
                 }
-                if (mUnexposed.mValue) {
-                    for (int i = 0; i < enemyUnexposedBlockList.size(); i++) {
-                        BlockUtils::startDestroyBlock(enemyUnexposedBlockList[i].mPosition, 0);
-                        mFakePositions.push_back(enemyUnexposedBlockList[i].mPosition);
+
+                if (target) {
+                    std::vector<BlockInfo> fakeBlocks = BlockUtils::getBlockList(*target->getPos(), mRange.mValue);
+                    std::vector<glm::ivec3> fakeExposedBlocks;
+                    std::vector<glm::ivec3> fakeUnexposedBlocks;
+
+                    for (int i = 0; i < fakeBlocks.size(); i++) {
+                        int blockId = fakeBlocks[i].mBlock->mLegacy->getBlockId();
+                        if (blockId == 73 || blockId == 74) {
+                            if (BlockUtils::getExposedFace(fakeBlocks[i].mPosition) != -1) fakeExposedBlocks.push_back(fakeBlocks[i].mPosition);
+                            else fakeUnexposedBlocks.push_back(fakeBlocks[i].mPosition);
+                        }
+                        else continue;
+                    }
+
+                    if (mExposed.mValue) {
+                        for (int i = 0; i < fakeExposedBlocks.size(); i++) {
+                            if (fakeExposedBlocks[i] == pos) continue;
+
+                            BlockUtils::startDestroyBlock(fakeExposedBlocks[i], 0);
+                            mFakePositions.push_back(fakeExposedBlocks[i]);
+                        }
+                    }
+                    if (mUnexposed.mValue) {
+                        for (int i = 0; i < fakeUnexposedBlocks.size(); i++) {
+                            BlockUtils::startDestroyBlock(fakeUnexposedBlocks[i], 0);
+                            mFakePositions.push_back(fakeUnexposedBlocks[i]);
+                        }
                     }
                 }
             }
