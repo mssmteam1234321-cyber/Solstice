@@ -37,7 +37,7 @@ public:
         VISIBILITY_CONDITION(mCPS, !mRandomizeCPS.mValue);
         VISIBILITY_CONDITION(mRandomCPSMin, mRandomizeCPS.mValue);
         VISIBILITY_CONDITION(mRandomCPSMax, mRandomizeCPS.mValue);
-        VISIBILITY_CONDITION(mAllowBlockBreaki, mClickMode.mValue == ClickMode::Left);
+        VISIBILITY_CONDITION(mAllowBlockBreaking, mClickMode.mValue == ClickMode::Left);
 
         mNames = {
                 {Lowercase, "autoclicker"},
