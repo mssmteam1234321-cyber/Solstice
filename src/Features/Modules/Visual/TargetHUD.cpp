@@ -12,10 +12,38 @@
 #include <SDK/Minecraft/Actor/Components/ActorOwnerComponent.hpp>
 #include <SDK/Minecraft/Network/Packets/ActorEventPacket.hpp>
 
+TargetHUD::TargetHUD(): ModuleBase("TargetHUD", "Shows target information", ModuleCategory::Visual, 0, false)
+{
+    addSettings(
+        &mStyle,
+        &mXOffset,
+        &mYOffset,
+        &mFontSize,
+        &mHealthCalculation
+    );
+
+    mNames = {
+        {Lowercase, "targethud"},
+        {LowercaseSpaced, "target hud"},
+        {Normal, "TargetHUD"},
+        {NormalSpaced, "Target HUD"},
+    };
+
+    gFeatureManager->mDispatcher->listen<RenderEvent, &TargetHUD::onRenderEvent, nes::event_priority::LAST>(this);
+
+    mElement = std::make_unique<HudElement>();
+    mElement->mPos = { 500, 500 };
+    const char* ModuleBaseType = ModuleBase<TargetHUD>::getTypeID();;
+    mElement->mParentTypeIdentifier = const_cast<char*>(ModuleBaseType);
+    HudEditor::gInstance->registerElement(mElement.get());
+}
+
 void TargetHUD::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TargetHUD::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &TargetHUD::onPacketInEvent>(this);
+
+    mElement->mVisible = true;
 }
 
 void TargetHUD::onDisable()
@@ -29,6 +57,8 @@ void TargetHUD::onDisable()
         if (textureHolder.texture) textureHolder.texture->Release();
     }
     mTargetTextures.clear();
+
+    mElement->mVisible = false;
 }
 
 void TargetHUD::onBaseTickEvent(BaseTickEvent& event)
@@ -213,10 +243,23 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
         return;
     }
 
+    Actor* target = Aura::sTarget;
+    bool hasTarget = Aura::sHasTarget;
+
+    if (mElement->mSampleMode && !hasTarget) {
+        target = ClientInstance::get()->getLocalPlayer();
+        hasTarget = true;
+        mHealth = 20;
+        mMaxHealth = 20;
+        mAbsorption = 0;
+        mMaxAbsorption = 20;
+        mLastPlayerName = "Player";
+        mLastHurtTime = 0;
+        mHurtTime = 0;
+    }
+
     static float anim = 0.f;
-
     float delta = ImGui::GetIO().DeltaTime;
-
 
     float lerpedHurtTime = MathUtils::lerp(mLastHurtTime / 10.f, mHurtTime / 10.f, delta);
 
@@ -225,9 +268,9 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     static float absorptionAnimPerc = 0.f;
 
     // if the last target is different, recalc immediately
-    if (mLastTarget != Aura::sTarget)
+    if (mLastTarget != target)
     {
-        mLastTarget = Aura::sTarget;
+        mLastTarget = target;
         mLastHealth = mHealth;
         mLastAbsorption = mAbsorption;
         mLastMaxHealth = mMaxHealth;
@@ -239,7 +282,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
         spdlog::info("Recalcing health and absorption");
     }
 
-    mLastTarget = Aura::sTarget;
+    mLastTarget = target;
 
     hurtTimeAnimPerc = MathUtils::lerp(hurtTimeAnimPerc, lerpedHurtTime, delta * 20.f);
 
@@ -252,7 +295,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     mLerpedHealth = MathUtils::lerp(mLerpedHealth, mHealth, delta * 10.f);
     mLerpedAbsorption = MathUtils::lerp(mLerpedAbsorption, mAbsorption, delta * 10.f);
 
-    bool showing = mEnabled && Aura::sHasTarget && Aura::sTarget;
+    bool showing = mEnabled && hasTarget && target;
 
     anim = MathUtils::lerp(anim, showing ? 1.f : 0.f, ImGui::GetIO().DeltaTime * 10.f);
 
@@ -269,7 +312,14 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
     auto screenSize = ImGui::GetIO().DisplaySize;
 
     auto boxSize = ImVec2(230 * anim, 70 * anim);
-    auto boxPos = ImVec2(screenSize.x / 2 - boxSize.x / 2 + mXOffset.mValue, screenSize.y / 2 - boxSize.y / 2 + mYOffset.mValue);
+    //auto boxPos = ImVec2(screenSize.x / 2 - boxSize.x / 2 + mXOffset.mValue, screenSize.y / 2 - boxSize.y / 2 + mYOffset.mValue);
+    auto boxPos = ImVec2(mElement->getPos().x, mElement->getPos().y);
+    // Center the box
+    boxPos.x -= boxSize.x / 2;
+    boxPos.y -= boxSize.y / 2;
+
+    mElement->mSize = glm::vec2(boxSize.x, boxSize.y);
+    mElement->mCentered = true;
 
     auto headSize = ImVec2(60 * anim, 60 * anim);
     auto headPos = ImVec2(boxPos.x + xpad * anim, boxPos.y + ypad * anim);
@@ -285,7 +335,7 @@ void TargetHUD::onRenderEvent(RenderEvent& event)
 
     ID3D11ShaderResourceView* texture = nullptr;
     static bool loaded = false;
-    texture = getActorSkinTex(Aura::sTarget);
+    texture = getActorSkinTex(target);
     loaded = true;
 
 

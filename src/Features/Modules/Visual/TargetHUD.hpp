@@ -1,5 +1,7 @@
 #pragma once
 #include <SDK/Minecraft/Actor/EntityId.hpp>
+
+#include "HudEditor.hpp"
 //
 // Created by vastrakai on 8/4/2024.
 //
@@ -17,25 +19,7 @@ public:
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 20, 1, 40, 1);
     BoolSetting mHealthCalculation = BoolSetting("Health Calculation", "Calculate health", false);
 
-    TargetHUD() : ModuleBase("TargetHUD", "Shows target information", ModuleCategory::Visual, 0, false) {
-        addSettings(
-            &mStyle,
-            &mXOffset,
-            &mYOffset,
-            &mFontSize,
-            &mHealthCalculation
-        );
-
-        mNames = {
-            {Lowercase, "targethud"},
-            {LowercaseSpaced, "target hud"},
-            {Normal, "TargetHUD"},
-            {NormalSpaced, "Target HUD"},
-        };
-
-        gFeatureManager->mDispatcher->listen<RenderEvent, &TargetHUD::onRenderEvent, nes::event_priority::LAST>(this);
-    }
-
+    TargetHUD();
 
 
     struct TargetTextureHolder {
@@ -69,6 +53,8 @@ public:
     };
     std::map<std::string, HealthInfo> mHealths;
     uint64_t mLastHealTime = 0;
+
+    std::unique_ptr<HudElement> mElement;
 
     void onEnable() override;
     void onDisable() override;

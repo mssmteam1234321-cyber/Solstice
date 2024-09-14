@@ -84,9 +84,11 @@
 #include "Visual/DestroyProgress.hpp"
 #include "Visual/ESP.hpp"
 #include "Visual/FullBright.hpp"
+#include "Visual/HudEditor.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
+#include "Visual/Keystrokes.hpp"
 #include "Visual/LevelInfo.hpp"
 #include "Visual/MotionBlur.hpp"
 #include "Visual/Nametags.hpp"
@@ -100,6 +102,8 @@
 
 void ModuleManager::init()
 {
+    // Visual (must be initialized first)
+    mModules.emplace_back(std::make_shared<HudEditor>());
 
     // Combat
     mModules.emplace_back(std::make_shared<Aura>());
@@ -192,6 +196,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Nametags>());
     mModules.emplace_back(std::make_shared<NoHurtcam>());
     mModules.emplace_back(std::make_shared<FullBright>());
+    mModules.emplace_back(std::make_shared<Keystrokes>());
 
 
 
