@@ -96,6 +96,7 @@ public:
 
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(Reach, "F3 0F 10 05 ? ? ? ? 44 0F 2F D0", SigType::Sig, 0);
+    DEFINE_SIG(ConnectionRequest_create_DeviceModel, "48 8B 11 48 83 C2 ? EB", SigType::Sig, 0);
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? 41 0F ? ? E8 ? ? ? ? 45 84 ? 0F 85 ? ? ? ? 48 8B", SigType::RefSig, 5);
     DEFINE_SIG(FluxSwing, "E8 ? ? ? ? 48 8B ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? C6 40 38 ? 48 8B ? EB", SigType::Sig, 0);
     DEFINE_SIG(BobHurt, "40 ? 56 48 83 EC ? 0F 29 ? ? ? 48 81 C1", SigType::Sig, 0);

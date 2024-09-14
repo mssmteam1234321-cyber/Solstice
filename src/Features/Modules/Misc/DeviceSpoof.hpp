@@ -9,8 +9,13 @@
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
 public:
+    BoolSetting mSpoofMboard = BoolSetting("Spoof Mboard", "Whether or not to spoof ur motherboard", true);
+
     DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs your device id, useful for bypassing bans", ModuleCategory::Misc, 0, true)
     {
+
+        addSetting(&mSpoofMboard);
+
         mNames = {
             {Lowercase, "devicespoof"},
             {LowercaseSpaced, "device spoof"},
@@ -19,6 +24,16 @@ public:
         };
     }
 
+    static inline byte originalData[7];
+    static inline byte patch[] = {0x48, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+    static inline void* patchPtr = nullptr;
+    static inline std::string DeviceModel;
+
+    void Inject();
+    void Eject();
+    void SpoofMboard();
+
+    void onInit() override;
     void onEnable() override;
     void onDisable() override;
     void onConnectionRequestEvent(class ConnectionRequestEvent& event);

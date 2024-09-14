@@ -106,6 +106,27 @@ std::vector<unsigned char> MemUtils::readBytes(uintptr_t ptr, size_t size)
     return buffer;
 }
 
+void MemUtils::ReadBytes(void* address, void* buffer, size_t size) {
+    DWORD oldProtect;
+    VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &oldProtect);
+    memcpy(buffer, address, size);
+    VirtualProtect(address, size, oldProtect, &oldProtect);
+}
+
+void MemUtils::NopBytes(uintptr_t address, size_t size) {
+    if ((LPVOID)address == nullptr)
+        return;
+
+    DWORD oldprotect;
+    VirtualProtect((LPVOID)address, size, PAGE_EXECUTE_READWRITE, &oldprotect);
+    memset((LPVOID)address, 0x90, size);
+    VirtualProtect((LPVOID)address, size, oldprotect, &oldprotect);
+}
+
+int32_t MemUtils::GetRelativeAddress(uintptr_t address, uintptr_t target) {
+    return (uint32_t)((uintptr_t)target - (uintptr_t)address - 4);
+}
+
 void MemUtils::setProtection(uintptr_t ptr, size_t size, DWORD protection)
 {
     DWORD oldProtect;

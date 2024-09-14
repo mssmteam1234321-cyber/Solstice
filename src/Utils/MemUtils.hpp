@@ -176,7 +176,7 @@ public:
     static uintptr_t getAddressByIndex(uintptr_t _this, int index);
 
     static const std::string getMbMemoryString(uintptr_t addr);
-
+    static int32_t GetRelativeAddress(uintptr_t ptr, uintptr_t endAddress);
     static uintptr_t GetVTableFunction(void *_this, int index);
     static std::string getModulePath(HMODULE handle);
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes, size_t size);
@@ -184,9 +184,11 @@ public:
     static void writeBytes(uintptr_t ptr, const std::vector<unsigned char>& bytes);
     static void copyBytes(uintptr_t dest, uintptr_t src, size_t size);
     static std::vector<unsigned char> readBytes(uintptr_t ptr, size_t size);
+    static void ReadBytes(void *address, void *buffer, size_t size);
     static void setProtection(uintptr_t ptr, size_t size, DWORD protection);
     static std::string bytesToHex(char* bytes, int length);
     static std::vector<uintptr_t> findPattern(const std::string& pattern);
+    static void NopBytes(uintptr_t address, size_t size);
 public:
     static uintptr_t findString(const std::string& string);
     static uintptr_t findReference(uintptr_t address);
