@@ -57,7 +57,6 @@ public:
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
     BoolSetting mTest = BoolSetting("Test", "test", false);
     BoolSetting mTest2 = BoolSetting("Test2", "test", false);
-    BoolSetting mTest3 = BoolSetting("Test3", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
@@ -77,6 +76,7 @@ public:
     BoolSetting mOreFaker = BoolSetting("Ore Faker", "Fakes targetting ore", false);
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
+    BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
         addSettings(
@@ -109,7 +109,6 @@ public:
             &mInfiniteDurability,
             &mTest,
             &mTest2,
-            &mTest3,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
             &mNuke,
@@ -130,16 +129,18 @@ public:
 #ifdef __DEBUG__
         addSetting(&mOreFaker);
         addSettings(&mExposed, &mUnexposed);
+        addSetting(&mRenderFakeOre);
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
+        VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
 #endif
-
         VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
 
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
 
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
+        VISIBILITY_CONDITION(mAlwaysSteal, mSteal.mValue);
 
         VISIBILITY_CONDITION(mConfuseMode, mConfuse.mValue);
         VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
@@ -215,7 +216,7 @@ public:
     uint64_t mLastConfuse = 0;
     int mLastPlacedBlockSlot = 0;
 
-    std::vector<glm::ivec3> mDecoyPositions;
+    std::vector<glm::ivec3> mFakePositions;
 
     std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),
@@ -233,6 +234,7 @@ public:
     void renderProgressBar();
     void renderNewProgressBar();
     void renderBlock();
+    void renderFakeOres();
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     void initializeRegen();

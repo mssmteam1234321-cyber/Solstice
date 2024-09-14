@@ -4,7 +4,6 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
-#include <Features/Modules/Combat/Aura.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -40,7 +39,7 @@ void Regen::initializeRegen()
     mToolSlot = -1;
     mOffGround = false;
 
-    mDecoyPositions.clear();
+    mFakePositions.clear();
 }
 
 void Regen::resetSyncSpeed() 
@@ -75,7 +74,8 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     // Exposed Check
     int exposedFace = BlockUtils::getExposedFace(blockPos);
     bool canSkipExposedCheck = false;
-    canSkipExposedCheck = mIsMiningBlock && !mIsUncovering && blockPos == mCurrentBlockPos && mAntiCover.mValue && mCompensation.mValue <= (mBreakingProgress / mCurrentDestroySpeed);
+    float percentage = (mBreakingProgress / mCurrentDestroySpeed);
+    canSkipExposedCheck = mIsMiningBlock && !mIsUncovering && blockPos == mCurrentBlockPos && mAntiCover.mValue && mCompensation.mValue <= percentage && percentage <= 1;
     if (exposedOnly && (!isStealing || !isRedstone) && !canSkipExposedCheck) {
         if (exposedFace == -1) return false;
     }
@@ -268,6 +268,37 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     ItemStack* stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
+    Actor* target = nullptr;
+    std::vector<BlockInfo> enemyExposedBlockList;
+    std::vector<BlockInfo> enemyUnexposedBlockList;
+    if (mOreFaker.mValue) {
+        auto actors = ActorUtils::getActorList(false, true);
+
+        std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+            {
+                return a->distanceTo(player) < b->distanceTo(player);
+            });
+
+        for (auto actor : actors) {
+            if (actor == player) continue;
+            target = actor;
+            break;
+        }
+
+        if (target) {
+            std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*target->getPos(), mRange.mValue);
+
+            for (int i = 0; i < blockList.size(); i++) {
+                int blockId = blockList[i].mBlock->mLegacy->getBlockId();
+                if (blockId == 73 || blockId == 74) {
+                    if (BlockUtils::getExposedFace(blockList[i].mPosition) != -1) enemyExposedBlockList.push_back(blockList[i]);
+                    else enemyUnexposedBlockList.push_back(blockList[i]);
+                }
+                else continue;
+            }
+        }
+    }
+
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
@@ -354,7 +385,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying()) {
         initializeRegen();
         resetSyncSpeed();
         if (mIsConfuserActivated) {
@@ -549,8 +580,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
 
         glm::vec3 playerPos = *player->getPos();
-        glm::ivec3 pos = { 0, 0, 0 };
-        glm::ivec3 targettingPos = { 0, 0, 0 };
+        glm::ivec3 pos = { INT_MAX, INT_MAX, INT_MAX };
+        glm::ivec3 targettingPos = { INT_MAX, INT_MAX, INT_MAX };
         if (!exposedBlockList.empty()) {
             // Confuser
             bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
@@ -569,23 +600,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     return;
                 }
             }
-#ifdef __DEBUG__
-            // fucker
-            if (mOreFaker.mValue) {
-                if (mExposed.mValue) {
-                    for (int i = 0; i < exposedBlockList.size(); i++) {
-                        BlockUtils::startDestroyBlock(exposedBlockList[i].mPosition, 0);
-                        mDecoyPositions.push_back(exposedBlockList[i].mPosition);
-                    }
-                }
-                if (mUnexposed.mValue) {
-                    for (int i = 0; i < unexposedBlockList.size(); i++) {
-                        BlockUtils::startDestroyBlock(unexposedBlockList[i].mPosition, 0);
-                        mDecoyPositions.push_back(unexposedBlockList[i].mPosition);
-                    }
-                }
-            }
-#endif
             float closestDistance = INT_MAX;
             bool foundTargettingBlock = false;
             for (int i = 0; i < exposedBlockList.size(); i++) {
@@ -604,7 +618,25 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     if (mDebug.mValue && mPriorityNotify.mValue) ChatUtils::displayClientMessage("Prioritized ore");
                 }
             }
-            
+#ifdef __DEBUG__
+            // Ore Faker
+            if (mOreFaker.mValue && target) {
+                if (mExposed.mValue) {
+                    for (int i = 0; i < enemyExposedBlockList.size(); i++) {
+                        if (enemyExposedBlockList[i].mPosition == pos) continue;
+
+                        BlockUtils::startDestroyBlock(enemyExposedBlockList[i].mPosition, 0);
+                        mFakePositions.push_back(enemyExposedBlockList[i].mPosition);
+                    }
+                }
+                if (mUnexposed.mValue) {
+                    for (int i = 0; i < enemyUnexposedBlockList.size(); i++) {
+                        BlockUtils::startDestroyBlock(enemyUnexposedBlockList[i].mPosition, 0);
+                        mFakePositions.push_back(enemyUnexposedBlockList[i].mPosition);
+                    }
+                }
+            }
+#endif
             // queue block
             queueBlock(pos);
             mTargettingBlockPos = targettingPos;
@@ -662,6 +694,7 @@ void Regen::onRenderEvent(RenderEvent& event)
     if (!player) return;
 
     if (mRenderBlock.mValue) renderBlock();
+    if (mOreFaker.mValue && mRenderFakeOre.mValue) renderFakeOres();
     if (mRenderProgressBar.mValue) {
         if (mProgressBarStyle.mValue == ProgressBarStyle::Old) {
             renderProgressBar();
@@ -946,7 +979,7 @@ void Regen::renderBlock()
     static ImColor color = ImColor(255, 255, 0, 255);
     ImColor targetColor = ImColor(255, 255, 0, 255);
 
-    if (mCanSteal) targetColor = ImColor(255, 0, 0, 255);
+    if (mIsStealing) targetColor = ImColor(255, 0, 0, 255);
     else if (mIsUncovering) targetColor = ImColor(255, 255, 0, 255);
     else if (mIsMiningBlock && 10 <= player->getAbsorption()) targetColor = ImColor(0, 255, 255, 255);
     else targetColor = ImColor(0, 255, 0, 255);
@@ -956,6 +989,17 @@ void Regen::renderBlock()
 
     RenderUtils::drawOutlinedAABB(blockAABB, true, ColorUtils::getThemedColor(0));
 };
+
+void Regen::renderFakeOres() {
+    if (!mEnabled) return;
+
+    if (!mFakePositions.empty()) {
+        for (auto& pos : mFakePositions) {
+            auto boxAABB = AABB(pos, glm::vec3(1.f, 1.f, 1.f));
+            RenderUtils::drawOutlinedAABB(boxAABB, true);
+        }
+    }
+}
 
 void Regen::onPacketOutEvent(PacketOutEvent& event)
 {
@@ -1000,21 +1044,19 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
-        if (levelEvent->mEventId == 3600 || (mTest3.mValue && levelEvent->mEventId == 3602)) { // Start destroying block or Continue destroying block
+        if (levelEvent->mEventId == 3600) { // Start destroying block
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
-            if (levelEvent->mEventId == 3600) {
-                for (auto& offset : mOffsetList) {
-                    glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
-                    if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
-                        mEnemyTargettingBlockPos = blockPos;
-                        mLastEnemyLayerBlockPos = levelEvent->mPos;
-                        mCanSteal = true;
-                        mLastStealerUpdate = NOW;
-                    }
+            for (auto& offset : mOffsetList) {
+                glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
+                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
+                    mEnemyTargettingBlockPos = blockPos;
+                    mLastEnemyLayerBlockPos = levelEvent->mPos;
+                    mCanSteal = true;
+                    mLastStealerUpdate = NOW;
                 }
             }
-            
+
             // Anti Steal
             glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
@@ -1027,9 +1069,9 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 
             // Ore Blocker
             if (mBlockOre.mValue) {
-                if (std::find(mDecoyPositions.begin(), mDecoyPositions.end(), glm::ivec3(levelEvent->mPos)) != mDecoyPositions.end()) return;
                 // normal ore blocker
-                if(isValidRedstone(levelEvent->mPos)) miningRedstones.push_back(levelEvent->mPos);
+                if (std::find(mFakePositions.begin(), mFakePositions.end(), glm::ivec3(levelEvent->mPos)) != mFakePositions.end()) return;
+                if (isValidRedstone(levelEvent->mPos)) miningRedstones.push_back(levelEvent->mPos);
             }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
