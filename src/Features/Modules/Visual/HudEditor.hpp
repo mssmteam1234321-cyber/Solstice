@@ -93,8 +93,6 @@ public:
         // Set the relative position based on the anchor
         ImVec2 anchorPos = getAnchorPos(mAnchor);
         mPos = { normalPos.x - anchorPos.x, normalPos.y - anchorPos.y };
-
-        spdlog::info("Anchor: {}, Pos: ({}, {})", std::string(magic_enum::enum_name(mAnchor)), mPos.x, mPos.y);
     }
 
     // Get the absolute position based on the anchor and the relative position
