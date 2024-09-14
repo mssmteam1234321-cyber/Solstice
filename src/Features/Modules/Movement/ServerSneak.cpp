@@ -77,8 +77,17 @@ void ServerSneak::onPacketInEvent(PacketInEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
 
+    static uint64_t lastDimensionChange = 0;
+
+    if (event.mPacket->getId() == PacketID::ChangeDimension)
+    {
+        lastDimensionChange = NOW;
+    }
+
     if (event.mPacket->getId() == PacketID::SetActorData && mCancelActorData.mValue)
     {
+        if (NOW - lastDimensionChange < 1000 || player->getStatusFlag(ActorFlags::Noai)) return;
+
         auto packet = event.getPacket<ActorDataPacket>();
         if (packet->mId == player->getRuntimeID())
         {
