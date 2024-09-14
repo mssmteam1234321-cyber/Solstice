@@ -27,6 +27,7 @@
 #include <build_info.h>
 #include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/IRC.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/OAuthUtils.hpp>
 
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
@@ -266,7 +267,7 @@ void Solstice::init(HMODULE hModule)
     console->warn("Shutting down...");
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.deactivate", 1, 1.0f);
-    ChatUtils::displayClientMessageRaw("§asolstice§7 » §cEjected!");
+    ClientInstance::get()->getGuiData()->displayClientMessage("§asolstice§7 » §cEjected!");
 
     mInitialized = false;
     SigManager::deinitialize();

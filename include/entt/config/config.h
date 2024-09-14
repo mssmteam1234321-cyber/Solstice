@@ -37,6 +37,7 @@
 #    define ENTT_PACKED_PAGE 1024
 #endif
 
+#define ENTT_DISABLE_ASSERT
 #ifdef ENTT_DISABLE_ASSERT
 #    undef ENTT_ASSERT
 #    define ENTT_ASSERT(condition, msg) (void(0))

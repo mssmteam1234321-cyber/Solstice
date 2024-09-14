@@ -348,6 +348,10 @@ protected:
             }
             [[fallthrough]];
         case deletion_policy::swap_and_pop:
+            // check if the entt already exists in packed array
+                if (pos < packed.size() && packed[pos] == entt) {
+                    break;
+                }
             packed.push_back(entt);
             ENTT_ASSERT(elem == null, "Slot not available");
             elem = traits_type::combine(static_cast<typename traits_type::entity_type>(packed.size() - 1u), traits_type::to_integral(entt));

@@ -59,13 +59,20 @@ public:
     template<typename flag_t>
     void setFlag(bool value)
     {
-        auto storage = mContext.assure<flag_t>();
-        bool has = storage->contains(this->mContext.mEntityId);
-        if (value && !has) {
-            storage->emplace(this->mContext.mEntityId);
-        }
-        else if (!value && has) {
-            storage->remove(this->mContext.mEntityId);
+        try
+        {
+            auto storage = mContext.assure<flag_t>();
+            bool has = storage->contains(this->mContext.mEntityId);
+            if (value && !has) {
+                storage->emplace(this->mContext.mEntityId);
+            }
+            else if (!value && has) {
+                storage->remove(this->mContext.mEntityId);
+            }
+        } catch (std::exception& e) {
+            spdlog::error("Failed to set flag: {}", e.what());
+        } catch (...) {
+            spdlog::error("Failed to set flag: unknown error");
         }
     }
 

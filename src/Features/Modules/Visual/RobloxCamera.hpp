@@ -27,7 +27,7 @@ public:
 
     }
 
-    float mCurrentDistance = 0.f;
+    float mCurrentDistance = 4.f;
 
     void onEnable() override;
     void onDisable() override;
