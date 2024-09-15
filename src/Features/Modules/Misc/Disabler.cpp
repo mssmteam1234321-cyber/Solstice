@@ -10,6 +10,7 @@
 #include <Features/Events/SendImmediateEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
@@ -82,10 +83,9 @@ void Disabler::onDisable()
 }*/
 
 void Disabler::onPacketOutEvent(PacketOutEvent& event) {
-#ifdef __DEBUG__
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-
+#ifdef __DEBUG__
     if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
         if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
 
@@ -168,56 +168,120 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
         return;
     }
 #endif
-    if (mMode.mValue != Mode::Sentinel) return;
+    if (mMode.mValue == Mode::Sentinel) {
+        if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
+            static bool desyncY = false;
+            auto pkt = event.getPacket<PlayerAuthInputPacket>();
+            if (mShouldUpdateClientTicks) mClientTicks = pkt->mClientTick;
+            pkt->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN | AuthInputAction::NORTH_JUMP_DEPRECATED | AuthInputAction::START_JUMPING;
+            pkt->mInputData &= ~AuthInputAction::STOP_GLIDING;
+            pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
+            pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
+            pkt->mInputData &= ~AuthInputAction::SNEAK_DOWN;
+            pkt->mInputData &= ~AuthInputAction::SNEAKING;
+            pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+            glm::vec3 pos = pkt->mPos;
+            glm::vec3 deltaPos = pkt->mPosDelta;
+            glm::vec3 lastPos = pkt->mPos - deltaPos;
 
-    if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
-        static bool desyncY = false;
-        auto pkt = event.getPacket<PlayerAuthInputPacket>();
-        if (mShouldUpdateClientTicks) mClientTicks = pkt->mClientTick;
-        pkt->mInputData |= AuthInputAction::START_GLIDING | AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN | AuthInputAction::NORTH_JUMP_DEPRECATED | AuthInputAction::START_JUMPING;
-        pkt->mInputData &= ~AuthInputAction::STOP_GLIDING;
-        pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
-        pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
-        pkt->mInputData &= ~AuthInputAction::SNEAK_DOWN;
-        pkt->mInputData &= ~AuthInputAction::SNEAKING;
-        pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
-        glm::vec3 pos = pkt->mPos;
-        glm::vec3 deltaPos = pkt->mPosDelta;
-        glm::vec3 lastPos = pkt->mPos - deltaPos;
+            // send tampered packet
+            pkt->mClientTick = mClientTicks;
+            pkt->mPos = { INT_MAX, INT_MAX, INT_MAX };
+            ClientInstance::get()->getPacketSender()->sendToServer(pkt);
+            mClientTicks++;
 
-        // send tampered packet
-        pkt->mClientTick = mClientTicks;
-        pkt->mPos = { INT_MAX, INT_MAX, INT_MAX };
-        ClientInstance::get()->getPacketSender()->sendToServer(pkt);
-        mClientTicks++;
+            pkt->mClientTick = mClientTicks;
+            pkt->mPos = { -INT_MAX, -INT_MAX, -INT_MAX };
+            ClientInstance::get()->getPacketSender()->sendToServer(pkt);
+            mClientTicks++;
 
-        pkt->mClientTick = mClientTicks;
-        pkt->mPos = { -INT_MAX, -INT_MAX, -INT_MAX };
-        ClientInstance::get()->getPacketSender()->sendToServer(pkt);
-        mClientTicks++;
-
-        // send normal packet
-        pkt->mClientTick = mClientTicks;
-        pkt->mPos = pos;
-        mClientTicks++;
-    }
-    else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
-        event.mCancelled = true;
-    }
-    else if (event.mPacket->getId() == PacketID::InventoryTransaction)
-    {
-        auto packet = event.getPacket<InventoryTransactionPacket>();
-
-        auto* ait = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(packet->mTransaction.get());
-        if (ait->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+            // send normal packet
+            pkt->mClientTick = mClientTicks;
+            pkt->mPos = pos;
+            mClientTicks++;
+        }
+        else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
+            event.mCancelled = true;
+        }
+        else if (event.mPacket->getId() == PacketID::InventoryTransaction)
         {
-            auto actor = ActorUtils::getActorFromUniqueId(ait->mActorId);
-            if (!actor) return;
-            if (mFirstAttackedActor && actor != mFirstAttackedActor) {
-                event.mCancelled = true;
-                return;
+            auto packet = event.getPacket<InventoryTransactionPacket>();
+
+            auto* ait = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(packet->mTransaction.get());
+            if (ait->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+            {
+                auto actor = ActorUtils::getActorFromUniqueId(ait->mActorId);
+                if (!actor) return;
+                if (mFirstAttackedActor && actor != mFirstAttackedActor) {
+                    event.mCancelled = true;
+                    return;
+                }
+                mFirstAttackedActor = actor;
             }
-            mFirstAttackedActor = actor;
+        }
+    }
+    else if (mMode.mValue == Mode::Custom) {
+        if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
+            auto packet = event.getPacket<PlayerAuthInputPacket>();
+            if (mGlide.mValue) {
+                packet->mInputData |= AuthInputAction::START_GLIDING;
+                packet->mInputData &= ~AuthInputAction::STOP_GLIDING;
+            }
+            if (mOnGroundSpoof.mValue) {
+                packet->mPosDelta.y = -0.0784000015258789f;
+            }
+            if (mInputSpoof.mValue) {
+                if (packet->mInputMode == InputMode::Mouse) packet->mInputMode = InputMode::Touch;
+            }
+        }
+        else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
+            if (mCancel.mValue) event.mCancelled = true;
+        }
+        else if (event.mPacket->getId() == PacketID::InventoryTransaction)
+        {
+            auto packet = event.getPacket<InventoryTransactionPacket>();
+
+            auto* ait = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(packet->mTransaction.get());
+            if (ait->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack && mInteract.mValue)
+            {
+                auto actor = ActorUtils::getActorFromUniqueId(ait->mActorId);
+                if (!actor) return;
+                player->getGameMode()->interact(actor, *actor->getPos());
+                //ChatUtils::displayClientMessage("Interacted");
+            }
+            
+            if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+            {
+                const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(packet->mTransaction.get());
+                if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place && mClickPosFix.mValue)
+                {
+                    if (transac->mFace == 0) // Down
+                    {
+                        transac->mClickPos = glm::vec3(0.5, -0, 0.5);
+                    }
+                    else if (transac->mFace == 1) // Up
+                    {
+                        transac->mClickPos = glm::vec3(0.5, 1, 0.5);
+                    }
+                    else if (transac->mFace == 2) // North
+                    {
+                        transac->mClickPos = glm::vec3(0.5, 0.5, 0);
+                    }
+                    else if (transac->mFace == 3) // South
+                    {
+                        transac->mClickPos = glm::vec3(0.5, 0.5, 1);
+                    }
+                    else if (transac->mFace == 4) // West
+                    {
+                        transac->mClickPos = glm::vec3(0, 0.5, 0.5);
+                    }
+                    else if (transac->mFace == 5) // East
+                    {
+                        transac->mClickPos = glm::vec3(1, 0.5, 0.5);
+                    }
+                    //ChatUtils::displayClientMessage("Fixed Click Pos");
+                }
+            }
         }
     }
 }
