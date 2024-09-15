@@ -201,7 +201,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
 
 #ifdef __DEBUG__
-    mModules.emplace_back(std::make_shared<AutoKick>());
+    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
     mModules.emplace_back(std::make_shared<BoneEsp>()); // (not finished)
 #endif
 
