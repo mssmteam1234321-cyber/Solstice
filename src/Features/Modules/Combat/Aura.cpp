@@ -453,12 +453,14 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             bool spoofed = false;
             int oldSlot = mLastSlot;
 
+#ifdef __DEBUG__
             if (mFireSwordSpoof.mValue && shouldUseFire)
             {
                 spoofed = true;
                 auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
                 PacketUtils::queueSend(pkt, false);
             }
+#endif
 
             PacketUtils::queueSend(attackTransaction, false);
 
@@ -478,12 +480,14 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             bool spoofed = false;
             int oldPktSlot = mLastSlot;
 
+#ifdef __DEBUG__
             if (mFireSwordSpoof.mValue && shouldUseFire)
             {
                 auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
                 ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
                 spoofed = true;
             }
+#endif
 
             player->getGameMode()->attack(actor);
             supplies->mSelectedSlot = oldSlot;
