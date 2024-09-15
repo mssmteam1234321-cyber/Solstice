@@ -25,7 +25,7 @@ void NetSkip::onDisable()
 void NetSkip::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
 {
     // If damage only is enabled and we are outside the delay, reset the damage flag and return
-    if (mDamageOnly.mValue && NOW - mLastDamage > mDelayMs.as<int64_t>())
+    if (mDamageOnly.mValue && NOW - mLastDamage > mDamageTime.as<int64_t>())
     {
         mCurrentTick = 0;
         return;
