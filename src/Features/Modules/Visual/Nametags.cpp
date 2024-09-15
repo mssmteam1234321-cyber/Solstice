@@ -129,6 +129,7 @@ void Nametags::onRenderEvent(RenderEvent& event)
 
         drawList->AddShadowRect(rectMin, rectMax, ImColor(0.f, 0.f, 0.f, 1.f), 40.f, ImVec2(0,0));
         drawList->AddRectFilled(rectMin, rectMax, ImColor(0.0f, 0.0f, 0.0f, 0.5f), 10.f);
+        ImRenderUtils::addBlur(ImVec4(rectMin.x, rectMin.y, rectMax.x, rectMax.y), mBlurStrength.mValue, 10);
         drawList->AddText(ImGui::GetFont(), fontSize, pos, themeColor, name.c_str());
 
         FontHelper::popPrefFont();
