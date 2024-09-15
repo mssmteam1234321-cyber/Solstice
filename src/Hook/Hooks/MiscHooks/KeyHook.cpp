@@ -126,7 +126,7 @@ void KeyHook::onKey(uint32_t key, bool isDown)
 {
     auto oFunc = mDetour->getOriginal<decltype(&onKey)>();
 
-    if (key == VK_END && isDown && ClientInstance::get()->getScreenName() != "chat_screen")
+    if (key == VK_END && isDown && ClientInstance::get()->getScreenName() != "chat_screen" && !ImGui::GetIO().WantCaptureKeyboard && !ImGui::GetIO().WantTextInput)
     {
         Solstice::mRequestEject = true;
     }
@@ -171,6 +171,12 @@ void KeyHook::onKey(uint32_t key, bool isDown)
             char sc = static_cast<char>(translation[1]);
             io.AddInputCharacter(sc);
         }
+    }
+
+    // Return and don't call oFunc if ImGui wants to capture keyboard or text input
+    if (io.WantCaptureKeyboard || io.WantTextInput)
+    {
+        return;
     }
 
     oFunc(key, isDown);

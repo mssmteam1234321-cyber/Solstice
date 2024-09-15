@@ -27,6 +27,7 @@ void InventoryMove::onDisable()
 
 void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
 {
+    if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput) return;
     auto player = event.mActor;
     auto input = player->getMoveInputComponent();
 

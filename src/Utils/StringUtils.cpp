@@ -600,4 +600,15 @@ std::string StringUtils::replace(const std::string& str, const std::string& from
         result.replace(start_pos, from.length(), to);
     }
     return result;
-};
+}
+
+std::string StringUtils::randomString(int length)
+{
+    std::string str("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+
+    std::random_device rd;
+    std::mt19937 generator(rd());
+
+    ranges::shuffle(str, generator);
+
+    return str.substr(0, length);};

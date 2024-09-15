@@ -68,6 +68,7 @@ public:
     char* mParentTypeIdentifier = nullptr;
     bool mCentered = false;
     Anchor mAnchor = Anchor::TopLeft;
+    bool mCustom = false;
 
     HudElement() = default;
     HudElement(char* parentTypeIdentifier) : mParentTypeIdentifier(parentTypeIdentifier) {}
@@ -102,6 +103,32 @@ public:
     }
 };
 
+class CustomHudElement : public HudElement
+{
+public:
+    enum class Type {
+        Text,
+        /*Image,
+        Line,
+        Rect,
+        Circle,
+        Triangle*/
+    };
+    std::string mDisplayName;
+    Type mType;
+    std::string mText;
+    // Text input
+    char mInputBuffer[256] = { 0 };
+    float mFontSize = 24.f;
+    std::string mIdentifier;
+
+    CustomHudElement(std::string identifier, std::string displayName, Type type, std::string text) : mDisplayName(displayName), mText(text), mType(type) {
+        mCustom = true;
+        mIdentifier = identifier;
+        mParentTypeIdentifier = mIdentifier.data();
+    }
+};
+
 
 class HudEditor : public ModuleBase<HudEditor> {
 public:
@@ -117,12 +144,18 @@ public:
         };
 
         gInstance = this;
+
+
+        gFeatureManager->mDispatcher->listen<RenderEvent, &HudEditor::onRenderEvent, nes::event_priority::FIRST>(this);
+        gFeatureManager->mDispatcher->listen<RenderEvent, &HudEditor::onCustomRenderEvent, nes::event_priority::LAST>(this);
     }
 
     const float mSnapPointDist = 10.f;
 
     int mSnapDistance = 0.f;
     std::vector<HudElement*> mElements = {};
+
+    std::vector<std::unique_ptr<CustomHudElement>> mCustomElements = {};
 
     void registerElement(HudElement* element) { mElements.emplace_back(element); }
 
@@ -135,6 +168,7 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onRenderEvent(class RenderEvent& event);
+    void onCustomRenderEvent(class RenderEvent& event);
     void onKeyEvent(class KeyEvent& event);
     void onMouseEvent(MouseEvent& event);
 };

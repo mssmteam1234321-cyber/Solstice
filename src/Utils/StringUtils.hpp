@@ -40,6 +40,7 @@ public:
     static std::string toHex(const std::vector<uint8_t>& data);
     static bool contains(const std::string& str, const std::string& subStr);
     static std::string replace(const std::string& str, const std::string& from, const std::string& to);
+    static std::string randomString(int length);
 };
 
 
