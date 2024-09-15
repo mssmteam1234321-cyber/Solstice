@@ -6,24 +6,32 @@
 
 #include <Utils/Resource.hpp>
 #include <Utils/Resources.hpp>
-#include <iostream>
-#include <xaudio2.h>
 #include "Audio.hpp"
 
 #include "spdlog/spdlog.h"
 
+Audio audioManager;
+
 
 void SoundUtils::playSoundFromEmbeddedResource(std::string resourceName, float volume)
 {
-    static Audio audioManager = Audio();
     if (!ResourceLoader::Resources.contains(resourceName))
     {
         spdlog::error("Resource {} not found", resourceName);
         return;
     }
     Resource& soundResource = ResourceLoader::Resources[resourceName];
-    audioManager.Play(soundResource, volume, false);
-}
+    std::string path = FileUtils::getSolsticeDir() + "Audio\\" + resourceName;
+    audioManager.BasePath = FileUtils::getSolsticeDir() + "Audio\\";
+    if (!FileUtils::fileExists(path))
+    {
+        std::ofstream file(path, std::ios::binary);
+        file.write(reinterpret_cast<const char*>(soundResource.data()), soundResource.size());
+        file.close();
+        spdlog::info("Dumped reosurce {} to {}", resourceName, path);
+    }
 
-// use the reference code to play sound from embedded resource
+    spdlog::info("Playing sound {}", resourceName);
+    audioManager.Play(resourceName, volume, false);
+}
 

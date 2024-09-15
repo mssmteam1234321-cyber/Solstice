@@ -53,12 +53,6 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-        NAME SDL2
-        GITHUB_REPOSITORY libsdl-org/SDL
-        GIT_TAG release-2.30.5
-)
-
-CPMAddPackage(
         NAME DirectXTK
         GITHUB_REPOSITORY microsoft/DirectXTK
         GIT_TAG main
@@ -113,17 +107,6 @@ add_custom_target(generate_build_info
 )
 
 include_directories(${CMAKE_BINARY_DIR})
-
-# config SDL2
-set(SDL_SHARED OFF CACHE BOOL "" FORCE)
-set(SDL_STATIC ON CACHE BOOL "" FORCE)
-set(SDL_STATIC_PIC ON CACHE BOOL "" FORCE)
-set(SDL_AUDIO ON CACHE BOOL "" FORCE)
-set(SDL_ATOMIC ON CACHE BOOL "" FORCE)
-set(SDL_CPUINFO ON CACHE BOOL "" FORCE)
-set(SDL_EVENTS ON CACHE BOOL "" FORCE)
-set(SDL_FILE ON CACHE BOOL "" FORCE)
-set(SDL_FILESYSTEM ON CACHE BOOL "" FORCE)
 
 set(CMAKE_CXX_STANDARD 26)
 
@@ -298,7 +281,7 @@ add_subdirectory(include/Kiero)
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)
 
-target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog SDL2::SDL2 version.lib nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib ws2_32.lib cryptopp)
+target_link_libraries(Solstice PRIVATE OpenMP::OpenMP_CXX DirectXTK spdlog version.lib nlohmann_json glm minhook kiero nuvola_event_system libhat dbghelp.lib winmm.lib magic_enum d3d12.lib d3d11.lib d2d1.lib dxgi.lib dxguid.lib dwrite.lib winmm.lib dbghelp.lib comctl32.lib ws2_32.lib cryptopp)
 
 set_property(TARGET Solstice nlohmann_json minhook spdlog cryptopp DirectXTK glm kiero nuvola_event_system magic_enum libhat PROPERTY MSVC_RUNTIME_LIBRARY "$<$<CONFIG:Debug>:MultiThreadedDLL>$<$<CONFIG:Release>:MultiThreaded>")
 

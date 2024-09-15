@@ -18,6 +18,8 @@ enum struct EventPriorities {
 };
 #define NES_PRIORITY_TYPE EventPriorities
 
+#include <corecrt_math_defines.h>
+
 #include <nes/event_dispatcher.hpp>
 #include <Features/FeatureManager.hpp>
 #include <future>

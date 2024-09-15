@@ -47,6 +47,7 @@ void FileUtils::validateDirectories()
     createDirectory(getSolsticeDir() + "Templates\\");
     createDirectory(getSolsticeDir() + "Databases\\");
     createDirectory(getSolsticeDir() + "Skins\\"); //(skin stealing)
+    createDirectory(getSolsticeDir() + "Audio\\");
     spdlog::info("Directories created successfully.");
 }
 

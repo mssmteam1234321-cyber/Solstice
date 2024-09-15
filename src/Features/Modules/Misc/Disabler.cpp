@@ -3,6 +3,7 @@
 //
 
 #include "Disabler.hpp"
+
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RunUpdateCycleEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>

@@ -3,8 +3,6 @@
 // Created by vastrakai on 7/3/2024.
 //
 
-#include <Features/Modules/Module.hpp>
-
 
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
@@ -23,8 +21,8 @@ public:
         };
     }
 
-    static inline byte originalData[7];
-    static inline byte patch[] = {0x48, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+    static inline unsigned char originalData[7];
+    static inline unsigned char patch[] = {0x48, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
     static inline void* patchPtr = nullptr;
     static inline std::string DeviceModel;
 

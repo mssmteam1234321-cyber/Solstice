@@ -27,7 +27,7 @@ public:
     };
 
     EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::NormalSpaced, "lowercase", "lower spaced", "Normal", "Spaced");
-    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Bubblegum, "Trans", "Rainbow", "Bubblegum", "Test", "Custom");
+    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Bubblegum, "Trans", "Rainbow", "Bubblegum", "Watermelon", "Custom");
     // make sure you actually have the fonts u put here lol
     EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::ProductSans, "Mojangles", "Product Sans");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
