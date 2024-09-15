@@ -334,6 +334,11 @@ struct ImVec4
             point.z + (this->z - point.z) * amount, point.w + (this->w - point.w) * amount);
     }
 
+    inline bool operator==(const ImVec4& rhs) const
+    {
+        return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+    }
+
 #ifdef IM_VEC4_CLASS_EXTRA
     IM_VEC4_CLASS_EXTRA     // Define additional constructors and implicit cast operators in imconfig.h to convert back and forth between your math types and ImVec4.
 #endif

@@ -323,6 +323,7 @@ public:
     std::string mOldLocalName = "";
     std::string mOldXuid = "";
 
+    bool mReceivedPOF = false;
     bool mAlwaysSendToIrc = false;
 
     // copied because we need to access it from multiple threads

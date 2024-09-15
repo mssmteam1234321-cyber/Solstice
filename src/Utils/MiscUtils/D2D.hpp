@@ -46,4 +46,6 @@ public:
     static void endRender();
     static void blurCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd);
     static bool addBlur(ImDrawList* drawList, float strength, std::optional<ImVec4> clipRect, float rounding);
+    static void blurCallbackOptimized(const ImDrawList* parent_list, const ImDrawCmd* cmd);
+    static bool addBlurOptimized(ImDrawList* drawList, float strength, std::optional<ImVec4> clipRect, float rounding);
 };

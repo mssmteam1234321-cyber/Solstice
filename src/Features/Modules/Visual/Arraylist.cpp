@@ -78,7 +78,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     // Render the array list here
     static std::vector<std::shared_ptr<Module>> module;
 
-    auto drawList = ImGui::GetBackgroundDrawList();
+    auto drawList = ImGui::GetForegroundDrawList();
     FontHelper::pushPrefFont(true, mBoldText.mValue);
 
     if (module.empty())
@@ -118,6 +118,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         if (!settingDisplay.empty()) settingDisplay = " " + settingDisplay;
         ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
 
+
+
         ImVec2 textPos = ImVec2(pos.x, pos.y);
 
         if (mDisplay.mValue == Display::Bar || mDisplay.mValue == Display::Split)
@@ -143,6 +145,8 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         rect.x -= 3;
         rect.z += 1;
         rect.z += 3;
+
+        ImRenderUtils::addBlur(rect, mBlurStrength.mValue, 0, ImGui::GetBackgroundDrawList(), true);
 
         if (mBackground.mValue == BackgroundStyle::Shadow || mBackground.mValue == BackgroundStyle::Both)
         {
@@ -216,7 +220,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
             drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, mBackgroundOpacity.mValue), 0.0f);
         }
 
-        ImRenderUtils::addBlur(rect, mBlurStrength.mValue, 0);
+
 
 
 

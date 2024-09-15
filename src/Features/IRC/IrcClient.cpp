@@ -247,6 +247,7 @@ bool IrcClient::connectToServer()
 
                 if (op.opCode == OpCode::Work)
                 {
+                    mReceivedPOF = true;
                     int result = WorkingVM::SolveProofTask(op.data);
                     auto op = ChatOp(OpCode::CompleteWork, std::to_string(result), true);
                     sendOpAuto(op);
@@ -412,6 +413,7 @@ void IrcClient::disconnect(std::string disconnectReason)
         mEncrypted = false;
         mClientKey = "";
         mServerKey = "";
+        mReceivedPOF = false;
 
         if (!isConnected())
         {
@@ -499,6 +501,15 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
         disconnect(xorstr_("Ping timeout from server"));
         return;
     }
+
+    if (mLastPing != 0 && NOW - mLastPing > 3000 && isConnected() && !mReceivedPOF)
+    {
+        logm("Ping timeout, disconnecting");
+        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate with server!");
+        disconnect(xorstr_("Failed to authenticate with server"));
+        return;
+    }
+
 
     static std::string lastPlayerName = "";
     if (player->getLocalName() != lastPlayerName)
@@ -631,6 +642,7 @@ void IrcManager::init()
     if (!mClient->connectToServer())
     {
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to connect to IRC server.");
+        mClient->disconnect(xorstr_("Failed to connect to IRC server"));
     }
 
     mLastConnectAttempt = NOW;

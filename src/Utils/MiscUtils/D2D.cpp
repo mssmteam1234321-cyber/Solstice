@@ -18,6 +18,13 @@ static winrt::com_ptr<ID2D1DeviceContext> d2dDeviceContext = nullptr;
 static winrt::com_ptr<ID2D1SolidColorBrush> brush = nullptr;
 
 bool initD2D = false;
+// used for optimized blur
+static ID2D1Bitmap* cachedBitmap = nullptr;
+static ID2D1ImageBrush* cachedBrush = nullptr;
+static ID2D1RoundedRectangleGeometry* cachedClipRectGeo = nullptr;
+static bool requestFlush = false;
+
+
 
 float dpi = 0.0f;
 
@@ -159,6 +166,19 @@ void D2D::endRender()
     d2dDeviceContext->EndDraw();
     d2dDeviceContext->SetTarget(nullptr); // Unbind the render target
     sourceBitmap = nullptr;
+    if (cachedBitmap != nullptr) {
+        cachedBitmap->Release();
+        cachedBitmap = nullptr;
+    }
+    if (cachedBrush != nullptr) {
+        cachedBrush->Release();
+        cachedBrush = nullptr;
+    }
+    if (cachedClipRectGeo != nullptr) {
+        cachedClipRectGeo->Release();
+        cachedClipRectGeo = nullptr;
+    }
+
 }
 
 
@@ -246,5 +266,90 @@ bool D2D::addBlur(ImDrawList* drawList, float strength, std::optional<ImVec4> cl
     auto data = uniqueData.get();
     blurCallbacks.push_back(uniqueData);
     drawList->AddCallback(blurCallback, data);
+    return true;
+}
+
+template <typename T>
+void SafeRelease(T** ptr) {
+    if (*ptr) {
+        (*ptr)->Release();
+        *ptr = nullptr;
+    }
+}
+
+void D2D::blurCallbackOptimized(const ImDrawList* parent_list, const ImDrawCmd* cmd) {
+    auto data = (BlurCallbackData*)cmd->UserCallbackData;
+    if (data == nullptr) {
+        return;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec4 clipRect = data->clipRect.has_value() ? *data->clipRect : cmd->ClipRect;
+
+
+    D2D1_SIZE_U bitmapSize = sourceBitmap->GetPixelSize();
+
+    // Check if the bitmap needs to be created (initialization or size change)
+    if (cachedBitmap == nullptr || cachedBitmap->GetPixelSize().width != bitmapSize.width || cachedBitmap->GetPixelSize().height != bitmapSize.height) {
+        SafeRelease(&cachedBitmap); // Ensure previous bitmap is released
+        D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties(sourceBitmap->GetPixelFormat());
+        d2dDeviceContext->CreateBitmap(bitmapSize, props, &cachedBitmap);
+        auto destPoint = D2D1::Point2U(0, 0);
+        auto rect = D2D1::RectU(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+        cachedBitmap->CopyFromBitmap(&destPoint, sourceBitmap.get(), &rect);
+    }
+
+    // Only recreate the clip rect geometry if the clipRect or rounding has changed
+    static ImVec4 cachedClipRect;
+    static float cachedRounding = -1.0f;
+    if (cachedClipRectGeo == nullptr || cachedClipRect != clipRect || cachedRounding != data->rounding) {
+        SafeRelease(&cachedClipRectGeo); // Release previous geometry
+        cachedClipRect = clipRect;
+        cachedRounding = data->rounding;
+
+        D2D1_RECT_F clipRectD2D = D2D1::RectF(clipRect.x, clipRect.y, clipRect.z, clipRect.w);
+        D2D1_ROUNDED_RECT clipRectRounded = D2D1::RoundedRect(clipRectD2D, data->rounding, data->rounding);
+        d2dFactory->CreateRoundedRectangleGeometry(clipRectRounded, &cachedClipRectGeo);
+    }
+
+    // Reuse the image brush if possible
+    if (cachedBrush == nullptr) {
+        ID2D1Image* outImage = nullptr;
+        blurEffect->SetInput(0, cachedBitmap);
+        blurEffect->SetValue(D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION, data->strength);
+        blurEffect->SetValue(D2D1_GAUSSIANBLUR_PROP_BORDER_MODE, D2D1_BORDER_MODE_HARD);
+        blurEffect->GetOutput(&outImage);
+
+        D2D1_IMAGE_BRUSH_PROPERTIES brushProps = D2D1::ImageBrushProperties(D2D1::RectF(0, 0, io.DisplaySize.x, io.DisplaySize.y));
+        d2dDeviceContext->CreateImageBrush(outImage, brushProps, &cachedBrush);
+
+        SafeRelease(&outImage); // Release image after use
+    }
+
+    ID2D1Image* originalTarget = nullptr;
+    d2dDeviceContext->GetTarget(&originalTarget);
+
+    d2dDeviceContext->SetTarget(sourceBitmap.get());
+    d2dDeviceContext->FillGeometry(cachedClipRectGeo, cachedBrush);
+    d2dDeviceContext->SetTarget(originalTarget);
+    SafeRelease(&originalTarget);
+    d2dDeviceContext->Flush();
+}
+
+
+bool D2D::addBlurOptimized(ImDrawList* drawList, float strength, std::optional<ImVec4> clipRect, float rounding)
+{
+    if (!initD2D) {
+        return false;
+    }
+
+    if (strength == 0) {
+        return false;
+    }
+
+    auto uniqueData = std::make_shared<BlurCallbackData>(strength, rounding, clipRect);
+    auto data = uniqueData.get();
+    blurCallbacks.push_back(uniqueData);
+    drawList->AddCallback(blurCallbackOptimized, data);
     return true;
 }

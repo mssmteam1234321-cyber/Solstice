@@ -10,12 +10,13 @@
 
 #include "D2D.hpp"
 
-void ImRenderUtils::addBlur(const ImVec4& pos, float strength, float radius, ImDrawList* list)
+void ImRenderUtils::addBlur(const ImVec4& pos, float strength, float radius, ImDrawList* list, bool optimized)
 {
     if (!ImGui::GetCurrentContext())
         return;
 
-    D2D::addBlur(list, strength, pos, radius);
+	if (optimized) D2D::addBlurOptimized(list, strength, pos, radius);
+    else D2D::addBlur(list, strength, pos, radius);
 }
 
 void ImRenderUtils::drawText(ImVec2 pos, const std::string& textStr, const ImColor& color, float textSize, float alpha,
