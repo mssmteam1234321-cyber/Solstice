@@ -77,7 +77,9 @@ public:
             &mSwitchMode,
             &mBypassMode,
             &mAutoFireSword,
+#ifdef __DEBUG__
             &mFireSwordSpoof,
+#endif
             &mHotbarOnly,
             &mFistFriends,
             &mRange,
