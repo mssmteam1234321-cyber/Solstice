@@ -76,8 +76,8 @@ public:
             &mRotateMode,
             &mSwitchMode,
             &mBypassMode,
-            &mAutoFireSword
-            /*, &mFireSwordSpoof*/,
+            &mAutoFireSword,
+            &mFireSwordSpoof,
             &mHotbarOnly,
             &mFistFriends,
             &mRange,
@@ -135,6 +135,8 @@ public:
     static inline bool sHasTarget = false;
     static inline Actor* sTarget = nullptr;
     int64_t mLastSwing = 0;
+    int64_t mLastTransaction = 0;
+    int mLastSlot = 0;
 
     int getSword(Actor* target);
     bool shouldUseFireSword(Actor* target);

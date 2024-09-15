@@ -430,6 +430,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         int bestWeapon = getSword(actor);
         mHotbarOnly.mValue ? slot = bestWeapon : slot = player->getSupplies()->mSelectedSlot;
 
+        auto ogActor = actor;
         actor = findObstructingActor(player, actor);
 
         if (mSwitchMode.mValue == SwitchMode::Full)
@@ -445,8 +446,27 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         player->getLevel()->getHitResult()->mType = HitType::ENTITY;
         if (mAttackMode.mValue == AttackMode::Synched)
         {
+
             std::shared_ptr<InventoryTransactionPacket> attackTransaction = ActorUtils::createAttackTransaction(actor, mSwitchMode.mValue == SwitchMode::Spoof ? bestWeapon : -1);
+
+            bool shouldUseFire = shouldUseFireSword(ogActor) && mLastTransaction + 200 < NOW;
+            bool spoofed = false;
+            int oldSlot = mLastSlot;
+
+            if (mFireSwordSpoof.mValue && shouldUseFire)
+            {
+                spoofed = true;
+                auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
+                PacketUtils::queueSend(pkt, false);
+            }
+
             PacketUtils::queueSend(attackTransaction, false);
+
+            if (spoofed)
+            {
+                auto pkt = PacketUtils::createMobEquipmentPacket(oldSlot);
+                PacketUtils::queueSend(pkt, false);
+            }
         } else {
             int oldSlot = supplies->mSelectedSlot;
             if (mSwitchMode.mValue == SwitchMode::Spoof)
@@ -454,8 +474,25 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
                 supplies->mSelectedSlot = bestWeapon;
             }
 
+            bool shouldUseFire = shouldUseFireSword(ogActor) && mLastTransaction + 200 < NOW;
+            bool spoofed = false;
+            int oldPktSlot = mLastSlot;
+
+            if (mFireSwordSpoof.mValue && shouldUseFire)
+            {
+                auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
+                ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
+                spoofed = true;
+            }
+
             player->getGameMode()->attack(actor);
             supplies->mSelectedSlot = oldSlot;
+
+            if (spoofed)
+            {
+                auto pkt = PacketUtils::createMobEquipmentPacket(oldPktSlot);
+                ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
+            }
         }
 
         lastAttack = now;
@@ -492,6 +529,21 @@ void Aura::onPacketOutEvent(PacketOutEvent& event)
     } else if (event.mPacket->getId() == PacketID::Animate)
     {
         mLastSwing = NOW;
+    } else if (event.mPacket->getId() == PacketID::InventoryTransaction)
+    {
+        auto pkt = event.getPacket<InventoryTransactionPacket>();
+        auto cit = pkt->mTransaction.get();
+
+        if (cit->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+        {
+            const auto iut = reinterpret_cast<ItemUseInventoryTransaction*>(cit);
+            if (iut->mActionType == ItemUseInventoryTransaction::ActionType::Place)
+                mLastTransaction = NOW;
+        }
+    } else if (event.mPacket->getId() == PacketID::MobEquipment)
+    {
+        auto pkt = event.getPacket<MobEquipmentPacket>();
+        mLastSlot = pkt->mSlot;
     }
 
 }
