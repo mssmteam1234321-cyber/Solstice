@@ -38,7 +38,8 @@ public:
     static std::string encrypt(const std::string& str, const std::string& key);
     static std::string decrypt(const std::string& str, const std::string& key);
     static std::string toHex(const std::vector<uint8_t>& data);
-
+    static bool contains(const std::string& str, const std::string& subStr);
+    static std::string replace(const std::string& str, const std::string& from, const std::string& to);
 };
 
 

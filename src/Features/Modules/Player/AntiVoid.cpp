@@ -7,6 +7,20 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 
+#include "Freecam.hpp"
+
+AntiVoid::AntiVoid(): ModuleBase("AntiVoid", "Prevents you from falling into the void", ModuleCategory::Player, 0, false)
+{
+    addSettings(&mFallDistance, &mTpOnce, &mTeleportToSpawn, &mToggleFreecam);
+
+    mNames = {
+        {Lowercase, "antivoid"},
+        {LowercaseSpaced, "anti void"},
+        {Normal, "AntiVoid"},
+        {NormalSpaced, "Anti Void"}
+    };
+}
+
 void AntiVoid::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &AntiVoid::onBaseTickEvent>(this);
@@ -43,13 +57,29 @@ void AntiVoid::onBaseTickEvent(BaseTickEvent& event)
 
     if (player->getFallDistance() > mFallDistance.mValue && (!hasTeleported || !mTpOnce.mValue))
     {
+        if (!mTeleport.mValue)
+        {
+            if (mToggleFreecam.mValue) {
+                static auto freecam = gFeatureManager->mModuleManager->getModule<Freecam>();
+                if (freecam)
+                {
+                    freecam->mMode.mValue = Freecam::Mode::Normal;
+                    freecam->setEnabled(true);
+                }
+
+                player->setFallDistance(0.0f);
+                mOnGroundPositions.clear();
+            }
+            return;
+        }
+
         glm::vec3 bestPos = glm::ivec3(0, 0, 0);
         bool found = false;
         auto inverted = mOnGroundPositions;
-        std::reverse(inverted.begin(), inverted.end());
+        std::ranges::reverse(inverted);
         for (auto& pos : inverted)
         {
-            glm::ivec3 blockPos = glm::ivec3(pos + glm::vec3(0, -1, 0) - PLAYER_HEIGHT_VEC);
+            auto blockPos = glm::ivec3(pos + glm::vec3(0, -1, 0) - PLAYER_HEIGHT_VEC);
             if (BlockUtils::isGoodBlock(blockPos))
             {
                 bestPos = blockPos;

@@ -245,7 +245,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
         element->setFromPos(glm::vec2(newPos.x, newPos.y));
     }
 
-
+    // Draw elements
     for (auto element : mElements)
     {
         if (!element->mVisible) continue;

@@ -585,3 +585,19 @@ std::string StringUtils::toHex(const std::vector<uint8_t>& data)
     return ""; // not implemented
 }
 
+bool StringUtils::contains(const std::string& str, const std::string& subStr)
+{
+    return str.find(subStr) != std::string::npos;
+}
+
+std::string StringUtils::replace(const std::string& str, const std::string& from, const std::string& to)
+{
+    // replace only the first occurrence
+    std::string result = str;
+    size_t start_pos = result.find(from);
+    if (start_pos != std::string::npos)
+    {
+        result.replace(start_pos, from.length(), to);
+    }
+    return result;
+};

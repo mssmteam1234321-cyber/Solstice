@@ -7,19 +7,11 @@
 class AntiVoid : public ModuleBase<AntiVoid> {
 public:
     NumberSetting mFallDistance = NumberSetting("Fall Distance", "The distance you can fall before being teleported back", 5, 1, 15, 1);
+    BoolSetting mTeleport = BoolSetting("Teleport", "Teleport back when falling", true);
     BoolSetting mTpOnce = BoolSetting("Teleport Once", "Only teleport once", false);
+    BoolSetting mToggleFreecam = BoolSetting("Toggle Freecam", "Toggle freecam when teleported", false);
 
-    AntiVoid() : ModuleBase("AntiVoid", "Prevents you from falling into the void", ModuleCategory::Player, 0, false) {
-        addSetting(&mFallDistance);
-        addSetting(&mTpOnce);
-
-        mNames = {
-            {Lowercase, "antivoid"},
-            {LowercaseSpaced, "anti void"},
-            {Normal, "AntiVoid"},
-            {NormalSpaced, "Anti Void"}
-        };
-    }
+    AntiVoid();
 
     std::vector<glm::vec3> mOnGroundPositions;
     bool mTeleported = false;
