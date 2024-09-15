@@ -212,7 +212,11 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
 
         if (mBackground.mValue == BackgroundStyle::Opacity || mBackground.mValue == BackgroundStyle::Both)
+        {
             drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, mBackgroundOpacity.mValue), 0.0f);
+        }
+
+        ImRenderUtils::addBlur(rect, mBlurStrength.mValue, 0);
 
 
 
