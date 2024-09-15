@@ -119,6 +119,8 @@ public:
         gInstance = this;
     }
 
+    const float mSnapPointDist = 10.f;
+
     int mSnapDistance = 0.f;
     std::vector<HudElement*> mElements = {};
 

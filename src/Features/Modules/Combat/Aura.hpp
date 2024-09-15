@@ -32,17 +32,18 @@ public:
         Spoof
     };
 
-    enum class AnticheatMode {
+    enum class BypassMode {
         None,
         FlareonV1,
-        FlareonV2
+        FlareonV2,
+        Raycast
     };
 
     EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of the aura", Mode::Switch, "Single", "Multi", "Switch");
     EnumSettingT<AttackMode> mAttackMode = EnumSettingT("Attack Mode", "The mode of attack", AttackMode::Earliest, "Earliest", "Synched");
     EnumSettingT<RotateMode> mRotateMode = EnumSettingT("Rotate Mode", "The mode of rotation", RotateMode::Normal, "None", "Normal", "Flick");
     EnumSettingT<SwitchMode> mSwitchMode = EnumSettingT("Switch Mode", "The mode of switching", SwitchMode::None, "None", "Full", "Spoof");
-    EnumSettingT<AnticheatMode> mAnticheatMode = EnumSettingT("Anticheat", "The anticheat to bypass", AnticheatMode::None, "None", "FlareonV1", "FlareonV2");
+    EnumSettingT<BypassMode> mBypassMode = EnumSettingT("Bypass Mode", "The type of bypass", BypassMode::Raycast, "None", "FlareonV1", "FlareonV2", "Raycast");
     BoolSetting mAutoFireSword = BoolSetting("Auto Fire Sword", "Whether or not to automatically use the fire sword", false);
     BoolSetting mFireSwordSpoof = BoolSetting("Fire Sword Spoof", "Whether or not to spoof the fire sword", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
@@ -74,7 +75,7 @@ public:
             &mAttackMode,
             &mRotateMode,
             &mSwitchMode,
-            &mAnticheatMode,
+            &mBypassMode,
             &mAutoFireSword
             /*, &mFireSwordSpoof*/,
             &mHotbarOnly,
@@ -97,8 +98,8 @@ public:
             &mSpheresSizeMultiplier,
             &mSpheresSize,
             &mSpheresMinSize,
-            &mSpheresRadius
-            //&mDebug
+            &mSpheresRadius,
+            &mDebug
         );
 
         VISIBILITY_CONDITION(mAutoFireSword, mSwitchMode.mValue != SwitchMode::None);

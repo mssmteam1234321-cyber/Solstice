@@ -69,4 +69,6 @@ public:
     static glm::vec2 getRots(const glm::vec3& pEyePos, const AABB& target);
     static float snapYaw(float yaw);
     static glm::vec2 getMovement();
+    static bool rayIntersectsAABB(glm::vec3 rayPos, glm::vec3 rayEnd, glm::vec3 hitboxMin, glm::vec3 hitboxMax);
+
 };

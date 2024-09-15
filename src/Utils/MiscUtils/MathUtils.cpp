@@ -273,3 +273,17 @@ glm::vec2 MathUtils::getMovement() {
     ret.y = forward;
     return ret;
 }
+
+bool MathUtils::rayIntersectsAABB(glm::vec3 rayPos, glm::vec3 rayEnd, glm::vec3 hitboxMin, glm::vec3 hitboxMax)
+{
+    glm::vec3 t0 = (hitboxMin - rayPos) / (rayEnd - rayPos);
+    glm::vec3 t1 = (hitboxMax - rayPos) / (rayEnd - rayPos);
+
+    glm::vec3 tmin = glm::min(t0, t1);
+    glm::vec3 tmax = glm::max(t0, t1);
+
+    float tminmax = glm::max(tmin.x, glm::max(tmin.y, tmin.z));
+    float tmaxmin = glm::min(tmax.x, glm::min(tmax.y, tmax.z));
+
+    return tminmax <= tmaxmin;
+}

@@ -534,31 +534,81 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
         return a->distanceTo(player) < b->distanceTo(player);
     });
 
-    for (auto actor : actors)
+    if (mBypassMode.mValue == BypassMode::Raycast)
     {
-        if (actor == player || actor == target) continue;
-        float distance = actor->distanceTo(target);
-        if (distance > 3.f) continue;
+        std::map<Actor*, AABBShapeComponent> actorHitboxes;
+        glm::vec3 rayStart = *player->getPos();
+        glm::vec3 rayEnd = *target->getPos();
+        glm::vec3 currentRayPos = rayStart;
 
-        std::string id = actor->mEntityIdentifier;
-        float hitboxWidth = actor->getAABBShapeComponent()->mWidth;
-        float hitboxHeight = actor->getAABBShapeComponent()->mHeight;
-
-        if (id == "hivecommon:shadow" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV2)
+        // Check for obstructing actors
+        for (auto actor : actors)
         {
-            if (hitboxWidth != 0.86f || hitboxHeight != 2.32f) // Identify Correct Shadow
+            if (actor == player || actor == target) continue;
+            if (actor->distanceTo(player) > mRange.mValue) continue;
+
+            auto hitbox = *actor->getAABBShapeComponent();
+            actorHitboxes[actor] = hitbox;
+
+            if (MathUtils::rayIntersectsAABB(currentRayPos, rayEnd, hitbox.mMin, hitbox.mMax))
             {
-                continue;
+                if (mDebug.mValue)
+                {
+                    spdlog::info("Found obstructing actor: {}", actor->mEntityIdentifier);
+                    ChatUtils::displayClientMessage("Attacking obstructing actor: " + actor->mEntityIdentifier);
+                }
+                target = actor;
+                break;
+            }
+        }
+
+        return target;
+    } else if (mBypassMode.mValue != BypassMode::None)
+    {
+        auto actors = ActorUtils::getActorList(false, false);
+        std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+        {
+            return a->distanceTo(player) < b->distanceTo(player);
+        });
+
+        for (auto actor : actors)
+        {
+            if (actor == player || actor == target) continue;
+            float distance = actor->distanceTo(target);
+            if (distance > 3.f) continue;
+
+            std::string id = actor->mEntityIdentifier;
+            float hitboxWidth = actor->getAABBShapeComponent()->mWidth;
+            float hitboxHeight = actor->getAABBShapeComponent()->mHeight;
+
+            if (id == "hivecommon:shadow" && distance < 3.f && mBypassMode.mValue == BypassMode::FlareonV2)
+            {
+                if (hitboxWidth != 0.86f || hitboxHeight != 2.32f) // Identify Correct Shadow
+                {
+                    continue;
+                }
+
+                if (mDebug.mValue)
+                {
+                    spdlog::info("Found shadow: {}", actor->mEntityIdentifier);
+                    ChatUtils::displayClientMessage("Found shadow: " + actor->mEntityIdentifier);
+                }
+
+
+                return actor;
             }
 
-            return actor;
+            if (id == "minecraft:pig" && distance < 3.f && mBypassMode.mValue == BypassMode::FlareonV1)
+            {
+                if (mDebug.mValue)
+                {
+                    spdlog::info("Found pig: {}", actor->mEntityIdentifier);
+                    ChatUtils::displayClientMessage("Found pig: " + actor->mEntityIdentifier);
+                }
+                return actor;
+            }
         }
 
-        if (id == "minecraft:pig" && distance < 3.f && mAnticheatMode.mValue == AnticheatMode::FlareonV1)
-        {
-            return actor;
-        }
+        return target;
     }
-
-    return target;
 }
