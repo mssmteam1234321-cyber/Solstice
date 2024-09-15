@@ -11,7 +11,7 @@
 
 AntiVoid::AntiVoid(): ModuleBase("AntiVoid", "Prevents you from falling into the void", ModuleCategory::Player, 0, false)
 {
-    addSettings(&mFallDistance, &mTpOnce, &mTeleportToSpawn, &mToggleFreecam);
+    addSettings(&mFallDistance, &mTpOnce, &mTeleport, &mToggleFreecam);
 
     mNames = {
         {Lowercase, "antivoid"},
