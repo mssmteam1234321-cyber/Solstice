@@ -65,6 +65,9 @@ CPMAddPackage(
         GIT_TAG master
 )
 
+if(MSVC)
+    add_compile_options(/bigobj)
+endif()
 
 set(SHADER_DIR ${CMAKE_CURRENT_LIST_DIR}/src/Utils/Shaders)
 set(SHADER_BIN_DIR ${CMAKE_BINARY_DIR}/SolsticeShaders)
