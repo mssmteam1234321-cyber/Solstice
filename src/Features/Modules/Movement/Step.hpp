@@ -7,9 +7,17 @@
 class Step : public ModuleBase<Step>
 {
 public:
-    NumberSetting mStepHeight = NumberSetting("Step Height", "The max height to step up blocks", 0.50f, 0.0f, 4.f, 0.1f);
+    enum class Mode {
+        Vanilla,
+        Flareon,
+        FlareonV2
+    };
+
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The style of which step height is applied.", Mode::Vanilla, "Vanilla", "Flareon", "FlareonV2");
+    NumberSetting mStepHeight = NumberSetting("Step Height", "The max height to step up blocks", 0.50f, 0.0f, 5.f, 0.1f);
 
     Step() : ModuleBase<Step>("Step", "Automatically steps up blocks", ModuleCategory::Movement, 0, false) {
+        addSetting(&mMode);
         addSetting(&mStepHeight);
 
         mNames = {
