@@ -25,3 +25,11 @@ SyncedPlayerMovementSettings* Level::getPlayerMovementSettings()
     static auto vIndex = OffsetProvider::Level_getPlayerMovementSettings;
     return MemUtils::callVirtualFunc<SyncedPlayerMovementSettings*>(vIndex, this);
 }
+
+std::vector<Actor*> Level::getRuntimeActorList()
+{
+    static auto func = SigManager::Level_getRuntimeActorList;
+    std::vector<Actor*> actors;
+    MemUtils::callFastcall<void>(func, this, &actors);
+    return actors;
+}

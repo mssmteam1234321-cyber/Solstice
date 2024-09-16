@@ -11,7 +11,14 @@ public:
         Simple,
         Custom
     };
+
+    enum class EntitylistMode {
+        EnttView,
+        RuntimeActorList
+    };
+
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the AntiBot module.", Mode::Simple, "Simple", "Custom");
+    EnumSettingT<EntitylistMode> mEntitylistMode = EnumSettingT<EntitylistMode>("Entitylist Mode", "The mode of the entity list.\nEntt View: Use if you have any issues with actors not showing up\nRuntime Actor List: Use if you have stability issues", EntitylistMode::RuntimeActorList, "Entt View", "Level");
     BoolSetting mHitboxCheck = BoolSetting("Hitbox Check", "Whether or not to check the hitbox of the entity.", true);
     BoolSetting mPlayerCheck = BoolSetting("Player Check", "Whether or not to check if the entity is a player.", true);
     BoolSetting mInvisibleCheck = BoolSetting("Invisible Check", "Whether or not to check if the entity is invisible.", true);
@@ -19,7 +26,7 @@ public:
     BoolSetting mPlayerListCheck = BoolSetting("PlayerList Check", "Whether or not to check if the entity is in playerlist.", true);
 
     AntiBot() : ModuleBase("AntiBot", "Filters out bots from the entity list", ModuleCategory::Misc, 0, true) {
-        addSettings(&mMode, &mHitboxCheck, &mPlayerCheck, &mInvisibleCheck, &mNameCheck, &mPlayerListCheck);
+        addSettings(&mMode, &mEntitylistMode, &mHitboxCheck, &mPlayerCheck, &mInvisibleCheck, &mNameCheck, &mPlayerListCheck);
 
         VISIBILITY_CONDITION(mHitboxCheck, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mPlayerCheck, mMode.mValue == Mode::Custom);

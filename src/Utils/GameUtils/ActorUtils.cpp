@@ -16,6 +16,7 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 static AntiBot* antibot = nullptr;
 
 std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool excludeBots)
@@ -32,29 +33,50 @@ std::vector<struct Actor *> ActorUtils::getActorList(bool playerOnly, bool exclu
 
     try
     {
-        for (auto &&[entId, moduleOwner, type, ridc, balls]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent, AABBShapeComponent>().each())
+        if (antibot->mEntitylistMode.mValue == AntiBot::EntitylistMode::EnttView)
         {
-            // Check if the entity id exists
-            if (!player->mContext.mRegistry->valid(entId))
+            for (auto &&[entId, moduleOwner, type, ridc, balls]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent, RuntimeIDComponent, AABBShapeComponent>().each())
             {
-                spdlog::critical("Found invalid entity id [{}]", entId);
+                // Check if the entity id exists
+                if (!player->mContext.mRegistry->valid(entId))
+                {
+                    spdlog::critical("Found invalid entity id [{}]", entId);
 #ifdef __DEBUG__
-                ChatUtils::displayClientMessage("§cCHECK CONSOLE");
+                    ChatUtils::displayClientMessage("§cCHECK CONSOLE");
 #endif
-                return actors;
+                    return actors;
+                }
+
+                // Continue if the actor is null
+                if (!moduleOwner.mActor)
+                {
+                    spdlog::critical("Found null actor pointer for entity!");
+                    continue;
+                };
+                // Continue if the actor is a bot and we want to exclude bots
+                if (excludeBots && antibot->isBot(moduleOwner.mActor)) continue;
+
+                if (type.mType == ActorType::Player && playerOnly || !playerOnly)
+                    actors.push_back(moduleOwner.mActor);
             }
-
-            // Continue if the actor is null
-            if (!moduleOwner.mActor)
+        } else if (antibot->mEntitylistMode.mValue == AntiBot::EntitylistMode::RuntimeActorList)
+        {
+            auto tactors = player->getLevel()->getRuntimeActorList();
+            for (auto actor : tactors)
             {
-                spdlog::critical("Found null actor pointer for entity!");
-                continue;
-            };
-            // Continue if the actor is a bot and we want to exclude bots
-            if (excludeBots && antibot->isBot(moduleOwner.mActor)) continue;
+                // Continue if the actor is null
+                if (!actor)
+                {
+                    spdlog::critical("Found null actor pointer for entity!");
+                    continue;
+                };
 
-            if (type.mType == ActorType::Player && playerOnly || !playerOnly)
-                actors.push_back(moduleOwner.mActor);
+                // Continue if the actor is a bot and we want to exclude bots
+                if (excludeBots && antibot->isBot(actor)) continue;
+
+                if (playerOnly && actor->isPlayer() || !playerOnly)
+                    actors.push_back(actor);
+            }
         }
     } catch (std::exception &e)
     {
