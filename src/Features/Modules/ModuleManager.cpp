@@ -54,6 +54,7 @@
 #include "Movement/Sprint.hpp"
 #include "Movement/Step.hpp"
 #include "Movement/Velocity.hpp"
+#include "Movement/DebugFly.hpp"
 #include "Movement/HiveFly.hpp"
 #include "Movement/AirJump.hpp"
 #include "Player/AntiVoid.hpp"
@@ -202,6 +203,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
 
 #ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
     mModules.emplace_back(std::make_shared<BoneEsp>()); // (not finished)
