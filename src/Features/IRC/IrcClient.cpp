@@ -502,7 +502,7 @@ void IrcClient::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (mLastPing != 0 && NOW - mLastPing > 3000 && isConnected() && !mReceivedPOF)
+    if (mLastPing != 0 && NOW - mLastPing > 8000 && isConnected() && !mReceivedPOF)
     {
         logm("Ping timeout, disconnecting");
         ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate with server!");
