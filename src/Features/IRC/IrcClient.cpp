@@ -105,6 +105,11 @@ void IrcClient::sendData(std::string data)
 
     try
     {
+        if (!isConnected())
+        {
+            logm("Cannot send data, not connected to server");
+            return;
+        }
         data = StringUtils::encode(data);
 
         std::lock_guard<std::mutex> guard(mMutex);
@@ -113,7 +118,7 @@ void IrcClient::sendData(std::string data)
         mWriter.FlushAsync();
     } catch (winrt::hresult_error const& ex)
     {
-        logm("Error: {}", winrt::to_string(ex.message()));
+        logm("Error: {} [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
     } catch (const std::exception& ex)
     {
         logm("Error: {}", ex.what());
@@ -266,7 +271,7 @@ bool IrcClient::connectToServer()
             }
             catch (winrt::hresult_error const& ex)
             {
-                logm("Error: {}", winrt::to_string(ex.message()));
+                logm("Error: {}", winrt::to_string(ex.message()) + " [Code: " + std::to_string(ex.code()) + "], [FUNC: " + std::string(__FUNCTION__) + "]");
 
                 disconnect(xorstr_("Error: ") + winrt::to_string(ex.message()));
             } catch (const std::exception& ex)
@@ -293,7 +298,7 @@ bool IrcClient::connectToServer()
         });
     } catch (winrt::hresult_error const& ex)
     {
-        logm("Error: {} [{}]", winrt::to_string(ex.message()), ex.code());
+        logm("Error: {} [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
         return false;
     } catch (const std::exception& ex)
     {
@@ -437,7 +442,7 @@ void IrcClient::disconnect(std::string disconnectReason)
         IrcManager::mLastConnectAttempt = NOW;
     } catch (winrt::hresult_error const& ex)
     {
-        logm("Error: {}", winrt::to_string(ex.message()));
+        logm("Error: {}, [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
     } catch (const std::exception& ex)
     {
         logm("Error: {}", ex.what());
