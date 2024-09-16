@@ -30,6 +30,7 @@
 #include "Misc/PacketLogger.hpp"
 #include "Misc/PartySpammer.hpp"
 #include "Misc/SkinStealer.hpp"
+#include "Misc/SkinBlinker.hpp"
 #include "Misc/Spammer.hpp"
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
@@ -201,6 +202,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
 
 #ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
     mModules.emplace_back(std::make_shared<BoneEsp>()); // (not finished)
 #endif
