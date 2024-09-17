@@ -5,7 +5,7 @@
 class AutoSpellBook : public ModuleBase<AutoSpellBook>
 {
 public:
-    NumberSetting mDelay = NumberSetting("Delay", "The delay between using spellbooks (in milliseconds)", 0, 1000, 200, 1);
+    NumberSetting mDelay = NumberSetting("Delay", "The delay between using spellbooks (in milliseconds)", 200, 0, 2000, 1);
     BoolSetting mShowNotification = BoolSetting("Show Notification", "Shows a notification when a spellbook is used", true);
 
     AutoSpellBook() : ModuleBase("AutoSpellBook", "Automatically opens/uses your spellbook", ModuleCategory::Player, 0, false) {
