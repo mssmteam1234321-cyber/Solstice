@@ -60,6 +60,7 @@
 #include "Player/AntiVoid.hpp"
 
 #include "Player/AutoBoombox.hpp"
+#include "Player/AutoSpellBook.hpp"
 #include "Player/AutoKick.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
@@ -133,6 +134,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AirJump>());
 
     // Player
+    mModules.emplace_back(std::make_shared<AutoSpellBook>());
     mModules.emplace_back(std::make_shared<Timer>());
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
