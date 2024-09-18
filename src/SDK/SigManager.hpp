@@ -44,8 +44,6 @@ public:
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
     DEFINE_SIG(Actor_setPosition, "E8 ? ? ? ? 48 8B ? 48 8B ? E8 ? ? ? ? 48 8B ? 33 D2 48 8B ? 48 8B ? ? FF 15 ? ? ? ? EB", SigType::RefSig, 1);
-    /*DEFINE_SIG(ActorCollision_setOnGround, "E8 ? ? ? ? EB ? 0F B6 ? ? 48 8D ? ? E8", SigType::RefSig, 1);
-    DEFINE_SIG(ActorCollision_isOnGround, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F ? ? F3 0F ? ? ? F3 0F", SigType::RefSig, 1);*/
     DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 48 8B ? 48 8B ? 48 83 78 18 ? 48 8B", SigType::RefSig, 1);
     DEFINE_SIG(Actor_setNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 8B ? 4C 8B", SigType::Sig, 0);
     DEFINE_SIG(ActorRenderDispatcher_render, "E8 ? ? ? ? 44 0F ? ? ? ? 4C 8D ? ? ? ? ? ? 41 0F ? ? ? 41 0F ? ? ? 45 0F ? ? ? 45 0F ? ? ? 49 8B", SigType::RefSig, 1);
