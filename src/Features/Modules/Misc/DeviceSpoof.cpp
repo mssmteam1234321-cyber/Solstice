@@ -94,10 +94,7 @@ void DeviceSpoof::onConnectionRequestEvent(ConnectionRequestEvent& event)
     *event.mDeviceId = deviceId;
     *event.mSkinId = "Custom" + deviceId;
     *event.mSelfSignedId = StringUtils::generateUUID();
-    if(mSpoofMboard.mValue)
-    {
-        spoofMboard();
-    }
+    spoofMboard();
     spdlog::info("[device spoof] successfully spoofed device information");
 }
 

@@ -7,12 +7,8 @@
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
 public:
-    BoolSetting mSpoofMboard = BoolSetting("Spoof Mboard", "Whether or not to spoof your motherboard", true);
-
     DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs your device id, useful for bypassing bans", ModuleCategory::Misc, 0, true)
     {
-        addSetting(&mSpoofMboard);
-
         mNames = {
             {Lowercase, "devicespoof"},
             {LowercaseSpaced, "device spoof"},
