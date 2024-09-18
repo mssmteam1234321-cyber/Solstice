@@ -149,7 +149,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Freecam>());
     mModules.emplace_back(std::make_shared<NoFall>());
     mModules.emplace_back(std::make_shared<Teams>());
-    mModules.emplace_back(std::make_shared<HiveFly>());
     mModules.emplace_back(std::make_shared<AntiVoid>());
 
     // Misc
@@ -205,6 +204,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
 
 #ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
