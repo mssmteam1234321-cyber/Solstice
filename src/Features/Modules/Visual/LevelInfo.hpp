@@ -8,19 +8,19 @@
 class LevelInfo : public ModuleBase<LevelInfo>
 {
 public:
-    BoolSetting mShowFPS = BoolSetting("Show FPS", "Show the current FPS", true);
-    BoolSetting mShowPing = BoolSetting("Show Ping", "Show the current ping", true);
-    BoolSetting mShowBPS = BoolSetting("Show BPS", "Show the current BPS", true);
-    BoolSetting mShowXYZ = BoolSetting("Show XYZ", "Show the current XYZ", true);
-    BoolSetting mShowArrows = BoolSetting("Show Pearls", "Show the amount of ender pearls in ur inventory", true);
-    BoolSetting mShowEnderPearls = BoolSetting("Show Arrows", "Show the amount of arrows in ur inventory", true);
-    BoolSetting mShowSpells = BoolSetting("Show Spells", "Show spells u have in inventory", true);
-    BoolSetting mShowHealthSpells = BoolSetting("Show Health Spells", "Show amount of Health Spells u have in inventory", true);
-    BoolSetting mShowSpeedSpells = BoolSetting("Show Speed Spells", "Show amount of Speed Spells u have in inventory", true);
-    BoolSetting mShowFireTrailSpells = BoolSetting("Show FireTrail Spells", "Show amount of FireTrail Spells u have in inventory", true);
-    BoolSetting mShowKicksAmount = BoolSetting("Kicks counter", "Show amount of times u got kicked (more easy to avoid ban on flareon v2)", true);
+    BoolSetting mShowFPS = BoolSetting("Show FPS", "Show the current FPS.", true);
+    BoolSetting mShowPing = BoolSetting("Show Ping", "Show the current ping.", true);
+    BoolSetting mShowBPS = BoolSetting("Show BPS", "Show the current BPS.", true);
+    BoolSetting mShowXYZ = BoolSetting("Show XYZ", "Show the current XYZ coordinates.", true);
+    BoolSetting mShowArrows = BoolSetting("Show Arrows", "Show the number of arrows in your inventory.", false);
+    BoolSetting mShowEnderPearls = BoolSetting("Show Ender Pearls", "Show the number of ender pearls in your inventory.", false);
+    BoolSetting mShowSpells = BoolSetting("Show Spells", "Show the spells in your inventory.", false);
+    BoolSetting mShowHealthSpells = BoolSetting("Show Health Spells", "Show the number of health spells in your inventory.", false);
+    BoolSetting mShowSpeedSpells = BoolSetting("Show Speed Spells", "Show the number of speed spells in your inventory.", false);
+    BoolSetting mShowFireTrailSpells = BoolSetting("Show Fire Trail Spells", "Show the number of Fire Trail spells in your inventory.", false);
+    BoolSetting mShowKicksAmount = BoolSetting("Kicks Counter", "Show the number of times you have been kicked (useful for avoiding bans in Flareon v2).", false);
 
-    LevelInfo() : ModuleBase("LevelInfo", "Display general information", ModuleCategory::Visual, 0, true) {
+    LevelInfo() : ModuleBase("LevelInfo", "Display general information.", ModuleCategory::Visual, 0, true) {
         addSetting(&mShowFPS);
         addSetting(&mShowPing);
         addSetting(&mShowBPS);

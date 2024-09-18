@@ -245,6 +245,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
         ImGui::BeginGroup();
         ImGui::Text("gameType: %d", player->getGameType());
+        displayCopyableAddress("ClientInstance", ci);
         displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);
         displayCopyableAddress("LocalPlayer", player);
         displayCopyableAddress("PlayerInventory", player->getSupplies());
@@ -266,7 +267,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(0)));
         displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
-        displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
+        displayCopyableAddress("MoveInputComponent", player->mContext.getComponent<MoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
         displayCopyableAddress("AABBShapeComponent", player->mContext.try_get<AABBShapeComponent>());
         ImGui::EndGroup();

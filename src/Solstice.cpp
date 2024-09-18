@@ -158,7 +158,24 @@ void Solstice::init(HMODULE hModule)
     if (failedSigs > 0)
     {
         console->critical("Failed to find {} signatures/offsets!", failedSigs);
-        Sleep(500);
+#ifdef __DEBUG__
+        console->critical("Solstice should not be used in this state.");
+        console->info("Type 'DEBUG' to continue, or press ENTER to exit.");
+        std::string input;
+        std::getline(std::cin, input);
+        if (input != "DEBUG")
+        {
+            SigManager::deinitialize();
+            OffsetProvider::deinitialize();
+            Logger::deinitialize();
+
+            FreeLibraryAndExitThread(hModule, 0);
+        }
+#else
+        int* p = nullptr;
+        *p = 0;
+        exit(0);
+#endif
     }
 
     console->info("initialized signatures in {}ms", send - sstart);
@@ -222,7 +239,7 @@ void Solstice::init(HMODULE hModule)
             HookManager::init(true); // Initialize the base tick hook
 
             auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
-            if (!ircModule->mEnabled) ircModule->toggle();
+            //if (!ircModule->mEnabled) ircModule->toggle();
 
             if (!Prefs->mDefaultConfigName.empty())
             {

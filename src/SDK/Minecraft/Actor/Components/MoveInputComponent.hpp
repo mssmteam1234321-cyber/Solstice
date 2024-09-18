@@ -14,10 +14,10 @@ public:
     CLASS_FIELD(bool, mIsJumping, 0x26);
     CLASS_FIELD(bool, mIsJumping2, 0x80);
     CLASS_FIELD(bool, mIsSprinting, 0x27);
-    CLASS_FIELD(bool, mForward, 0x2A);
-    CLASS_FIELD(bool, mBackward, 0x2B);
-    CLASS_FIELD(bool, mLeft, 0x2C);
-    CLASS_FIELD(bool, mRight, 0x2D);
+    CLASS_FIELD(bool, mForward, 0x2C);
+    CLASS_FIELD(bool, mBackward, 0x2D);
+    CLASS_FIELD(bool, mLeft, 0x2E);
+    CLASS_FIELD(bool, mRight, 0x2F);
     CLASS_FIELD(glm::vec2, mMoveVector, 0x48);
 
     // padding to make the struct size 136
@@ -52,10 +52,10 @@ public:
     CLASS_FIELD(bool, mIsJumping, 0x26);
     CLASS_FIELD(bool, mIsJumping2, 0x80);
     CLASS_FIELD(bool, mIsSprinting, 0x27);
-    CLASS_FIELD(bool, mForward, 0x2A);
-    CLASS_FIELD(bool, mBackward, 0x2B);
-    CLASS_FIELD(bool, mLeft, 0x2C);
-    CLASS_FIELD(bool, mRight, 0x2D);
+    CLASS_FIELD(bool, mForward, 0x2C);
+    CLASS_FIELD(bool, mBackward, 0x2D);
+    CLASS_FIELD(bool, mLeft, 0x2E);
+    CLASS_FIELD(bool, mRight, 0x2F);
     CLASS_FIELD(glm::vec2, mMoveVector, 0x48);
 
     // padding to make the struct size 136
