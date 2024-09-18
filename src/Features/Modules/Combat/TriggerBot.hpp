@@ -12,9 +12,9 @@ public:
     NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 12, 1, 20, 1);
     NumberSetting mAPSMax = NumberSetting("APS Max", "The maximum APS to randomize", 16, 1, 20, 1);
     BoolSetting mUseAntibot = BoolSetting("Use Antibot", "Whether or not to use antibot for exclude actors", true);
-    BoolSetting mHive = BoolSetting("Hive", "Hive bipass hehe", true);
+    BoolSetting mHive = BoolSetting("Hive", "Attempts to bypass hive's anticheat", true);
 
-    TriggerBot() : ModuleBase<TriggerBot>("TriggerBot", "automaticly attacks entity u aiming at", ModuleCategory::Combat, 0, false) {
+    TriggerBot() : ModuleBase<TriggerBot>("TriggerBot", "Automatically attacks the entity that you're aiming at", ModuleCategory::Combat, 0, false) {
         mNames = {
                 {Lowercase, "triggerbot"},
                 {LowercaseSpaced, "trigger bot"},

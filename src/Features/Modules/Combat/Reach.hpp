@@ -8,9 +8,9 @@
 class Reach : public ModuleBase<Reach> {
 public:
 
-    NumberSetting mDistance = NumberSetting("Distance", "attack range.", 3.0f, 3.f, 7.0f, 0.01f);
+    NumberSetting mDistance = NumberSetting("Distance", "The attack range.", 3.0f, 3.f, 7.0f, 0.01f);
 
-    Reach() : ModuleBase("Reach", "changes attack range.", ModuleCategory::Combat, 0, false) {
+    Reach() : ModuleBase("Reach", "Changes attack range.", ModuleCategory::Combat, 0, false) {
         addSetting(&mDistance);
 
         mNames = {
