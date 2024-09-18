@@ -5,11 +5,15 @@
 class AutoSpellBook : public ModuleBase<AutoSpellBook>
 {
 public:
-    NumberSetting mDelay = NumberSetting("Delay", "The delay between using spellbooks (in milliseconds)", 200, 0, 2000, 1);
+    BoolSetting mUseHealthSpell = BoolSetting("Use Health Spell", "uses health spell when ur hearts low then 6", true);
+    BoolSetting mUseSpeedSpell = BoolSetting("Use Health Spell", "uses speed spell when u toggling speed module", true);
+    BoolSetting mUseFireTrailSpell = BoolSetting("Use FireTrail Spell", "uses fire trail spell when aura has target", true);
     BoolSetting mShowNotification = BoolSetting("Show Notification", "Shows a notification when a spellbook is used", true);
 
-    AutoSpellBook() : ModuleBase("AutoSpellBook", "Automatically opens/uses your spellbook", ModuleCategory::Player, 0, false) {
-        addSetting(&mDelay);
+    AutoSpellBook() : ModuleBase("AutoSpellBook", "Automatically uses your spells", ModuleCategory::Player, 0, false) {
+        addSetting(&mUseHealthSpell);
+        addSetting(&mUseSpeedSpell);
+        addSetting(&mUseFireTrailSpell);
         addSetting(&mShowNotification);
 
         mNames = {
@@ -20,8 +24,14 @@ public:
         };
     };
 
-    uint64_t mLastItemUsed;
+    int mHealthSpellSlot = -1;
+    int mSpeedSpellSlot = -1;
+    int mFireTrailSpellSlot = -1;
 
+    int getHealthSpell();
+    int getSpeedSpell();
+    int getFireTrailSpell();
+    void useSpell(int slot);
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
