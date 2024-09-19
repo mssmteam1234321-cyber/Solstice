@@ -61,7 +61,7 @@ enum class ContainerType : char {
 
 class ContainerManagerModel {
 public: // im castrating myself
-    CLASS_FIELD(ContainerType, mContainerType, 0x29);
+    CLASS_FIELD(ContainerType, mContainerType, 0x51);
     virtual ~ContainerManagerModel();
 
     ItemStack* getSlot(int slot) {

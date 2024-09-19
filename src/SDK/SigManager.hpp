@@ -68,7 +68,7 @@ public:
     DEFINE_SIG(MainView_instance, "48 8B 05 ? ? ? ? C6 40 ? ? 0F 95 C0", SigType::RefSig, 3);
     DEFINE_SIG(MinecraftPackets_createPacket, "E8 ? ? ? ? 90 48 83 BD ? ? 00 00 ? 0F 84 ? ? ? ? ff", SigType::RefSig, 1);
     DEFINE_SIG(Mob_getJumpControlComponent, "E8 ? ? ? ? 48 85 C0 74 ? C6 40 ? ? 48 83 C4 ? 5B", SigType::RefSig, 1);
-    DEFINE_SIG(Mob_getCurrentSwingDuration, "E8 ? ? ? ? 80 BB ? ? ? ? ? 74 ? 8B ? ? ? ? ? FF", SigType::RefSig, 1);
+    DEFINE_SIG(Mob_getCurrentSwingDuration, "E8 ? ? ? ? 80 BB 84 04 00 00", SigType::RefSig, 1);
     DEFINE_SIG(MouseDevice_feed, "E8 ? ? ? ? 40 88 ? ? ? EB ? 40 84", SigType::RefSig, 1);
     DEFINE_SIG(NetworkStackItemDescriptor_ctor, "E8 ? ? ? ? 90 48 8B ? 48 8D ? ? ? ? ? E8 ? ? ? ? 4C 8D ? ? ? ? ? 4C 89 ? ? ? ? ? 48 8D", SigType::RefSig, 1);
     DEFINE_SIG(PlayerMovement_clearInputState, "E8 ? ? ? ? 48 89 ? ? 88 9F ? ? ? ? 48 8D", SigType::RefSig, 1);
