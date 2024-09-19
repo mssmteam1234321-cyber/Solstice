@@ -14,6 +14,7 @@ void Spider::onEnable()
 void Spider::onBaseTickEvent(BaseTickEvent& event) const {
     const auto player = event.mActor;
     if (!player) return;
+    if (mOnGroundOnly.mValue && !player->isOnGround()) return;
 
     if (mMode.mValue == Mode::Clip && player->isCollidingHorizontal() && player->getMoveInputComponent()->mForward) {
         const auto state = player->getStateVectorComponent();
