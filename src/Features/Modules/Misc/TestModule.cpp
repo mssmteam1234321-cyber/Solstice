@@ -245,6 +245,21 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
         ImGui::BeginGroup();
         ImGui::Text("gameType: %d", player->getGameType());
+
+        int item = player->getSupplies()->mSelectedSlot;
+        ImGui::Text("SelectedSlot: %d", item);
+        ItemStack* stack = player->getSupplies()->getContainer()->getItem(item);
+        if (stack && stack->mItem)
+        {
+            ImGui::Text("Item: %s", stack->getItem()->mName.c_str());
+            int itemVal = ItemUtils::getItemValue(stack);
+            ImGui::Text("Item Value: %d", itemVal);
+            ImGui::Text("Item Type: %s", magic_enum::enum_name(stack->getItem()->getItemType()).data());
+            ImGui::Text("Item Tier: %d", stack->getItem()->getItemTier());
+            ImGui::Text("Armor Slot: %d", stack->getItem()->getArmorSlot());
+            displayCopyableAddress("Item", stack->getItem());
+        }
+
         displayCopyableAddress("ClientInstance", ci);
         displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);
         displayCopyableAddress("LocalPlayer", player);

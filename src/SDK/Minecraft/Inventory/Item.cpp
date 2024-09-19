@@ -75,8 +75,9 @@ bool Item::isShovel()
 int Item::getItemTier()
 {
     // Use the name of the item to determine the tier
-    static constexpr std::array<std::string_view, 6> tiers = {
+    static constexpr std::array<std::string_view, 7> tiers = {
         "wooden_",
+        "chainmail_",
         "stone_",
         "iron_",
         "golden_",
