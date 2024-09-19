@@ -812,7 +812,7 @@ void Regen::renderProgressBar()
     drawList->AddRectFilled(ImVec2(pos.x + boxSize.x * percentDone - 6, pos.y), bgMax, ImColor(0.f, 0.f, 0.f, 0.6f), rounding);
     if (percentDone > 0.001f) drawList->PopClipRect();
 
-    FontHelper::pushPrefFont(true, true);
+    FontHelper::pushPrefFont(true, true, true);
 
     float fontSize = 20.f * anim;
     ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, text.c_str());
@@ -935,7 +935,7 @@ void Regen::renderNewProgressBar()
     drawList->AddRectFilled(ImVec2(pos.x + boxSize.x * percentDone - 6, pos.y), bgMax, ImColor(0.f, 0.f, 0.f, 0.6f), rounding);
     if (percentDone > 0.001f) drawList->PopClipRect();
 
-    FontHelper::pushPrefFont(true, true);
+    FontHelper::pushPrefFont(true, true, true);
 
     float fontSize = 20.f * anim;
     ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0.0f, text.c_str());
