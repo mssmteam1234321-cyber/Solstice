@@ -14,10 +14,12 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "Choose the climbing mode to use", Mode::Clip, "Clip");
     NumberSetting mSpeed = NumberSetting("Speed", "Adjust the climbing speed", 2.50, 1, 5, 0.01);
+    BoolSetting mOnGroundOnly = BoolSetting("OnGround only", "uses spider only if u on ground", false);
 
     Spider() : ModuleBase("Spider", "Allows you to climb up walls", ModuleCategory::Movement, 0, false) {
         addSetting(&mMode);
         addSetting(&mSpeed);
+        addSetting(&mOnGroundOnly);
 
         mNames = {
             {Lowercase, "spider"},
