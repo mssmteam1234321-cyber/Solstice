@@ -15,6 +15,7 @@ public:
 
     std::vector<glm::vec3> mOnGroundPositions;
     bool mTeleported = false;
+    bool mCanTeleport = true;
 
     void onEnable() override;
     void onDisable() override;
