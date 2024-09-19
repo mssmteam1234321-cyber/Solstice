@@ -100,7 +100,7 @@ public:
     DEFINE_INDEX_FIELD(Actor_mLevel, "48 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? ? ? ? 48 83 C4 ? 48 FF ? ? ? ? ? 65 48", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Level_getHitResult, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 4C 8B ? 48 8B ? 4C 8B ? 49 8B ? 4C 8B", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Level_getPlayerList, "48 8B 80 ? ? ? ? FF 15 ? ? ? ? 8B 48 ? 39 8B ? ? ? ? 74", 3, OffsetType::Index);
-    DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 44 39", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "80 79 ? ? 74 ? 80 79 18 ? 74 ? 80 7C 24 60", 2, OffsetType::FieldOffset);
     //DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset); // this isn't even correct lmao
     DEFINE_INDEX_FIELD(Actor_mHurtTimeComponent, "48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 89 ? ? ? 48 8B ? 8B 38", 3, OffsetType::FieldOffset);
