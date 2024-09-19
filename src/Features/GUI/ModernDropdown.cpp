@@ -40,7 +40,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
     static auto interfaceMod = gFeatureManager->mModuleManager->getModule<Interface>();
     bool lowercase = interfaceMod->mNamingStyle.mValue == NamingStyle::Lowercase || interfaceMod->mNamingStyle.mValue == NamingStyle::LowercaseSpaced;
 
-    FontHelper::pushPrefFont(true);
+    FontHelper::pushPrefFont(true, false, true);
     ImVec2 screen = ImRenderUtils::getScreenSize();
     float deltaTime = ImGui::GetIO().DeltaTime;
     auto drawList = ImGui::GetBackgroundDrawList();
@@ -111,7 +111,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
     if (displayColorPicker && isEnabled)
     {
-        FontHelper::pushPrefFont(false);
+        FontHelper::pushPrefFont(false, false , true);
         ColorSetting* colorSetting = lastColorSetting;
         // Display the color picker in the bottom middle of the screen
         ImGui::SetNextWindowPos(ImVec2(screen.x / 2 - 200, screen.y / 2));
@@ -914,7 +914,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
 
 
-            FontHelper::pushPrefFont(true, true);
+            FontHelper::pushPrefFont(true, true, true);
             // Calculate the centre of the rect
             float textHeight = ImGui::GetFont()->CalcTextSizeA(textSize * 18, FLT_MAX, -1, catName.c_str()).y;
             float cRectCentreX = catRect.x + ((catRect.z - catRect.x) - ImRenderUtils::getTextWidth(
