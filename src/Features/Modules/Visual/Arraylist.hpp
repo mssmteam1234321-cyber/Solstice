@@ -28,7 +28,7 @@ public:
     };
 
     EnumSettingT<BackgroundStyle> mBackground = EnumSettingT("Background", "Background style", BackgroundStyle::Shadow, "Opacity", "Shadow", "Both");
-    NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 0.50f, 0.0f, 1.f, 0.01f);
+    NumberSetting mBackgroundOpacity = NumberSetting("Opacity", "The opacity of the background", 1.f, 0.0f, 1.f, 0.01f);
     NumberSetting mBackgroundValue = NumberSetting("Background Value", "The value of the background", 0.50f, 0.0f, 1.f, 0.01f);
     NumberSetting mBlurStrength = NumberSetting("Blur Strength", "The strength of the blur.", 0.f, 0.f, 10.f, 0.1f);
     EnumSettingT<Display> mDisplay = EnumSettingT("Display", "Outline style", Display::Split, "Outline", "Bar", "Split", "None");
@@ -41,17 +41,17 @@ public:
 
     Arraylist() : ModuleBase("Arraylist", "Displays a list of modules", ModuleCategory::Visual, 0, true) {
         addSettings(
-            &mBackground,
-            &mBackgroundOpacity,
-            &mBackgroundValue,
+            //&mBackground,
+            //&mBackgroundOpacity,
+            //&mBackgroundValue,
             &mBlurStrength,
             &mDisplay,
             &mVisibility,
             &mRenderMode,
             &mGlow,
-            &mGlowStrength,
-            &mBoldText,
-            &mFontSize
+            &mGlowStrength
+            //&mBoldText
+            //&mFontSize
         );
 
         mNames = {

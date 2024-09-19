@@ -5,6 +5,7 @@
 #include "Arraylist.hpp"
 
 #include <Features/FeatureManager.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
 
 void Arraylist::onEnable()
 {
@@ -79,7 +80,18 @@ void Arraylist::onRenderEvent(RenderEvent& event)
     static std::vector<std::shared_ptr<Module>> module;
 
     auto drawList = ImGui::GetForegroundDrawList();
-    FontHelper::pushPrefFont(true, mBoldText.mValue);
+
+    static auto daInterface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (!daInterface) return;
+
+    auto fontSel = daInterface->mFont.as<Interface::FontType>();
+    if (fontSel == Interface::FontType::ProductSans) {
+        FontHelper::pushPrefFont(true, true);
+    }
+    else {
+        FontHelper::pushPrefFont(true);
+    }
+
 
     if (module.empty())
     {
