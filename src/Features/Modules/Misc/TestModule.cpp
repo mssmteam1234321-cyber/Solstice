@@ -23,6 +23,7 @@
 #include <SDK/Minecraft/World/Block.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/BlockSource.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
@@ -63,6 +64,35 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     if (!mWantedState) return;
     auto player = event.mActor;
     if (!player) return;
+
+    auto actorlist = ActorUtils::getActorList(false, false);
+
+    if (mMode.mValue == Mode::DebugUi)
+    {
+
+        HitResult* hitResult = player->getLevel()->getHitResult();
+
+        if(hitResult->mType == HitType::ENTITY)
+        {
+            Actor* actor = nullptr;
+            for (auto a : actorlist)
+            {
+                if (a->mContext.mEntityId == hitResult->mEntity.id)
+                {
+                    actor = a;
+                    break;
+                }
+            }
+
+            if (actor)
+            {
+                spdlog::info("Hit actor: {}, RenderPositionComponent: {:X}", actor->getRawName(), reinterpret_cast<uintptr_t>(actor->getRenderPositionComponent()));
+            }
+        }
+
+        return;
+    }
+
 
     if (mMode.mValue == Mode::VerticalTest)
     {

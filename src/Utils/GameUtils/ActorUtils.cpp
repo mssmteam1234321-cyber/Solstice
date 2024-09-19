@@ -147,7 +147,8 @@ std::shared_ptr<InventoryTransactionPacket> ActorUtils::createAttackTransaction(
     auto cit = std::make_unique<ItemUseOnActorInventoryTransaction>();
     cit->mSlot = slot;
     cit->mItemInHand = NetworkItemStackDescriptor(*player->getSupplies()->getContainer()->getItem(slot));
-    cit->mActorId = actor->getActorUniqueIDComponent()->mUniqueID;
+    auto unique = actor->getActorUniqueIDComponent();
+    cit->mActorId = unique ? unique->mUniqueID : -1;
     cit->mActionType = ItemUseOnActorInventoryTransaction::ActionType::Attack;
     cit->mClickPos = actor->getAABB().getClosestPoint(*player->getPos());
     cit->mPlayerPos = *player->getPos();

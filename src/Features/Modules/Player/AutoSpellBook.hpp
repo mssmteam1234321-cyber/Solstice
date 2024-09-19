@@ -5,9 +5,9 @@
 class AutoSpellBook : public ModuleBase<AutoSpellBook>
 {
 public:
-    BoolSetting mUseHealthSpell = BoolSetting("Use Health Spell", "uses health spell when ur hearts low then 6", true);
-    BoolSetting mUseSpeedSpell = BoolSetting("Use Health Spell", "uses speed spell when u toggling speed module", true);
-    BoolSetting mUseFireTrailSpell = BoolSetting("Use FireTrail Spell", "uses fire trail spell when aura has target", true);
+    BoolSetting mUseHealthSpell = BoolSetting("Use Health Spell", "Uses health spell when your hearts are lower than 6", true);
+    BoolSetting mUseSpeedSpell = BoolSetting("Use Speed Spell", "Uses speed spell when you toggle the speed module", true);
+    BoolSetting mUseFireTrailSpell = BoolSetting("Use FireTrail Spell", "Uses fire trail spell when aura has a target", true);
     BoolSetting mShowNotification = BoolSetting("Show Notification", "Shows a notification when a spellbook is used", true);
 
     AutoSpellBook() : ModuleBase("AutoSpellBook", "Automatically uses your spells", ModuleCategory::Player, 0, false) {

@@ -35,11 +35,11 @@ componentType* Actor::funcName() \
     { \
         spdlog::critical("Actor::{}: No {} found", #funcName, #componentType); \
     } \
-    if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(component))) \
+    /*if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(component))) \
     { \
         spdlog::critical("Actor::{}: {} is not a valid ptr", #funcName, #componentType); \
         return nullptr; \
-    } \
+    } \*/\
     return component; \
 }
 
@@ -435,6 +435,5 @@ bool Actor::isValid()
     // Make sure mRegistry is a valid ptr
     if (!mContext.mRegistry) return false;
     // Make sure the ptr is readable
-    if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(mContext.mRegistry))) return false;
     return mContext.mRegistry->valid(mContext.mEntityId);
 }

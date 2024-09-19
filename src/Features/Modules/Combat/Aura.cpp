@@ -444,6 +444,8 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         }
 
         player->getLevel()->getHitResult()->mType = HitType::ENTITY;
+
+
         if (mAttackMode.mValue == AttackMode::Synched)
         {
 
@@ -584,6 +586,8 @@ void Aura::onBoneRenderEvent(BoneRenderEvent& event)
 
 Actor* Aura::findObstructingActor(Actor* player, Actor* target)
 {
+    if (mBypassMode.mValue == BypassMode::None) return target;
+
     auto actors = ActorUtils::getActorList(false, false);
     std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
     {

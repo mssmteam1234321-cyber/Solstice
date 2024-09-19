@@ -239,7 +239,7 @@ void Solstice::init(HMODULE hModule)
             HookManager::init(true); // Initialize the base tick hook
 
             auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
-            //if (!ircModule->mEnabled) ircModule->toggle();
+            if (!ircModule->mEnabled) ircModule->toggle();
 
             if (!Prefs->mDefaultConfigName.empty())
             {
