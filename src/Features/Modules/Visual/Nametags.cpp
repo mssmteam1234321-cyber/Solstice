@@ -98,7 +98,7 @@ void Nametags::onRenderEvent(RenderEvent& event)
             padding = fontSize / 4;
         }
 
-        FontHelper::pushPrefFont(true, true);
+        FontHelper::pushPrefFont(true);
 
         std::string name = actor->getRawName();
 
