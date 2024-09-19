@@ -3,7 +3,7 @@
 // Created by vastrakai on 7/29/2024.
 //
 
-static uint64_t DISCORD_USER_ID = 0x1F1F1F1F1F1F1F1F; // replaced at fetch time
+static uint64_t DISCORD_USER_ID = 0x1F2F3F4F5F6F7F8F; // replaced at fetch time
 
 struct IdHolder
 {
