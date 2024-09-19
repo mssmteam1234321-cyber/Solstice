@@ -126,10 +126,14 @@ if (${IS_DEBUG_BUILD})
 endif ()
 
 # Debug options
-add_link_options($<$<CONFIG:Debug>:/INCREMENTAL>)
+add_link_options($<$<CONFIG:Debug>:/INCREMENTAL>) # enable incremental linking
 add_compile_options($<$<CONFIG:Debug>:/Zi>)
 
 # Release options
+add_link_options($<$<CONFIG:Release>:/Zi>) # generate pdb
+add_link_options($<$<CONFIG:Release>:/INCREMENTAL:NO>) # disable incremental linking
+add_link_options($<$<CONFIG:Release>:/LTCG>) # link-time code generation
+add_link_options($<$<CONFIG:Release>:/DEBUG>) # enable debugging
 add_compile_options($<$<CONFIG:Release>:/O2>) # optimize for speed
 add_compile_options($<$<CONFIG:Release>:/Oi>) # enable intrinsic functions
 add_compile_options($<$<CONFIG:Release>:/GL>) # enable link-time code generation
