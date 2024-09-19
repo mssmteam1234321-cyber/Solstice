@@ -71,6 +71,12 @@ public:
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
         addSettings(
+               /* &mUpDownSpeed,
+                &mSpheresAmount,
+                &mSpheresSizeMultiplier,
+                &mSpheresSize,
+                &mSpheresMinSize,
+                &mSpheresRadius,*/
             &mMode,
             &mAttackMode,
             &mRotateMode,
@@ -82,6 +88,7 @@ public:
 #endif
             &mHotbarOnly,
             &mFistFriends,
+            &mVisuals,
             &mRange,
             &mRandomizeAPS,
             &mAPS,
@@ -94,13 +101,6 @@ public:
             &mSwingDelay,
             &mSwingDelayValue,
             &mStrafe,
-            &mVisuals,
-            &mUpDownSpeed,
-            &mSpheresAmount,
-            &mSpheresSizeMultiplier,
-            &mSpheresSize,
-            &mSpheresMinSize,
-            &mSpheresRadius,
             &mDebug
         );
 
