@@ -5,6 +5,8 @@
 #include "Watermark.hpp"
 
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
+#include <Features/FeatureManager.hpp>
 
 void Watermark::onEnable()
 {
@@ -56,7 +58,16 @@ void Watermark::onRenderEvent(RenderEvent& event)
         return;
     }
 
-    FontHelper::pushPrefFont(true, mBold.mValue);
+    static auto daInterface = gFeatureManager->mModuleManager->getModule<Interface>();
+    if (!daInterface) return;
+
+    auto fontSel = daInterface->mFont.as<Interface::FontType>();
+    if (fontSel == Interface::FontType::ProductSans) {
+        FontHelper::pushPrefFont(true, true);
+    }
+    else {
+        FontHelper::pushPrefFont(true);
+    }
 
     static std::string watermarkText = "solstice";
     static float size = 45;

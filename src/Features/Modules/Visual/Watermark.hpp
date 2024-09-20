@@ -19,7 +19,7 @@ public:
     Watermark() : ModuleBase("Watermark", "Displays a watermark on the screen", ModuleCategory::Visual, 0, true) {
         addSetting(&mStyle);
         addSetting(&mGlow);
-        addSetting(&mBold);
+        //addSetting(&mBold);
         gFeatureManager->mDispatcher->listen<RenderEvent, &Watermark::onRenderEvent>(this);
 
         mNames = {

@@ -80,6 +80,10 @@ public:
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
         addSettings(
+                &mProgressBarStyle,
+                &mOffset,
+                &mRenderProgressBar,
+                &mRenderBlock,
             &mMode,
             &mCalcMode,
             &mOffGroundSpeed,
@@ -120,11 +124,7 @@ public:
             &mFastOreNotify,
             &mSyncSpeedNotify,
             &mPriorityNotify,
-            &mNukeNotify,
-            &mRenderBlock,
-            &mProgressBarStyle,
-            &mOffset,
-            &mRenderProgressBar
+            &mNukeNotify
         );
 #ifdef __DEBUG__
         addSetting(&mOreFaker);
