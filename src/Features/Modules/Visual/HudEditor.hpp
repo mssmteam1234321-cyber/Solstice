@@ -157,6 +157,8 @@ public:
 
     std::vector<std::unique_ptr<CustomHudElement>> mCustomElements = {};
 
+    bool mCustomGuiOpen = false;
+
     void registerElement(HudElement* element) { mElements.emplace_back(element); }
 
     void showAllElements();

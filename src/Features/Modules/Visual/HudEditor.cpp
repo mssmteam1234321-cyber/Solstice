@@ -218,10 +218,10 @@ void HudEditor::onRenderEvent(RenderEvent& event)
     static ImVec2 dragStart;
     static ImVec2 dragOffset;
     static HudElement* draggedElement = nullptr;
-    static bool guiOpen = false;
 
 
-    if (snapDistance > 0 && !guiOpen)
+
+    if (snapDistance > 0 && !mCustomGuiOpen)
     {
         for (int i = 0; i < display.x; i += snapDistance)
             drawList->AddLine(ImVec2(i, 0), ImVec2(i, display.y), IM_COL32(255, 255, 255, 100));
@@ -230,7 +230,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
     }
 
 
-    if (ImGui::IsMouseClicked(0) && !guiOpen)
+    if (ImGui::IsMouseClicked(0) && !mCustomGuiOpen)
     {
         dragStart = ImGui::GetMousePos();
         dragOffset = { 0, 0 };
@@ -407,7 +407,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
     ImVec4 buttonRect = { buttonPos.x - radius, buttonPos.y - radius, buttonPos.x + radius, buttonPos.y + radius };
 
     static ImColor butColor = ImColor(255, 255, 255, 125);
-    ImColor targetColor = guiOpen ? ImColor(0, 255, 0, 200) : ImRenderUtils::isMouseOver(buttonRect) ? ImColor(255, 255, 255, 255) : ImColor(255, 255, 255, 125);
+    ImColor targetColor = mCustomGuiOpen ? ImColor(0, 255, 0, 200) : ImRenderUtils::isMouseOver(buttonRect) ? ImColor(255, 255, 255, 255) : ImColor(255, 255, 255, 125);
     butColor.Value = MathUtils::lerp(butColor.Value, targetColor.Value, ImGui::GetIO().DeltaTime * 10);
 
     drawList->AddCircleFilled(buttonPos, radius, butColor);
@@ -417,11 +417,11 @@ void HudEditor::onRenderEvent(RenderEvent& event)
 
     if (ImGui::IsMouseClicked(0)) {
         if (ImRenderUtils::isMouseOver(buttonRect)) {
-            guiOpen = !guiOpen;
+            mCustomGuiOpen = !mCustomGuiOpen;
         }
     }
 
-    if (!guiOpen) return;
+    if (!mCustomGuiOpen) return;
 
     // Draw in center
     ImVec2 center = { display.x / 2, display.y / 2 };
@@ -430,7 +430,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
 
     ImGui::SetNextWindowPos(pos);
     ImGui::SetNextWindowSize(size);
-    ImGui::Begin("Hud Editor", &guiOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Hud Editor", &mCustomGuiOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
     ImGui::Text("Edit custom hud elements here!");
 
@@ -553,10 +553,11 @@ void HudEditor::onKeyEvent(KeyEvent& event)
         }
     }
 
-    if (event.mKey == VK_ESCAPE)
+    if (event.mKey == VK_ESCAPE && event.mPressed)
     {
         event.cancel();
-        setEnabled(false);
+        if (mCustomGuiOpen) mCustomGuiOpen = false;
+        else setEnabled(false);
     }
 }
 
