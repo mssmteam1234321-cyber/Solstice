@@ -229,7 +229,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         if (mDisplay.mValue == Display::Outline)
         {
-            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, mBackgroundOpacity.mValue), 0.0f);
+            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, 0.24f), 0.0f);
         }
 
 
