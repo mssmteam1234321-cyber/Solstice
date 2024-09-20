@@ -19,7 +19,7 @@ void TestCommand::execute(const std::vector<std::string>& args)
     // get the first argument, if any
     if (args.size() <= 1)
     {
-        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug");
+        ChatUtils::displayClientMessage("Available subcommands: showconsole, fallback, setloglevel[log level], enforcedebug, crash");
         return;
     }
 
@@ -29,6 +29,14 @@ void TestCommand::execute(const std::vector<std::string>& args)
     {
         Logger::initialize();
         ChatUtils::displayClientMessage("Console initialized!");
+        return;
+    }
+
+    if (arg == "crash")
+    {
+        // Crash the game
+        int* crash = nullptr;
+        *crash = 0;
         return;
     }
 

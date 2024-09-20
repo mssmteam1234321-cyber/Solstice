@@ -25,6 +25,35 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
     }
     spdlog::error(text);
 
+    std::string excPath = FileUtils::getSolsticeDir() + "crash.log";
+    // create if not exists
+    if (!FileUtils::fileExists(excPath))
+    {
+        std::ofstream excFile(excPath);
+        excFile.close();
+    }
+
+    std::ofstream excFile(excPath, std::ios::app);
+    if (excFile.is_open())
+    {
+        // Prepend the date and time to the crash log
+        auto now = std::chrono::system_clock::now();
+        auto nowTime = std::chrono::system_clock::to_time_t(now);
+        excFile << "----------------- Crash at " << std::put_time(std::localtime(&nowTime), "%Y-%m-%d %X") << "\n";
+        excFile << text << "\n\n";
+        auto modules = gFeatureManager->mModuleManager->getModules();
+        for (const auto& module : modules)
+        {
+            // Append modules and the mEnabled state
+            excFile << module->mName << " - " << (module->mEnabled ? "Enabled" : "Disabled") << "\n";
+        }
+
+        // Append the exception code then divider
+        excFile << "Exception Code: 0x" << fmt::format("{:X}", exceptionCode) << "\n";
+        excFile << "----------------------------------------\n";
+        excFile.close();
+    }
+
     auto result = MessageBoxA(nullptr, LPCSTR(text.c_str()), "Unhandled Exception", MB_ABORTRETRYIGNORE | MB_ICONERROR);
 
     // deconstruct stack trace
