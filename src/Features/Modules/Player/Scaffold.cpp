@@ -15,6 +15,8 @@
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <SDK/Minecraft/Network/Packets/InventoryTransactionPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <Features/Modules/Visual/Interface.hpp>
+#include <Features/FeatureManager.hpp>
 
 void Scaffold::onEnable()
 {
@@ -234,7 +236,13 @@ void Scaffold::onRenderEvent(RenderEvent& event)
     std::string text = displayText + std::to_string(totalBlocks);
     std::string numberText = std::to_string(totalBlocks);
 
-    FontHelper::pushPrefFont(true);
+    auto fontSel = daInterface->mFont.as<Interface::FontType>();
+    if (fontSel == Interface::FontType::ProductSans) {
+        FontHelper::pushPrefFont(true, true);
+    }
+    else {
+        FontHelper::pushPrefFont(true);
+    }
 
     float fontSize = 25.f * anim;
 
