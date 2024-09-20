@@ -432,7 +432,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
     ImGui::SetNextWindowSize(size);
     ImGui::Begin("Hud Editor", &guiOpen, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
-    ImGui::Text("Hello, world!");
+    ImGui::Text("Edit custom hud elements here!");
 
     // Add text button
     if (ImGui::Button("Add Text"))
@@ -451,11 +451,16 @@ void HudEditor::onRenderEvent(RenderEvent& event)
         auto& element = mCustomElements[i];
         if (!element->mVisible) continue;
 
-        ImGui::InputText("Text", element->mInputBuffer, 256);
-        ImGui::SameLine();
-        ImGui::InputFloat("Font Size", &element->mFontSize);
+        // Make the label for each InputText unique by appending the index
+        std::string inputLabel = "Text##" + std::to_string(i);
+        ImGui::InputText(inputLabel.c_str(), element->mInputBuffer, 256);
 
-        if (ImGui::Button("Delete"))
+        ImGui::SameLine();
+
+        std::string fontSizeLabel = "Font Size##" + std::to_string(i);
+        ImGui::InputFloat(fontSizeLabel.c_str(), &element->mFontSize);
+
+        if (ImGui::Button(("Delete##" + std::to_string(i)).c_str()))
         {
             NotifyUtils::notify("Deleted element!", 1.f, Notification::Type::Info);
 
@@ -465,7 +470,7 @@ void HudEditor::onRenderEvent(RenderEvent& event)
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Set"))
+        if (ImGui::Button(("Set##" + std::to_string(i)).c_str()))
         {
             element->mText = element->mInputBuffer;
             NotifyUtils::notify("Set text!", 1.f, Notification::Type::Info);
@@ -473,13 +478,14 @@ void HudEditor::onRenderEvent(RenderEvent& event)
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Clear"))
+        if (ImGui::Button(("Clear##" + std::to_string(i)).c_str()))
         {
             element->mText = "";
             strcpy(element->mInputBuffer, "");
             NotifyUtils::notify("Cleared text!", 1.f, Notification::Type::Info);
         }
     }
+
 
     ImGui::End();
 

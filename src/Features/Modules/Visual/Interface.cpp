@@ -131,6 +131,8 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
 void Interface::onDrawImageEvent(DrawImageEvent& event)
 {
     if (!mSlotEasing.mValue) return;
+    // Wait for ImGui to be initialized
+    if (!ImGui::GetCurrentContext()) return;
 
     static glm::vec2 hotbarPos = {};
     auto path = event.mTexture->mTexture->mFilePath.c_str();
