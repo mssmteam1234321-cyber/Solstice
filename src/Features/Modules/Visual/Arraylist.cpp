@@ -227,13 +227,10 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         backgroundRects.push_back({name, ImVec2(rect.x + (addedPadding ? 7.f : 0.f), rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), color, mod.get()});
 
 
-        if (mBackground.mValue == BackgroundStyle::Opacity || mBackground.mValue == BackgroundStyle::Both)
+        if (mDisplay.mValue == Display::Outline)
         {
             drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, mBackgroundOpacity.mValue), 0.0f);
         }
-
-
-
 
 
         ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
