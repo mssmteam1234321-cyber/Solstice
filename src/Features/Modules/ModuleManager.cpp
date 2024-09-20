@@ -53,6 +53,7 @@
 #include "Movement/Spider.hpp"
 #include "Movement/Sprint.hpp"
 #include "Movement/Step.hpp"
+#include "Movement/TargetStrafe.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/DebugFly.hpp"
 #include "Movement/HiveFly.hpp"
@@ -132,6 +133,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Spider>());
     mModules.emplace_back(std::make_shared<ServerSneak>());
     mModules.emplace_back(std::make_shared<AirJump>());
+    mModules.emplace_back(std::make_shared<TargetStrafe>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());
