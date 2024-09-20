@@ -387,12 +387,16 @@ void BlockESP::onRenderEvent(RenderEvent& event)
         // Render the current chunk
         AABB chunkAABB = AABB(pos, glm::vec3(16.f, 1.f, 16.f));
         std::vector<ImVec2> chunkPoints = MathUtils::getImBoxPoints(chunkAABB);
-        drawList->AddPolyline(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f), 0, 2.0f);
-        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f, 0.25f));
+
+        if (mRenderMode.mValue == BlockRenderMode::Both || mRenderMode.mValue == BlockRenderMode::Outline) {
+            drawList->AddPolyline(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f), 0, 2.0f);
+        }
+        if (mRenderMode.mValue == BlockRenderMode::Both || mRenderMode.mValue == BlockRenderMode::Filled) {
+            drawList->AddConvexPolyFilled(chunkPoints.data(), chunkPoints.size(), ImColor(1.f, 1.f, 1.f, 0.25f));
+        }
     }
 
     auto enabled = getEnabledBlocks();
-
 
     for (auto& [pos, block] : mFoundBlocks)
     {
@@ -408,7 +412,11 @@ void BlockESP::onRenderEvent(RenderEvent& event)
             imPoints.emplace_back(point.x, point.y);
         }
 
-        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.25f));
-        drawList->AddPolyline(imPoints.data(), imPoints.size(), color, 0, 2.0f);
+        if (mRenderMode.mValue == BlockRenderMode::Both || mRenderMode.mValue == BlockRenderMode::Outline) {
+            drawList->AddPolyline(imPoints.data(), imPoints.size(), color, 0, 2.0f);
+        }
+        if (mRenderMode.mValue == BlockRenderMode::Both || mRenderMode.mValue == BlockRenderMode::Filled) {
+            drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.25f));
+        }
     }
 }
