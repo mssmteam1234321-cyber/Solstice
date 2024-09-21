@@ -434,8 +434,7 @@ bool Actor::isValid()
     if (this == nullptr) return false;
     // Make sure mRegistry is a valid ptr
     if (!mContext.mRegistry) return false;
-    // Make sure the ptr is readable
-    if (!MemUtils::isValidPtr(reinterpret_cast<uintptr_t>(mContext.mRegistry))) return false;
 
-    return mContext.mRegistry->valid(mContext.mEntityId);
+    auto player = ClientInstance::get()->getLocalPlayer();
+    return player->mContext.mRegistry->valid(mContext.mEntityId);
 }
