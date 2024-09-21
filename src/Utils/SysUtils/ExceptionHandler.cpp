@@ -58,13 +58,9 @@ void ExceptionHandler::init()
 void ExceptionHandler::makeCrashLog(const std::string& text, DWORD exceptionCode)
 {
     std::string excPath = FileUtils::getSolsticeDir() + xorstr_("crash.log");
-    if (!FileUtils::fileExists(excPath))
-    {
-        std::ofstream excFile(excPath);
-        excFile.close();
-    }
 
     std::ofstream excFile(excPath, std::ios::app);
+
     if (excFile.is_open())
     {
         // Prepend the date and time to the crash log
@@ -72,11 +68,21 @@ void ExceptionHandler::makeCrashLog(const std::string& text, DWORD exceptionCode
         auto nowTime = std::chrono::system_clock::to_time_t(now);
         excFile << xorstr_("----------------- Crash at ") << std::put_time(std::localtime(&nowTime), xorstr_("%Y-%m-%d %X")) << xorstr_("\n");
         excFile << text << xorstr_("\n\n");
-        auto modules = gFeatureManager->mModuleManager->getModules();
+
+
+        auto modules = gFeatureManager ? gFeatureManager->mModuleManager->getModules() : std::vector<std::shared_ptr<Module>>();
         for (const auto& module : modules)
         {
             // Append modules and the mEnabled state
             excFile << module->mName << xorstr_(" - ") << (module->mEnabled ? xorstr_("Enabled") : xorstr_("Disabled")) << xorstr_("\n");
+        }
+        if (gFeatureManager)
+        {
+            // Append the module count
+            excFile << xorstr_("Module count: ") << modules.size() << xorstr_("\n");
+        } else
+        {
+            excFile << xorstr_("(FeatureManager not initialized)\n");
         }
 
         // Append the exception code then divider
@@ -86,6 +92,7 @@ void ExceptionHandler::makeCrashLog(const std::string& text, DWORD exceptionCode
         excFile << xorstr_("Solstice commit msg: ") << SOLSTICE_BUILD_COMMIT_MESSAGE << xorstr_("\n");
         excFile << xorstr_("Minecraft version: ") << ProcUtils::getVersion() << xorstr_("\n");
         excFile << xorstr_("----------------------------------------\n");
+        excFile.flush();
         excFile.close();
     }
 }

@@ -208,6 +208,7 @@ void Solstice::init(HMODULE hModule)
             FreeLibraryAndExitThread(hModule, 0);
         }
 #else
+        ExceptionHandler::makeCrashLog("Failed to find signatures/offsets!", 0xFF01);
         int* p = nullptr;
         *p = 0;
         exit(0);
