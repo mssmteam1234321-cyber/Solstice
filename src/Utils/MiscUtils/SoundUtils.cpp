@@ -31,7 +31,6 @@ void SoundUtils::playSoundFromEmbeddedResource(std::string resourceName, float v
         spdlog::info("Dumped reosurce {} to {}", resourceName, path);
     }
 
-    spdlog::info("Playing sound {}", resourceName);
     audioManager.Play(resourceName, volume, false);
 }
 

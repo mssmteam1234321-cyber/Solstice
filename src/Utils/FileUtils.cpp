@@ -96,3 +96,9 @@ void FileUtils::createFile(const std::string& path)
     file.close();
     spdlog::info("Created file: {}", path);
 }
+
+size_t FileUtils::getFileSize(const std::string& path)
+{
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    return file.tellg();
+}

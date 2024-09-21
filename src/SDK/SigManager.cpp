@@ -44,7 +44,11 @@ void SigManager::initialize()
 
     for (const auto& sig : mSigs) {
         //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
+#ifdef __DEBUG__
         if (sig.second != 0) Solstice::console->info("[signatures] found {} @ {}", sig.first, MemUtils::getMbMemoryString(sig.second));
+#else
+        if (sig.second != 0) Solstice::console->info("[signatures] found {}", sig.first);
+#endif
     }
 
     for (const auto& sig : mSigs) {

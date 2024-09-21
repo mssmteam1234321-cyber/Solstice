@@ -40,7 +40,6 @@ void ChestStealer::onContainerScreenTickEvent(ContainerScreenTickEvent& event) c
 
     if (itemz.empty())
     {
-        spdlog::debug("No items to steal");
         if (lastSteal + 200 < NOW) {
             isStealing = false;
             csc->_tryExit();
@@ -48,7 +47,6 @@ void ChestStealer::onContainerScreenTickEvent(ContainerScreenTickEvent& event) c
         return;
     }
 
-    spdlog::debug("Found {} items to steal", itemz.size());
 
     static uint64_t delay = getDelay();
 

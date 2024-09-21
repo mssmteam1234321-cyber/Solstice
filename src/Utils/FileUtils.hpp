@@ -16,4 +16,6 @@ public:
     static bool deleteFile(const std::string& path);
     static std::vector<std::string> listFiles(const std::string& path);
     static void createFile(const std::string& path);
+    // getFileSize
+    static size_t getFileSize(const std::string& path);
 };
