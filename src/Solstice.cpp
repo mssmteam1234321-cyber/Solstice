@@ -63,31 +63,42 @@ void Solstice::init(HMODULE hModule)
     // Create a file logger sink
     std::string logFile = FileUtils::getSolsticeDir() + xorstr_("solstice.log");
 
-    // if the log file is over 10MB, delete it
-    if (FileUtils::fileExists(logFile) && FileUtils::getFileSize(logFile) > 10 * 1024 * 1024)
+    if (!FileUtils::fileExists(logFile))
     {
-        FileUtils::deleteFile(logFile);
+        // Don't use the file sink if the log file doesn't exist
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+        console_sink->set_level(spdlog::level::trace);
+        console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+        spdlog::set_default_logger(std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink}));
+    } else
+    {
+        // if the log file is over 10MB, delete it
+        if (FileUtils::fileExists(logFile) && FileUtils::getFileSize(logFile) > 10 * 1024 * 1024)
+        {
+            FileUtils::deleteFile(logFile);
+        }
+
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
+
+        // Create a console logger sink
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+        // Create a logger that logs to both the file and the console
+        auto logger = std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink, file_sink});
+
+        // Set patterns for each sink
+        console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+        console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+        file_sink->set_pattern("[%H:%M:%S.%e] [%l] %v");
+
+        // Set log level for both sinks
+        console_sink->set_level(spdlog::level::trace);
+        file_sink->set_level(spdlog::level::debug);
+
+        // Set the global default logger
+        spdlog::set_default_logger(logger);
     }
-
-    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
-
-    // Create a console logger sink
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-
-    // Create a logger that logs to both the file and the console
-    auto logger = std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink, file_sink});
-
-    // Set patterns for each sink
-    console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-    console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-    file_sink->set_pattern("[%H:%M:%S.%e] [%l] %v");
-
-    // Set log level for both sinks
-    console_sink->set_level(spdlog::level::trace);
-    file_sink->set_level(spdlog::level::debug);
-
-    // Set the global default logger
-    spdlog::set_default_logger(logger);
 
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
