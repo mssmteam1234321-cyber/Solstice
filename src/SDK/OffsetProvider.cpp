@@ -55,6 +55,7 @@ void OffsetProvider::initialize()
     // Terminate if we failed to find a signature
     for (const auto& sig : mSigs) {
         if (sig.second == 0) {
+            ExceptionHandler::makeCrashLog("An error occurred while initializing!" 0xFF02);
             __fastfail(0);
             std::exit(0);
         }

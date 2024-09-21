@@ -27,38 +27,7 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
     }
     spdlog::error(text);
 
-    std::string excPath = FileUtils::getSolsticeDir() + "crash.log";
-    // create if not exists
-    if (!FileUtils::fileExists(excPath))
-    {
-        std::ofstream excFile(excPath);
-        excFile.close();
-    }
-
-    std::ofstream excFile(excPath, std::ios::app);
-    if (excFile.is_open())
-    {
-        // Prepend the date and time to the crash log
-        auto now = std::chrono::system_clock::now();
-        auto nowTime = std::chrono::system_clock::to_time_t(now);
-        excFile << "----------------- Crash at " << std::put_time(std::localtime(&nowTime), "%Y-%m-%d %X") << "\n";
-        excFile << text << "\n\n";
-        auto modules = gFeatureManager->mModuleManager->getModules();
-        for (const auto& module : modules)
-        {
-            // Append modules and the mEnabled state
-            excFile << module->mName << " - " << (module->mEnabled ? "Enabled" : "Disabled") << "\n";
-        }
-
-        // Append the exception code then divider
-        excFile << "Exception Code: 0x" << fmt::format("{:X}", exceptionCode) << "\n";
-        excFile << "Solstice commit: " << SOLSTICE_BUILD_VERSION << "\n";
-        excFile << "Solstice branch: " << SOLSTICE_BUILD_BRANCH << "\n";
-        excFile << "Solstice commit msg: " << SOLSTICE_BUILD_COMMIT_MESSAGE << "\n";
-        excFile << "Minecraft version: " << ProcUtils::getVersion() << "\n";
-        excFile << "----------------------------------------\n";
-        excFile.close();
-    }
+    ExceptionHandler::makeCrashLog(text);
 
     auto result = MessageBoxA(nullptr, LPCSTR(text.c_str()), "Unhandled Exception", MB_ABORTRETRYIGNORE | MB_ICONERROR);
 
@@ -84,4 +53,39 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
 void ExceptionHandler::init()
 {
     SetUnhandledExceptionFilter(TopLevelExceptionHandler);
+}
+
+void ExceptionHandler::makeCrashLog(const std::string& text, DWORD exceptionCode)
+{
+    std::string excPath = FileUtils::getSolsticeDir() + xorstr_("crash.log");
+    if (!FileUtils::fileExists(excPath))
+    {
+        std::ofstream excFile(excPath);
+        excFile.close();
+    }
+
+    std::ofstream excFile(excPath, std::ios::app);
+    if (excFile.is_open())
+    {
+        // Prepend the date and time to the crash log
+        auto now = std::chrono::system_clock::now();
+        auto nowTime = std::chrono::system_clock::to_time_t(now);
+        excFile << xorstr_("----------------- Crash at ") << std::put_time(std::localtime(&nowTime), xorstr_("%Y-%m-%d %X")) << xorstr_("\n");
+        excFile << text << xorstr_("\n\n");
+        auto modules = gFeatureManager->mModuleManager->getModules();
+        for (const auto& module : modules)
+        {
+            // Append modules and the mEnabled state
+            excFile << module->mName << xorstr_(" - ") << (module->mEnabled ? xorstr_("Enabled") : xorstr_("Disabled")) << xorstr_("\n");
+        }
+
+        // Append the exception code then divider
+        excFile << xorstr_("Exception Code: 0x") << fmt::format(xorstr_("{:X}"), exceptionCode) << xorstr_("\n");
+        excFile << xorstr_("Solstice commit: ") << SOLSTICE_BUILD_VERSION << xorstr_("\n");
+        excFile << xorstr_("Solstice branch: ") << SOLSTICE_BUILD_BRANCH << xorstr_("\n");
+        excFile << xorstr_("Solstice commit msg: ") << SOLSTICE_BUILD_COMMIT_MESSAGE << xorstr_("\n");
+        excFile << xorstr_("Minecraft version: ") << ProcUtils::getVersion() << xorstr_("\n");
+        excFile << xorstr_("----------------------------------------\n");
+        excFile.close();
+    }
 }

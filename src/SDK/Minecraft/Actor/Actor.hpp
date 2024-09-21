@@ -52,6 +52,12 @@ public:
 
     template<typename flag_t>
     bool getFlag() {
+        if (!isValid())
+        {
+            spdlog::error("Failed to get flag: actor is not valid");
+            return false;
+        }
+
         auto storage = mContext.assure<flag_t>();
         return storage->contains(this->mContext.mEntityId);
     }
@@ -61,6 +67,11 @@ public:
     {
         try
         {
+            if (!isValid())
+            {
+                spdlog::error("Failed to set flag: actor is not valid");
+                return;
+            }
             auto storage = mContext.assure<flag_t>();
             bool has = storage->contains(this->mContext.mEntityId);
             if (value && !has) {
