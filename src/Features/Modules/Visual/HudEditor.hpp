@@ -120,9 +120,12 @@ public:
     // Text input
     char mInputBuffer[256] = { 0 };
     float mFontSize = 24.f;
+    bool mBold = false;
     std::string mIdentifier;
+    bool mUseThemeColor = false;
+    ImColor mColor = ImColor(255, 255, 255, 255);
 
-    CustomHudElement(std::string identifier, std::string displayName, Type type, std::string text) : mDisplayName(displayName), mText(text), mType(type) {
+    CustomHudElement(std::string identifier, std::string displayName, Type type, std::string text, bool useThemeColor, ImColor color) : mDisplayName(displayName), mText(text), mType(type), mUseThemeColor(useThemeColor), mColor(color) {
         mCustom = true;
         mIdentifier = identifier;
         mParentTypeIdentifier = mIdentifier.data();

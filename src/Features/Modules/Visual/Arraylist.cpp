@@ -233,12 +233,15 @@ void Arraylist::onRenderEvent(RenderEvent& event)
         }
 
 
-        ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
+        //ImRenderUtils::drawShadowText(drawList, name, textPos, color, fontSize);
+        // shadow
+        drawList->AddText(ImGui::GetFont(), fontSize, textPos, color, name.c_str());
 
         if (!settingDisplay.empty())
         {
             textPos.x += textSize.x;
-            ImRenderUtils::drawShadowText(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize);
+            //ImRenderUtils::drawShadowText(drawList, settingDisplay, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), fontSize);
+            drawList->AddText(ImGui::GetFont(), fontSize, textPos, ImColor(0.9f, 0.9f, 0.9f, 1.f), settingDisplay.c_str());
         }
 
         // Add an invisible button to toggle the module
