@@ -76,6 +76,7 @@
 #include "Player/Scaffold.hpp"
 #include "Player/Timer.hpp"
 #include "Player/Teams.hpp"
+#include "Player/Extinguisher.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -104,6 +105,7 @@
 #include "Visual/NoHurtcam.hpp"
 #include "Visual/UpdateForm.hpp"
 #include "Visual/ViewModel.hpp"
+//#include "Visual/ShowGracePeriod.hpp"
 
 void ModuleManager::init()
 {
@@ -152,6 +154,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoFall>());
     mModules.emplace_back(std::make_shared<Teams>());
     mModules.emplace_back(std::make_shared<AntiVoid>());
+    mModules.emplace_back(std::make_shared<Extinguisher>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
@@ -203,6 +206,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FullBright>());
     mModules.emplace_back(std::make_shared<Keystrokes>());
     mModules.emplace_back(std::make_shared<ViewModel>());
+    //mModules.emplace_back(std::make_shared<ShowGracePeriod>());
 
 #ifdef __DEBUG__
     // TODO: Fix these modules so they can be enabled in release mode
