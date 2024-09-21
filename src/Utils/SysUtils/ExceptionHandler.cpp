@@ -27,7 +27,7 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
     }
     spdlog::error(text);
 
-    ExceptionHandler::makeCrashLog(text);
+    ExceptionHandler::makeCrashLog(text, exceptionCode);
 
     auto result = MessageBoxA(nullptr, LPCSTR(text.c_str()), "Unhandled Exception", MB_ABORTRETRYIGNORE | MB_ICONERROR);
 

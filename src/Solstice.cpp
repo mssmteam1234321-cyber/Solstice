@@ -20,6 +20,7 @@
 #include <spdlog/spdlog.h>
 
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include <winrt/base.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.ApplicationModel.Core.h>
@@ -59,11 +60,26 @@ void Solstice::init(HMODULE hModule)
 
     console = spdlog::stdout_color_mt(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::color_mode::automatic);
 
-    spdlog::set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%^%l%$%$%#%$] %v");
-    console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$%$%#%$] %v");
-    console->set_level(spdlog::level::trace);
-    spdlog::set_level(spdlog::level::trace);
+    // Create a file logger sink
+    std::string logFile = FileUtils::getSolsticeDir() + xorstr_("solstice.log");
+    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
 
+    // Create a console logger sink
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+    // Create a logger that logs to both the file and the console
+    auto logger = std::make_shared<spdlog::logger>("multi_sink", spdlog::sinks_init_list{console_sink, file_sink});
+
+    // Set patterns for each sink
+    console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+    file_sink->set_pattern("[%H:%M:%S.%e] [%l] %v");
+
+    // Set log level for both sinks
+    console_sink->set_level(spdlog::level::trace);
+    file_sink->set_level(spdlog::level::trace);
+
+    // Set the global default logger
+    spdlog::set_default_logger(logger);
 
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
