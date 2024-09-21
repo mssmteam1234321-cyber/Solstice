@@ -671,4 +671,6 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
 
         return target;
     }
+
+    return target;
 }

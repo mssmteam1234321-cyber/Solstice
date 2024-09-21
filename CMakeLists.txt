@@ -127,6 +127,7 @@ endif ()
 
 # Debug options
 add_link_options($<$<CONFIG:Debug>:/INCREMENTAL>) # enable incremental linking
+add_link_options($<$<CONFIG:Debug>:/DEBUG>) # enable debugging
 add_compile_options($<$<CONFIG:Debug>:/Zi>)
 
 # Release options
@@ -139,7 +140,6 @@ add_compile_options($<$<CONFIG:Release>:/Oi>) # enable intrinsic functions
 add_compile_options($<$<CONFIG:Release>:/GL>) # enable link-time code generation
 add_compile_options($<$<CONFIG:Release>:/Gy>) # separate functions for linker
 add_compile_options($<$<CONFIG:Release>:/Gw>) # optimize global data
-add_compile_options($<$<CONFIG:Release>:/GS>) # buffer security check
 add_compile_options($<$<CONFIG:Release>:/Gm->) # disable minimal rebuild
 add_compile_options($<$<CONFIG:Release>:/GF>) # enable string pooling
 add_compile_options($<$<CONFIG:Release>:/fp:fast>) # optimize floating point

@@ -160,7 +160,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         ImRenderUtils::addBlur(rect, mBlurStrength.mValue, 0, ImGui::GetBackgroundDrawList(), true);
 
-        if (mBackground.mValue == BackgroundStyle::Shadow || mBackground.mValue == BackgroundStyle::Both)
+        if ((mBackground.mValue == BackgroundStyle::Shadow || mBackground.mValue == BackgroundStyle::Both) && mDisplay.mValue != Display::Outline)
         {
             drawList->AddShadowRect(ImVec2(rect.x, rect.y), ImVec2(rect.z, rect.w), ImColor(0.f, 0.f, 0.f, 1.f * mBackgroundOpacity.mValue), 200.f, ImVec2(0.f, 0.f), 0, 12);
         }
@@ -229,7 +229,7 @@ void Arraylist::onRenderEvent(RenderEvent& event)
 
         if (mDisplay.mValue == Display::Outline)
         {
-            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, 0.24f), 0.0f);
+            drawList->AddRectFilled(ImVec2(rect.x, rect.y), ImVec2(rect.z + (addedPadding ? 7.f : 0.f), rect.w), ImColor(color.Value.x * mBackgroundValue.mValue, color.Value.y * mBackgroundValue.mValue, color.Value.z * mBackgroundValue.mValue, 0.4f), 0.0f);
         }
 
 

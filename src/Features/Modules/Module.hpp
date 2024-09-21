@@ -9,6 +9,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
+#include <Utils/Logger.hpp>
 
 #include "Setting.hpp"
 #include "Features/Events/ModuleStateChangeEvent.hpp"

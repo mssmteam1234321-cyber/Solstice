@@ -43,12 +43,7 @@ void SigManager::initialize()
     int64_t diff = end - start;
 
     for (const auto& sig : mSigs) {
-        //if (sig.second != 0) Solstice::console->info("found {} @ 0x{:X}", sig.first, sig.second);
-#ifdef __DEBUG__
         if (sig.second != 0) Solstice::console->info("[signatures] found {} @ {}", sig.first, MemUtils::getMbMemoryString(sig.second));
-#else
-        if (sig.second != 0) Solstice::console->info("[signatures] found {}", sig.first);
-#endif
     }
 
     for (const auto& sig : mSigs) {
@@ -57,13 +52,24 @@ void SigManager::initialize()
     }
 
 #ifndef __DEBUG__
+    auto mc = static_cast<uintptr_t>(hat::process::get_process_module());
+    auto mcSize = hat::process::get_module_data(hat::process::get_process_module()).size();
+
     // Terminate if we failed to find a signature
     for (const auto& sig : mSigs) {
-        if (sig.second == 0) {
-            ExceptionHandler::makeCrashLog("An error occurred while initializing!" 0xFF01);
+        // Make a crash log if the sig is out of bounds
+        if (sig.second < mc || sig.second > mc + mcSize) {
+            ExceptionHandler::makeCrashLog("An error occurred while initializing: Signature out of bounds!", 0xFF00);
             __fastfail(0);
             std::exit(0);
         }
+
+        if (sig.second == 0) {
+            ExceptionHandler::makeCrashLog("An error occurred while initializing!", 0xFF02);
+            __fastfail(0);
+            std::exit(0);
+        }
+
     }
 #endif
 

@@ -236,6 +236,7 @@ void ModuleManager::init()
         {
             spdlog::error("Failed to initialize module {}: {}", module->mName, e.what());
         } catch (const nlohmann::json::exception& e)
+
         {
             spdlog::error("Failed to initialize module {}: {}", module->mName, e.what());
         } catch (...)
