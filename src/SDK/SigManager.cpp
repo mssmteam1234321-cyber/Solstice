@@ -10,6 +10,7 @@
 #include <Utils/MemUtils.hpp>
 #include <chrono>
 #include <omp.h>
+#include <libhat.hpp>
 
 #define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()
 
@@ -17,8 +18,8 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
 {
     mSigScanCount++;
 
-    hat::process::module_t minecraft = hat::process::get_module("Minecraft.Windows.exe");
-    auto result = hat::find_pattern(sig, ".text", minecraft);
+    auto minecraft = hat::process::get_process_module();
+    auto result = hat::find_pattern(sig, ".text", minecraft, hat::scan_hint::x86_64);
 
     if (!result.has_result()) {
         mSigs[name] = 0;

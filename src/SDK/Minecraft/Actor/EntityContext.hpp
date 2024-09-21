@@ -95,16 +95,11 @@ public:
     }
 
     template<typename component_t>
-    static void* getForComponent()
+    static void* getForComponentSub(void* rv)
     {
+        uintptr_t result = reinterpret_cast<uintptr_t>(rv);
         auto assureSig = getAssureSignature<component_t>();
         std::string componentName = typeid(component_t).name();
-        auto result = reinterpret_cast<uintptr_t>(hat::find_pattern(assureSig).get());
-        if (result == 0) {
-            // Include the component Name and the signature
-            spdlog::critical("Failed to resolve component: {}", componentName);
-            return nullptr;
-        }
         result += 5; // Add 5 to skip the mov edx, 0xhash instruction
 
         // Search for the next call instruction
@@ -153,6 +148,40 @@ public:
         // Log the resolved address
         spdlog::info("Resolved address for component: {} at {}", componentName, MemUtils::getMbMemoryString(assureAddr));
         return reinterpret_cast<void*>(assureAddr);
+    }
+
+
+    template<typename component_t>
+    static void* getForComponent()
+    {
+        hat::signature_view assureSig = getAssureSignature<component_t>();
+        auto modData = hat::process::get_module_data(hat::process::get_process_module());
+
+        auto results = hat::find_all_pattern(modData.begin(), modData.end(), assureSig);
+        if (results.empty()) {
+            spdlog::error("Failed to find assure function for component: {}", typeid(component_t).name());
+            return nullptr;
+        }
+
+        spdlog::info("Found {} assure functions for component: {}", results.size(), typeid(component_t).name());
+
+        void* result = nullptr;
+        for (auto& res : results)
+        {
+            void* prresult = res.get();
+            result = getForComponentSub<component_t>(prresult);
+            if (result != nullptr) break;
+        }
+
+
+        if (result == nullptr)
+        {
+            spdlog::error("Failed to resolve component: {}", typeid(component_t).name());
+            return nullptr;
+        } else {
+            spdlog::info("Resolved assure function for component: {} at {}", typeid(component_t).name(), MemUtils::getMbMemoryString(reinterpret_cast<uintptr_t>(result)));
+        }
+        return result;
     }
 };
 

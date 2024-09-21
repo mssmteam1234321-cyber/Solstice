@@ -24,36 +24,36 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif ()
 
 set(LIBHAT_SRC
-    src/Process.cpp
-    src/Scanner.cpp
-    src/System.cpp
+        src/os/win32/Process.cpp
+        src/Scanner.cpp
+        src/System.cpp
 
-    src/os/win32/MemoryProtector.cpp
-    src/os/win32/Process.cpp
-    src/os/win32/Scanner.cpp
+        src/os/win32/MemoryProtector.cpp
+        src/os/win32/Process.cpp
+        src/os/win32/Scanner.cpp
 
-    src/arch/x86/SSE.cpp
-    src/arch/x86/AVX2.cpp
-    src/arch/x86/AVX512.cpp
-    src/arch/x86/System.cpp
+        src/arch/x86/SSE.cpp
+        src/arch/x86/AVX2.cpp
+        src/arch/x86/AVX512.cpp
+        src/arch/x86/System.cpp
 
-    src/arch/arm/System.cpp)
+        src/arch/arm/System.cpp)
 
 add_library(libhat STATIC ${LIBHAT_SRC})
 
 target_include_directories(libhat PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-    $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+        $<INSTALL_INTERFACE:include>
 )
 
 target_compile_definitions(libhat PUBLIC
-    "$<$<BOOL:${LIBHAT_DISABLE_SSE}>:LIBHAT_DISABLE_SSE>"
-    "$<$<BOOL:${LIBHAT_DISABLE_AVX512}>:LIBHAT_DISABLE_AVX512>"
+        "$<$<BOOL:${LIBHAT_DISABLE_SSE}>:LIBHAT_DISABLE_SSE>"
+        "$<$<BOOL:${LIBHAT_DISABLE_AVX512}>:LIBHAT_DISABLE_AVX512>"
 )
 
 if (LIBHAT_STATIC_C_LIB OR LIBHAT_SHARED_C_LIB)
     set(LIBHAT_C_SOURCES
-        src/c/libhat.cpp
+            src/c/libhat.cpp
     )
 
     if (LIBHAT_STATIC_C_LIB)
@@ -65,8 +65,8 @@ if (LIBHAT_STATIC_C_LIB OR LIBHAT_SHARED_C_LIB)
 
     target_link_libraries(libhat_c PRIVATE libhat)
     target_include_directories(libhat_c PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-        $<INSTALL_INTERFACE:include>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+            $<INSTALL_INTERFACE:include>
     )
 endif()
 
@@ -78,9 +78,9 @@ endif()
 
 if (LIBHAT_INSTALL_TARGET)
     install(TARGETS libhat
-        EXPORT libhat-targets
-        RUNTIME DESTINATION "bin"
-        ARCHIVE DESTINATION "lib"
-        LIBRARY DESTINATION "lib"
+            EXPORT libhat-targets
+            RUNTIME DESTINATION "bin"
+            ARCHIVE DESTINATION "lib"
+            LIBRARY DESTINATION "lib"
     )
 endif()
