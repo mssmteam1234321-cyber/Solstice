@@ -3,6 +3,8 @@
 //
 
 #include "ExceptionHandler.hpp"
+
+#include <build_info.h>
 #include <Windows.h>
 #include <string>
 #include <spdlog/spdlog.h>
@@ -50,6 +52,10 @@ LONG WINAPI TopLevelExceptionHandler(const PEXCEPTION_POINTERS pExceptionInfo)
 
         // Append the exception code then divider
         excFile << "Exception Code: 0x" << fmt::format("{:X}", exceptionCode) << "\n";
+        excFile << "Solstice commit: " << SOLSTICE_BUILD_VERSION << "\n";
+        excFile << "Solstice branch: " << SOLSTICE_BUILD_BRANCH << "\n";
+        excFile << "Solstice commit msg: " << SOLSTICE_BUILD_COMMIT_MESSAGE << "\n";
+        excFile << "Minecraft version: " << ProcUtils::getVersion() << "\n";
         excFile << "----------------------------------------\n";
         excFile.close();
     }
