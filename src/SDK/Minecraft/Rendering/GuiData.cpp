@@ -9,6 +9,7 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <Utils/MemUtils.hpp>
+#include <Features/Events/ChatEvent.hpp>
 
 class DummyData
 {
@@ -30,4 +31,8 @@ void GuiData::displayClientMessage(const std::string& msg)
     // This is stupid.
     static std::unique_ptr<DummyData> dummyData = std::make_unique<DummyData>();
     MemUtils::callFastcall<void>(SigManager::GuiData_displayClientMessage, this, msg, dummyData.get(), false);
+
+    // Dispatch the chat event
+    auto holder = nes::make_holder<ChatEvent>(msg);
+    gFeatureManager->mDispatcher->trigger(holder);
 }

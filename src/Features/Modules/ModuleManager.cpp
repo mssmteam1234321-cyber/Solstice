@@ -86,6 +86,7 @@
 #include "Visual/BlockESP.hpp"
 #include "Visual/BoneEsp.hpp"
 #include "Visual/ClickGui.hpp"
+#include "Visual/CustomChat.hpp"
 #include "Visual/DestroyProgress.hpp"
 #include "Visual/ESP.hpp"
 #include "Visual/FullBright.hpp"
@@ -216,7 +217,10 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
-    mModules.emplace_back(std::make_shared<BoneEsp>()); // (not finished)
+
+    // TODO: Finish these modules
+    mModules.emplace_back(std::make_shared<BoneEsp>());
+    mModules.emplace_back(std::make_shared<CustomChat>());
 #endif
 
     // Determine if we should add UpdateForm

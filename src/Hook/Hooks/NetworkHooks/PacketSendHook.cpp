@@ -22,7 +22,8 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
         auto textPacket = reinterpret_cast<TextPacket*>(packet);
         if (gFeatureManager && gFeatureManager->mCommandManager)
         {
-            auto event = nes::make_holder<ChatEvent>(textPacket->mMessage);
+            std::string message = textPacket->mMessage;
+            auto event = nes::make_holder<ChatEvent>(message);
             gFeatureManager->mDispatcher->trigger(event);
             if (event->isCancelled()) return nullptr;
         }
