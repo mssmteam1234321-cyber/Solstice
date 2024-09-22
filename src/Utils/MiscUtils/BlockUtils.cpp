@@ -61,6 +61,7 @@ std::vector<BlockInfo> BlockUtils::getBlockList(const glm::ivec3& position, floa
 
 bool BlockUtils::isOverVoid(glm::vec3 vec)
 {
+    vec = glm::floor(vec);
     std::vector<Block*> blocksUntilZero;
 
     auto player = ClientInstance::get()->getLocalPlayer();

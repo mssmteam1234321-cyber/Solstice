@@ -28,7 +28,8 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 
-
+glm::vec3 clipPos = glm::vec3(0, 0, 0);
+bool hasSetClipPos = false;
 
 void TestModule::onEnable()
 {
@@ -51,6 +52,14 @@ void TestModule::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
     /*gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);*/
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player && mMode.mValue == Mode::VerticalTest && hasSetClipPos)
+    {
+        player->setPosition(clipPos);
+        hasSetClipPos = false;
+        player->getStateVectorComponent()->mVelocity.y = -0.0784000015258789;
+    }
 }
 
 
@@ -98,17 +107,16 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     {
         if (BlockUtils::isOverVoid(*player->getPos()))
         {
+            player->setPosition(clipPos);
             spdlog::info("Over void");
             return;
         }
 
         glm::vec3 pos = *player->getPos();
         player->getStateVectorComponent()->mVelocity.y = mClipDistance.mValue;
-
-        return;
     }
 
-    if (mMode.mValue != Mode::ClipTest) return;
+    if (mMode.mValue != Mode::ClipTest && mMode.mValue != Mode::ClipVisualize && mMode.mValue != Mode::VerticalTest) return;
 
 
     if (mLastLagback + 200 > NOW)
@@ -125,13 +133,38 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto blockSource = ClientInstance::get()->getBlockSource();
     glm::vec3 highestBlock = glm::floor(pos);
     bool blockFound = false;
-    for (int y = 0; y < 256; y++)
-    {
-        auto block = blockSource->getBlock(pos.x, y, pos.z);
-        if (block->toLegacy()->getBlockId() != 0)
+    if (mMode.mValue == Mode::ClipTest || mMode.mValue == Mode::ClipVisualize)
+        for (int y = 0; y < 256; y++)
         {
-            highestBlock.y = y;
-            blockFound = true;
+            // floor x and z
+            highestBlock.x = glm::floor(highestBlock.x);
+            highestBlock.z = glm::floor(highestBlock.z);
+            pos.x = glm::floor(pos.x);
+            pos.z = glm::floor(pos.z);
+            auto block = blockSource->getBlock(pos.x, y, pos.z);
+            if (block->toLegacy()->getBlockId() != 0)
+            {
+                highestBlock.y = y;
+                blockFound = true;
+            }
+        }
+    else
+    {
+        // Get the highest block by going from the players current y down
+        for (int y = pos.y; y >= 0; y--)
+        {
+            // floor x and z
+            highestBlock.x = glm::floor(highestBlock.x);
+            highestBlock.z = glm::floor(highestBlock.z);
+            pos.x = glm::floor(pos.x);
+            pos.z = glm::floor(pos.z);
+            auto block = blockSource->getBlock(pos.x, y, pos.z);
+            if (block->toLegacy()->getBlockId() != 0)
+            {
+                highestBlock.y = y;
+                blockFound = true;
+                break;
+            }
         }
     }
 
@@ -157,12 +190,43 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         spdlog::info("Clip failed: block at new pos");
     }
 
+    if (mMode.mValue == Mode::VerticalTest)
+    {
+        // floor da x z
+        newPos.x = glm::floor(newPos.x);
+        newPos.z = glm::floor(newPos.z);
+        clipPos = newPos;
+        gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
+        hasSetClipPos = true;
+        return;
+    }
+
+    if (mMode.mValue == Mode::ClipVisualize)
+    {
+        // floor da x z
+        newPos.x = glm::floor(newPos.x);
+        newPos.z = glm::floor(newPos.z);
+        clipPos = newPos;
+        gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
+        hasSetClipPos = true;
+        return;
+    }
+
     player->setPosition(newPos);
     if (mDisableAfterClip.mValue) setEnabled(false);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
+    if (mMode.mValue == Mode::VerticalTest)
+    {
+        if (event.mPacket->getId() == PacketID::PlayerAuthInput && mLastLagback + 100 < NOW && hasSetClipPos)
+        {
+            auto paip = event.getPacket<PlayerAuthInputPacket>();
+            paip->mPos.y = clipPos.y;
+            return;
+        }
+    }
     if (mMode.mValue != Mode::OnGroundSpeedTest) return;
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput)
@@ -255,6 +319,21 @@ enum class Tab
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
+    if (mMode.mValue == Mode::ClipVisualize || mMode.mValue == Mode::VerticalTest)
+    {
+        BlockInfo blockInfo = BlockInfo(gDaBlock, clipPos);
+        AABB aabb = blockInfo.getAABB();
+
+        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
+
+        auto drawList = ImGui::GetBackgroundDrawList();
+
+        ImColor themeColor = ColorUtils::getThemedColor(0);
+
+        drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
+        drawList->AddPolyline(imPoints.data(), imPoints.size(), themeColor, 0, 2.0f);
+        return;
+    }
     auto player = ClientInstance::get()->getLocalPlayer();
 
 #ifdef __DEBUG__

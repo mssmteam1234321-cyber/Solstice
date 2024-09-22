@@ -31,7 +31,11 @@
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/OAuthUtils.hpp>
 
+#ifdef __DEBUG__
+std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [debug]";
+#else
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
+#endif
 
 void setTitle(std::string title)
 {
