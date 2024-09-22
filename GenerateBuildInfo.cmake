@@ -32,6 +32,8 @@ execute_process(
 )
 # Remove newlines and everything after them
 string(REGEX REPLACE "\n.*" "" SOLSTICE_BUILD_COMMIT_MESSAGE ${SOLSTICE_BUILD_COMMIT_MESSAGE})
+# escape double quotes
+string(REPLACE "\"" "\\\"" SOLSTICE_BUILD_COMMIT_MESSAGE ${SOLSTICE_BUILD_COMMIT_MESSAGE})
 
 file(APPEND "${CMAKE_BINARY_DIR}/build_info.h" "#define SOLSTICE_BUILD_COMMIT_MESSAGE \"${SOLSTICE_BUILD_COMMIT_MESSAGE}\"\n")
 message(STATUS "Build commit message: ${SOLSTICE_BUILD_COMMIT_MESSAGE}")
