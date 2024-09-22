@@ -35,12 +35,6 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-        NAME nuvola_event_system
-        GITHUB_REPOSITORY DisabledMallis/NuvolaEventSystem
-        VERSION 1.1.0
-)
-
-CPMAddPackage(
         NAME glm
         GITHUB_REPOSITORY g-truc/glm
         GIT_TAG 1.0.1
@@ -168,6 +162,7 @@ include_directories(include/entt)
 include_directories(include/libhat/libhat)
 include_directories(include/ImGui)
 include_directories(include/Kiero)
+include_directories(include/nes)
 
 file(GLOB_RECURSE sourceFiles "src/*.cpp")
 file(GLOB_RECURSE includeFiles "include/*.hpp")
@@ -284,6 +279,7 @@ add_subdirectory(include/minhook)
 add_subdirectory(include/libhat)
 add_subdirectory(include/ImGui)
 add_subdirectory(include/Kiero)
+add_subdirectory(include/nes)
 
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)

@@ -43,6 +43,7 @@ public:
     static float lerp(float a, float b, float t);
     static glm::vec3 lerp(glm::vec3& a, glm::vec3& b, float t);
     static ImVec4 lerp(ImVec4& a, ImVec4& b, float t);
+    static ImVec2 lerp(ImVec2& a, ImVec2& b, float t);
     static ImColor lerpImColor(ImColor& a, ImColor& b, float t);
     static float getRotationKeyOffset(bool raw = false, bool allowStrafe = true);
     static glm::vec2 getMotion(float yaw, float speed, bool raw = false, bool allowStrafe = true);

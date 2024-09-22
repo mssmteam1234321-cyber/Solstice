@@ -15,7 +15,7 @@ public:
 
         mNames = {
                 {Lowercase, "extinguisher"},
-                {LowercaseSpaced, "Extinguisher"},
+                {LowercaseSpaced, "extinguisher"},
                 {Normal, "Extinguisher"},
                 {NormalSpaced, "Extinguisher"},
         };

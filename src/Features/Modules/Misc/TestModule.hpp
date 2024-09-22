@@ -12,10 +12,11 @@ public:
         ClipTest,
         OnGroundSpeedTest,
         VerticalTest,
-        DebugUi
+        DebugUi,
+        Concepts
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::ClipTest, "ClipTest", "OnGroundSpeedTest", "VerticalTest", "DebugUi");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::ClipTest, "ClipTest", "OnGroundSpeedTest", "VerticalTest", "DebugUi", "Concepts");
     BoolSetting mOnGroundOnly = BoolSetting("On Ground Only", "Only run the module when the player is on the ground", false);
     NumberSetting mMaxDistance = NumberSetting("Max Distance", "The maximum distance to run the module at", 5, 0, 30, 0.1);
     BoolSetting mDisableAfterClip = BoolSetting("Disable After Clip", "Disable the module after the player is clipped", true);
