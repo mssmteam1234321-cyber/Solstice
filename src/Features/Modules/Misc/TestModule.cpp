@@ -126,7 +126,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     }
 
     bool onGround = player->isOnGround();
-    if (!onGround && mOnGroundOnly.mValue) return;
+    if (!onGround && mOnGroundOnly.mValue && mMode.mValue == Mode::ClipTest) return;
 
     glm::vec3 pos = *player->getPos();
 
