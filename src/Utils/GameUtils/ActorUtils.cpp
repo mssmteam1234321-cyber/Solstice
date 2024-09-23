@@ -108,6 +108,8 @@ std::vector<Actor*> ActorUtils::getActorsOfType(ActorType type)
     {
         for (auto &&[_, moduleOwner, typeComponent]: player->mContext.mRegistry->view<ActorOwnerComponent, ActorTypeComponent>().each())
         {
+            if (!player->mContext.mRegistry->valid(_)) continue;
+
             if (!moduleOwner.mActor)
             {
                 spdlog::debug("Found null actor pointer for entity!");
