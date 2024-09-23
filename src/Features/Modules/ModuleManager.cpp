@@ -66,6 +66,7 @@
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/Derp.hpp"
+#include "Player/FastMine.hpp"
 #include "Player/Freecam.hpp"
 #include "Player/InvManager.hpp"
 #include "Player/MidclickAction.hpp"
@@ -156,6 +157,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Teams>());
     mModules.emplace_back(std::make_shared<AntiVoid>());
     mModules.emplace_back(std::make_shared<Extinguisher>());
+    mModules.emplace_back(std::make_shared<FastMine>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
