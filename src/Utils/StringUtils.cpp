@@ -2,6 +2,8 @@
 // Created by vastrakai on 6/28/2024.
 //
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
 #include "StringUtils.hpp"
 
 #include <algorithm>
@@ -14,7 +16,10 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/base64.h>
+#include <cryptopp/md5.h>
+#include <cryptopp/hex.h>
 #include <random>
+#include <md5.h>
 
 std::vector<std::string> motherboardModels = {
         "ASUS ROG Strix Z590-E",
@@ -232,25 +237,51 @@ std::string StringUtils::generateMboard() {
     return mboard;
 }
 
-std::string StringUtils::generateUUID()
-{
-    // Generate a UUID v4
-    std::string uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+static std::string namespaceUUID = "1234567890abcdef1234567890abcdef";
 
-    for (size_t i = 0; i < uuid.size(); i++)
-    {
-        char c = uuid[i];
-        if (c == 'x')
-        {
-            uuid[i] = "0123456789abcdef"[std::rand() % 16];
-        }
-        else if (c == 'y')
-        {
-            uuid[i] = "89ab"[std::rand() % 4];
-        }
+std::string generateRandomName(size_t length) {
+    static const char alphabet[] =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static std::mt19937 rng(std::random_device{}());
+    static std::uniform_int_distribution<size_t> dist(0, sizeof(alphabet) - 2);
+
+    std::string name;
+    name.reserve(length);
+    for (size_t i = 0; i < length; ++i) {
+        name += alphabet[dist(rng)];
     }
 
-    return uuid;
+    return name;
+}
+
+std::string StringUtils::generateUUID()
+{
+    std::array<uint8_t, 16> namespaceBytes;
+    for (size_t i = 0; i < 16; ++i) {
+        namespaceBytes[i] = static_cast<uint8_t>(std::stoi(namespaceUUID.substr(i * 2, 2), nullptr, 16));
+    }
+
+    std::string combined(namespaceBytes.begin(), namespaceBytes.end());
+    std::string name = generateRandomName(32);
+    combined += name;
+
+    CryptoPP::Weak::MD5 hash;
+    std::array<uint8_t, CryptoPP::Weak::MD5::DIGESTSIZE> digest;
+    hash.CalculateDigest(digest.data(), reinterpret_cast<const uint8_t*>(combined.data()), combined.size());
+
+    digest[6] = (digest[6] & 0x0F) | 0x30;
+    digest[8] = (digest[8] & 0x3F) | 0x80;
+
+    std::ostringstream uuid;
+    uuid << std::hex << std::setfill('0');
+    for (size_t i = 0; i < 16; ++i) {
+        if (i == 4 || i == 6 || i == 8 || i == 10) {
+            uuid << '-';
+        }
+        uuid << std::setw(2) << static_cast<int>(digest[i]);
+    }
+
+    return uuid.str();
 }
 
 bool StringUtils::startsWith(std::string_view str, std::string_view prefix)
