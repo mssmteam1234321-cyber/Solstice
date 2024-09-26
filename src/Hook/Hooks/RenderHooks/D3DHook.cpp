@@ -461,6 +461,15 @@ void D3DHook::initImGui(ID3D11Device* device, ID3D11DeviceContext* deviceContext
     ImGui::CreateContext();
 
     FontHelper::load();
+    static bool onc = false;
+    if (!onc)
+    {
+        auto res = &ResourceLoader::Resources["skinblinker.txt"];
+
+        FileUtils::writeResourceToFile(res, FileUtils::getSolsticeDir() + "BlinkerSkins\\README.txt");
+
+        onc = true;
+    }
 
     ImGui_ImplWin32_Init(ProcUtils::getMinecraftWindow());
     ImGui_ImplDX11_Init(device, deviceContext);

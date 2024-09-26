@@ -73,6 +73,8 @@ void ResourceLoader::loadResources() {
     Resources.emplace("nursultan_on.wav", nursultan_on_wav);
     auto seven_days_png = GET_RESOURCE(seven_days_png);
     Resources.emplace("seven_days.png", seven_days_png);
+    auto skinblinker_txt = GET_RESOURCE(skinblinker_txt);
+    Resources.emplace("skinblinker.txt", skinblinker_txt);
     auto smooth_off_wav = GET_RESOURCE(smooth_off_wav);
     Resources.emplace("smooth_off.wav", smooth_off_wav);
     auto smooth_on_wav = GET_RESOURCE(smooth_on_wav);

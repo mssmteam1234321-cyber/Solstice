@@ -63,13 +63,24 @@ namespace mce {
 
         _CONSTEXPR23 Blob& operator=(Blob const& other) {
             if (this != &other) {
-                *this = Blob{ other };
+                mSize = other.mSize;
+                mBlob = pointer_type(new value_type[mSize], other.mBlob.get_deleter());
+                std::copy(other.data(), other.data() + mSize, mBlob.get());
             }
             return *this;
         }
 
+        static Blob fromVector(std::vector<unsigned char> const& vec) {
+            Blob blob;
+            blob.mSize = vec.size();
+            blob.mBlob = pointer_type(new value_type[blob.mSize], Deleter());
+            std::copy(vec.begin(), vec.end(), blob.mBlob.get());
+            return blob;
+
+        }
+
     public:
-        static void defaultDeleter(pointer ptr);
+        static inline void defaultDeleter(pointer ptr) { delete[] ptr; }
     };
 
     enum class ImageUsage : unsigned char {

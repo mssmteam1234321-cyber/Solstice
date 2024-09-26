@@ -139,9 +139,9 @@ public:
     mce::Image                                           mSkinImage;                      // this+0xA0
     mce::Image                                           mCapeImage;                      // this+0xC0
     std::vector<AnimatedImageData>                       mSkinAnimatedImages;             // this+0xE0
-    MinecraftJson::Value                                 mGeometryData;                   // this+0x100
+    std::optional<MinecraftJson::Value>                  mGeometryData;                   // this+0x100
     SemVersion                                           mGeometryDataEngineVersion;      // this+0x120
-    MinecraftJson::Value                                 mGeometryDataMutable;            // this+0x128
+    std::optional<MinecraftJson::Value>                  mGeometryDataMutable;            // this+0x128
     std::string                                          mAnimationData;                  // this+0x148
     std::string                                          mCapeId;                         // this+0x168
     std::vector<SerializedPersonaPieceHandle>            mPersonaPieces;                  // this+0x188
@@ -158,5 +158,20 @@ public:
     void operator= (const SerializedSkin& other) {
         // use memcpy to copy the data
         memcpy(this, &other, sizeof(SerializedSkin));
+    }
+
+    // toString method, that returns all of the fields in a string format
+    std::string toString()
+    {
+        std::string result = "SerializedSkin: {\n";
+        result += "mId: " + mId + "\n";
+        result += "mPlayFabId: " + mPlayFabId + "\n";
+        result += "mFullId: " + mFullId + "\n";
+        result += "mResourcePatch: " + mResourcePatch + "\n";
+        result += "mDefaultGeometryName: " + mDefaultGeometryName + "\n";
+        result += "mSkinImage: [data]\n";
+        result += "mCapeImage: [data]\n";
+
+        return result;
     }
 };

@@ -4,7 +4,7 @@
 
 #pragma once
 
-class PlayerSkinPacket : public ::Packet {
+class PlayerSkinPacket : public Packet {
 public:
     static inline PacketID ID = PacketID::PlayerSkin;
 
@@ -17,8 +17,6 @@ public:
         std::stringstream ss;
         ss << "UUID: " << mUUID.toString();
         ss << ", Skin: " << mSkin.toString();
-        ss << ", LocalizedNewSkinName: " << mLocalizedNewSkinName;
-        ss << ", LocalizedOldSkinName: " << mLocalizedOldSkinName;
         return ss.str();
     }
 };
