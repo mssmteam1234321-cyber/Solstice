@@ -255,6 +255,21 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;
 
+    for (auto& pos : mLastUpdatedBlockPositions) {
+        if (BlockUtils::isAirBlock(pos)) {
+            //ChatUtils::displayClientMessage("Opponent uncovered ore");
+            mLastUncoverDetected = NOW;
+            break;
+        }
+    }
+    mLastUpdatedBlockPositions.clear();
+
+    if (mUncover.mValue) {
+        if (mDynamicUncover.mValue && NOW < mLastUncoverDetected + mDisableDuration.mValue) mCurrentUncover = false;
+        else mCurrentUncover = true;
+    }
+    else mCurrentUncover = false;
+
     auto player = event.mActor;
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
@@ -402,7 +417,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else shouldChangeOre = true;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
@@ -640,7 +655,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             mTargettingBlockPos = targettingPos;
             return;
         }
-        else if (mUncover && !unexposedBlockList.empty()) {
+        else if (mCurrentUncover && !unexposedBlockList.empty()) {
             bool foundBlock = false;
             bool isNextToRedstone = false;
             float fastestTime = INT_MAX;
@@ -1080,6 +1095,22 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (glm::ivec3(levelEvent->mPos) == mBlackListedOrePos) {
                 if (mAntiSteal.mValue) {
                     mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
+                }
+            }
+        }
+    }
+    else if (event.mPacket->getId() == PacketID::UpdateBlock) {
+        auto pkt = event.getPacket<UpdateBlockPacket>();
+        auto updateBlockPacket = pkt.get();
+        if (10 < glm::distance(*player->getPos(), glm::vec3(updateBlockPacket->mPos)) || mCurrentBlockPos == updateBlockPacket->mPos) return;
+
+        if (!BlockUtils::isAirBlock(updateBlockPacket->mPos)) {
+            for (auto& offset : mOffsetList) {
+                glm::ivec3 blockPos = updateBlockPacket->mPos + offset;
+                int blockId = ClientInstance::get()->getBlockSource()->getBlock(blockPos)->mLegacy->getBlockId();
+                if (blockId == 73 || blockId == 74) {
+                    mLastUpdatedBlockPositions.push_back(updateBlockPacket->mPos);
+                    break;
                 }
             }
         }
