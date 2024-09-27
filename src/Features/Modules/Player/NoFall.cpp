@@ -22,9 +22,16 @@ void NoFall::onPacketOutEvent(PacketOutEvent& event)
     if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
-        static bool alt = false;
-        alt = !alt;
-        if (alt) return;
-        paip->mPosDelta.y = -0.0784000015258789f;
+        if (mMode.mValue == Mode::Sentinel) {
+            static bool alt = false;
+            alt = !alt;
+            if (alt) return;
+            paip->mPosDelta.y = -0.0784000015258789f;
+        }
+        else if (mMode.mValue == Mode::BDS) {
+            paip->mInputData |= AuthInputAction::START_GLIDING;
+            paip->mInputData &= ~AuthInputAction::STOP_GLIDING;
+            paip->mPosDelta = { 0, 0, 0 };
+        }
     }
 }

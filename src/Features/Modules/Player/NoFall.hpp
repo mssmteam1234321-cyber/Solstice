@@ -8,10 +8,11 @@
 class NoFall : public ModuleBase<NoFall> {
 public:
     enum class Mode {
-        Sentinel
+        Sentinel,
+        BDS
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the nofall", Mode::Sentinel, "Sentinel");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the nofall", Mode::Sentinel, "Sentinel", "BDS");
 
     NoFall() : ModuleBase("NoFall", "Prevents fall damage", ModuleCategory::Player, 0, false)
     {
