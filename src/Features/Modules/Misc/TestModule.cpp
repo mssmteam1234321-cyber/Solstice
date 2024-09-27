@@ -27,6 +27,10 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
+#include <Utils/FontHelper.hpp>
+#include <Utils/GameUtils/ItemUtils.hpp>
+#include <Utils/MiscUtils/BlockUtils.hpp>
+#include <Utils/MiscUtils/ImRenderUtils.hpp>
 
 glm::vec3 clipPos = glm::vec3(0, 0, 0);
 bool hasSetClipPos = false;
@@ -113,7 +117,10 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         }
 
         glm::vec3 pos = *player->getPos();
-        player->getStateVectorComponent()->mVelocity.y = mClipDistance.mValue;
+        if (player->getMoveInputComponent()->mIsJumping)
+        {
+            player->getStateVectorComponent()->mVelocity.y = mClipDistance.mValue;
+        }
     }
 
     if (mMode.mValue != Mode::ClipTest && mMode.mValue != Mode::ClipVisualize && mMode.mValue != Mode::VerticalTest) return;
@@ -469,6 +476,7 @@ if (mMode.mValue == Mode::Concepts)
             displayCopyableAddress("Item", stack->getItem());
         }
 
+        displayCopyableAddress("MaxAutoStepComponent", player->getMaxAutoStepComponent());
         displayCopyableAddress("ClientInstance", ci);
         displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);
         displayCopyableAddress("LocalPlayer", player);

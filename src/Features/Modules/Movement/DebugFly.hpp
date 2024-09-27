@@ -1,6 +1,7 @@
 //
 // Created by Tozic on 9/16/2024.
 //
+#pragma once
 
 #include <Features/Modules/Module.hpp>
 

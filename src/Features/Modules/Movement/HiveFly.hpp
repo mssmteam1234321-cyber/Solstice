@@ -1,6 +1,7 @@
 //
 // Created by alteik on 02/09/2024.
 //
+#pragma once
 #include <Features/Modules/Module.hpp>
 
 
