@@ -334,7 +334,11 @@ void IrcClient::onConnected()
 
     Console.WriteLine($"[{endPoint}] Identified client as {clients[client].ClientName} with HWID {clients[client].Hwid}");*/
     nlohmann::json j;
+    #ifdef __DEBUG__
+    j["0"] = "§csolstice§r";
+    #else
     j["0"] = "§asolstice§r";
+    #endif
     j["1"] = getHwid();
     j["2"] = std::to_string(0x0);
     j["3"] = OAuthUtils::getToken();
