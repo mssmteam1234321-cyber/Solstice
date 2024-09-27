@@ -22,8 +22,8 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     ChatUtils::displayClientMessage("§6- §eBranch§7: {}", std::string(SOLSTICE_BUILD_BRANCH));
 
     // so it doesn't get optimized out
-    auto idHolder = std::make_unique<IdHolder>(DISCORD_USER_ID);
-    idHolder.reset();
+    // auto idHolder = std::make_unique<IdHolder>(DISCORD_USER_ID);
+    // idHolder.reset();
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
 #else
