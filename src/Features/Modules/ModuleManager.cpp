@@ -187,7 +187,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
     mModules.emplace_back(std::make_shared<AutoSnipe>());
-    mModules.emplace_back(std::make_shared<EditionFaker>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -225,6 +224,7 @@ void ModuleManager::init()
     // TODO: Finish these modules
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
+    mModules.emplace_back(std::make_shared<EditionFaker>());
 #endif
 
     // Determine if we should add UpdateForm

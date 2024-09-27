@@ -50,7 +50,7 @@ public:
     bool isInjected = false;
 
     static inline unsigned char originalDefaultInputMode[31];
-    static inline unsigned char originalData[1];
+    static inline unsigned char originalData[sizeof(int32_t)];
     static inline unsigned char originalData1[5];
     static inline unsigned char originalData2[5];
     static inline unsigned char originalData3[5];
@@ -70,6 +70,6 @@ public:
     void onInit() override;
     void onEnable() override;
     void onDisable() override;
-    void onPacketOutEvent(class PacketOutEvent& event) const;
+    void onPacketOutEvent(class PacketOutEvent& event);
     void onConnectionRequestEvent(class ConnectionRequestEvent& event);
 };

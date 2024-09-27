@@ -84,6 +84,7 @@ void EditionFaker::inject() {
     MemUtils::writeBytes(func4+1, &newRelRip3, sizeof(int32_t));
 
     isInjected = true;
+    spdlog::info("[EditionFaker] injected");
 }
 
 void EditionFaker::eject() {
@@ -98,6 +99,7 @@ void EditionFaker::eject() {
     FreeBuffer(patch3Ptr);
 
     isInjected = false;
+    spdlog::info("[EditionFaker] ejected");
 }
 
 void EditionFaker::spoofEdition() {
@@ -106,22 +108,25 @@ void EditionFaker::spoofEdition() {
 }
 
 void EditionFaker::onEnable() {
+    spdlog::info("[EditionFaker] enable");
     inject();
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &EditionFaker::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<ConnectionRequestEvent, &EditionFaker::onConnectionRequestEvent>(this);
 }
 
 void EditionFaker::onDisable() {
+    spdlog::info("[EditionFaker] disable");
     if(isInjected) eject();
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &EditionFaker::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<ConnectionRequestEvent, &EditionFaker::onConnectionRequestEvent>(this);
 }
 
 void EditionFaker::onConnectionRequestEvent(ConnectionRequestEvent& event) {
+    spdlog::info("[EditionFaker] spoof");
     spoofEdition();
 }
 
-void EditionFaker::onPacketOutEvent(class PacketOutEvent &event) const {
+void EditionFaker::onPacketOutEvent(PacketOutEvent &event) {
     if(event.mPacket->getId() == PacketID::PlayerAuthInput) {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         paip->mInputMode = (InputMode) mInputMethod.as<int>();
