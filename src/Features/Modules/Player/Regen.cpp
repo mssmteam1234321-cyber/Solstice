@@ -255,13 +255,19 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;
 
+    int brokenExposedBlocks;
+
     for (auto& pos : mLastUpdatedBlockPositions) {
         if (BlockUtils::isAirBlock(pos)) {
-            //ChatUtils::displayClientMessage("Opponent uncovered ore");
-            mLastUncoverDetected = NOW;
-            break;
+            ChatUtils::displayClientMessage("Opponent broke exposed ore x" + std::to_string(brokenExposedBlocks));
+            brokenExposedBlocks++;
         }
     }
+
+    if(brokenExposedBlocks >= 2) {
+        mLastUncoverDetected = NOW;
+    }
+
     mLastUpdatedBlockPositions.clear();
 
     if (mUncover.mValue) {

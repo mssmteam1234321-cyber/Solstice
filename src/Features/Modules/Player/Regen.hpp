@@ -74,7 +74,7 @@ public:
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
-    BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover when opponent is uncovering", false);
+    BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy mining only exposed ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3000, 1000, 10000, 500);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
