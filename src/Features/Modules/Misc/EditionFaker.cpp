@@ -15,8 +15,6 @@ static uintptr_t func2;
 static uintptr_t func3;
 static uintptr_t func4;
 
-static bool injected = false;
-
 void EditionFaker::onInit() {
     func = SigManager::ConnectionRequest_create_DeviceOS;
     func2 = SigManager::ConnectionRequest_create_DefaultInputMode;
@@ -85,7 +83,7 @@ void EditionFaker::inject() {
     MemUtils::writeBytes(func3+18+1, &newRelRip2, sizeof(int32_t));
     MemUtils::writeBytes(func4+1, &newRelRip3, sizeof(int32_t));
 
-    injected = true;
+    isInjected = true;
 }
 
 void EditionFaker::eject() {
@@ -99,7 +97,7 @@ void EditionFaker::eject() {
     FreeBuffer(patch2Ptr);
     FreeBuffer(patch3Ptr);
 
-    injected = false;
+    isInjected = false;
 }
 
 void EditionFaker::spoofEdition() {
@@ -114,7 +112,7 @@ void EditionFaker::onEnable() {
 }
 
 void EditionFaker::onDisable() {
-    if(injected) eject();
+    if(isInjected) eject();
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &EditionFaker::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<ConnectionRequestEvent, &EditionFaker::onConnectionRequestEvent>(this);
 }

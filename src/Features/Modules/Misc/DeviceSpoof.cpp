@@ -11,64 +11,61 @@
 #include <SDK/Minecraft/Network/Packets/LoginPacket.hpp>
 #include <SDK/SigManager.hpp>
 #include <Utils/Buffer.hpp>
+#include "EditionFaker.hpp"
 
 static uintptr_t deviceModelAddr;
 
 void DeviceSpoof::onInit()
 {
     deviceModelAddr = SigManager::ConnectionRequest_create_DeviceModel;
-    inject();
 }
 
-void DeviceSpoof::inject()
-{
-    // backup original data
-    MemUtils::ReadBytes((void*)deviceModelAddr, originalData, sizeof(originalData));
+void DeviceSpoof::inject() {
+    MemUtils::ReadBytes((void *) deviceModelAddr, originalData, sizeof(originalData));
 
-    // clear instructions where needed
     MemUtils::NopBytes(deviceModelAddr, 7);
 
-    // allocate space for new instructions
-    patchPtr = AllocateBuffer((void*)deviceModelAddr);
+    patchPtr = AllocateBuffer((void *) deviceModelAddr);
 
-    // write new instructions
-    MemUtils::writeBytes((uintptr_t)patchPtr, patch, sizeof(patch));
+    MemUtils::writeBytes((uintptr_t) patchPtr, patch, sizeof(patch));
 
-    // write rip for DeviceModel
     auto newDeviceModel = reinterpret_cast<uintptr_t>(&DeviceModel);
-    MemUtils::writeBytes((uintptr_t)patchPtr + 2, (void*)&newDeviceModel, sizeof(uintptr_t));
+    MemUtils::writeBytes((uintptr_t) patchPtr + 2, (void *) &newDeviceModel, sizeof(uintptr_t));
 
-    // calculate rip for jump to original
-    auto toOriginalAddrRip4 = MemUtils::GetRelativeAddress((uintptr_t)patchPtr + sizeof(patch) + 1, deviceModelAddr + sizeof(originalData));
+    auto toOriginalAddrRip4 = MemUtils::GetRelativeAddress((uintptr_t) patchPtr + sizeof(patch) + 1,
+                                                           deviceModelAddr + sizeof(originalData));
 
-    // write jump back to original
-    MemUtils::writeBytes((uintptr_t)patchPtr + sizeof(patch), "\xE9", 1);
+    MemUtils::writeBytes((uintptr_t) patchPtr + sizeof(patch), "\xE9", 1);
 
-    MemUtils::writeBytes((uintptr_t)patchPtr + sizeof(patch) + 1, &toOriginalAddrRip4, sizeof(int32_t));
+    MemUtils::writeBytes((uintptr_t) patchPtr + sizeof(patch) + 1, &toOriginalAddrRip4, sizeof(int32_t));
 
-    // calculate rel rip to newly allocated memory
-    auto newRelRip4 = MemUtils::GetRelativeAddress(deviceModelAddr + 1, (uintptr_t)patchPtr);
+    auto newRelRip4 = MemUtils::GetRelativeAddress(deviceModelAddr + 1, (uintptr_t) patchPtr);
 
-    // create jump
     MemUtils::writeBytes(deviceModelAddr, "\xE9", 1);
 
-    // write rel rip to newly allocated memory
     MemUtils::writeBytes(deviceModelAddr + 1, &newRelRip4, sizeof(int32_t));
+
+    isInjected = true;
 }
 
 void DeviceSpoof::eject()
 {
-    if(deviceModelAddr) MemUtils::writeBytes(deviceModelAddr, originalData, sizeof(originalData));
+    MemUtils::writeBytes(deviceModelAddr, originalData, sizeof(originalData));
 
     FreeBuffer(patchPtr);
+
+    isInjected = false;
 }
 
 void DeviceSpoof::spoofMboard() {
-    if (deviceModelAddr == 0) {
-        return;
-    }
+    auto editionFaker = gFeatureManager->mModuleManager->getModule<EditionFaker>();
 
-    DeviceModel = StringUtils::generateMboard();
+    if(!editionFaker || !editionFaker->mEnabled){
+        DeviceModel = StringUtils::generateMboard(7);
+    }
+    else{
+        DeviceModel = StringUtils::generateMboard(editionFaker->mOs.as<int>());
+    }
 
     eject();
     inject();
@@ -76,26 +73,34 @@ void DeviceSpoof::spoofMboard() {
 
 void DeviceSpoof::onEnable()
 {
+    inject();
     gFeatureManager->mDispatcher->listen<ConnectionRequestEvent, &DeviceSpoof::onConnectionRequestEvent>(this);
 }
 
 void DeviceSpoof::onDisable()
 {
-    eject();
+    if(isInjected) eject();
     gFeatureManager->mDispatcher->deafen<ConnectionRequestEvent, &DeviceSpoof::onConnectionRequestEvent>(this);
 }
 
 void DeviceSpoof::onConnectionRequestEvent(ConnectionRequestEvent& event)
 {
-    // Randomize the client random id (type: int64)
-    event.mClientRandomId = std::rand();
-    // Randomize the device id (type: string, also uuidv4)
-    std::string deviceId = StringUtils::generateUUID();
+    auto editionFaker = gFeatureManager->mModuleManager->getModule<EditionFaker>();
+    std::string deviceId;
+
+    if(!editionFaker || !editionFaker->mEnabled) {
+        deviceId = StringUtils::generateUUID(7);
+    }
+    else {
+        deviceId = StringUtils::generateUUID(editionFaker->mOs.as<int>());
+    }
+
+    event.mClientRandomId = StringUtils::generateCID();
     *event.mDeviceId = deviceId;
     *event.mSkinId = "Custom" + deviceId;
-    *event.mSelfSignedId = StringUtils::generateUUID();
+    *event.mSelfSignedId = StringUtils::generateUUID(7);
+
     spoofMboard();
-    spdlog::info("[device spoof] successfully spoofed device information");
 }
 
 /* // Example of a connection request json

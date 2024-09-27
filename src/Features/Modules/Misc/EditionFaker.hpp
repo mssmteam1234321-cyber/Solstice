@@ -47,6 +47,8 @@ public:
         };
     }
 
+    bool isInjected = false;
+
     static inline unsigned char originalDefaultInputMode[31];
     static inline unsigned char originalData[1];
     static inline unsigned char originalData1[5];
