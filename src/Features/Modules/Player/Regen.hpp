@@ -77,6 +77,8 @@ public:
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
+    BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover when opponent is uncovering", false);
+    NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3000, 1000, 10000, 500);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
         addSettings(
@@ -133,6 +135,9 @@ public:
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
+        addSettings(&mDynamicUncover, &mDisableDuration);
+        VISIBILITY_CONDITION(mDynamicUncover, mUncover.mValue);
+        VISIBILITY_CONDITION(mDisableDuration, mUncover.mValue && mDynamicUncover.mValue);
 #endif
 
         VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
@@ -188,6 +193,7 @@ public:
     glm::ivec3 mLastEnemyLayerBlockPos = { INT_MAX, INT_MAX, INT_MAX };
     bool mCanSteal = false;
     bool mIsStealing = false;
+    bool mCurrentUncover = false;
     int mCurrentBlockFace = -1;
     float mBreakingProgress = 0.f;
     float mCurrentDestroySpeed = 1.f;
@@ -215,9 +221,11 @@ public:
     uint64_t mLastStealerUpdate = 0;
     uint64_t mLastStealerDetected = 0;
     uint64_t mLastConfuse = 0;
+    uint64_t mLastUncoverDetected = 0;
     int mLastPlacedBlockSlot = 0;
 
     std::vector<glm::ivec3> mFakePositions;
+    std::vector<glm::ivec3> mLastUpdatedBlockPositions;
 
     std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),

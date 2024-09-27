@@ -47,6 +47,7 @@ void FileUtils::validateDirectories()
     createDirectory(getSolsticeDir() + "Templates\\");
     createDirectory(getSolsticeDir() + "Databases\\");
     createDirectory(getSolsticeDir() + "Skins\\"); //(skin stealing)
+    createDirectory(getSolsticeDir() + "BlinkerSkins\\"); //(skin blinking)
     createDirectory(getSolsticeDir() + "Audio\\");
     spdlog::info("Directories created successfully.");
 }
@@ -64,6 +65,19 @@ bool FileUtils::deleteFile(const std::string& path)
         return false;
     }
 }
+
+void FileUtils::writeResourceToFile(Resource* resource, const std::string& path)
+{
+    writeResourceToFile(path, reinterpret_cast<const unsigned char*>(resource->data()), resource->size());
+}
+
+void FileUtils::writeResourceToFile(const std::string& path, const unsigned char* data, size_t size)
+{
+    std::ofstream file(path, std::ios::binary);
+    file.write(reinterpret_cast<const char*>(data), size);
+    file.close();
+    spdlog::info("Wrote resource to file: {}", path);
+};
 
 std::vector<std::string> FileUtils::listFiles(const std::string& path)
 {
@@ -101,4 +115,24 @@ size_t FileUtils::getFileSize(const std::string& path)
 {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     return file.tellg();
+}
+
+std::vector<unsigned char> FileUtils::readFile(const std::string& path)
+{
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open())
+    {
+        spdlog::error("Failed to open file: {}", path);
+        return {};
+    }
+
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<unsigned char> data(size);
+    file.read(reinterpret_cast<char*>(data.data()), size);
+    file.close();
+
+    return data;
 }

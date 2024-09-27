@@ -26,6 +26,7 @@ LOAD_RESOURCE(notch_png);
 LOAD_RESOURCE(nursultan_off_wav);
 LOAD_RESOURCE(nursultan_on_wav);
 LOAD_RESOURCE(seven_days_png);
+LOAD_RESOURCE(skinblinker_txt);
 LOAD_RESOURCE(smooth_off_wav);
 LOAD_RESOURCE(smooth_on_wav);
 LOAD_RESOURCE(yo_at_here_gif);

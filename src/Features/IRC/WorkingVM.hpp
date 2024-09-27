@@ -1,7 +1,7 @@
 //
 // Created by vastrakai on 8/26/2024.
 //
-
+#pragma once
 
 #include <random>
 

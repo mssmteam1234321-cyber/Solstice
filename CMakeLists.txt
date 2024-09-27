@@ -22,6 +22,8 @@ if (NOT LD_COMMAND_AVAILABLE)
     message(FATAL_ERROR "The ld command is not available on your system. \nPlease install using `pacman -S mingw-w64-x86_64-binutils` in MSYS2, then add the bin directory to your PATH.\nAfter that, restart your IDE and CMake should be able to find the ld command.")
 endif ()
 
+set(CMAKE_UNITY_BUILD TRUE)
+
 CPMAddPackage(
         NAME spdlog
         GITHUB_REPOSITORY gabime/spdlog
@@ -52,7 +54,6 @@ CPMAddPackage(
         GIT_TAG main
 )
 
-# https://github.com/abdes/cryptopp-cmake.git
 CPMAddPackage(
         NAME cryptopp-cmake
         GITHUB_REPOSITORY abdes/cryptopp-cmake
@@ -280,6 +281,9 @@ add_subdirectory(include/libhat)
 add_subdirectory(include/ImGui)
 add_subdirectory(include/Kiero)
 add_subdirectory(include/nes)
+
+set_property(TARGET DirectXTK PROPERTY UNITY_BUILD FALSE)
+set_property(TARGET minhook PROPERTY UNITY_BUILD FALSE)
 
 target_include_directories(Solstice PRIVATE include/ImGui)
 target_include_directories(Solstice PRIVATE include/Kiero)
