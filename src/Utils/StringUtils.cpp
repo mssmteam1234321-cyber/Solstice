@@ -20,6 +20,8 @@
 #include <cryptopp/hex.h>
 #include <random>
 #include <md5.h>
+#include <cryptopp/osrng.h>
+#include <sstream>
 
 std::vector<std::string> motherboardModels = {
         "ASUS ROG Strix Z590-E",
@@ -226,7 +228,7 @@ std::vector<std::string> motherboardModels = {
         "Gigabyte GA-J1800N-D2P"
 };
 
-std::string StringUtils::generateMboard() {
+std::string generateMotherboardPC() {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> modelDistr(0, motherboardModels.size() - 1);
@@ -235,6 +237,248 @@ std::string StringUtils::generateMboard() {
     std::string mboard = motherboardModels[modelIndex];
 
     return mboard;
+}
+
+std::vector<std::string> motherboardsAndroid = {
+        "Samsung Galaxy S21",
+        "Samsung Galaxy S21+",
+        "Samsung Galaxy S21 Ultra",
+        "Samsung Galaxy Note 20",
+        "Samsung Galaxy Note 20 Ultra",
+        "Samsung Galaxy A52",
+        "Samsung Galaxy A72",
+        "Samsung Galaxy M32",
+        "Samsung Galaxy M42",
+        "Samsung Galaxy F62",
+        "Samsung Galaxy Z Fold 2",
+        "Samsung Galaxy Z Flip",
+        "OnePlus 9",
+        "OnePlus 9 Pro",
+        "OnePlus 8T",
+        "OnePlus 8 Pro",
+        "OnePlus Nord",
+        "OnePlus Nord N10 5G",
+        "OnePlus Nord N100",
+        "Google Pixel 5",
+        "Google Pixel 4a",
+        "Google Pixel 4a 5G",
+        "Google Pixel 4",
+        "Google Pixel 4 XL",
+        "Google Pixel 3a",
+        "Google Pixel 3a XL",
+        "Xiaomi Mi 11",
+        "Xiaomi Mi 11 Ultra",
+        "Xiaomi Mi 11X",
+        "Xiaomi Mi 10T",
+        "Xiaomi Mi 10T Pro",
+        "Xiaomi Mi 10",
+        "Xiaomi Mi 10 Pro",
+        "Xiaomi Redmi Note 10",
+        "Xiaomi Redmi Note 10 Pro",
+        "Xiaomi Redmi Note 10S",
+        "Xiaomi Redmi Note 9",
+        "Xiaomi Redmi Note 9 Pro",
+        "Xiaomi Redmi Note 8",
+        "Xiaomi Redmi Note 8 Pro",
+        "Sony Xperia 5 II",
+        "Sony Xperia 1 II",
+        "Sony Xperia 10 II",
+        "Sony Xperia 10 III",
+        "Sony Xperia L4",
+        "LG Wing",
+        "LG Velvet",
+        "LG V60 ThinQ",
+        "LG G8X ThinQ",
+        "LG K92 5G",
+        "LG Stylo 6",
+        "Nokia 8.3 5G",
+        "Nokia 7.2",
+        "Nokia 5.4",
+        "Nokia 3.4",
+        "Nokia 2.4",
+        "Nokia 1.4",
+        "Motorola Edge Plus",
+        "Motorola Edge",
+        "Motorola Moto G100",
+        "Motorola Moto G60",
+        "Motorola Moto G50",
+        "Motorola Moto G30",
+        "Motorola Moto G10",
+        "Motorola Moto E7 Plus",
+        "Motorola Moto E6i",
+        "Oppo Find X3 Pro",
+        "Oppo Find X3 Neo",
+        "Oppo Find X3 Lite",
+        "Oppo Reno5 Pro 5G",
+        "Oppo Reno5 5G",
+        "Oppo A94 5G",
+        "Oppo A74 5G",
+        "Oppo A54 5G",
+        "Oppo A53",
+        "Vivo X60 Pro",
+        "Vivo X60",
+        "Vivo Y72 5G",
+        "Vivo Y52 5G",
+        "Vivo Y20s",
+        "Vivo Y12s",
+        "Realme GT",
+        "Realme 8 Pro",
+        "Realme 8",
+        "Realme 7 Pro",
+        "Realme 7",
+        "Realme Narzo 30 Pro",
+        "Realme Narzo 30A",
+        "Realme C21",
+        "Realme C20",
+        "Asus ROG Phone 5",
+        "Asus Zenfone 7",
+        "Asus Zenfone 7 Pro",
+        "Asus Zenfone 6",
+        "Asus ROG Phone 3",
+        "Poco F3",
+        "Poco X3 Pro",
+        "Poco M3 Pro 5G",
+        "Poco M2 Pro",
+        "Poco X2",
+        "ZTE Axon 30",
+        "ZTE Blade V2021 5G",
+        "ZTE Blade A7s 2020",
+        "ZTE Blade A3Y",
+        "ZTE Nubia Red Magic 5S",
+        "Honor 50",
+        "Honor 50 Pro",
+        "Honor View 40",
+        "Honor 30 Pro+",
+        "Honor 30 Pro",
+        "Honor 30",
+        "Honor 30S",
+        "Honor 20 Pro",
+        "Honor 20",
+        "Honor 20 Lite",
+        "Huawei P40 Pro",
+        "Huawei P40",
+        "Huawei P40 Lite",
+        "Huawei Mate 40 Pro",
+        "Huawei Mate 40",
+        "Huawei Mate 30 Pro",
+        "Huawei Mate 30",
+        "Huawei P30 Pro",
+        "Huawei P30",
+        "Huawei P30 Lite",
+        "Huawei Nova 7i",
+        "Huawei Nova 7 SE",
+        "Huawei Y9a",
+        "Huawei Y8p",
+        "Huawei Y7a",
+        "Samsung Galaxy A32",
+        "Samsung Galaxy A22",
+        "Samsung Galaxy A12",
+        "Samsung Galaxy A02s",
+        "Samsung Galaxy M62",
+        "Samsung Galaxy M21",
+        "Samsung Galaxy M12",
+        "Samsung Galaxy F41",
+        "Samsung Galaxy F22",
+        "Samsung Galaxy F12",
+        "Samsung Galaxy Z Flip 3",
+        "Samsung Galaxy Z Fold 3",
+        "OnePlus 9R",
+        "OnePlus 8",
+        "OnePlus 7T",
+        "OnePlus 7 Pro",
+        "Google Pixel 3",
+        "Google Pixel 3 XL",
+        "Google Pixel 2",
+        "Google Pixel 2 XL",
+        "Xiaomi Mi Mix Fold",
+        "Xiaomi Mi 10 Lite",
+        "Xiaomi Redmi 9",
+        "Xiaomi Redmi 9T",
+        "Xiaomi Redmi Note 9T",
+        "Xiaomi Redmi K40",
+        "Xiaomi Redmi K30",
+        "Sony Xperia 10",
+        "Sony Xperia L3",
+        "LG G8 ThinQ",
+        "LG V50 ThinQ",
+        "Nokia 6.2",
+        "Nokia 5.3",
+        "Motorola Moto G8 Plus",
+        "Motorola Moto G8 Power",
+        "Oppo A91",
+        "Oppo A9 2020",
+        "Vivo V21",
+        "Vivo V20",
+        "Realme X50 Pro",
+        "Realme X3 SuperZoom",
+        "Realme 6 Pro",
+        "Realme 6",
+        "Asus ROG Phone 2",
+        "Asus Zenfone 5Z",
+        "Poco X3 NFC",
+        "Poco F2 Pro",
+        "ZTE Nubia Red Magic 3",
+        "Honor 10",
+        "Honor 9X Pro",
+        "Huawei Mate X2",
+        "Huawei Y6p",
+        "Huawei Y5p"
+};
+
+std::string generateDeviceAndroid() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> modelDistr(0, motherboardsAndroid.size() - 1);
+
+    int modelIndex = modelDistr(gen);
+    std::string mboard = motherboardsAndroid[modelIndex];
+
+    std::transform(mboard.begin(), mboard.end(), mboard.begin(), ::toupper);
+
+    return mboard;
+}
+
+std::vector<std::string> modelsiOS = {
+        "iPhone5,3", "iPhone5,4", "iPhone6,1", "iPhone6,2", "iPhone7,2", "iPhone7,1",
+        "iPhone8,1", "iPhone8,2", "iPhone8,4", "iPhone9,1", "iPhone9,3", "iPhone9,2",
+        "iPhone9,4", "iPhone10,1", "iPhone10,4", "iPhone10,2", "iPhone10,5", "iPhone10,3",
+        "iPhone10,6", "iPhone11,8", "iPhone11,2", "iPhone11,6", "iPhone12,1", "iPhone12,3",
+        "iPhone12,5", "iPhone12,8", "iPhone13,1", "iPhone13,2", "iPhone13,3", "iPhone13,4",
+        "iPhone14,4", "iPhone14,5", "iPhone14,2", "iPhone14,3", "iPhone14,6", "iPhone14,7",
+        "iPhone14,8", "iPhone15,2", "iPhone15,3", "iPhone15,4", "iPhone15,5", "iPhone16,1",
+        "iPhone16,2", "iPad6,11", "iPad6,12", "iPad7,5", "iPad7,6", "iPad7,11", "iPad7,12",
+        "iPad11,6", "iPad11,7", "iPad12,1", "iPad12,2", "iPad13,18", "iPad13,19", "iPad4,4",
+        "iPad4,5", "iPad4,6", "iPad4,7", "iPad4,8", "iPad4,9", "iPad5,1", "iPad5,2", "iPad11,1",
+        "iPad11,2", "iPad14,1", "iPad14,2", "iPad4,1", "iPad4,2", "iPad4,3", "iPad5,3", "iPad5,4",
+        "iPad11,3", "iPad11,4", "iPad13,1", "iPad13,2", "iPad13,16", "iPad13,17", "iPad6,3", "iPad6,4",
+        "iPad7,3", "iPad7,4", "iPad8,1", "iPad8,2", "iPad8,3", "iPad8,4", "iPad8,9", "iPad8,10", "iPad13,4",
+        "iPad13,5", "iPad13,6", "iPad13,7", "iPad14,3", "iPad14,4", "iPad6,7", "iPad6,8", "iPad7,1", "iPad7,2",
+        "iPad8,5", "iPad8,6", "iPad8,7", "iPad8,8", "iPad8,11", "iPad8,12", "iPad13,8", "iPad13,9", "iPad13,10",
+        "iPad13,11", "iPad14,5", "iPad14,6"
+};
+
+std::string generateDeviceiOS() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> modelDistr(0, modelsiOS.size() - 1);
+
+    int modelIndex = modelDistr(gen);
+
+    return modelsiOS[modelIndex];
+}
+
+std::string StringUtils::generateMboard(int index) {
+    switch (index)
+    {
+        case 1:
+            return generateDeviceAndroid();
+        case 2:
+            return generateDeviceiOS();
+        case 7:
+            return generateMotherboardPC();
+        default:
+            return generateMotherboardPC();
+    }
 }
 
 static std::string namespaceUUID = "1234567890abcdef1234567890abcdef";
@@ -254,8 +498,7 @@ std::string generateRandomName(size_t length) {
     return name;
 }
 
-std::string StringUtils::generateUUID()
-{
+std::string generateUUID3() {
     std::array<uint8_t, 16> namespaceBytes;
     for (size_t i = 0; i < 16; ++i) {
         namespaceBytes[i] = static_cast<uint8_t>(std::stoi(namespaceUUID.substr(i * 2, 2), nullptr, 16));
@@ -282,6 +525,65 @@ std::string StringUtils::generateUUID()
     }
 
     return uuid.str();
+}
+
+std::string generateUUID4() {
+    CryptoPP::AutoSeededRandomPool prng;
+
+    unsigned char randomBytes[16];
+    prng.GenerateBlock(randomBytes, sizeof(randomBytes));
+
+    randomBytes[6] = (randomBytes[6] & 0x0F) | 0x40;
+    randomBytes[8] = (randomBytes[8] & 0x3F) | 0x80;
+
+    std::stringstream uuidStream;
+    uuidStream << std::hex;
+
+    for (int i = 0; i < 16; ++i) {
+        uuidStream << (int)(randomBytes[i] >> 4);
+        uuidStream << (int)(randomBytes[i] & 0x0F);
+    }
+
+    return uuidStream.str();
+}
+
+std::string StringUtils::generateUUID(int index) {
+    std::string uuid;
+
+    switch (index)
+    {
+        case 1: // android
+            uuid = generateUUID4();
+            return uuid;
+            break;
+        case 2: // ios
+            uuid = toUpper(generateUUID4());
+            return uuid;
+            break;
+        case 7: // windows
+            uuid = generateUUID3();
+            return uuid;
+            break;
+        default:
+            std::string name = generateRandomName(32);
+            uuid = generateUUID3();
+            return uuid;
+            break;
+    }
+}
+
+int64_t StringUtils::generateCID() {
+    static std::random_device rd;
+    static std::mt19937_64 gen(rd());
+    static std::uniform_int_distribution<uint64_t> dis(1000000000000000000ULL, 9999999999999999999ULL);
+    static std::uniform_int_distribution<int> sign_dis(0, 1);
+
+    uint64_t id = dis(gen);
+    if (sign_dis(gen) == 1) {
+        return static_cast<int64_t>(-id);
+    } else {
+        return static_cast<int64_t>(id);
+    }
 }
 
 bool StringUtils::startsWith(std::string_view str, std::string_view prefix)
