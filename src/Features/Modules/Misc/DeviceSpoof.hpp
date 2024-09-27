@@ -7,7 +7,7 @@
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
 public:
-    DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs your device id, useful for bypassing bans", ModuleCategory::Misc, 0, false)
+    DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs all ur ids", ModuleCategory::Misc, 0, false)
     {
         mNames = {
             {Lowercase, "devicespoof"},
