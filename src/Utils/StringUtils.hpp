@@ -20,8 +20,9 @@ public:
     static std::string toLower(std::string str);
     static std::string toUpper(std::string str);
     static bool equalsIgnoreCase(const std::string& str1, const std::string& str2);
-    static std::string generateUUID();
-    static std::string generateMboard();
+    static std::string generateUUID(int index);
+    static std::string generateMboard(int index);
+    static int64_t generateCID();
     static bool containsIgnoreCase(const std::string& str, const std::string& subStr);
     static bool containsAnyIgnoreCase(const std::string& str, const std::vector<std::string>& strVector);
     static std::string getClipboardText();

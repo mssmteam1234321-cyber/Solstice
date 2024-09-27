@@ -7,7 +7,7 @@
 class DeviceSpoof : public ModuleBase<DeviceSpoof>
 {
 public:
-    DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs your device id, useful for bypassing bans", ModuleCategory::Misc, 0, true)
+    DeviceSpoof() : ModuleBase("DeviceSpoof", "Spoofs all ur ids", ModuleCategory::Misc, 0, false)
     {
         mNames = {
             {Lowercase, "devicespoof"},
@@ -16,6 +16,8 @@ public:
             {NormalSpaced, "Device Spoof"}
         };
     }
+
+    bool isInjected = false;
 
     static inline unsigned char originalData[7];
     static inline unsigned char patch[] = {0x48, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
