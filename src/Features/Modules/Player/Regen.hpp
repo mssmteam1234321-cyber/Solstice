@@ -8,8 +8,7 @@ public:
     };
     enum class CalcMode {
         Minecraft,
-        Custom,
-        Static
+        Test
     };
     enum class UncoverMode {
         Normal,
@@ -28,13 +27,12 @@ public:
         Old,
         New
     };
+
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
-    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Custom", "Static");
-    NumberSetting mOffGroundSpeed = NumberSetting("Off Ground Speed", "The multiplie value for destroy speed while off ground", 0.5, 0, 1, 0.01);
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Test");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
     NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
-    BoolSetting mOldCalculation = BoolSetting("Old Calculation", "Use the old calculation for breaking blocks", false);
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
     BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
@@ -55,8 +53,7 @@ public:
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
-    BoolSetting mTest = BoolSetting("Test", "test", false);
-    BoolSetting mTest2 = BoolSetting("Test2", "test", false);
+    BoolSetting mTest2 = BoolSetting("Prioritization", "test", false);
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
@@ -88,11 +85,9 @@ public:
                 &mRenderBlock,
             &mMode,
             &mCalcMode,
-            &mOffGroundSpeed,
             &mRange,
             &mDestroySpeed,
             &mOtherDestroySpeed,
-            &mOldCalculation,
             &mSwing,
             &mHotbarOnly,
             &mUncover,
@@ -113,7 +108,7 @@ public:
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
-            &mTest,
+            //&mTest,
             &mTest2,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
@@ -140,7 +135,8 @@ public:
         VISIBILITY_CONDITION(mDisableDuration, mUncover.mValue && mDynamicUncover.mValue);
 #endif
 
-        VISIBILITY_CONDITION(mOffGroundSpeed, mCalcMode.mValue == CalcMode::Custom);
+        VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
+        VISIBILITY_CONDITION(mOtherDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
 
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
@@ -155,8 +151,6 @@ public:
         VISIBILITY_CONDITION(mMulti, mBlockOre.mValue);
 
         VISIBILITY_CONDITION(mCompensation, mAntiCover.mValue);
-
-        VISIBILITY_CONDITION(mTest, mInfiniteDurability.mValue);
 
         VISIBILITY_CONDITION(mOnGroundOnly, mDynamicDestroySpeed.mValue);
         VISIBILITY_CONDITION(mNuke, mDynamicDestroySpeed.mValue && mOnGroundOnly.mValue);

@@ -397,7 +397,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     if (mDebug.mValue) {
         // Stolen notify
         if(mStealNotify.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir())
-            ChatUtils::displayClientMessage("Your ore was stolen!");
+            if(player->getAbsorption() > 9.9f) {
+                ChatUtils::displayClientMessage("Queued ore was stolen!");
+            } else {
+                ChatUtils::displayClientMessage("Current ore was stolen!");
+            }
     }
 
     bool shouldChangeOre = false;
@@ -436,36 +440,36 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
 
         if (!wasOnGround) mOffGround = true;
 
-        switch (mCalcMode.mValue)
-        {
-        case CalcMode::Minecraft:
-            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-            break;
-        case CalcMode::Custom:
-            player->setOnGround(true);
-            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-            player->setOnGround(wasOnGround);
-            if (!wasOnGround) destroySpeed *= mOffGroundSpeed.mValue;
-            break;
-        case CalcMode::Static:
-            player->setOnGround(true);
-            destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
-            player->setOnGround(wasOnGround);
-            break;
+        switch (mCalcMode.mValue) {
+            case CalcMode::Minecraft:
+                destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+                break;
+            case CalcMode::Test:
+                destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
+                break;
         }
 
         bool synchedSpeed = false;
-        if (mInfiniteDurability.mValue && mTest.mValue && mWasUncovering && mCurrentBlockPos == mLastTargettingBlockPos && bestToolSlot == mLastToolSlot) {
-            destroySpeed = mLastTargettingBlockPosDestroySpeed;
-            synchedSpeed = true;
-        }
-        else {
-            resetSyncSpeed();
-        }
+        resetSyncSpeed();
         bool nukedBlock = false;
         if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
-            if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
-            else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+            if (isRedstone){
+
+                if(mCalcMode.mValue == CalcMode::Test) {
+                    mCurrentDestroySpeed = 0.666666719f;
+                }
+                else {
+                    mCurrentDestroySpeed = mDestroySpeed.mValue;
+                }
+            }
+            else {
+                if(mCalcMode.mValue == CalcMode::Test) {
+                    mCurrentDestroySpeed = 0.666666719f;
+                }
+                else{
+                    mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+                }
+            }
         }
         else
         {
@@ -495,8 +499,22 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                 }
             }
             if (!found) {
-                if (isRedstone) mCurrentDestroySpeed = mDestroySpeed.mValue;
-                else mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+                if (isRedstone) {
+                    if(mCalcMode.mValue == CalcMode::Test) {
+                        mCurrentDestroySpeed = 0.666666719f;
+                    }
+                    else {
+                        mCurrentDestroySpeed = mDestroySpeed.mValue;
+                    }
+                }
+                else {
+                    if(mCalcMode.mValue == CalcMode::Test) {
+                        mCurrentDestroySpeed = 0.666666719f;
+                    }
+                    else {
+                        mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+                    }
+                }
             }
             else
             {
@@ -509,13 +527,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         }
 
 
-        if (!mOldCalculation.mValue) mBreakingProgress += destroySpeed;
-        else mBreakingProgress += ItemUtils::getDestroySpeed(bestToolSlot, currentBlock, mCurrentDestroySpeed);
+        mBreakingProgress += destroySpeed;
 
         bool finishBreak = true;
         if (maxAbsorption && isRedstone && !mAlwaysMine.mValue && !mIsStealing) finishBreak = false;
 
-        if ((mCurrentDestroySpeed <= mBreakingProgress && (!mIsStealing || exposedFace != -1) && !mOldCalculation.mValue || 1 <= mBreakingProgress && mOldCalculation.mValue) && finishBreak) {
+        if ((mCurrentDestroySpeed <= mBreakingProgress && (!mIsStealing || exposedFace != -1)) && finishBreak) {
             mShouldRotate = true;
             supplies->mSelectedSlot = bestToolSlot;
             if (mSwing.mValue) player->swing();
@@ -727,7 +744,7 @@ void Regen::renderProgressBar()
     float percentDone = 1.f;
 
     percentDone = mBreakingProgress;
-    if (!mOldCalculation.mValue) percentDone /= mCurrentDestroySpeed;
+    percentDone /= mCurrentDestroySpeed;
     if (percentDone < lastProgress) lastProgress = percentDone;
     percentDone = MathUtils::lerp(lastProgress, percentDone, ImGui::GetIO().DeltaTime * 30.f);
     lastProgress = percentDone;
@@ -848,7 +865,7 @@ void Regen::renderNewProgressBar()
     float percentDone = 1.f;
 
     percentDone = mBreakingProgress;
-    if (!mOldCalculation.mValue) percentDone /= mCurrentDestroySpeed;
+    percentDone /= mCurrentDestroySpeed;
     if (percentDone < lastProgress) lastProgress = percentDone;
     percentDone = MathUtils::lerp(lastProgress, percentDone, ImGui::GetIO().DeltaTime * 30.f);
     lastProgress = percentDone;
@@ -972,7 +989,7 @@ void Regen::renderBlock()
     float progress = 1.f;
 
     progress = mBreakingProgress;
-    if (!mOldCalculation.mValue) progress /= mCurrentDestroySpeed;
+    progress /= mCurrentDestroySpeed;
     if (progress < lastProgress) lastProgress = progress;
     progress = MathUtils::lerp(lastProgress, progress, ImGui::GetIO().DeltaTime * 30.f);
     lastProgress = progress;
