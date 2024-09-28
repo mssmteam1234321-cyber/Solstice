@@ -270,7 +270,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         if (mEnableAntiSteal.mValue) {
             if (NOW < lastStealerDetected + 5000) {
                 antiStealerEnabled = true;
-                ChatUtils::displayClientMessage("AntiStealer activated");
             } else {
                 antiStealerEnabled = false;
             }
@@ -428,10 +427,38 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
         if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-            lastStealerDetected = NOW;
 
             if (player->getAbsorption() > 9.f) {
                 ChatUtils::displayClientMessage("Queued ore was stolen!");
+
+                if (mStealerDetecter.mValue) {
+                    if (startedStealerDetection) {
+                        if (NOW >= stealerDetectionStartTime + 5000) {
+                            if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
+                                stealerDetected = true;
+                                uncoverEnabled = false;
+                                uncoverDisabledTime = NOW;
+                                startedStealerDetection = false;
+                                stealerDetectionStartTime = 0;
+                                amountOfStolenBlocks = 0;
+                                lastStealerDetected = NOW;
+                                ChatUtils::displayClientMessage("Stealer detected");
+                            } else {
+                                ChatUtils::displayClientMessage("Reset");
+                                startedStealerDetection = false;
+                                stealerDetectionStartTime = 0;
+                                amountOfStolenBlocks = 0;
+                            }
+                        } else {
+                            amountOfStolenBlocks++;
+                        }
+                    } else {
+                        stealerDetectionStartTime = NOW;
+                        startedStealerDetection = true;
+                        amountOfStolenBlocks = 0;
+                        ChatUtils::displayClientMessage("Started stealer detection");
+                    }
+                }
             } else {
                 ChatUtils::displayClientMessage("Current ore was stolen!");
 
@@ -445,6 +472,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                                 startedStealerDetection = false;
                                 stealerDetectionStartTime = 0;
                                 amountOfStolenBlocks = 0;
+                                lastStealerDetected = NOW;
                                 ChatUtils::displayClientMessage("Stealer detected");
                             } else {
                                 ChatUtils::displayClientMessage("Reset");
@@ -1153,7 +1181,6 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
                 if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = pos;
-                    lastStealerDetected = NOW;
                     if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
                 mLastStealerDetected = NOW;
