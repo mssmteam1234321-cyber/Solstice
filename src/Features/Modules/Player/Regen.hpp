@@ -27,11 +27,6 @@ public:
         Old,
         New
     };
-    enum class DetectMode
-    {
-        Row,
-        Seconds
-    };
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
     EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Fast");
@@ -81,7 +76,6 @@ public:
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy mining only exposed ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
     BoolSetting mStealerDetecter = BoolSetting("Stealer Detector", "Does some funnies if stealer detected :>", false);
-    EnumSettingT<DetectMode> mDetectMode = EnumSettingT<DetectMode>("Type", "The mode to use with amount of blocks to detect", DetectMode::Row, "Blocks stolen in a row", "Blocks stolen past secs");
     NumberSetting mAmountOfBlocksToDetect = NumberSetting("Stolen Blocks to Detect", "amount of blocks that should be stolen in past 5 seconds to detect stealer", 4, 1, 10, 1);
     BoolSetting mDisableUncover = BoolSetting("Disable Uncover", "Disables uncover for some seconds", false);
     NumberSetting mDisableSeconds = NumberSetting("Disable Duration", "amount of seconds uncover will be disabled for", 5, 1, 15, 1);
@@ -143,8 +137,6 @@ public:
         VISIBILITY_CONDITION(mDisableDuration, mUncover.mValue && mDynamicUncover.mValue);
         addSettings(&mStealerDetecter, &mAmountOfBlocksToDetect);
         VISIBILITY_CONDITION(mAmountOfBlocksToDetect, mStealerDetecter.mValue);
-        addSetting(&mDetectMode);
-        VISIBILITY_CONDITION(mDetectMode, mStealerDetecter.mValue);
         addSetting(&mDisableUncover);
         addSetting(&mDisableSeconds);
         addSetting(&mEnableAntiSteal);
