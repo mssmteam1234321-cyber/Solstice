@@ -336,6 +336,8 @@ void IrcClient::onConnected()
     nlohmann::json j;
     #ifdef __DEBUG__
     j["0"] = "§csolstice§r";
+    #elif __PRIVATE_BUILD__
+    j["0"] = "§dsolstice§r";
     #else
     j["0"] = "§asolstice§r";
     #endif
