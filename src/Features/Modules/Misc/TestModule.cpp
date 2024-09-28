@@ -46,6 +46,7 @@ void TestModule::onEnable()
     if (player)
     {
         mLastOnGroundY = player->getPos()->y - 0.01;
+        clipPos = *player->getPos();
     }
 }
 
@@ -60,6 +61,9 @@ void TestModule::onDisable()
     auto player = ClientInstance::get()->getLocalPlayer();
     if (player && mMode.mValue == Mode::VerticalTest && hasSetClipPos)
     {
+        auto currentPos = *player->getPos();
+        clipPos.x = currentPos.x;
+        clipPos.z = currentPos.z;
         player->setPosition(clipPos);
         hasSetClipPos = false;
         player->getStateVectorComponent()->mVelocity.y = -0.0784000015258789;
