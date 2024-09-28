@@ -33,6 +33,8 @@
 
 #ifdef __DEBUG__
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [debug]";
+#elif __PRIVATE_BUILD__
+std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [private]";
 #else
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 #endif

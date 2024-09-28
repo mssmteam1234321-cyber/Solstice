@@ -212,7 +212,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
     //mModules.emplace_back(std::make_shared<ShowGracePeriod>());
 
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode
     mModules.emplace_back(std::make_shared<ItemPhysics>());
 

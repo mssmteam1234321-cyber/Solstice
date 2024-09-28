@@ -7,6 +7,16 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 4)
     message(FATAL_ERROR "Solstice only supports x64 builds.")
 endif ()
 
+if (PRIVATE_BUILD)
+    add_compile_definitions(__PRIVATE_BUILD__)
+    message(STATUS "Private build enabled")
+endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(__PRIVATE_BUILD__)
+    message(STATUS "Debug build enabled")
+endif ()
+
 find_program(LD_COMMAND ld)
 
 if (NOT LD_COMMAND)

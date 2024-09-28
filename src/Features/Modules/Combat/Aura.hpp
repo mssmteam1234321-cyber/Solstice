@@ -83,7 +83,7 @@ public:
             &mSwitchMode,
             &mBypassMode,
             &mAutoFireSword,
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             &mFireSwordSpoof,
 #endif
             &mHotbarOnly,

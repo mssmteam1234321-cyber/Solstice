@@ -618,7 +618,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                     if (mDebug.mValue && mPriorityNotify.mValue) ChatUtils::displayClientMessage("Prioritized ore");
                 }
             }
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             // Ore Faker
             if (mOreFaker.mValue) {
                 Actor* target = nullptr;

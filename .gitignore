@@ -13,9 +13,9 @@ CMakeUserPresets.json
 /.vs/
 /cmake-build-debug/
 /cmake-build-release/
-/cmake-build-release-paid/
-/cmake-build-release-free/
+/cmake-build-release-private/
 /out/
 CMakeSettings.json
 /cryptopp-cmake/
 /Includes/magic_vtable/
+

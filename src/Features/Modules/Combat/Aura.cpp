@@ -455,7 +455,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             bool spoofed = false;
             int oldSlot = mLastSlot;
 
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             if (mFireSwordSpoof.mValue && shouldUseFire)
             {
                 spoofed = true;
@@ -482,7 +482,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             bool spoofed = false;
             int oldPktSlot = mLastSlot;
 
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             if (mFireSwordSpoof.mValue && shouldUseFire)
             {
                 auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
