@@ -26,6 +26,8 @@ void BuildInfoCommand::execute(const std::vector<std::string>& args)
     // idHolder.reset();
 #ifdef __DEBUG__
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Debug");
+#elif __PRIVATE_BUILD__
+    ChatUtils::displayClientMessage("§6- §eBuild type§7: Private");
 #else
     ChatUtils::displayClientMessage("§6- §eBuild type§7: Release");
 #endif

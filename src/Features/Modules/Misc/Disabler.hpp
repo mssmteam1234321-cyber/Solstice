@@ -13,14 +13,14 @@ public:
     enum class DisablerType {
         PingSpoof,
         PingHolder,
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         MoveFix
 #endif
     };
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::Flareon, "Flareon", "Sentinel", "Custom");
     EnumSettingT<DisablerType> mDisablerType = EnumSettingT<DisablerType>("Disabler Type", "The type of disabler to use.", DisablerType::PingSpoof, "Ping Spoof", "Ping Holder"
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         ,"Move Fix"
 #endif
         );

@@ -125,7 +125,7 @@ public:
             &mPriorityNotify,
             &mNukeNotify
         );
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
         addSettings(&mExposed, &mUnexposed);
         addSetting(&mRenderFakeOre);

@@ -85,7 +85,7 @@ void Disabler::onDisable()
 void Disabler::onPacketOutEvent(PacketOutEvent& event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
     if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
         if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
 
@@ -319,7 +319,7 @@ void Disabler::onSendImmediateEvent(SendImmediateEvent& event)
 {
 
     if (mMode.mValue != Mode::Flareon) return;
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
     if (mDisablerType.mValue == DisablerType::MoveFix) return;
 #endif
     uint8_t packetId = event.send[0];
