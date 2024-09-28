@@ -29,7 +29,7 @@ public:
     };
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
-    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Test");
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Fast");
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
     NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
@@ -59,7 +59,6 @@ public:
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
-    BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when stole/stolen ore", false);
     BoolSetting mConfuseNotify = BoolSetting("Confuse Notify", "Send message in chat when confused stealer", false);
     BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/ore got covered", false);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
@@ -75,14 +74,19 @@ public:
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy mining only exposed ores", false);
-    NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3000, 1000, 10000, 500);
+    NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
+    BoolSetting mStealerDetecter = BoolSetting("Stealer Detector", "Does some funnies if stealer detected :>", false);
+    NumberSetting mAmountOfBlocksToDetect = NumberSetting("Stolen Blocks to Detect", "amount of blocks that should be stolen in past 5 seconds to detect stealer", 4, 1, 10, 1);
+    BoolSetting mDisableUncover = BoolSetting("Disable Uncover", "Disables uncover for some seconds", false);
+    NumberSetting mDisableSeconds = NumberSetting("Disable Duration", "amount of seconds uncover will be disabled for", 5, 1, 15, 1);
+    BoolSetting mEnableAntiSteal = BoolSetting("Enable AntiSteal", "Enables anti-steal, disables if enemy didn't steal / didn't try to steal ur ore for past 5 seconds", false);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
         addSettings(
-                &mProgressBarStyle,
-                &mOffset,
-                &mRenderProgressBar,
-                &mRenderBlock,
+            &mProgressBarStyle,
+            &mOffset,
+            &mRenderProgressBar,
+            &mRenderBlock,
             &mMode,
             &mCalcMode,
             &mRange,
@@ -108,14 +112,12 @@ public:
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
-            //&mTest,
             &mTest2,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
             &mNuke,
             &mAlwaysMine,
             &mDebug,
-            &mStealNotify,
             &mConfuseNotify,
             &mBlockNotify,
             &mFastOreNotify,
@@ -133,6 +135,14 @@ public:
         addSettings(&mDynamicUncover, &mDisableDuration);
         VISIBILITY_CONDITION(mDynamicUncover, mUncover.mValue);
         VISIBILITY_CONDITION(mDisableDuration, mUncover.mValue && mDynamicUncover.mValue);
+        addSettings(&mStealerDetecter, &mAmountOfBlocksToDetect);
+        VISIBILITY_CONDITION(mAmountOfBlocksToDetect, mStealerDetecter.mValue);
+        addSetting(&mDisableUncover);
+        addSetting(&mDisableSeconds);
+        addSetting(&mEnableAntiSteal);
+        VISIBILITY_CONDITION(mDisableUncover, mStealerDetecter.mValue);
+        VISIBILITY_CONDITION(mDisableSeconds, mDisableUncover.mValue);
+        VISIBILITY_CONDITION(mEnableAntiSteal, mStealerDetecter.mValue);
 #endif
 
         VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
@@ -156,7 +166,6 @@ public:
         VISIBILITY_CONDITION(mNuke, mDynamicDestroySpeed.mValue && mOnGroundOnly.mValue);
 
         // Debug
-        VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mConfuseNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mBlockNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
@@ -174,6 +183,15 @@ public:
 
         gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent, nes::event_priority::LAST>(this);
     }
+
+    bool antiStealerEnabled = false;
+    bool stealerDetected = false;
+    int amountOfStolenBlocks = 0;
+    uint64_t stealerDetectionStartTime = 0;
+    bool startedStealerDetection = false;
+    uint64_t uncoverDisabledTime = 0;
+    bool uncoverEnabled = true;
+    uint64_t lastStealerDetected = 0;
 
     struct PathFindingResult {
         glm::ivec3 blockPos;

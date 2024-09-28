@@ -82,12 +82,12 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 
     // Steal
     if (isStealing && !mCanSteal && exposedFace == -1) {
-        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Steal cancelled");
+        if (mDebug.mValue) ChatUtils::displayClientMessage("Steal cancelled");
         return false;
     }
 
     // Anti Steal
-    if (mAntiSteal.mValue && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
+    if (mAntiSteal.mValue || antiStealerEnabled && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
 
     return true;
 }
@@ -248,44 +248,66 @@ void Regen::onDisable()
     mWasMiningBlock = false;
 }
 
-void Regen::onBaseTickEvent(BaseTickEvent& event)
-{
+void Regen::onBaseTickEvent(BaseTickEvent& event) {
     mWasMiningBlock = mIsMiningBlock;
 
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;
 
-    for (auto& pos : mLastUpdatedBlockPositions) {
-        if (BlockUtils::isAirBlock(pos)) {
-            //ChatUtils::displayClientMessage("Opponent broke exposed ore x" + std::to_string(brokenExposedBlocks));
-            mLastUncoverDetected = NOW;
+    if(mDynamicUncover.mValue) {
+        for (auto &pos: mLastUpdatedBlockPositions) {
+            if (BlockUtils::isAirBlock(pos)) {
+                ChatUtils::displayClientMessage("Opponent broke exposed ore");
+                mLastUncoverDetected = NOW;
+                break;
+            }
         }
     }
+
     mLastUpdatedBlockPositions.clear();
 
-    if (mUncover.mValue) {
-        if (mDynamicUncover.mValue && NOW < mLastUncoverDetected + mDisableDuration.mValue) mCurrentUncover = false;
-        else mCurrentUncover = true;
+    if(!mAntiSteal.mValue) {
+        if (mEnableAntiSteal.mValue) {
+            if (NOW < lastStealerDetected + 5000) {
+                antiStealerEnabled = true;
+                ChatUtils::displayClientMessage("AntiStealer activated");
+            } else {
+                antiStealerEnabled = false;
+            }
+        }
     }
-    else mCurrentUncover = false;
+
+    if (mUncover.mValue) {
+        if (mDynamicUncover.mValue && NOW < mLastUncoverDetected + (mDisableDuration.mValue * 1000)) {
+            mCurrentUncover = false;
+            uncoverEnabled = false;
+        } else if (mDisableUncover.mValue && stealerDetected &&
+                   NOW < uncoverDisabledTime + (mDisableSeconds.mValue * 1000)) {
+            mCurrentUncover = false;
+            uncoverEnabled = false;
+        } else {
+            mCurrentUncover = true;
+            uncoverEnabled = true;
+        }
+    } else mCurrentUncover = false;
 
     auto player = event.mActor;
-    BlockSource* source = ClientInstance::get()->getBlockSource();
+    BlockSource *source = ClientInstance::get()->getBlockSource();
     if (!source) return;
-    PlayerInventory* supplies = player->getSupplies();
+    PlayerInventory *supplies = player->getSupplies();
     mPreviousSlot = supplies->getmSelectedSlot();
 
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
     int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
-    ItemStack* stack = supplies->getContainer()->getItem(pickaxeSlot);
+    ItemStack *stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
     // Stealer Timeout
     if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
         mCanSteal = false;
-        if (mDebug.mValue && mStealNotify.mValue) {
+        if (mDebug.mValue) {
             ChatUtils::displayClientMessage("Stealer timeouted");
         }
     }
@@ -295,8 +317,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         bool placedBlock = false;
         if (!miningRedstones.empty()) {
             if (0 < ItemUtils::getAllPlaceables(mHotbarOnly.mValue)) {
-                for (auto& pos : miningRedstones)
-                {
+                for (auto &pos: miningRedstones) {
                     if (mMulti.mValue) {
                         // Multi ore blocker
                         std::vector<glm::ivec3> placePositions;
@@ -316,13 +337,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                         mCurrentPlacePos = pos;
                         mShouldRotate = true;
                         mPreviousSlot = supplies->mSelectedSlot;
-                        int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePositions[0], mHotbarOnly.mValue, false);
+                        int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePositions[0], mHotbarOnly.mValue,
+                                                                           false);
                         if (blockSlot == -1) continue;
 
                         supplies->mSelectedSlot = blockSlot;
                         PacketUtils::spoofSlot(blockSlot);
                         if (mSwing.mValue) player->swing();
-                        for (auto& placePos : placePositions) {
+                        for (auto &placePos: placePositions) {
                             BlockUtils::placeBlock(placePos, 1);
                         }
                         if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
@@ -331,9 +353,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
                         supplies->mSelectedSlot = mPreviousSlot;
                         placedBlock = true;
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         // Single ore blocker
                         int exposedFace = BlockUtils::getExposedFace(pos);
                         if (exposedFace == -1 || !isValidRedstone(pos)) continue;
@@ -368,7 +388,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
     }
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying()) {
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) ||
+        player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying()) {
         initializeRegen();
         resetSyncSpeed();
         if (mIsConfuserActivated) {
@@ -393,15 +414,56 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         return;
     }
 
-    if (mDebug.mValue) {
-        // Stolen notify
-        if(mStealNotify.mValue && mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir())
-            if(player->getAbsorption() > 9.9f) {
+    if (mStealerDetecter.mValue) {
+        if (startedStealerDetection) {
+            if (NOW >= stealerDetectionStartTime + 5000) {
+                if (!amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
+                    ChatUtils::displayClientMessage("Reset");
+                    startedStealerDetection = false;
+                    stealerDetectionStartTime = 0;
+                    amountOfStolenBlocks = 0;
+                }
+            }
+        }
+    }
+
+        if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
+            lastStealerDetected = NOW;
+
+            if (player->getAbsorption() > 9.f) {
                 ChatUtils::displayClientMessage("Queued ore was stolen!");
             } else {
                 ChatUtils::displayClientMessage("Current ore was stolen!");
+
+                if (mStealerDetecter.mValue) {
+                    if (startedStealerDetection) {
+                        if (NOW >= stealerDetectionStartTime + 5000) {
+                            if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
+                                stealerDetected = true;
+                                uncoverEnabled = false;
+                                uncoverDisabledTime = NOW;
+                                startedStealerDetection = false;
+                                stealerDetectionStartTime = 0;
+                                amountOfStolenBlocks = 0;
+                                ChatUtils::displayClientMessage("Stealer detected");
+                            } else {
+                                ChatUtils::displayClientMessage("Reset");
+                                startedStealerDetection = false;
+                                stealerDetectionStartTime = 0;
+                                amountOfStolenBlocks = 0;
+                            }
+                        } else {
+                            amountOfStolenBlocks++;
+                        }
+                    } else {
+                        stealerDetectionStartTime = NOW;
+                        startedStealerDetection = true;
+                        amountOfStolenBlocks = 0;
+                        ChatUtils::displayClientMessage("Started stealer detection");
+                    }
+                }
             }
-    }
+        }
 
     bool shouldChangeOre = false;
     if (mStealPriority.mValue == StealPriority::Steal && mCanSteal && !mIsStealing) {
@@ -420,7 +482,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
         else shouldChangeOre = true;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover || !uncoverEnabled, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
@@ -537,7 +599,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
             if (mDebug.mValue) {
-                if(mStealNotify.mValue && mIsStealing)
+                if(mIsStealing)
                     ChatUtils::displayClientMessage("Stole ore");
 
                 if(mSyncSpeedNotify.mValue && synchedSpeed)
@@ -671,7 +733,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event)
             mTargettingBlockPos = targettingPos;
             return;
         }
-        else if (mCurrentUncover && !unexposedBlockList.empty()) {
+        else if (mCurrentUncover || uncoverEnabled && !unexposedBlockList.empty()) {
             bool foundBlock = false;
             bool isNextToRedstone = false;
             float fastestTime = INT_MAX;
@@ -1089,9 +1151,10 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             // Anti Steal
             glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
-                if (mAntiSteal.mValue) {
+                if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = pos;
-                    if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
+                    lastStealerDetected = NOW;
+                    if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
                 mLastStealerDetected = NOW;
             }
@@ -1109,7 +1172,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
 
             if (glm::ivec3(levelEvent->mPos) == mBlackListedOrePos) {
-                if (mAntiSteal.mValue) {
+                if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
                 }
             }
