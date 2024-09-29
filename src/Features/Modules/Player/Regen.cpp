@@ -267,16 +267,24 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 #endif
 
     if (mDynamicUncover.mValue) {
-        for (auto &pos: mLastUpdatedBlockPositions) {
+        for (auto& pos : mLastBrokenOrePos) {
+            // detect opponent broke exposed ore
             if (BlockUtils::isAirBlock(pos)) {
-                ChatUtils::displayClientMessage("Opponent broke exposed ore");
+                // 
+            }
+        }
+        for (auto &pos: mLastBrokenCoveringBlockPos) {
+            // detect opponent uncovered ore
+            if (BlockUtils::isAirBlock(pos)) {
+                ChatUtils::displayClientMessage("Opponent uncovered ore");
                 mLastUncoverDetected = NOW;
                 break;
             }
         }
     }
 
-    mLastUpdatedBlockPositions.clear();
+    mLastBrokenOrePos.clear();
+    mLastBrokenCoveringBlockPos.clear();
 
     if (!mAntiSteal.mValue) {
         if (mEnableAntiSteal.mValue) {
@@ -1189,11 +1197,15 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
         if (10 < glm::distance(*player->getPos(), glm::vec3(updateBlockPacket->mPos)) || mCurrentBlockPos == updateBlockPacket->mPos) return;
 
         if (!BlockUtils::isAirBlock(updateBlockPacket->mPos)) {
+            int brokenBlockId = ClientInstance::get()->getBlockSource()->getBlock(updateBlockPacket->mPos)->mLegacy->getBlockId();
+            if (brokenBlockId == 73 || brokenBlockId == 74) {
+                mLastBrokenOrePos.push_back(updateBlockPacket->mPos);
+            }
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = updateBlockPacket->mPos + offset;
                 int blockId = ClientInstance::get()->getBlockSource()->getBlock(blockPos)->mLegacy->getBlockId();
                 if (blockId == 73 || blockId == 74) {
-                    mLastUpdatedBlockPositions.push_back(updateBlockPacket->mPos);
+                    mLastBrokenCoveringBlockPos.push_back(updateBlockPacket->mPos);
                     break;
                 }
             }

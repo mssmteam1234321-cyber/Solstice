@@ -248,7 +248,9 @@ public:
     int mLastPlacedBlockSlot = 0;
 
     std::vector<glm::ivec3> mFakePositions;
-    std::vector<glm::ivec3> mLastUpdatedBlockPositions;
+    //std::vector<glm::ivec3> mLastUpdatedBlockPositions;
+    std::vector<glm::ivec3> mLastBrokenOrePos;
+    std::vector<glm::ivec3> mLastBrokenCoveringBlockPos;
 
     std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),
