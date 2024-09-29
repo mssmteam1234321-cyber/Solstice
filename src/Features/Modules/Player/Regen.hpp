@@ -29,7 +29,11 @@ public:
     };
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
-    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft", "Fast");
+    EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft",
+#ifdef __PRIVATE_BUILD__
+                                                              "Fast"
+#endif
+                                                              );
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
     NumberSetting mDestroySpeed = NumberSetting("Destroy Speed", "The destroy speed for Regen", 1, 0.01, 1, 0.01);
     NumberSetting mOtherDestroySpeed = NumberSetting("Other Destroy Speed", "The other destroy speed for Regen", 1, 0.01, 1, 0.01);
@@ -75,6 +79,7 @@ public:
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy mining only exposed ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
+    BoolSetting mNoUncoverWhileStealing = BoolSetting("No Uncover While Stealing", "Disables uncover for 5 secs everytime u stole someone's ore", false);
     BoolSetting mStealerDetecter = BoolSetting("Stealer Detector", "Does some funnies if stealer detected :>", false);
     NumberSetting mAmountOfBlocksToDetect = NumberSetting("Stolen Blocks to Detect", "amount of blocks that should be stolen in past 5 seconds to detect stealer", 4, 1, 10, 1);
     BoolSetting mDisableUncover = BoolSetting("Disable Uncover", "Disables uncover for some seconds", false);
@@ -132,6 +137,7 @@ public:
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
+        addSetting(&mNoUncoverWhileStealing);
         addSettings(&mDynamicUncover, &mDisableDuration);
         VISIBILITY_CONDITION(mDynamicUncover, mUncover.mValue);
         VISIBILITY_CONDITION(mDisableDuration, mUncover.mValue && mDynamicUncover.mValue);
@@ -184,6 +190,7 @@ public:
         gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent, nes::event_priority::LAST>(this);
     }
 
+    uint64_t lastStoleTime = 0;
     bool antiStealerEnabled = false;
     bool stealerDetected = false;
     int amountOfStolenBlocks = 0;

@@ -280,14 +280,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     if (mUncover.mValue) {
         if (mDynamicUncover.mValue && NOW < mLastUncoverDetected + (mDisableDuration.mValue * 1000)) {
             mCurrentUncover = false;
-            uncoverEnabled = false;
         } else if (mDisableUncover.mValue && stealerDetected &&
                    NOW < uncoverDisabledTime + (mDisableSeconds.mValue * 1000)) {
             mCurrentUncover = false;
-            uncoverEnabled = false;
-        } else {
+        } else if (mNoUncoverWhileStealing.mValue && NOW < lastStoleTime + 5000) {
+            mCurrentUncover = false;
+        }
+        else {
             mCurrentUncover = true;
-            uncoverEnabled = true;
         }
     } else mCurrentUncover = false;
 
@@ -416,8 +416,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     if (mStealerDetecter.mValue) {
         if (startedStealerDetection) {
-            if (NOW >= stealerDetectionStartTime + 5000) {
-                if (!amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
+            if (NOW > stealerDetectionStartTime + 5000) {
+                if (!amountOfStolenBlocks > mAmountOfBlocksToDetect.mValue) {
                     ChatUtils::displayClientMessage("Reset");
                     startedStealerDetection = false;
                     stealerDetectionStartTime = 0;
@@ -428,58 +428,20 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
         if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-
-            if (player->getAbsorption() > 9.f) {
-                ChatUtils::displayClientMessage("Queued ore was stolen!");
-
-                if (mStealerDetecter.mValue) {
-                    if (startedStealerDetection) {
-                        if (NOW >= stealerDetectionStartTime + 5000) {
-                            if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
-                                stealerDetected = true;
-                                uncoverEnabled = false;
-                                uncoverDisabledTime = NOW;
-                                startedStealerDetection = false;
-                                stealerDetectionStartTime = 0;
-                                amountOfStolenBlocks = 0;
-                                lastStealerDetected = NOW;
-                                ChatUtils::displayClientMessage("Stealer detected");
-                            } else {
-                                ChatUtils::displayClientMessage("Reset");
-                                startedStealerDetection = false;
-                                stealerDetectionStartTime = 0;
-                                amountOfStolenBlocks = 0;
-                            }
-                        } else {
-                            amountOfStolenBlocks++;
-                        }
-                    } else {
-                        stealerDetectionStartTime = NOW;
-                        startedStealerDetection = true;
-                        amountOfStolenBlocks = 0;
-                        ChatUtils::displayClientMessage("Started stealer detection");
-                    }
-                }
-            } else {
                 ChatUtils::displayClientMessage("Current ore was stolen!");
 
                 if (mStealerDetecter.mValue) {
                     if (startedStealerDetection) {
-                        if (NOW >= stealerDetectionStartTime + 5000) {
+                        if (NOW > stealerDetectionStartTime + 5000) {
                             if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
                                 stealerDetected = true;
-                                uncoverEnabled = false;
+                                mCurrentUncover = false;
                                 uncoverDisabledTime = NOW;
                                 startedStealerDetection = false;
                                 stealerDetectionStartTime = 0;
                                 amountOfStolenBlocks = 0;
                                 lastStealerDetected = NOW;
                                 ChatUtils::displayClientMessage("Stealer detected");
-                            } else {
-                                ChatUtils::displayClientMessage("Reset");
-                                startedStealerDetection = false;
-                                stealerDetectionStartTime = 0;
-                                amountOfStolenBlocks = 0;
                             }
                         } else {
                             amountOfStolenBlocks++;
@@ -491,7 +453,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         ChatUtils::displayClientMessage("Started stealer detection");
                     }
                 }
-            }
         }
 
     bool shouldChangeOre = false;
@@ -511,7 +472,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         else shouldChangeOre = true;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover || !uncoverEnabled, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
         Block* currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
@@ -628,9 +589,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
             if (mDebug.mValue) {
-                if(mIsStealing)
+                if(mIsStealing) {
                     ChatUtils::displayClientMessage("Stole ore");
-
+                    if(mNoUncoverWhileStealing.mValue)
+                        lastStoleTime = NOW;
+                }
                 if(mSyncSpeedNotify.mValue && synchedSpeed)
                     ChatUtils::displayClientMessage("Synched destroy speed");
 
@@ -762,7 +725,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             mTargettingBlockPos = targettingPos;
             return;
         }
-        else if (mCurrentUncover || uncoverEnabled && !unexposedBlockList.empty()) {
+        else if (mCurrentUncover && !unexposedBlockList.empty()) {
             bool foundBlock = false;
             bool isNextToRedstone = false;
             float fastestTime = INT_MAX;

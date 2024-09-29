@@ -14,7 +14,7 @@ public:
     BoolSetting mIvory = BoolSetting("Ivory", "Dodge map Ivory", false);
     BoolSetting mLush = BoolSetting("Lush", "Dodge map Lush", false);
     BoolSetting mMonastery = BoolSetting("Monastery", "Dodge map Monastery", false);
-    BoolSetting mPillaris = BoolSetting("Pillaris", "Dodge map Pillaris", false);
+    BoolSetting mPillars = BoolSetting("Pillars", "Dodge map Pillaris", false);
     BoolSetting mPineconePoint = BoolSetting("Pinecone Point", "Dodge map Pinecone Point", false);
     BoolSetting mTurmoil = BoolSetting("Turmoil", "Dodge map Turmoil", false);
     BoolSetting mVillage = BoolSetting("Village", "Dodge map Village", false);
@@ -32,7 +32,7 @@ public:
                 &mIvory,
                 &mLush,
                 &mMonastery,
-                &mPillaris,
+                &mPillars,
                 &mPineconePoint,
                 &mTurmoil,
                 &mVillage,

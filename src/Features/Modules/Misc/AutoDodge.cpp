@@ -74,9 +74,9 @@ void AutoDodge::onPacketInEvent(PacketInEvent& event)
                 ChatUtils::displayClientMessage("§bDodged map §6Monastery");
                 requeue = true;
             }
-            else if (mPillaris.mValue && mapName == "Pillaris")
+            else if (mPillars.mValue && mapName == "Pillars")
             {
-                ChatUtils::displayClientMessage("§bDodged map §6Pillaris");
+                ChatUtils::displayClientMessage("§bDodged map §6Pillars");
                 requeue = true;
             }
             else if (mPineconePoint.mValue && mapName == "Pinecone Point")
