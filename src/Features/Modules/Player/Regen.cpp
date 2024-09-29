@@ -87,7 +87,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     }
 
     // Anti Steal
-    if (mAntiSteal.mValue || antiStealerEnabled && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
+    if ((mAntiSteal.mValue || antiStealerEnabled) && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
 
     return true;
 }
