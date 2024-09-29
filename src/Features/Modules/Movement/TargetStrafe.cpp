@@ -37,13 +37,12 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
     glm::vec3 playerPos = *player->getPos();
     auto moveInputComponent = player->getMoveInputComponent();
 
-    if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent())
+    if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !mIsJumping))
     {
-        mShouldStrafe = false;
-        return;
-    }
-
-    if (mJumpOnly.mValue && !mIsJumping) {
+        if (mShouldStrafe) {
+            auto rawMoveInputComponent = player->getRawMoveInputComponent();
+            handleKeyInput(rawMoveInputComponent->mForward, rawMoveInputComponent->mLeft, rawMoveInputComponent->mBackward, rawMoveInputComponent->mRight);
+        }
         mShouldStrafe = false;
         return;
     }
