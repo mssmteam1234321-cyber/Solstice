@@ -198,7 +198,7 @@ void AutoHvH::onBaseTickEvent(BaseTickEvent& event) {
 }
 
 void AutoHvH::onPacketInEvent(PacketInEvent& event) {
-    if (event.mPacket->getId() == PacketID::ChangeDimension || PacketID::Disconnec) {
+    if (event.mPacket->getId() == PacketID::ChangeDimension || event.mPacket->getId() == PacketID::Disconnect) {
         checkedPlayers.clear();
     }
 }
