@@ -26,22 +26,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    #- name: Configure CMake
-    #  run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
+    - name: Run private build script
+      run: C:\solstice_private\build.bat
 
-    # Necessary for SDL2 to be built properly
-    #- name: Reconfigure CMake
-    #  run: RunDevCmd cmake -B ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja -Wno-dev
-
-    #- name: Build
-    #  run: RunDevCmd cmake --build ${{github.workspace}}/cmake-build-${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}} --target Solstice
-
-    - name: Run build script
+    - name: Run public build script
       run: C:\solstice\build.bat
-
-    # - name: Upload artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: Solstice-Release
-    #     path: ${{github.workspace}}/cmake-build-release/Solstice.dll
-    #     if-no-files-found: error
