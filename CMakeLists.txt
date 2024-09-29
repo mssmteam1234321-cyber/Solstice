@@ -127,7 +127,7 @@ add_compile_definitions(ENTT_PACKED_PAGE=128)
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 if (${IS_DEBUG_BUILD})
-    add_compile_definitions(__DEBUG__)
+        add_compile_definitions(__DEBUG__)
 endif ()
 
 # Debug options

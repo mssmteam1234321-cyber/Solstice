@@ -374,10 +374,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         std::string setName = lowercase ? StringUtils::toLower(setting->mName) : setting->mName;
                                         ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
-                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled && catPositions[i].isExtended)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker && mod->showSettings)
                                             {
                                                 //*(bool*)setting->getValue() = !*(bool*)setting->getValue();
                                                 boolSetting->mValue = !boolSetting->mValue;
@@ -497,7 +497,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                         rgb, animation);
 
                                                 if (ImRenderUtils::isMouseOver(rect2) && ImGui::IsMouseClicked(0) &&
-                                                    isEnabled && !displayColorPicker)
+                                                    isEnabled && !displayColorPicker && mod->showSettings)
                                                 {
                                                     *iterator = j;
                                                 }
@@ -513,14 +513,14 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     {
                                         ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation, radius, ImGui::GetBackgroundDrawList(), ImDrawFlags_RoundCornersBottom);
 
-                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled && catPositions[i].isExtended)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker && mod->showSettings)
                                             {
                                                 *iterator = (*iterator + 1) % enumValues.size();
                                             }
-                                            else if (ImGui::IsMouseClicked(1) && mod->showSettings && !displayColorPicker)
+                                            else if (ImGui::IsMouseClicked(1) && mod->showSettings && !displayColorPicker && mod->showSettings)
                                             {
                                                 setting->enumExtended = !setting->enumExtended;
                                             }
@@ -615,7 +615,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                         setting->sliderEase = std::clamp(setting->sliderEase, 0.f, rect.getWidth());
 
 #pragma region Slider dragging
-                                       if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                       if (ImRenderUtils::isMouseOver(rect) && isEnabled && catPositions[i].isExtended)
                                         {
                                             tooltip = setting->mDescription;
                                             if (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(2))
@@ -731,10 +731,10 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                     {
                                         ImRenderUtils::fillRectangle(rect, ImColor(30, 30, 30), animation);
 
-                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled)
+                                        if (ImRenderUtils::isMouseOver(rect) && isEnabled && catPositions[i].isExtended)
                                         {
                                             tooltip = setting->mDescription;
-                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
+                                            if (ImGui::IsMouseClicked(0) && !displayColorPicker && mod->showSettings)
                                             {
                                                 displayColorPicker = !displayColorPicker;
                                                 lastColorSetting = colorSetting;
@@ -839,24 +839,24 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                         float renderx = screen.x / 2;
                         float rendery = (screen.y / 2) + 110;
 
-                        if (ImRenderUtils::isMouseOver(modRect) && catPositions[i].isExtended && isEnabled)
+                        if (ImRenderUtils::isMouseOver(modRect) && catPositions[i].isExtended && isEnabled && catPositions[i].isExtended)
                         {
-                            if (ImRenderUtils::isMouseOver(catWindow) && catPositions[i].isExtended)
+                            if (ImRenderUtils::isMouseOver(catWindow) && catPositions[i].isExtended && catPositions[i].isExtended)
                             {
                                 tooltip = mod->mDescription;
                             }
 
-                            if (ImGui::IsMouseClicked(0) && !displayColorPicker)
+                            if (ImGui::IsMouseClicked(0) && !displayColorPicker && catPositions[i].isExtended)
                             {
                                 mod->toggle();
                                 ClientInstance::get()->playUi("random.pop", 0.75f, 1.0f);
                             }
-                            else if (ImGui::IsMouseClicked(1) && !displayColorPicker)
+                            else if (ImGui::IsMouseClicked(1) && !displayColorPicker && catPositions[i].isExtended)
                             {
                                 // Only show if the module has settings
                                 if (!mod->mSettings.empty()) mod->showSettings = !mod->showSettings;
                             }
-                            else if (ImGui::IsMouseClicked(2)  && !displayColorPicker)
+                            else if (ImGui::IsMouseClicked(2)  && !displayColorPicker && catPositions[i].isExtended)
                             {
                                 lastMod = mod;
                                 isBinding = true;

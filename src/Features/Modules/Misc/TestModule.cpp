@@ -206,6 +206,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         // floor da x z
         newPos.x = glm::floor(newPos.x);
         newPos.z = glm::floor(newPos.z);
+        newPos.y -= 0.0099;
         clipPos = newPos;
         gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
         hasSetClipPos = true;
@@ -217,6 +218,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         // floor da x z
         newPos.x = glm::floor(newPos.x);
         newPos.z = glm::floor(newPos.z);
+        newPos.y -= 0.0099;
         clipPos = newPos;
         gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
         hasSetClipPos = true;
