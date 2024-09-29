@@ -274,6 +274,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 antiStealerEnabled = false;
             }
         }
+        else if(!mEnableAntiSteal.mValue && antiStealerEnabled) antiStealerEnabled = false;
     }
 
     if (mUncover.mValue) {
