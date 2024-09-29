@@ -39,6 +39,7 @@
 #include "Misc/AutoDodge.hpp"
 #include "Misc/AutoSnipe.hpp"
 #include "Misc/EditionFaker.hpp"
+#include "Misc/AutoHvH.hpp"
 
 #include "Movement/AntiImmobile.hpp"
 #include "Movement/FastStop.hpp"
@@ -187,6 +188,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
     mModules.emplace_back(std::make_shared<AutoSnipe>());
+    mModules.emplace_back(std::make_shared<AutoHvH>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
