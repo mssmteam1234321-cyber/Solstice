@@ -254,7 +254,19 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;
 
-    if(mDynamicUncover.mValue) {
+#ifndef __PRIVATE_BUILD__
+
+    if(!mUncover.mValue) {
+        stealEnabled = false;
+    } else if(mUncover.mValue && !stealEnabled) {
+        stealEnabled = true;
+    }
+
+#else
+    stealEnabled = true;  // lilycat asked me to make release builds not able to use stealer with toggled off uncover
+#endif
+
+    if (mDynamicUncover.mValue) {
         for (auto &pos: mLastUpdatedBlockPositions) {
             if (BlockUtils::isAirBlock(pos)) {
                 ChatUtils::displayClientMessage("Opponent broke exposed ore");
@@ -266,15 +278,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     mLastUpdatedBlockPositions.clear();
 
-    if(!mAntiSteal.mValue) {
+    if (!mAntiSteal.mValue) {
         if (mEnableAntiSteal.mValue) {
             if (NOW < lastStealerDetected + 5000) {
                 antiStealerEnabled = true;
             } else {
                 antiStealerEnabled = false;
             }
-        }
-        else if(!mEnableAntiSteal.mValue && antiStealerEnabled) antiStealerEnabled = false;
+        } else if (!mEnableAntiSteal.mValue && antiStealerEnabled) antiStealerEnabled = false;
     }
 
     if (mUncover.mValue) {
@@ -285,8 +296,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             mCurrentUncover = false;
         } else if (mNoUncoverWhileStealing.mValue && NOW < lastStoleTime + 5000) {
             mCurrentUncover = false;
-        }
-        else {
+        } else {
             mCurrentUncover = true;
         }
     } else mCurrentUncover = false;
@@ -299,7 +309,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
-    bool steal = mSteal.mValue && (mCanSteal || mIsStealing);
+    bool steal = mSteal.mValue && (mCanSteal || mIsStealing) && stealEnabled;
     int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
     ItemStack *stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
@@ -427,33 +437,33 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         }
     }
 
-        if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-                ChatUtils::displayClientMessage("Current ore was stolen!");
+    if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
+        ChatUtils::displayClientMessage("Current ore was stolen!");
 
-                if (mStealerDetecter.mValue) {
-                    if (startedStealerDetection) {
-                        if (NOW > stealerDetectionStartTime + 5000) {
-                            if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
-                                stealerDetected = true;
-                                mCurrentUncover = false;
-                                uncoverDisabledTime = NOW;
-                                startedStealerDetection = false;
-                                stealerDetectionStartTime = 0;
-                                amountOfStolenBlocks = 0;
-                                lastStealerDetected = NOW;
-                                ChatUtils::displayClientMessage("Stealer detected");
-                            }
-                        } else {
-                            amountOfStolenBlocks++;
-                        }
-                    } else {
-                        stealerDetectionStartTime = NOW;
-                        startedStealerDetection = true;
+        if (mStealerDetecter.mValue) {
+            if (startedStealerDetection) {
+                if (NOW > stealerDetectionStartTime + 5000) {
+                    if (amountOfStolenBlocks >= mAmountOfBlocksToDetect.mValue) {
+                        stealerDetected = true;
+                        mCurrentUncover = false;
+                        uncoverDisabledTime = NOW;
+                        startedStealerDetection = false;
+                        stealerDetectionStartTime = 0;
                         amountOfStolenBlocks = 0;
-                        ChatUtils::displayClientMessage("Started stealer detection");
+                        lastStealerDetected = NOW;
+                        ChatUtils::displayClientMessage("Stealer detected");
                     }
+                } else {
+                    amountOfStolenBlocks++;
                 }
+            } else {
+                stealerDetectionStartTime = NOW;
+                startedStealerDetection = true;
+                amountOfStolenBlocks = 1;
+                ChatUtils::displayClientMessage("Started stealer detection");
+            }
         }
+    }
 
     bool shouldChangeOre = false;
     if (mStealPriority.mValue == StealPriority::Steal && mCanSteal && !mIsStealing) {
@@ -464,16 +474,15 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             for (int i = 0; i < blockList.size(); i++) {
                 if (isValidBlock(blockList[i].mPosition, true, true)) {
                     exposedBlockList.push_back(blockList[i]);
-                }
-                else continue;
+                } else continue;
             }
             if (exposedBlockList.empty()) shouldChangeOre = true;
-        }
-        else shouldChangeOre = true;
+        } else shouldChangeOre = true;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
-        Block* currentBlock = source->getBlock(mCurrentBlockPos);
+    if (isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) &&
+        mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+        Block *currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         mToolSlot = bestToolSlot;
@@ -483,7 +492,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             return;
         }
 
-        bool isRedstone = currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
+        bool isRedstone =
+                currentBlock->getmLegacy()->getBlockId() == 73 || currentBlock->getmLegacy()->getBlockId() == 74;
 
         float destroySpeed = 1.f;
 
@@ -495,42 +505,46 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             case CalcMode::Minecraft:
                 destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
                 break;
+#ifdef __PRIVATE_BUILD__
             case CalcMode::Test:
                 destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, currentBlock);
                 break;
+#endif
         }
 
         bool synchedSpeed = false;
         resetSyncSpeed();
         bool nukedBlock = false;
         if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
-            if (isRedstone){
-
-                if(mCalcMode.mValue == CalcMode::Test) {
+            if (isRedstone) {
+#ifdef __PRIVATE_BUILD__
+                if (mCalcMode.mValue == CalcMode::Test) {
                     mCurrentDestroySpeed = 0.666666719f;
-                }
-                else {
+                } else {
                     mCurrentDestroySpeed = mDestroySpeed.mValue;
                 }
-            }
-            else {
-                if(mCalcMode.mValue == CalcMode::Test) {
+#else
+                mCurrentDestroySpeed = mDestroySpeed.mValue;
+#endif
+            } else {
+#ifdef __PRIVATE_BUILD__
+                if (mCalcMode.mValue == CalcMode::Test) {
                     mCurrentDestroySpeed = 0.666666719f;
-                }
-                else{
+                } else {
                     mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
                 }
+#else
+                mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+#endif
             }
-        }
-        else
-        {
+        } else {
             std::string blockName = currentBlock->getmLegacy()->getmName();
             bool found = false;
             if (mOnGroundOnly.mValue && mNuke.mValue) {
-                ItemStack* stack = supplies->getContainer()->getItem(mToolSlot);
+                ItemStack *stack = supplies->getContainer()->getItem(mToolSlot);
                 bool selectedShovel = stack && stack->mItem && stack->getItem()->getItemType() == SItemType::Shovel;
                 if (selectedShovel) {
-                    for (auto& c : BlockUtils::mNukeSpeeds) {
+                    for (auto &c: BlockUtils::mNukeSpeeds) {
                         if (c.blockName == blockName) {
                             mCurrentDestroySpeed = c.destroySpeed;
                             found = true;
@@ -541,7 +555,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 }
             }
             if (!found) {
-                for (auto& c : BlockUtils::mDynamicSpeeds) {
+                for (auto &c: BlockUtils::mDynamicSpeeds) {
                     if (c.blockName == blockName) {
                         mCurrentDestroySpeed = c.destroySpeed;
                         found = true;
@@ -551,27 +565,30 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             }
             if (!found) {
                 if (isRedstone) {
-                    if(mCalcMode.mValue == CalcMode::Test) {
+#ifdef __PRIVATE_BUILD__
+                    if (mCalcMode.mValue == CalcMode::Test) {
                         mCurrentDestroySpeed = 0.666666719f;
-                    }
-                    else {
+                    } else {
                         mCurrentDestroySpeed = mDestroySpeed.mValue;
                     }
-                }
-                else {
-                    if(mCalcMode.mValue == CalcMode::Test) {
+#else
+                    mCurrentDestroySpeed = mDestroySpeed.mValue;
+#endif
+                } else {
+#ifdef __PRIVATE_BUILD__
+                    if (mCalcMode.mValue == CalcMode::Test) {
                         mCurrentDestroySpeed = 0.666666719f;
-                    }
-                    else {
+                    } else {
                         mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
                     }
+#else
+                    mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
+#endif
                 }
-            }
-            else
-            {
-                if (!gaming)
-                {
-                    spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName, static_cast<int>(mCurrentDestroySpeed * 100));
+            } else {
+                if (!gaming) {
+                    spdlog::debug("Found dynamic speed for block: {} [{}%]", blockName,
+                                  static_cast<int>(mCurrentDestroySpeed * 100));
                     gaming = true;
                 }
             }
@@ -589,12 +606,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             if (mSwing.mValue) player->swing();
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
             if (mDebug.mValue) {
-                if(mIsStealing) {
+                if (mIsStealing) {
                     ChatUtils::displayClientMessage("Stole ore");
-                    if(mNoUncoverWhileStealing.mValue)
+                    if (mNoUncoverWhileStealing.mValue)
                         lastStoleTime = NOW;
                 }
-                if(mSyncSpeedNotify.mValue && synchedSpeed)
+                if (mSyncSpeedNotify.mValue && synchedSpeed)
                     ChatUtils::displayClientMessage("Synched destroy speed");
 
                 if (nukedBlock)
@@ -609,8 +626,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             mLastToolSlot = bestToolSlot;
             return;
         }
-    }
-    else { // Find new block
+    } else { // Find new block
         initializeRegen();
         std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
         std::vector<BlockInfo> exposedBlockList;
@@ -620,11 +636,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             if (isValidBlock(blockList[i].mPosition, true, false)) {
                 if (BlockUtils::getExposedFace(blockList[i].mPosition) != -1) exposedBlockList.push_back(blockList[i]);
                 else unexposedBlockList.push_back(blockList[i]);
-            }
-            else continue;
+            } else continue;
         }
 
-        if (mCanSteal && mSteal.mValue && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
+        if (mCanSteal && mSteal.mValue && stealEnabled && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
             if (!mAntiConfuse.mValue || exposedBlockList.empty()) {
                 queueBlock(mEnemyTargettingBlockPos);
                 mTargettingBlockPos = mEnemyTargettingBlockPos;
@@ -634,17 +649,18 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         }
 
         glm::vec3 playerPos = *player->getPos();
-        glm::ivec3 pos = { INT_MAX, INT_MAX, INT_MAX };
-        glm::ivec3 targettingPos = { INT_MAX, INT_MAX, INT_MAX };
+        glm::ivec3 pos = {INT_MAX, INT_MAX, INT_MAX};
+        glm::ivec3 targettingPos = {INT_MAX, INT_MAX, INT_MAX};
         if (!exposedBlockList.empty()) {
             // Confuser
-            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always || (mConfuseMode.mValue == ConfuseMode::Auto && mLastStealerDetected + mConfuseDuration.mValue > NOW));
+            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always ||
+                                                     (mConfuseMode.mValue == ConfuseMode::Auto &&
+                                                      mLastStealerDetected + mConfuseDuration.mValue > NOW));
             if (shouldConfuse) {
                 if (mIsConfuserActivated) {
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
                     mIsConfuserActivated = false;
-                }
-                else if (!unexposedBlockList.empty()) {
+                } else if (!unexposedBlockList.empty()) {
                     glm::ivec3 confusePos = unexposedBlockList[0].mPosition + glm::ivec3(0, -1, 0);
                     BlockUtils::startDestroyBlock(confusePos, 0);
                     mLastConfusedPos = confusePos;
@@ -675,15 +691,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 #ifdef __PRIVATE_BUILD__
             // Ore Faker
             if (mOreFaker.mValue) {
-                Actor* target = nullptr;
+                Actor *target = nullptr;
                 auto actors = ActorUtils::getActorList(false, true);
 
-                std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
-                    {
-                        return a->distanceTo(player) < b->distanceTo(player);
-                    });
+                std::ranges::sort(actors, [&](Actor *a, Actor *b) -> bool {
+                    return a->distanceTo(player) < b->distanceTo(player);
+                });
 
-                for (auto actor : actors) {
+                for (auto actor: actors) {
                     if (actor == player) continue;
                     target = actor;
                     break;
@@ -697,10 +712,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     for (int i = 0; i < fakeBlocks.size(); i++) {
                         int blockId = fakeBlocks[i].mBlock->mLegacy->getBlockId();
                         if (blockId == 73 || blockId == 74) {
-                            if (BlockUtils::getExposedFace(fakeBlocks[i].mPosition) != -1) fakeExposedBlocks.push_back(fakeBlocks[i].mPosition);
+                            if (BlockUtils::getExposedFace(fakeBlocks[i].mPosition) != -1)
+                                fakeExposedBlocks.push_back(fakeBlocks[i].mPosition);
                             else fakeUnexposedBlocks.push_back(fakeBlocks[i].mPosition);
-                        }
-                        else continue;
+                        } else continue;
                     }
 
                     if (mExposed.mValue) {
@@ -724,8 +739,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             queueBlock(pos);
             mTargettingBlockPos = targettingPos;
             return;
-        }
-        else if (mCurrentUncover && !unexposedBlockList.empty()) {
+        } else if (mCurrentUncover && !unexposedBlockList.empty()) {
             bool foundBlock = false;
             bool isNextToRedstone = false;
             float fastestTime = INT_MAX;
@@ -735,7 +749,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 float currentTime = result.time;
                 if (currentTime >= fastestTime || !isValidBlock(result.blockPos, false, false)) continue;
 
-                for (auto& [face, offset] : BlockUtils::blockFaceOffsets) {
+                for (auto &[face, offset]: BlockUtils::blockFaceOffsets) {
                     int ID = source->getBlock(result.blockPos + glm::ivec3(offset))->getmLegacy()->getBlockId();
                     if (ID == 73 || ID == 74) {
                         isNextToRedstone = true;
