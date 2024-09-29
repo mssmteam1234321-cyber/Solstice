@@ -527,7 +527,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             if (isRedstone) {
 #ifdef __PRIVATE_BUILD__
                 if (mCalcMode.mValue == CalcMode::Test) {
-                    mCurrentDestroySpeed = 0.666666719f;
+                    mCurrentDestroySpeed = 0.666666709f;
                 } else {
                     mCurrentDestroySpeed = mDestroySpeed.mValue;
                 }
@@ -537,7 +537,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             } else {
 #ifdef __PRIVATE_BUILD__
                 if (mCalcMode.mValue == CalcMode::Test) {
-                    mCurrentDestroySpeed = 0.666666719f;
+                    mCurrentDestroySpeed = 0.666666709f;
                 } else {
                     mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
                 }
@@ -575,7 +575,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 if (isRedstone) {
 #ifdef __PRIVATE_BUILD__
                     if (mCalcMode.mValue == CalcMode::Test) {
-                        mCurrentDestroySpeed = 0.666666719f;
+                        mCurrentDestroySpeed = 0.666666709f;
                     } else {
                         mCurrentDestroySpeed = mDestroySpeed.mValue;
                     }
@@ -585,7 +585,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 } else {
 #ifdef __PRIVATE_BUILD__
                     if (mCalcMode.mValue == CalcMode::Test) {
-                        mCurrentDestroySpeed = 0.666666719f;
+                        mCurrentDestroySpeed = 0.666666709f;
                     } else {
                         mCurrentDestroySpeed = mOtherDestroySpeed.mValue;
                     }
