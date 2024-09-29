@@ -8,7 +8,9 @@ public:
     };
     enum class CalcMode {
         Minecraft,
+#ifdef __PRIVATE_BUILD__
         Test
+#endif
     };
     enum class UncoverMode {
         Normal,
