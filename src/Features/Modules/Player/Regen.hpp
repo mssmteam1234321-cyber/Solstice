@@ -149,7 +149,7 @@ public:
         addSetting(&mDisableSeconds);
         addSetting(&mEnableAntiSteal);
         VISIBILITY_CONDITION(mDisableUncover, mStealerDetecter.mValue);
-        VISIBILITY_CONDITION(mDisableSeconds, mDisableUncover.mValue);
+        VISIBILITY_CONDITION(mDisableSeconds, mDisableUncover.mValue && mStealerDetecter.mValue);
         VISIBILITY_CONDITION(mEnableAntiSteal, mStealerDetecter.mValue);
 #endif
 
