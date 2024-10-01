@@ -14,12 +14,14 @@ public:
 
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of jesus", Mode::Solid, "Solid");
     BoolSetting mShift = BoolSetting("Allow Shift", "Allows you to shift to go down", true);
+    BoolSetting mTest = BoolSetting("Test", "Test", false);
 
     Jesus() : ModuleBase("Jesus", "Lets you walk on water", ModuleCategory::Movement, 0, false)
     {
         addSettings(
             &mMode,
-            &mShift
+            &mShift,
+            &mTest
         );
 
         mNames = {
@@ -38,6 +40,7 @@ public:
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
 
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.as<int>()];

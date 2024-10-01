@@ -120,3 +120,25 @@ void Jesus::onRenderEvent(RenderEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) mWaterBlock = nullptr;
 }
+
+void Jesus::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+    {
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
+        auto ci = ClientInstance::get();
+        auto bs = ci->getBlockSource();
+        auto cPos = *player->getPos();
+        Block* currentBlock = bs->getBlock(glm::floor(cPos) - glm::vec3(0, 1, 0));
+        Block* belowBlock = bs->getBlock(glm::floor(cPos) - glm::vec3(0, 2, 0));
+        int blockId = currentBlock->toLegacy()->getBlockId();
+        int belowBlockId = belowBlock->toLegacy()->getBlockId();
+
+        if (mTest.mValue && (belowBlockId == 9 || belowBlockId == 8 || blockId == 9 || blockId == 8))
+        {
+            paip->mPos.y -= 0.42f;
+        }
+    }
+}
