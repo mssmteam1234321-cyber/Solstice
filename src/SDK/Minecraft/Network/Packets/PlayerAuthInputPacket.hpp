@@ -43,7 +43,7 @@ public:
 };
 
 
-enum class PlayerActionType {
+enum class PlayerAuthActionType {
     START_DESTROY_BLOCK,
     ABORT_DESTROY_BLOCK,
     STOP_DESTROY_BLOCK,
@@ -85,7 +85,7 @@ enum class PlayerActionType {
 
 class PlayerBlockActionData {
 public:
-    PlayerActionType mAction;
+    PlayerAuthActionType mAction;
     glm::ivec3 mPos;
     int mFace;
 };
