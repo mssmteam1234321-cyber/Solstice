@@ -33,7 +33,7 @@ bool BlockUtils::isGoodBlock(glm::ivec3 blockPos)
     Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
     int blockId = block->toLegacy()->getBlockId();
     bool isLiquid = 8 <= blockId && blockId <= 11;
-    return blockId != 0 && !isLiquid && block->toLegacy()->mSolid;
+    return blockId != 0 && !isLiquid && block->toLegacy()->mMaterial->mIsBlockingMotion;
 }
 
 

@@ -91,7 +91,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     if (mMode.mValue == Mode::DebugUi)
     {
 
-        HitResult* hitResult = player->getLevel()->getHitResult();
+        /*HitResult* hitResult = player->getLevel()->getHitResult();
 
         if(hitResult->mType == HitType::ENTITY)
         {
@@ -109,7 +109,11 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
             {
                 spdlog::info("Hit actor: {}, RenderPositionComponent: {:X}", actor->getRawName(), reinterpret_cast<uintptr_t>(actor->getRenderPositionComponent()));
             }
-        }
+        }*/
+
+        HitResult result = ballsSource->checkRayTrace(*player->getPos(), glm::vec3(-4, 17, 0), player);
+        spdlog::info("HitResult: Type: {}, Entity: {}, Block: {}/{}/{}", magic_enum::enum_name(result.mType).data(), result.mEntity.id, result.mBlockPos.x, result.mBlockPos.y, result.mBlockPos.z);
+
 
         return;
     }
@@ -489,7 +493,19 @@ if (mMode.mValue == Mode::Concepts)
         // gDaBlock
         displayCopyableAddress("Block", gDaBlock);
         if (gDaBlock)
+        {
             displayCopyableAddress("BlockLegacy", gDaBlock->toLegacy());
+            ImGui::Text("BlockName: %s", gDaBlock->toLegacy()->mName.c_str());
+            auto leg = gDaBlock->toLegacy();
+            displayCopyableAddress("Material", leg->mMaterial);
+            auto mat = leg->mMaterial;
+            ImGui::Text("Material Type: %d", mat->mType);
+            ImGui::Text("Material Flammable: %s", mat->mIsFlammable ? "true" : "false");
+            ImGui::Text("Material Never Buildable: %s", mat->mIsNeverBuildable ? "true" : "false");
+            ImGui::Text("Material Liquid: %s", mat->mIsLiquid ? "true" : "false");
+            ImGui::Text("Material Blocking Motion: %s", mat->mIsBlockingMotion ? "true" : "false");
+            ImGui::Text("Material Super Hot: %s", mat->mIsSuperHot ? "true" : "false");
+        }
         displayCopyableAddress("MaxAutoStepComponent", player->getMaxAutoStepComponent());
         displayCopyableAddress("ClientInstance", ci);
         displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);

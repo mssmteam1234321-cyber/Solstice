@@ -9,6 +9,7 @@
 
 class BlockSource {
 public:
+    CLASS_FIELD(uintptr_t**, mVfTable, 0x0);
     int16_t getBuildHeight() {
         return hat::member_at<int16_t>(this, OffsetProvider::BlockSource_mBuildHeight);
     }
@@ -23,4 +24,6 @@ public:
     virtual Block* getBlock(glm::ivec3 const&, int);
     LevelChunk* getChunk(ChunkPos const&);
     void setBlock(BlockPos const&, Block*);
+
+    class HitResult checkRayTrace(glm::vec3 start, glm::vec3 end, void *player = nullptr);
 };

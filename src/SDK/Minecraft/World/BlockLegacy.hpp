@@ -10,11 +10,31 @@
 #include <glm/glm.hpp>
 #include <Utils/Structs.hpp>
 
+class Material
+{
+public:
+    CLASS_FIELD(int, mType, 0x0);
+    CLASS_FIELD(bool, mIsFlammable, 0x4);
+    CLASS_FIELD(bool, mIsNeverBuildable, 0x5);
+    CLASS_FIELD(bool, mIsLiquid, 0x6);
+    CLASS_FIELD(bool, mIsBlockingMotion, 0xC);
+    CLASS_FIELD(bool, mIsSuperHot, 0xF);
+
+    bool isTopSolid(bool includeWater, bool includeLeaves)
+    {
+        if (mType == 7) return includeLeaves;
+        if (!includeWater) return mIsBlockingMotion;
+        if (mType != 5) return mIsBlockingMotion;
+        return true;
+    }
+};
+
 class BlockLegacy {
 public:
     CLASS_FIELD(uintptr_t**, mVfTable, 0x0);
     CLASS_FIELD(std::string, mTileName, 0x28);
     CLASS_FIELD(std::string, mName, 0xA0);
+    CLASS_FIELD(Material*, mMaterial, 0x128);
     CLASS_FIELD(bool, mSolid, 0x164);
 
     uint16_t getBlockId();

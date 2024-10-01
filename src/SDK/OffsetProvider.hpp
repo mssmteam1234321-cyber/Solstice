@@ -113,6 +113,8 @@ public:
     DEFINE_INDEX_FIELD(Level_getPlayerMovementSettings, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 49 8B ? ? 44 38", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Actor_mSerializedSkin, "48 8B ? ? ? ? ? 4C 8B ? 48 8B ? ? 89 44 ? ? E8", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BlockLegacy_getCollisionShapeForCamera, "48 8B ? ? FF 15 ? ? ? ? 0F 10 ? 0F 11 ? ? ? ? ? ? F2 0F ? ? ? F2 0F", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(BlockSource_clip, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 8D ? ? ? ? ? 48 8D ? ? ? ? ? E8 ? ? ? ? 48 8B", 3, OffsetType::Index);
+
     // TODO: Move all CLASS_FIELD declarations and hat::member_at offsets to here
     DEFINE_FIELD(ContainerScreenController_tryExit, 12);
     DEFINE_FIELD(ItemStack_reInit, 3);
