@@ -11,11 +11,6 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/SetActorMotionPacket.hpp>
 
-bool HiveFly::mCanFly = false;
-int HiveFly::mVeloTick = 1;
-int HiveFly::mTicksToStay = 0;
-bool HiveFly::mShouldStay = false;
-
 void HiveFly::Reset()
 {
     auto player = ClientInstance::get()->getLocalPlayer();
