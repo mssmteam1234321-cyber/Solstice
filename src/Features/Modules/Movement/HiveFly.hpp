@@ -24,10 +24,10 @@ public:
         };
     }
 
-    static bool canFly;
-    static int veloTick;
-    static int ticksToStay;
-    static bool shouldStay;
+    bool mCanFly;
+    int mVeloTick;
+    int mTicksToStay;
+    bool mShouldStay;
 
     void Reset();
     void onEnable() override;

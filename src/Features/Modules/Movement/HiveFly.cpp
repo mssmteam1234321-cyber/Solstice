@@ -11,19 +11,19 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/SetActorMotionPacket.hpp>
 
-bool HiveFly::canFly = false;
-int HiveFly::veloTick = 1;
-int HiveFly::ticksToStay = 0;
-bool HiveFly::shouldStay = false;
+bool HiveFly::mCanFly = false;
+int HiveFly::mVeloTick = 1;
+int HiveFly::mTicksToStay = 0;
+bool HiveFly::mShouldStay = false;
 
 void HiveFly::Reset()
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;
-    canFly = false;
-    veloTick = 1;
-    ticksToStay = 0;
-    shouldStay = false;
+    mCanFly = false;
+    mVeloTick = 1;
+    mTicksToStay = 0;
+    mShouldStay = false;
     player->setStatusFlag(ActorFlags::Noai, false);
     ClientInstance::get()->getMinecraftSim()->setSimTimer(20.f);
 }
@@ -48,25 +48,25 @@ void HiveFly::onBaseTickEvent(class BaseTickEvent &event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;
 
-    if(!canFly && shouldStay && ticksToStay)
+    if(!mCanFly && mShouldStay && mTicksToStay)
     {
-        ticksToStay--;
-        ChatUtils::displayClientMessage("bipass x" +  std::to_string(ticksToStay));
+        mTicksToStay--;
+        ChatUtils::displayClientMessage("bipass x" +  std::to_string(mTicksToStay));
         player->setStatusFlag(ActorFlags::Noai, true);
     }
-    else if(!canFly && shouldStay && !ticksToStay)
+    else if(!mCanFly && mShouldStay && !mTicksToStay)
     {
         Reset();
         ChatUtils::displayClientMessage("successful!");
         HiveFly::setEnabled(false);
     }
 
-    if(mTimer.mValue > 0 && canFly)
+    if(mTimer.mValue > 0 && mCanFly)
     {
         ClientInstance::get()->getMinecraftSim()->setSimTimer(mTimer.mValue);
     }
 
-    if(canFly && !shouldStay) {
+    if(mCanFly && !mShouldStay) {
         glm::vec3 motion = glm::vec3(0, 0, 0);
 
         if (Keyboard::isUsingMoveKeys(true)) {
@@ -84,40 +84,40 @@ void HiveFly::onPacketOutEvent(class PacketOutEvent &event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;
 
-    if(canFly && event.mPacket->getId() == PacketID::PlayerAuthInput)
+    if(mCanFly && event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
 
-        switch (veloTick)
+        switch (mVeloTick)
         {
             case 1:
                 paip->mPosDelta.y = 0.300000;
                 ChatUtils::displayClientMessage("Gaming x1");
-                veloTick++;
+                mVeloTick++;
                 break;
             case 2:
                 paip->mPosDelta.y = 0.215600;
                 ChatUtils::displayClientMessage("Gaming x2");
-                veloTick++;
+                mVeloTick++;
                 break;
             case 3:
                 paip->mPosDelta.y = 0.132888;
                 ChatUtils::displayClientMessage("Gaming x3");
-                veloTick++;
+                mVeloTick++;
                 break;
             case 4:
                 paip->mPosDelta.y = 0.051830;
                 ChatUtils::displayClientMessage("Gaming x4");
-                veloTick++;
-                shouldStay = true;
-                ticksToStay = 2;
+                mVeloTick++;
+                mShouldStay = true;
+                mTicksToStay = 2;
                 break;
             case 5:
                 paip->mPosDelta.y = -0.027606;
                 ChatUtils::displayClientMessage("Gaming x5");
-                veloTick = 1;
+                mVeloTick = 1;
                 ChatUtils::displayClientMessage("Reset!");
-                canFly = false;
+                mCanFly = false;
                 break;
             default:
                 break;
@@ -133,7 +133,7 @@ void HiveFly::onPacketInEvent(class PacketInEvent &event) {
     {
         auto sam = event.getPacket<SetActorMotionPacket>();
         if (sam->mRuntimeID == player->getRuntimeID()) {
-            canFly = true;
+            mCanFly = true;
             ChatUtils::displayClientMessage("Damage taken!");
         }
     }
