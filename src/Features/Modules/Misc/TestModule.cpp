@@ -82,6 +82,10 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    auto ballsSource = ClientInstance::get()->getBlockSource();
+    gDaBlock = ballsSource->getBlock(glm::floor(*player->getPos() - PLAYER_HEIGHT_VEC));
+
+
     auto actorlist = ActorUtils::getActorList(false, false);
 
     if (mMode.mValue == Mode::DebugUi)
@@ -208,7 +212,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         newPos.z = glm::floor(newPos.z);
         newPos.y -= 0.0099;
         clipPos = newPos;
-        gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
+        //gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
         hasSetClipPos = true;
         return;
     }
@@ -220,7 +224,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
         newPos.z = glm::floor(newPos.z);
         newPos.y -= 0.0099;
         clipPos = newPos;
-        gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
+        //gDaBlock = blockSource->getBlock(newPos.x, newPos.y, newPos.z);
         hasSetClipPos = true;
         return;
     }
@@ -482,6 +486,10 @@ if (mMode.mValue == Mode::Concepts)
             displayCopyableAddress("Item", stack->getItem());
         }
 
+        // gDaBlock
+        displayCopyableAddress("Block", gDaBlock);
+        if (gDaBlock)
+            displayCopyableAddress("BlockLegacy", gDaBlock->toLegacy());
         displayCopyableAddress("MaxAutoStepComponent", player->getMaxAutoStepComponent());
         displayCopyableAddress("ClientInstance", ci);
         displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);

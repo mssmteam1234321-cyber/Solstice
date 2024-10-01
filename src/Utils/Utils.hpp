@@ -23,7 +23,6 @@
 #include "SysUtils/StackWalker.hpp"
 #include "SysUtils/HWUtils.hpp"
 #include "SysUtils/RegUtils.hpp"
-#include "SysUtils/SHA256.hpp"
 #include "SysUtils/Base64.hpp"
 #include "SysUtils/HttpRequest.hpp"
 #include "MiscUtils/SoundUtils.hpp"

@@ -7,19 +7,24 @@
 #include <Utils/OAuthUtils.hpp>
 
 #include "Combat/Aura.hpp"
-#include "Combat/TriggerBot.hpp"
 #include "Combat/AutoClicker.hpp"
 #include "Combat/Reach.hpp"
+#include "Combat/TriggerBot.hpp"
 
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
 #include "Misc/AutoAccept.hpp"
 #include "Misc/AutoCosmetic.hpp"
+#include "Misc/AutoDodge.hpp"
+#include "Misc/AutoHvH.hpp"
+#include "Misc/AutoLootbox.hpp"
 #include "Misc/AutoMessage.hpp"
 #include "Misc/AutoQueue.hpp"
 #include "Misc/AutoReport.hpp"
+#include "Misc/AutoSnipe.hpp"
 #include "Misc/DeviceSpoof.hpp"
 #include "Misc/Disabler.hpp"
+#include "Misc/EditionFaker.hpp"
 #include "Misc/Friends.hpp"
 #include "Misc/IRC.hpp"
 #include "Misc/KickSounds.hpp"
@@ -29,22 +34,21 @@
 #include "Misc/NoPacket.hpp"
 #include "Misc/PacketLogger.hpp"
 #include "Misc/PartySpammer.hpp"
-#include "Misc/SkinStealer.hpp"
 #include "Misc/SkinBlinker.hpp"
+#include "Misc/SkinStealer.hpp"
 #include "Misc/Spammer.hpp"
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
-#include "Misc/AutoLootbox.hpp"
-#include "Misc/AutoDodge.hpp"
-#include "Misc/AutoSnipe.hpp"
-#include "Misc/EditionFaker.hpp"
-#include "Misc/AutoHvH.hpp"
 
+#include "Movement/AirJump.hpp"
 #include "Movement/AntiImmobile.hpp"
+#include "Movement/DebugFly.hpp"
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
+#include "Movement/HiveFly.hpp"
 #include "Movement/InventoryMove.hpp"
+#include "Movement/Jesus.hpp"
 #include "Movement/LongJump.hpp"
 #include "Movement/NoJumpDelay.hpp"
 #include "Movement/NoSlowDown.hpp"
@@ -57,17 +61,15 @@
 #include "Movement/Step.hpp"
 #include "Movement/TargetStrafe.hpp"
 #include "Movement/Velocity.hpp"
-#include "Movement/DebugFly.hpp"
-#include "Movement/HiveFly.hpp"
-#include "Movement/AirJump.hpp"
-#include "Player/AntiVoid.hpp"
 
+#include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
-#include "Player/AutoSpellBook.hpp"
 #include "Player/AutoKick.hpp"
+#include "Player/AutoSpellBook.hpp"
 #include "Player/AutoTool.hpp"
 #include "Player/ChestStealer.hpp"
 #include "Player/Derp.hpp"
+#include "Player/Extinguisher.hpp"
 #include "Player/FastMine.hpp"
 #include "Player/Freecam.hpp"
 #include "Player/InvManager.hpp"
@@ -77,9 +79,8 @@
 #include "Player/OreMiner.hpp"
 #include "Player/Regen.hpp"
 #include "Player/Scaffold.hpp"
-#include "Player/Timer.hpp"
 #include "Player/Teams.hpp"
-#include "Player/Extinguisher.hpp"
+#include "Player/Timer.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -102,13 +103,13 @@
 #include "Visual/MotionBlur.hpp"
 #include "Visual/Nametags.hpp"
 #include "Visual/NoCameraClip.hpp"
+#include "Visual/NoHurtcam.hpp"
 #include "Visual/Notifications.hpp"
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/TargetHUD.hpp"
-#include "Visual/Watermark.hpp"
-#include "Visual/NoHurtcam.hpp"
 #include "Visual/UpdateForm.hpp"
 #include "Visual/ViewModel.hpp"
+#include "Visual/Watermark.hpp"
 //#include "Visual/ShowGracePeriod.hpp"
 
 void ModuleManager::init()
@@ -140,6 +141,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ServerSneak>());
     mModules.emplace_back(std::make_shared<AirJump>());
     mModules.emplace_back(std::make_shared<TargetStrafe>());
+    mModules.emplace_back(std::make_shared<Jesus>());
+
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());

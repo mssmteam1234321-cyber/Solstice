@@ -23,6 +23,8 @@
 #include <cryptopp/osrng.h>
 #include <sstream>
 
+#include "SysUtils/SHA256.hpp"
+
 std::vector<std::string> motherboardModels = {
         "ASUS ROG Strix Z590-E",
         "MSI MPG Z490 Gaming Edge WiFi",
