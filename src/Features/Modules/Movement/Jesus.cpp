@@ -47,11 +47,15 @@ bool Jesus::sdjReplace(bool patch)
 void Jesus::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Jesus::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &Jesus::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &Jesus::onPacketOutEvent>(this);
 }
 
 void Jesus::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Jesus::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &Jesus::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Jesus::onPacketOutEvent>(this);
     sdjReplace(false);
 }
 
@@ -100,17 +104,14 @@ void Jesus::onBaseTickEvent(BaseTickEvent& event)
 
     if ((blockId == 9 || blockId == 8) && !shift)
     {
-        spdlog::info("Applying up velocity");
         player->getStateVectorComponent()->mVelocity.y = 0.42f;
         sdjReplace(false);
     } else if (shift && (belowBlockId == 9 || belowBlockId == 8 || blockId == 9 || blockId == 8) && mShift.mValue)
     {
-        spdlog::info("Applying down velocity");
         sdjReplace(false);
         player->getStateVectorComponent()->mVelocity.y = -0.42f;
     } else
     {
-        spdlog::info("Applying normal velocity");
         sdjReplace(true);
     }
 }
@@ -138,7 +139,8 @@ void Jesus::onPacketOutEvent(PacketOutEvent& event)
 
         if (mTest.mValue && (belowBlockId == 9 || belowBlockId == 8 || blockId == 9 || blockId == 8))
         {
-            paip->mPos.y -= 0.42f;
+            paip->mPos.y -= 1.f;
+            spdlog::info("cock");
         }
     }
 }
