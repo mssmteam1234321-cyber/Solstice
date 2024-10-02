@@ -15,6 +15,7 @@ public:
         Rainbow,
         Bubblegum,
         Watermelon,
+        Sunset,
         Custom
     };
 
@@ -27,7 +28,7 @@ public:
     };
 
     EnumSettingT<NamingStyle> mNamingStyle = EnumSettingT<NamingStyle>("Naming", "The style of the module names.", NamingStyle::NormalSpaced, "lowercase", "lower spaced", "Normal", "Spaced");
-    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Bubblegum, "Trans", "Rainbow", "Bubblegum", "Watermelon", "Custom");
+    EnumSettingT<ColorTheme> mMode = EnumSettingT<ColorTheme>("Theme", "The mode of the interface.", Bubblegum, "Trans", "Rainbow", "Bubblegum", "Watermelon", "Sunset", "Custom");
     // make sure you actually have the fonts u put here lol
     EnumSettingT<FontType> mFont = EnumSettingT<FontType>("Font", "The font of the interface.", FontType::ProductSans, "Mojangles", "Product Sans");
     NumberSetting mColors = NumberSetting("Colors", "The amount of colors in the interface.", 3, 1, 6, 1);
@@ -95,6 +96,14 @@ public:
                            ImColor(34, 139, 34, 255),
                            ImColor(204, 255, 204, 255),
             }},
+            {Sunset, {
+                           ImColor(213,32,0, 255),
+                           ImColor(239, 118, 39, 255),
+                           ImColor(255, 154, 86, 255),
+                           ImColor(255, 255, 255, 255),
+                           ImColor(209, 98, 164, 255),
+                           ImColor(181, 86, 144, 255),
+                   }},
             {Custom,    {}}
     };
 
