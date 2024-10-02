@@ -126,7 +126,7 @@ void Solstice::init(HMODULE hModule)
     setTitle(title);
 
 
-    std::string lastHwidFile = FileUtils::getSolsticeDir() + xorstr_("lasthwid.txt");
+    /*std::string lastHwidFile = FileUtils::getSolsticeDir() + xorstr_("lasthwid.txt");
 
     if (FileUtils::fileExists(lastHwidFile))
     {
@@ -145,7 +145,7 @@ void Solstice::init(HMODULE hModule)
         std::ofstream file(lastHwidFile);
         file << GET_HWID().toString();
         file.close();
-    }
+    }*/
 
     sHWID = GET_HWID().toString();
 
