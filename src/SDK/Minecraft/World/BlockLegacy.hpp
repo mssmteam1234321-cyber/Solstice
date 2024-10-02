@@ -40,4 +40,5 @@ public:
     uint16_t getBlockId();
     bool mayPlaceOn(glm::ivec3 pos);
     bool isAir();
+    AABB getCollisionShape(Block* block, BlockSource* source, BlockPos pos);
 };

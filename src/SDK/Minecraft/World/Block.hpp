@@ -6,6 +6,8 @@
 #include <SDK/OffsetProvider.hpp>
 #include <Utils/MemUtils.hpp>
 
+#include "BlockSource.hpp"
+
 class Block {
 public:
     CLASS_FIELD(class BlockLegacy*, mLegacy, OffsetProvider::Block_mLegacy);

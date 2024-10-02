@@ -31,10 +31,11 @@ void BlockSource::setBlock(BlockPos const& pos, Block* block)
     MemUtils::callVirtualFunc<void, BlockPos const&, Block*, int, ActorBlockSyncMessage const*, Actor*>(index, this, pos, block, 0, &syncMessage, player);
 }
 
-HitResult BlockSource::checkRayTrace(glm::vec3 start, glm::vec3 end, void* player)
+
+HitResult BlockSource::clip(glm::vec3 start, glm::vec3 end, bool checkAgainstLiquid, ShapeType shapeType, int range, bool ignoreBorderBlocks, bool fullOnly, void* player)
 {
     // BlockSource::clip(struct IConstBlockSource *, HitResult *this, Vec3 *this, Vec3 *this)
-    using clipBlock = class HitResult *(__fastcall *)(class BlockSource * blockSource, class HitResult * rayTrace, glm::vec3 & start, glm::vec3 & end, bool, bool, int range, bool, bool, void *player, uintptr_t **function);
+    using clipBlock = class HitResult *(__fastcall *)(class BlockSource * blockSource, class HitResult * rayTrace, glm::vec3 & start, glm::vec3 & end, bool checkAgainstLiquid, ShapeType, int range, bool ignoreBorderBlocks, bool fullOnly, void *player, uintptr_t **function);
     static clipBlock clip_f = nullptr;
     if (clip_f == nullptr)
     {
@@ -42,15 +43,17 @@ HitResult BlockSource::checkRayTrace(glm::vec3 start, glm::vec3 end, void* playe
         uintptr_t func = reinterpret_cast<uintptr_t>(mVfTable[index]);
         clip_f = reinterpret_cast<clipBlock>(func);
     }
-    /*
-         * bool __cdecl Actor::canSee(Actor *__hidden this, const struct Vec3 *)
-         * std::function<bool (BlockSource const &,Block const &,bool)> const ClipDefaults::CHECK_ALL_PICKABLE_BLOCKS
-         */
+
     static uintptr_t **checkBlocks = nullptr;
     if (checkBlocks == nullptr) {
         uintptr_t sigOffset = SigManager::checkBlocks;
         checkBlocks = reinterpret_cast<uintptr_t **>(sigOffset + *reinterpret_cast<int *>(sigOffset + 3) + 7);
     }
     HitResult _temp;
-    return *clip_f(this, &_temp, start, end, false, false, 200, true, false, player, checkBlocks);
+    return *clip_f(this, &_temp,  start, end, checkAgainstLiquid, shapeType, range, ignoreBorderBlocks, fullOnly, player, checkBlocks);
+}
+
+HitResult BlockSource::checkRayTrace(glm::vec3 start, glm::vec3 end, void* player)
+{
+    return clip(start, end, false, ShapeType::All, 200, false, false, player);
 }

@@ -75,6 +75,7 @@ Block* gDaBlock = nullptr;
 
 int lastFormId = 0;
 bool formOpen = false;
+AABB lastBlockAABB = AABB();
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
@@ -111,9 +112,8 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
             }
         }*/
 
-        HitResult result = ballsSource->checkRayTrace(*player->getPos(), glm::vec3(-4, 17, 0), player);
+        HitResult result = ballsSource->checkRayTrace(*player->getPos(), glm::vec3(-4, 18, 0), player);
         spdlog::info("HitResult: Type: {}, Entity: {}, Block: {}/{}/{}", magic_enum::enum_name(result.mType).data(), result.mEntity.id, result.mBlockPos.x, result.mBlockPos.y, result.mBlockPos.z);
-
 
         return;
     }
@@ -340,6 +340,22 @@ enum class Tab
 
 void TestModule::onRenderEvent(RenderEvent& event)
 {
+    /*AABB& blockAABB = lastBlockAABB;
+    std::vector<glm::vec2> points = MathUtils::getBoxPoints(blockAABB);
+    std::vector<ImVec2> imPoints = {};
+    for (auto point : points)
+    {
+        imPoints.emplace_back(point.x, point.y);
+    }
+
+    ImColor color = ColorUtils::getThemedColor(0);
+    auto drawList = ImGui::GetBackgroundDrawList();
+
+    drawList->AddPolyline(imPoints.data(), imPoints.size(), color, 0, 2.0f);
+    drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(color.Value.x, color.Value.y, color.Value.z, 0.25f));
+    */
+
+
     if (mMode.mValue == Mode::ClipVisualize || mMode.mValue == Mode::VerticalTest)
     {
         BlockInfo blockInfo = BlockInfo(gDaBlock, clipPos);
