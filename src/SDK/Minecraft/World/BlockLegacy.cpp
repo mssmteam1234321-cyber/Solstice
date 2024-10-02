@@ -26,3 +26,17 @@ bool BlockLegacy::isAir()
 {
     return getBlockId() == 0;
 }
+
+template <typename T>
+class optional_ref
+{
+private:
+    T* mPtr = nullptr;
+};
+
+AABB BlockLegacy::getCollisionShape(Block* block, BlockSource* source, BlockPos pos)
+{
+    //  virtual class AABB getCollisionShape(class Block const&, class IConstBlockSource const&, class BlockPos const&, class optional_ref<class GetCollisionShapeInterface const>) const;
+    static int index = OffsetProvider::BlockLegacy_getCollisionShape;
+    return MemUtils::callVirtualFunc<AABB, Block*, BlockSource*, BlockPos, optional_ref<void>>(index, this, block, source, pos, optional_ref<void>());
+}

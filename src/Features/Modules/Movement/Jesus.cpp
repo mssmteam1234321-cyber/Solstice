@@ -11,7 +11,7 @@ bool Jesus::sdjReplace(bool patch)
 {
     static uintptr_t waterFunc = SigManager::WaterBlockLegacy_getCollisionShapeForCamera;
     static uintptr_t solidFunc = SigManager::ConcreteBlockLegacy_getCollisionShapeForCamera;
-    static int funcIndex = OffsetProvider::BlockLegacy_getCollisionShapeForCamera;
+    static int funcIndex = OffsetProvider::BlockLegacy_getCollisionShape;
 
     auto funcOffset = funcIndex * 8;
 
