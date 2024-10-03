@@ -110,6 +110,7 @@
 #include "Visual/UpdateForm.hpp"
 #include "Visual/ViewModel.hpp"
 #include "Visual/Watermark.hpp"
+#include "Visual/SessionInfo.hpp"
 //#include "Visual/ShowGracePeriod.hpp"
 
 void ModuleManager::init()
@@ -215,6 +216,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FullBright>());
     mModules.emplace_back(std::make_shared<Keystrokes>());
     mModules.emplace_back(std::make_shared<ViewModel>());
+    mModules.emplace_back(std::make_shared<SessionInfo>());
     //mModules.emplace_back(std::make_shared<ShowGracePeriod>());
 
 #ifdef __PRIVATE_BUILD__
