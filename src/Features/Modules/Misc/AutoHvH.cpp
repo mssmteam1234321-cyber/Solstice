@@ -127,72 +127,34 @@ void AutoHvH::onBaseTickEvent(BaseTickEvent& event) {
     auto player = event.mActor;
     if (!player) return;
 
-    static uint64_t lastSend = 0;
-    static uint64_t timeBetweenRequests = 100;
-
-    uint64_t now = NOW;
-
-    if (now - lastSend > timeBetweenRequests) {
-        lastSend = now;
-        if (!mRequests.empty()) {
-            auto &request = mRequests.front();
-            if (!request.second->mRequestSent) {
-                request.second->sendAsync();
-                spdlog::trace("[AutoHvH] Sent request [uri: {}]", request.second->mUrl);
-            }
-        }
-    }
-    
-    std::unordered_map<mce::UUID, PlayerListEntry> *playerList = player->getLevel()->getPlayerList();
+    std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
     std::vector<std::string> playerNames;
-    for (auto &entry: *playerList | std::views::values) {
+
+    for (auto& entry : *playerList | std::views::values) {
         playerNames.emplace_back(entry.mName);
     }
-    static std::vector<std::string> lastPlayerNames = playerNames;
 
-    for (auto &playerName: playerNames) {
-        if (std::ranges::find(lastPlayerNames, playerName) == lastPlayerNames.end()) {
-            auto je = PlayerEvent{PlayerEvent::Type::JOIN, playerName};
-            mPlayerEvents.push_back(je);
-        }
-    }
-
-    for (auto &playerName: lastPlayerNames) {
-        if (std::ranges::find(playerNames, playerName) == playerNames.end()) {
-            auto le = PlayerEvent{PlayerEvent::Type::LEAVE, playerName};
-            mPlayerEvents.push_back(le);
-        }
-    }
-
-    lastPlayerNames = playerNames;
-
-    for (auto it = mPlayerEvents.begin(); it != mPlayerEvents.end();) {
-        auto &daEvent = *it;
-
-        if (std::find(checkedPlayers.begin(), checkedPlayers.end(), daEvent.name) != checkedPlayers.end()) {
-            it = mPlayerEvents.erase(it);
+    for (auto& playerName : playerNames) {
+        if (std::find(checkedPlayers.begin(), checkedPlayers.end(), playerName) != checkedPlayers.end()) {
             continue;
         }
 
-        if (isPlayerCached(daEvent.name)) {
-            uint64_t firstPlayed = getFirstPlayed(daEvent.name);
-
+        if (isPlayerCached(playerName)) {
+            uint64_t firstPlayed = getFirstPlayed(playerName);
             if (firstPlayed < (time(0) - (60 * 60 * 24 * 1))) {
-                spdlog::info("skipping " + daEvent.name);
+                spdlog::info("skipping " + playerName);
             } else {
                 std::string firstPlayedTime = formatTime(firstPlayed, "%m/%d/%Y %H:%M:%S");
                 int64_t msSinceFirstPlayed = time(0) - firstPlayed;
                 std::string relativeFirstPlayedTime = relativeTime(msSinceFirstPlayed);
                 ChatUtils::displayClientMessage(
-                        "§cpossible cheater detected:§7 " + daEvent.name + "§r. First played time: §d" +
+                        "§cpossible cheater detected:§7 " + playerName + "§r. First played time: §d" +
                         firstPlayedTime + "§r (§d" + relativeFirstPlayedTime + "§5 ago§r)");
-            }
 
-            checkedPlayers.push_back(daEvent.name);
-            it = mPlayerEvents.erase(it);
+                checkedPlayers.push_back(playerName);
+            }
         } else {
-            makeRequest(daEvent.name);
-            ++it;
+            makeRequest(playerName);
         }
     }
 }

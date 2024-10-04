@@ -46,7 +46,6 @@ public:
 
     std::vector<std::string> checkedPlayers;
 
-    std::vector<PlayerEvent> mPlayerEvents;
     std::vector<std::pair<uint64_t, std::unique_ptr<HttpRequest>>> mRequests;
     std::vector<std::string> mRequestedPlayers;
     uint64_t mLastRateLimit = 0;
