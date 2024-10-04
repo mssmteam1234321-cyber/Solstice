@@ -84,11 +84,13 @@ void SessionInfo::onEnable() {
     resetStatistics();
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &SessionInfo::onRenderEvent>(this);
+    mElement->mVisible = true;
 }
 
 void SessionInfo::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &SessionInfo::onRenderEvent>(this);
+    mElement->mVisible = false;
 }
 
 static int kills, deaths, played;
@@ -108,13 +110,16 @@ void SessionInfo::onRenderEvent(RenderEvent &event) {
     mDeathsStr = "Deaths: " + std::to_string(deaths),
     mGamesPlayedStr = "Games Played: " + std::to_string(played);
 
-    ImVec2 pos = ImGui::GetIO().DisplaySize;
+    /*ImVec2 pos = ImGui::GetIO().DisplaySize;
     pos.x = 20;
-    pos.y /= 2;
+    pos.y /= 2;*/
+    auto pos = mElement->getPos();
 
     auto drawList = ImGui::GetForegroundDrawList();
 
-    ImVec4 area = ImVec4(pos.x, pos.y, pos.x + 200, pos.y + 105);
+    ImVec2 size = ImVec2(200, 105);
+
+    ImVec4 area = ImVec4(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
     ImRenderUtils::addBlur(area, 4.f, 4.f, drawList, false);
     drawList->AddRectFilled(pos, ImVec2(area.z, area.w), ImColor(0.f, 0.f, 0.f, 0.5), 10.0f);
     drawList->AddShadowRect(ImVec2(pos.x - 3, pos.y - 3), ImVec2(area.z + 3, area.w + 3), ImColor(0.f, 0.f, 0.f, 1.f),50.f, ImVec2(0,0));
@@ -149,12 +154,11 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
     if (!player) return;
 
     if(NOW < lastUpdate + 15000 && !mShouldUpdate) {
-        spdlog::info("DELAYAAYYAYAYAY");
         mShouldUpdate = false;
         return;
     }
     else if (!mShouldUpdate && NOW > lastUpdate + 15000) {
-        spdlog::info("SHOULD UPDATe!!!!");
+        spdlog::info("[SessionInfo] Updating stats...");
         mShouldUpdate = true;
         makeRequestsForAllGamemodes(mPlayerName);
         lastUpdate = NOW;
