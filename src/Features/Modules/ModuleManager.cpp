@@ -113,6 +113,7 @@
 #include "Visual/ViewModel.hpp"
 #include "Visual/Watermark.hpp"
 #include "Visual/SessionInfo.hpp"
+#include "Visual/Tracers.hpp"
 //#include "Visual/ShowGracePeriod.hpp"
 
 void ModuleManager::init()
@@ -220,6 +221,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Keystrokes>());
     mModules.emplace_back(std::make_shared<ViewModel>());
     mModules.emplace_back(std::make_shared<SessionInfo>());
+    mModules.emplace_back(std::make_shared<Tracers>());
+
     //mModules.emplace_back(std::make_shared<ShowGracePeriod>());
 
 #ifdef __PRIVATE_BUILD__
