@@ -121,7 +121,7 @@ void SessionInfo::onRenderEvent(RenderEvent &event) {
     ImVec2 titlePos = pos;
     ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(22.0f, FLT_MAX, 0, "Statistics");
     titlePos.x += 64;
-    titlePos.y += (25 - textSize.y) / 2;
+    titlePos.y += 3.8;
     ImVec2 lineStart = ImVec2(pos.x, pos.y + 30);
     ImVec2 lineEnd = ImVec2(pos.x + 200, pos.y + 33);
 
