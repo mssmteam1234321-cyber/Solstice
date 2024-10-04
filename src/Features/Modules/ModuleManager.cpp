@@ -10,6 +10,7 @@
 #include "Combat/AutoClicker.hpp"
 #include "Combat/Reach.hpp"
 #include "Combat/TriggerBot.hpp"
+#include "Combat/Criticals.hpp"
 
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
@@ -124,6 +125,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TriggerBot>());
     mModules.emplace_back(std::make_shared<AutoClicker>());
     mModules.emplace_back(std::make_shared<Reach>());
+    mModules.emplace_back(std::make_shared<Criticals>());
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
