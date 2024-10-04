@@ -29,6 +29,11 @@ void TargetStrafe::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TargetStrafe::onPacketOutEvent>(this);
 
     mShouldStrafe = false;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    handleKeyInput(false, false, false, false);
 }
 
 void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
@@ -39,10 +44,6 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
 
     if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !mIsJumping))
     {
-        if (mShouldStrafe) {
-            auto rawMoveInputComponent = player->getRawMoveInputComponent();
-            handleKeyInput(rawMoveInputComponent->mForward, rawMoveInputComponent->mLeft, rawMoveInputComponent->mBackward, rawMoveInputComponent->mRight);
-        }
         mShouldStrafe = false;
         return;
     }
