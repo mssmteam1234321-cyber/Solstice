@@ -61,6 +61,7 @@
 #include "Movement/Step.hpp"
 #include "Movement/TargetStrafe.hpp"
 #include "Movement/Velocity.hpp"
+#include "Movement/AirSpeed.hpp"
 
 #include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
@@ -143,7 +144,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AirJump>());
     mModules.emplace_back(std::make_shared<TargetStrafe>());
     mModules.emplace_back(std::make_shared<Jesus>());
-
+    mModules.emplace_back(std::make_shared<AirSpeed>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());

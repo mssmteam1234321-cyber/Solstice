@@ -22,8 +22,8 @@ public:
         };
     }
 
-    static float* reachPtr;
-    static float* blockReachPtr;
+    float* mReachPtr = nullptr;
+    float* mBlockReachPtr = nullptr;
 
     void onEnable() override;
     void onDisable() override;
