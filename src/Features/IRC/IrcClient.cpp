@@ -337,7 +337,7 @@ void IrcClient::onConnected()
     #ifdef __DEBUG__
     j["0"] = "§dsolstice§r";
     #elif __PRIVATE_BUILD__
-    j["0"] = "§6solstice§r";
+    j["0"] = "§esolstice§r";
     #else
     j["0"] = "§asolstice§r";
     #endif

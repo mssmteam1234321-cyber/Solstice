@@ -75,12 +75,6 @@ void SessionInfo::onHttpResponse(HttpResponseEvent event) {
     mCompletedRequests++;
 
     if (mCompletedRequests == gamemodesToGetStatsFor.size()) {
-        ChatUtils::displayClientMessage("Stats:");
-        ChatUtils::displayClientMessage(
-                "Kills: " + std::to_string(mTotalKills) +
-                ", Deaths: " + std::to_string(mTotalDeaths) +
-                ", Games Played: " + std::to_string(mTotalPlayed)
-        );
         mShouldUpdate = false;
         spdlog::info("[SessionInfo] All stats updated!");
     }
@@ -88,18 +82,60 @@ void SessionInfo::onHttpResponse(HttpResponseEvent event) {
 
 void SessionInfo::onEnable() {
     resetStatistics();
-    mShouldUpdate = true;
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &SessionInfo::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &SessionInfo::onRenderEvent>(this);
 }
 
 void SessionInfo::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &SessionInfo::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &SessionInfo::onRenderEvent>(this);
 }
 
 void SessionInfo::onRenderEvent(RenderEvent &event) {
+    if (!ClientInstance::get()->getLocalPlayer()) return;
+    if (!ClientInstance::get()->getLevelRenderer()) return;
 
+    std::string
+    mKillsStr = "Kills: " + std::to_string(mTotalKills),
+    mDeathsStr = "Deaths: " + std::to_string(mTotalDeaths),
+    mGamesPlayedStr = "Games Played: " + std::to_string(mTotalPlayed);
+
+    ImVec2 pos = ImGui::GetIO().DisplaySize;
+    pos.x = 20;
+    pos.y /= 2;
+
+    auto drawList = ImGui::GetForegroundDrawList();
+
+    ImVec4 area = ImVec4(pos.x, pos.y, pos.x + 200, pos.y + 105);
+    ImRenderUtils::addBlur(area, 4.f, 4.f, drawList, false);
+    drawList->AddRectFilled(pos, ImVec2(area.z, area.w), ImColor(0.f, 0.f, 0.f, 0.5), 10.0f);
+    drawList->AddShadowRect(ImVec2(pos.x - 3, pos.y - 3), ImVec2(area.z + 3, area.w + 3), ImColor(0.f, 0.f, 0.f, 1.f),50.f, ImVec2(0,0));
+    ImVec2 titlePos = pos;
+    ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(22.0f, FLT_MAX, 0, "Statistics");
+    titlePos.x += 64;
+    titlePos.y += (25 - textSize.y) / 2;
+    ImVec2 lineStart = ImVec2(pos.x, pos.y + 30);
+    ImVec2 lineEnd = ImVec2(pos.x + 200, pos.y + 33);
+
+    int lineLength = 20;
+    int lengthPerLine = 200 / lineLength;
+    for (int i = 0; i < lineLength; i++) {
+        ImVec2 point = ImVec2(lineStart.x + (lineEnd.x - lineStart.x) * i / lineLength, lineStart.y);
+        drawList->AddRectFilled(point, ImVec2(point.x + lengthPerLine, lineEnd.y), ColorUtils::getThemedColor(i));
+    }
+
+    int startPadding = 38;
+
+    FontHelper::pushPrefFont(true);
+
+    ImRenderUtils::drawShadowText(drawList, "Statistics", titlePos, ImColor(255, 255, 255, 255), 22.f, false);
+    ImRenderUtils::drawShadowText(drawList, mKillsStr, ImVec2(pos.x + 10, pos.y + startPadding), ImColor(255, 255, 255, 255), 20, false);
+    ImRenderUtils::drawShadowText(drawList, mDeathsStr, ImVec2(pos.x + 10, pos.y + startPadding + 20), ImColor(255, 255, 255, 255), 20, false);
+    ImRenderUtils::drawShadowText(drawList, mGamesPlayedStr, ImVec2(pos.x + 10, pos.y + startPadding + 40), ImColor(255, 255, 255, 255), 20, false);
+
+    FontHelper::popPrefFont();
 }
 
 void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
@@ -133,7 +169,13 @@ void SessionInfo::onPacketInEvent(PacketInEvent &event) {
 
     if (event.mPacket->getId() == PacketID::Text) {
         auto tp = event.getPacket<TextPacket>();
-        if (tp->mMessage == "§c§l» §r§c§lGame OVER!") {
+
+        std::string playerName = player->getNameTag();
+        if (playerName.find("§r") != std::string::npos) playerName.erase(playerName.find("§r"), 2);
+        if (playerName.find("§l") != std::string::npos) playerName.erase(playerName.find("§l"), 2);
+        std::string playerTeam = "§" + playerName.substr(playerName.find("§") + 2, 1);
+
+        if (tp->mMessage == "§c§l» §r§c§lGame OVER!" || StringUtils::containsIgnoreCase(tp->mMessage, "§7has been §cELIMINATED§7!") && StringUtils::startsWith(tp->mMessage, playerTeam + "§l»")) {
             mShouldUpdate = true;
             makeRequestsForAllGamemodes(mPlayerName);
         }

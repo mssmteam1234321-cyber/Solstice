@@ -19,6 +19,13 @@ public:
     std::string mPlayerName = "";
     void resetStatistics();
 
+    int style = 0;
+
+    float siY = 350;
+    float siX = 10;
+
+    float alphaAnim = 1.f;
+
     void onEnable() override;
     void onDisable() override;
     void onRenderEvent(class RenderEvent& event);
