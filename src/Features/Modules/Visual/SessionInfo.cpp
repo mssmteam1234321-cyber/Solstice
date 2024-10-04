@@ -76,7 +76,7 @@ void SessionInfo::onHttpResponse(HttpResponseEvent event) {
 
     if (mCompletedRequests == gamemodesToGetStatsFor.size()) {
         mShouldUpdate = false;
-        ChatUtils::displayClientMessage("[SessionInfo] All stats updated!");
+        //ChatUtils::displayClientMessage("[SessionInfo] All stats updated!");
     }
 }
 
