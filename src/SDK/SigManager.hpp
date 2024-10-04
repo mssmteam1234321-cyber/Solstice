@@ -98,6 +98,7 @@ public:
     // TODO: Identify proper function names for these and refactor them accordingly
     DEFINE_SIG(checkBlocks, "48 8D 05 ? ? ? ? 4C 8B CD 48 89 44 24 ? 4C 8D 44 24", SigType::Sig, 0);
     DEFINE_SIG(Reach, "F3 0F 10 05 ? ? ? ? 44 0F 2F D0", SigType::Sig, 0);
+    DEFINE_SIG(BlockReach, "F3 0F ? ? ? ? ? ? 48 83 C4 ? C3 83 C0", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DeviceModel, "48 8B 11 48 83 C2 ? EB", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DeviceOS, "74 ? 48 83 3E ? 74 ? 48 8B 0E 48 8B 01 48 8B 40 ? FF 15 ? ? ? ? EB", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DefaultInputMode, "74 1B 49 83 3E 00", SigType::Sig, 0);

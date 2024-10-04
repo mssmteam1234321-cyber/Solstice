@@ -8,10 +8,11 @@
 class Reach : public ModuleBase<Reach> {
 public:
 
-    NumberSetting mDistance = NumberSetting("Distance", "The attack range.", 3.0f, 3.f, 7.0f, 0.01f);
+    NumberSetting mCombatReach = NumberSetting("Combat Reach Range", "The attack range.", 3.0f, 3.f, 7.0f, 0.01f);
+    NumberSetting mBlockReach = NumberSetting("Block Reach Range", "The placing/destroying range.", 5.7f, 5.7f, 12.0f, 0.01f);
 
     Reach() : ModuleBase("Reach", "Changes attack range.", ModuleCategory::Combat, 0, false) {
-        addSetting(&mDistance);
+        addSettings(&mCombatReach, &mBlockReach);
 
         mNames = {
                 {Lowercase, "reach"},
@@ -22,6 +23,7 @@ public:
     }
 
     static float* reachPtr;
+    static float* blockReachPtr;
 
     void onEnable() override;
     void onDisable() override;
