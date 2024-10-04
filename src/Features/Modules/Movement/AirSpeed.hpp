@@ -4,6 +4,7 @@
 
 #include <Features/Modules/Module.hpp>
 #include <Features/Modules/Setting.hpp>
+#pragma once
 
 class AirSpeed : public ModuleBase<AirSpeed> {
 public:
