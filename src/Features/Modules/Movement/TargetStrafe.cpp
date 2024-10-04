@@ -5,7 +5,6 @@
 #include "TargetStrafe.hpp"
 
 #include <Features/Modules/Combat/Aura.hpp>
-#include <Features/Modules/Movement/Speed.hpp>
 
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
