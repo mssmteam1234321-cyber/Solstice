@@ -76,31 +76,37 @@ void SessionInfo::onHttpResponse(HttpResponseEvent event) {
 
     if (mCompletedRequests == gamemodesToGetStatsFor.size()) {
         mShouldUpdate = false;
-        spdlog::info("[SessionInfo] All stats updated!");
+        ChatUtils::displayClientMessage("[SessionInfo] All stats updated!");
     }
 }
 
 void SessionInfo::onEnable() {
     resetStatistics();
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &SessionInfo::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &SessionInfo::onRenderEvent>(this);
 }
 
 void SessionInfo::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &SessionInfo::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->deafen<PacketInEvent, &SessionInfo::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &SessionInfo::onRenderEvent>(this);
 }
+
+static int kills, deaths, played;
 
 void SessionInfo::onRenderEvent(RenderEvent &event) {
     if (!ClientInstance::get()->getLocalPlayer()) return;
     if (!ClientInstance::get()->getLevelRenderer()) return;
 
+    if(!mShouldUpdate) {
+        kills = mTotalKills;
+        deaths = mTotalDeaths;
+        played = mTotalPlayed;
+    }
+
     std::string
-    mKillsStr = "Kills: " + std::to_string(mTotalKills),
-    mDeathsStr = "Deaths: " + std::to_string(mTotalDeaths),
-    mGamesPlayedStr = "Games Played: " + std::to_string(mTotalPlayed);
+    mKillsStr = "Kills: " + std::to_string(kills),
+    mDeathsStr = "Deaths: " + std::to_string(deaths),
+    mGamesPlayedStr = "Games Played: " + std::to_string(played);
 
     ImVec2 pos = ImGui::GetIO().DisplaySize;
     pos.x = 20;
@@ -142,9 +148,19 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
     auto player = event.mActor;
     if (!player) return;
 
-    mPlayerName = player->getLocalName();
+    if(NOW < lastUpdate + 15000 && !mShouldUpdate) {
+        spdlog::info("DELAYAAYYAYAYAY");
+        mShouldUpdate = false;
+        return;
+    }
+    else if (!mShouldUpdate && NOW > lastUpdate + 15000) {
+        spdlog::info("SHOULD UPDATe!!!!");
+        mShouldUpdate = true;
+        makeRequestsForAllGamemodes(mPlayerName);
+        lastUpdate = NOW;
+    }
 
-    if(!mShouldUpdate) return;
+    mPlayerName = player->getLocalName();
 
     for (auto it = mRequests.begin(); it != mRequests.end();) {
         if (it->second->isDone()) {
@@ -159,25 +175,6 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
         if (!request.second->mRequestSent) {
             request.second->sendAsync();
             spdlog::trace("[SessionInfo] Sent request [uri: {}]", request.second->mUrl);
-        }
-    }
-}
-
-void SessionInfo::onPacketInEvent(PacketInEvent &event) {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if(!player) return;
-
-    if (event.mPacket->getId() == PacketID::Text) {
-        auto tp = event.getPacket<TextPacket>();
-
-        std::string playerName = player->getNameTag();
-        if (playerName.find("§r") != std::string::npos) playerName.erase(playerName.find("§r"), 2);
-        if (playerName.find("§l") != std::string::npos) playerName.erase(playerName.find("§l"), 2);
-        std::string playerTeam = "§" + playerName.substr(playerName.find("§") + 2, 1);
-
-        if (tp->mMessage == "§c§l» §r§c§lGame OVER!" || StringUtils::containsIgnoreCase(tp->mMessage, "§7has been §cELIMINATED§7!") && StringUtils::startsWith(tp->mMessage, playerTeam + "§l»")) {
-            mShouldUpdate = true;
-            makeRequestsForAllGamemodes(mPlayerName);
         }
     }
 }

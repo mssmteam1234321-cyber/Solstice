@@ -18,6 +18,7 @@ public:
     std::vector<std::pair<uint64_t, std::unique_ptr<HttpRequest>>> mRequests;
     std::string mPlayerName = "";
     void resetStatistics();
+    uint64_t lastUpdate = 0;
 
     int style = 0;
 
@@ -30,5 +31,4 @@ public:
     void onDisable() override;
     void onRenderEvent(class RenderEvent& event);
     void onBaseTickEvent(class BaseTickEvent& event);
-    void onPacketInEvent(class PacketInEvent& event);
 };
