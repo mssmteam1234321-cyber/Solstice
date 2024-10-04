@@ -9,7 +9,7 @@
 class AirSpeed : public ModuleBase<AirSpeed> {
 public:
 
-    NumberSetting mSprintSpeed = NumberSetting("Speed with spring", "speed in air while sprinting", 1.0f, 1.f, 5.0f, 0.01f);
+    NumberSetting mSprintSpeed = NumberSetting("Speed with sprint", "speed in air while sprinting", 1.0f, 1.f, 5.0f, 0.01f);
     NumberSetting mNoSprintSpeed = NumberSetting("Speed without sprint", "speed in air while not sprinting", 1.0f, 1.f, 5.0f, 0.01f);
 
     AirSpeed() : ModuleBase("AirSpeed", "Changes speed in air", ModuleCategory::Movement, 0, false) {
