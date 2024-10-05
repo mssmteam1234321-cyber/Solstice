@@ -43,5 +43,6 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };

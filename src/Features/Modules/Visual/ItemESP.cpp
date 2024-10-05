@@ -12,25 +12,33 @@
 void ItemESP::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RenderEvent, &ItemESP::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &ItemESP::onBaseTickEvent>(this);
 }
 
 void ItemESP::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &ItemESP::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &ItemESP::onBaseTickEvent>(this);
 }
 
-void ItemESP::onRenderEvent(RenderEvent& event)
+struct ItemLol
 {
-    if (!ClientInstance::get()->getLevelRenderer()) return;
+    glm::vec3* pos;
+    glm::vec2 size;
+    std::string name;
+};
 
-    auto ci = ClientInstance::get();
-    auto player = ci->getLocalPlayer();
-    if (!player) return;
-    if (!ci->getLevelRenderer()) return;
+std::vector<ItemLol> items;
+std::mutex itemMutex;
 
-    auto drawList = ImGui::GetBackgroundDrawList();
+void ItemESP::onBaseTickEvent(BaseTickEvent& event)
+{
+    auto player = event.mActor;
+
+    std::lock_guard<std::mutex> lock(itemMutex);
+
+    items.clear();
     auto actors = ActorUtils::getActorsTyped<ItemActor>(ActorType::ItemEntity);
-
     for (auto actor : actors)
     {
         if (!actor) continue;
@@ -38,26 +46,16 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         if (!actor->getStateVectorComponent()) continue;
         if (mDistanceLimited.mValue && player->distanceTo(actor) > mDistance.mValue) continue;
 
-        AABB aabb = actor->getAABB();
-        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
-
-        ImColor themeColor = mThemedColor.mValue ? ColorUtils::getThemedColor(0) : ImColor(1.0f, 1.0f, 1.0f);
-
-        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
-        drawList->AddPolyline(imPoints.data(), imPoints.size(), themeColor, 0, 2.0f);
-
         auto renderPosComp = actor->getRenderPositionComponent();
         if (!renderPosComp) continue;
+        auto shape = actor->getAABBShapeComponent();
+        if (!shape) continue;
 
         glm::vec3 pos = renderPosComp->mPosition;
         glm::vec3 origin = RenderUtils::transform.mOrigin;
-        glm::vec2 screen = glm::vec2(0, 0);
+        float aabbHeight = shape->mHeight;
+        float aabbWidth = shape->mWidth;
 
-
-        if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, pos, screen, ci->getFov(), ci->getGuiData()->mResolution)) continue;
-
-        if (!mShowNames.mValue) continue;
-        if (!actor->mItem.mItem) continue;
 
         ItemStack* stack = &actor->mItem;
 
@@ -66,6 +64,50 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         std::string name = actor->mItem.getItem()->mName;
         if (name.empty()) return;
         name += " x" + std::to_string(stack->mCount);
+
+        items.push_back({&renderPosComp->mPosition, {aabbWidth, aabbHeight}, name});
+    }
+}
+
+void ItemESP::onRenderEvent(RenderEvent& event)
+{
+    std::lock_guard<std::mutex> lock(itemMutex);
+    if (!ClientInstance::get()->getLevelRenderer()) return;
+
+    auto ci = ClientInstance::get();
+    auto player = ci->getLocalPlayer();
+    if (!player) return;
+    if (!ci->getLevelRenderer()) return;
+
+    auto drawList = ImGui::GetBackgroundDrawList();
+
+    for (auto actor : items)
+    {
+        AABB aabb;
+
+        glm::vec3 ppos = *actor.pos;
+        ppos = ppos - glm::vec3(actor.size.x / 2, 0, actor.size.x / 2);
+        aabb.mMin = ppos;
+        aabb.mMax = ppos + glm::vec3(actor.size.x, actor.size.y, actor.size.x);
+
+
+        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(aabb);
+
+        ImColor themeColor = mThemedColor.mValue ? ColorUtils::getThemedColor(0) : ImColor(1.0f, 1.0f, 1.0f);
+
+        if (mRenderFilled.mValue) drawList->AddConvexPolyFilled(imPoints.data(), imPoints.size(), ImColor(themeColor.Value.x, themeColor.Value.y, themeColor.Value.z, 0.25f));
+        drawList->AddPolyline(imPoints.data(), imPoints.size(), themeColor, 0, 2.0f);
+
+        glm::vec3 pos = *actor.pos;
+        glm::vec3 origin = RenderUtils::transform.mOrigin;
+        glm::vec2 screen = glm::vec2(0, 0);
+
+
+        if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, pos, screen, ci->getFov(), ci->getGuiData()->mResolution)) continue;
+
+        if (!mShowNames.mValue) continue;
+        std::string name = actor.name;
+
         FontHelper::pushPrefFont(true, true);
 
         float fontSize = mFontSize.mValue;
