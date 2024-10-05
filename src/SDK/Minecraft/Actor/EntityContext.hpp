@@ -157,13 +157,18 @@ public:
         hat::signature_view assureSig = getAssureSignature<component_t>();
         auto modData = hat::process::get_module_data(hat::process::get_process_module());
 
+        std::string name = "";
+#ifdef __DEBUG__
+        name = typeid(component_t).name();
+#endif
+
         auto results = hat::find_all_pattern(modData.begin(), modData.end(), assureSig);
         if (results.empty()) {
-            spdlog::error("Failed to find assure function for component: {}", typeid(component_t).name());
+            spdlog::error("Failed to find assure function for component: {}", name);
             return nullptr;
         }
 
-        spdlog::info("Found {} assure functions for component: {}", results.size(), typeid(component_t).name());
+        spdlog::info("Found {} assure functions for component: {}", results.size(), name);
 
         void* result = nullptr;
         for (auto& res : results)
@@ -176,10 +181,10 @@ public:
 
         if (result == nullptr)
         {
-            spdlog::error("Failed to resolve component: {}", typeid(component_t).name());
+            spdlog::error("Failed to resolve component: {}", name);
             return nullptr;
         } else {
-            spdlog::info("Resolved assure function for component: {} at {}", typeid(component_t).name(), MemUtils::getMbMemoryString(reinterpret_cast<uintptr_t>(result)));
+            spdlog::info("Resolved assure function for component: {} at {}", name, MemUtils::getMbMemoryString(reinterpret_cast<uintptr_t>(result)));
         }
         return result;
     }
