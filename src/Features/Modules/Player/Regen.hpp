@@ -255,7 +255,6 @@ public:
 
     bool mStoleOreLastTime = false;
     glm::ivec3 mLastReplacedPos = { INT_MAX, INT_MAX, INT_MAX };
-    int mLastReplacedBlockID = 0;
 
     std::vector<glm::ivec3> mFakePositions;
     //std::vector<glm::ivec3> mLastUpdatedBlockPositions;

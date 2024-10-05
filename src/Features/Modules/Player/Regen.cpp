@@ -333,30 +333,37 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     // Replacer
 #ifdef __PRIVATE_BUILD__
-    if (mReplace.mValue && mStoleOreLastTime && hasPickaxe) {
-        int hardestBlockSlot = ItemUtils::getHardestBlock(pickaxeSlot, mHotbarOnly.mValue);
-        if (0 <= hardestBlockSlot) {
-            glm::ivec3 placePos = mCurrentBlockPos;
-            glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
-            if (BlockUtils::isAirBlock(placePos) && !BlockUtils::isAirBlock(hitPos)) {
-                mCurrentPlacePos = placePos;
-                mShouldRotate = true;
-                mPreviousSlot = supplies->mSelectedSlot;
+    if (mReplace.mValue) {
+        if (mStoleOreLastTime && hasPickaxe) {
+            int hardestBlockSlot = ItemUtils::getHardestBlock(pickaxeSlot, mHotbarOnly.mValue);
+            if (0 <= hardestBlockSlot) {
+                glm::ivec3 placePos = mCurrentBlockPos;
+                glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
+                if (BlockUtils::isAirBlock(placePos) && !BlockUtils::isAirBlock(hitPos)) {
+                    mCurrentPlacePos = placePos;
+                    mShouldRotate = true;
+                    mPreviousSlot = supplies->mSelectedSlot;
 
-                supplies->mSelectedSlot = hardestBlockSlot;
-                PacketUtils::spoofSlot(hardestBlockSlot);
-                if (mSwing.mValue) player->swing();
-                BlockUtils::placeBlock(placePos, 1);
-                mLastReplacedBlockID = source->getBlock(placePos)->mLegacy->getBlockId();
-                BlockUtils::clearBlock(placePos);
-                if (mChecker.mValue) ChatUtils::displayClientMessage("Replacing ore");
-                mShouldSetbackSlot = true;
-                mShouldSpoofSlot = true;
-                supplies->mSelectedSlot = mPreviousSlot;
-                mLastReplacedPos = placePos;
-                mLastReplaced = NOW;
-                mStoleOreLastTime = false;
-                return;
+                    supplies->mSelectedSlot = hardestBlockSlot;
+                    PacketUtils::spoofSlot(hardestBlockSlot);
+                    if (mSwing.mValue) player->swing();
+                    BlockUtils::placeBlock(placePos, 1);
+                    if (mChecker.mValue) ChatUtils::displayClientMessage("Replacing ore");
+                    mShouldSetbackSlot = true;
+                    mShouldSpoofSlot = true;
+                    supplies->mSelectedSlot = mPreviousSlot;
+                    mLastReplacedPos = placePos;
+                    mLastReplaced = NOW;
+                    mStoleOreLastTime = false;
+                    return;
+                }
+            }
+        }
+
+        if (mChecker.mValue) {
+            if (NOW <= mLastReplaced + 1000 && BlockUtils::isAirBlock(mLastReplacedPos)) {
+                ChatUtils::displayClientMessage("Successfully replaced ore");
+                mLastReplaced = 0;
             }
         }
     }
@@ -1222,14 +1229,6 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
                 }
-            }
-        }
-        else if (levelEvent->mEventId == 2001) { // Destroyed block
-            if (mChecker.mValue) {
-                if (mLastReplacedPos != glm::ivec3(levelEvent->mPos) || mLastReplaced + 1000 < NOW) return;
-                int brokenBlockID = ClientInstance::get()->getBlockSource()->getBlock(mLastReplacedPos)->mLegacy->getBlockId();
-                if (brokenBlockID != mLastReplacedBlockID) return;
-                ChatUtils::displayClientMessage("Opponent destroyed replaced block");
             }
         }
     }
