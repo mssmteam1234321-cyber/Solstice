@@ -335,7 +335,7 @@ void IrcClient::onConnected()
     Console.WriteLine($"[{endPoint}] Identified client as {clients[client].ClientName} with HWID {clients[client].Hwid}");*/
     nlohmann::json j;
     #ifdef __DEBUG__
-    j["0"] = "§dsolstice§r";
+    j["0"] = "§csolstice§r";
     #elif __PRIVATE_BUILD__
     j["0"] = "§esolstice§r";
     #else
