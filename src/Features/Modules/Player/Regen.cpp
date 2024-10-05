@@ -348,7 +348,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     PacketUtils::spoofSlot(hardestBlockSlot);
                     if (mSwing.mValue) player->swing();
                     BlockUtils::placeBlock(placePos, 1);
-                    if (mChecker.mValue) ChatUtils::displayClientMessage("Replacing ore");
+                    if (mReplace.mValue) ChatUtils::displayClientMessage("touching enemy");
                     mShouldSetbackSlot = true;
                     mShouldSpoofSlot = true;
                     supplies->mSelectedSlot = mPreviousSlot;
@@ -360,9 +360,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             }
         }
 
-        if (mChecker.mValue) {
+        if (mReplace.mValue) {
             if (NOW <= mLastReplaced + 1000 && BlockUtils::isAirBlock(mLastReplacedPos)) {
-                ChatUtils::displayClientMessage("Successfully replaced ore");
+                ChatUtils::displayClientMessage("raped");
                 mLastReplaced = 0;
             }
         }

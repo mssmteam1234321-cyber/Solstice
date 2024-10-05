@@ -110,6 +110,9 @@ public:
             &mSteal,
             &mStealPriority,
             &mAlwaysSteal,
+#ifdef __DEBUG__
+            &mReplace,
+#endif
             &mAntiSteal,
             &mConfuse,
             &mConfuseMode,
@@ -135,11 +138,6 @@ public:
             &mNukeNotify
         );
 
-#ifdef __DEBUG__
-        addSetting(&mReplace);
-        VISIBILITY_CONDITION(mReplace, mSteal.mValue);
-#endif
-
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
         addSettings(&mExposed, &mUnexposed);
@@ -159,6 +157,7 @@ public:
         VISIBILITY_CONDITION(mDisableUncover, mStealerDetecter.mValue);
         VISIBILITY_CONDITION(mDisableSeconds, mDisableUncover.mValue && mStealerDetecter.mValue);
         VISIBILITY_CONDITION(mEnableAntiSteal, mStealerDetecter.mValue);
+        VISIBILITY_CONDITION(mReplace, mSteal.mValue);
 #endif
 
         VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
