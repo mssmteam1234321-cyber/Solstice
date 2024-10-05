@@ -134,6 +134,13 @@ public:
             &mPriorityNotify,
             &mNukeNotify
         );
+
+#ifdef __DEBUG__
+        addSettings(&mReplace, &mChecker);
+        VISIBILITY_CONDITION(mReplace, mSteal.mValue);
+        VISIBILITY_CONDITION(mChecker, mSteal.mValue && mReplace.mValue);
+#endif
+
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
         addSettings(&mExposed, &mUnexposed);
@@ -141,9 +148,6 @@ public:
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
-        addSettings(&mReplace, &mChecker);
-        VISIBILITY_CONDITION(mReplace, mSteal.mValue);
-        VISIBILITY_CONDITION(mChecker, mSteal.mValue && mReplace.mValue);
         addSetting(&mNoUncoverWhileStealing);
         addSettings(&mDynamicUncover, &mDisableDuration);
         VISIBILITY_CONDITION(mDynamicUncover, mUncover.mValue);

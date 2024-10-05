@@ -332,7 +332,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     // Replacer
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
     if (mReplace.mValue) {
         if (mStoleOreLastTime && hasPickaxe) {
             int hardestBlockSlot = ItemUtils::getHardestBlock(pickaxeSlot, mHotbarOnly.mValue);
