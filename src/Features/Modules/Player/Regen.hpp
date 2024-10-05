@@ -79,7 +79,9 @@ public:
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
-    BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy mining only exposed ores", false);
+    BoolSetting mReplace = BoolSetting("Replace", "Replaces enemy's ore with hardest block", false);
+    BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
+    BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
     BoolSetting mNoUncoverWhileStealing = BoolSetting("No Uncover While Stealing", "Disables uncover for 5 secs everytime u stole someone's ore", false);
     BoolSetting mStealerDetecter = BoolSetting("Stealer Detector", "Does some funnies if stealer detected :>", false);
@@ -139,6 +141,9 @@ public:
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
+        addSettings(&mReplace, &mChecker);
+        VISIBILITY_CONDITION(mReplace, mSteal.mValue);
+        VISIBILITY_CONDITION(mChecker, mSteal.mValue && mReplace.mValue);
         addSetting(&mNoUncoverWhileStealing);
         addSettings(&mDynamicUncover, &mDisableDuration);
         VISIBILITY_CONDITION(mDynamicUncover, mUncover.mValue);
@@ -192,7 +197,7 @@ public:
         gFeatureManager->mDispatcher->listen<RenderEvent, &Regen::onRenderEvent, nes::event_priority::LAST>(this);
     }
 
-    bool stealEnabled;
+    bool stealEnabled = false;
 
     uint64_t lastStoleTime = 0;
     bool antiStealerEnabled = false;
@@ -245,7 +250,12 @@ public:
     uint64_t mLastStealerDetected = 0;
     uint64_t mLastConfuse = 0;
     uint64_t mLastUncoverDetected = 0;
+    uint64_t mLastReplaced = 0;
     int mLastPlacedBlockSlot = 0;
+
+    bool mStoleOreLastTime = false;
+    glm::ivec3 mLastReplacedPos = { INT_MAX, INT_MAX, INT_MAX };
+    int mLastReplacedBlockID = 0;
 
     std::vector<glm::ivec3> mFakePositions;
     //std::vector<glm::ivec3> mLastUpdatedBlockPositions;

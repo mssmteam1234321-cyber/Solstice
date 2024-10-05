@@ -24,6 +24,7 @@ public:
     static int getBoombox(bool hotbarOnly = true, bool tnt = false);
     static int getEmptyHotbarSlot();
     static void useItem(int slot);
+    static int getHardestBlock(int slot, bool hotbarOnly = false);
     static int getBestBreakingTool(Block* block, bool hotbarOnly = false);
     static float getDestroySpeed(int slot, const Block* block, float divisor = 1.f);
     static bool isFireSword(ItemStack* stack);

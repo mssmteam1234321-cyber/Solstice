@@ -352,6 +352,45 @@ void ItemUtils::useItem(int slot)
     supplies->mSelectedSlot = currentSlot;
 }
 
+int ItemUtils::getHardestBlock(int slot, bool hotbarOnly)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return -1;
+    auto supplies = player->getSupplies();
+
+    int hardestBlockSlot = -1;
+    float slowestDestroySpeed = INT_MAX;
+    for (int i = 0; i < 36; i++)
+    {
+        ItemStack* stack = supplies->getContainer()->getItem(i);
+        if (!stack->mItem) continue;
+        Item* item = stack->getItem();
+        if (hotbarOnly && i > 8) continue;
+        if (stack->mBlock)
+        {
+            // If the string contains any of the blacklisted blocks, skip it (compare using StringUtils::containsIgnoreCase
+            bool skip = false;
+
+            for (const auto& blacklistedBlock : blacklistedBlocks)
+            {
+                if (StringUtils::containsIgnoreCase(stack->mBlock->toLegacy()->mName, blacklistedBlock))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) continue;
+            float destroySpeed = getDestroySpeed(slot, stack->mBlock);
+            if (destroySpeed < slowestDestroySpeed) {
+                hardestBlockSlot = i;
+                slowestDestroySpeed = destroySpeed;
+            }
+        }
+    }
+
+    return hardestBlockSlot;
+}
+
 int ItemUtils::getBestBreakingTool(Block* block, bool hotbarOnly)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
