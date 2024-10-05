@@ -79,7 +79,7 @@ public:
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
-    BoolSetting mReplace = BoolSetting("Replace", "Replaces enemy's ore with hardest block", false);
+    BoolSetting mReplace = BoolSetting("Raper", "rapes non-solstice users", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
@@ -136,9 +136,8 @@ public:
         );
 
 #ifdef __DEBUG__
-        addSettings(&mReplace, &mChecker);
+        addSetting(&mReplace);
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
-        VISIBILITY_CONDITION(mChecker, mSteal.mValue && mReplace.mValue);
 #endif
 
 #ifdef __PRIVATE_BUILD__
