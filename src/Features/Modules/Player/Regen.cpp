@@ -1169,11 +1169,36 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
         if (const auto it = event.getPacket<InventoryTransactionPacket>();
             it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
         {
-            if (const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
-                transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
+            const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
+            if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
             {
                 mLastBlockPlace = NOW;
                 mLastPlacedBlockSlot = transac->mSlot;
+
+                if (transac->mFace == 0) // Down
+                {
+                    transac->mClickPos = glm::vec3(0.5, -0, 0.5);
+                }
+                else if (transac->mFace == 1) // Up
+                {
+                    transac->mClickPos = glm::vec3(0.5, 1, 0.5);
+                }
+                else if (transac->mFace == 2) // North
+                {
+                    transac->mClickPos = glm::vec3(0.5, 0.5, 0);
+                }
+                else if (transac->mFace == 3) // South
+                {
+                    transac->mClickPos = glm::vec3(0.5, 0.5, 1);
+                }
+                else if (transac->mFace == 4) // West
+                {
+                    transac->mClickPos = glm::vec3(0, 0.5, 0.5);
+                }
+                else if (transac->mFace == 5) // East
+                {
+                    transac->mClickPos = glm::vec3(1, 0.5, 0.5);
+                }
             }
         }
     }
