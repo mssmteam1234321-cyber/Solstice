@@ -18,6 +18,7 @@ public:
     EnumSettingT<ClickMode> mClickMode = EnumSettingT<ClickMode>("Click Mode", "The click mode", ClickMode::Left, "Left", "Right");
     BoolSetting mHold = BoolSetting("Hold", "Only click when holding", false);
     BoolSetting mRandomizeCPS = BoolSetting("Randomize CPS", "Randomize the CPS", false);
+    BoolSetting mWeaponsOnly = BoolSetting("Weapons Only", "Only click when holding a weapon", false);
     NumberSetting mCPS = NumberSetting("CPS", "The amount of times to click every second.", 16, 1, 60, 1);
     NumberSetting mRandomCPSMin = NumberSetting("CPS Min", "The minimum amount of times to click every second.", 10, 1, 60, 1);
     NumberSetting mRandomCPSMax = NumberSetting("CPS Max", "The maximum amount of times to click every second.", 20, 1, 60, 1);
@@ -31,6 +32,7 @@ public:
             &mRandomCPSMin,
             &mRandomCPSMax,
             &mHold,
+            &mWeaponsOnly,
             &mAllowBlockBreaking
         );
 

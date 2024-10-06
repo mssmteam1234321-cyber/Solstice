@@ -27,12 +27,24 @@ void AutoClicker::onDisable() {
 void AutoClicker::onRenderEvent(RenderEvent& event)
 {
     auto ci = ClientInstance::get();
+    auto player = ci->getLocalPlayer();
 
     if (!ci->getLocalPlayer() || ci->getScreenName() != "hud_screen") return;
 
     auto hitres = ci->getLocalPlayer()->getLevel()->getHitResult();
     if (mAllowBlockBreaking.mValue && hitres && hitres->mType == HitType::BLOCK)
         return;
+
+    if (mWeaponsOnly.mValue)
+    {
+        int slot = player->getSupplies()->mSelectedSlot;
+        auto item = player->getSupplies()->getContainer()->getItem(slot);
+        if (!item->mItem) return;
+        auto type = item->getItem()->getItemType();
+        // if type isnt Sword
+        if (type != SItemType::Sword) return;
+    }
+
 
     if (mRandomCPSMin.as<int>() > mRandomCPSMax.as<int>())
         mRandomCPSMin.mValue = mRandomCPSMax.mValue;
