@@ -80,7 +80,7 @@ public:
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mReplace = BoolSetting("Raper", "rapes non-solstice users", false);
-    BoolSetting mTest = BoolSetting("Test", "Enables advanced mode", false);
+    BoolSetting mTest = BoolSetting("Ass Fucker", "Makes raper more effective", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
