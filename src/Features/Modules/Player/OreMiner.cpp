@@ -18,6 +18,7 @@
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
+#include <Features/Modules/Player/ChestStealer.hpp>
 
 void OreMiner::reset() {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -178,7 +179,14 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     PlayerInventory* supplies = player->getSupplies();
     mPreviousSlot = supplies->getmSelectedSlot();
 
-    if (Regen::mIsMiningBlock || Regen::mWasMiningBlock) {
+    auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
+    bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
+
+    int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
+    ItemStack *stack = supplies->getContainer()->getItem(pickaxeSlot);
+    bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
+
+    if (Regen::mIsMiningBlock || Regen::mWasMiningBlock || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
         reset();
         mShouldSetbackSlot = false;
         return;

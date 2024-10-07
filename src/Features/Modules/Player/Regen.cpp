@@ -17,6 +17,7 @@
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
+#include <Features/Modules/Player/ChestStealer.hpp>
 
 void Regen::initializeRegen() 
 {
@@ -446,9 +447,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         if (placedBlock) return;
     }
 
+    auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
+    bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
+    
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
     if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) ||
-        player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying()) {
+        player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
         initializeRegen();
         resetSyncSpeed();
         if (mIsConfuserActivated) {
