@@ -353,7 +353,8 @@ void Speed::tickLegit(Actor* player)
     float newMovementYaw = movementYaw;
 
     glm::vec3 newVelocity = {cos(newMovementYaw) * movementSpeed, velocity.y, sin(newMovementYaw) * movementSpeed};
-    player->getStateVectorComponent()->mVelocity = newVelocity;
+    if (mSpeed.mValue != 0)
+        player->getStateVectorComponent()->mVelocity = newVelocity;
 
     bool usingMoveKeys = Keyboard::isUsingMoveKeys();
     if (usingMoveKeys && mJumpType.mValue == JumpType::Vanilla) {
@@ -435,10 +436,10 @@ void Speed::tickFriction(Actor* player)
 
     glm::vec2 motion;
     if(mDontBoosStrafeSpeed.mValue) {
-        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (speed / 10) * friction, false, mStrafe.mValue);
+        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (speed / 10) * friction, mStrafe.mValue);
     }
     else {
-        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speed * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
+        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speed * mDamageBoostVal) / 10) * friction, mStrafe.mValue);
     }
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
@@ -538,7 +539,7 @@ void Speed::tickFrictionPreset(FrictionPreset& preset)
         }
     }
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction, false, strafeSetting);
+    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speedSetting / 10) * mDamageBoostVal) * friction, strafeSetting);
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
