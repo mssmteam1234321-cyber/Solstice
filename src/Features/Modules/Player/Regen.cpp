@@ -533,8 +533,13 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         } else shouldChangeOre = true;
     }
 
-    if (isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) &&
-        mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+    if (
+#ifdef __DEBUG__
+            isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) &&
+#else
+            isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) &&
+#endif
+            mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
         Block *currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
