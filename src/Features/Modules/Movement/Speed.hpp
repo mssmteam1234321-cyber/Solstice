@@ -71,10 +71,11 @@ public:
     NumberSetting mDamageBoostSlowdown = NumberSetting("Damage Boost Slowdown", "The friction to apply when taking damage", 0.15, 0, 1, 0.01);
     BoolSetting mDamageTimer = BoolSetting("Damage Timer", "Whether or not to boost timer speed when taking damage", false);
     NumberSetting mDamageTimerSpeed = NumberSetting("Damage Timer Speed", "The speed to boost timer by when taking damage", 20, 0, 40, 0.1);
-
+    BoolSetting mDontBoosStrafeSpeed = BoolSetting("Ignore Strafe", "Dont increase strafe speed", true);
 
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
+    BoolSetting mTest = BoolSetting("Test", "test", true);
     BoolSetting mUseStrafeSpeed = BoolSetting("Custom Strafe Speed", "Whether or not to apply custom speed when strafing", true);
     NumberSetting mStrafeSpeed = NumberSetting("Strafe Speed", "The speed to strafe at", 0.5, 0, 10, 0.01);
     NumberSetting mFriction = NumberSetting("Friction", "The friction to apply", 0.975, 0, 1, 0.01);
@@ -106,8 +107,10 @@ public:
             &mDamageBoostSlowdown,
             &mDamageTimer,
             &mDamageTimerSpeed,
+            &mDontBoosStrafeSpeed,
             &mSpeed,
             &mStrafe,
+            &mTest,
             &mUseStrafeSpeed,
             &mStrafeSpeed,
             &mFriction,
@@ -136,8 +139,10 @@ public:
         VISIBILITY_CONDITION(mDamageBoostSlowdown, mDamageBoost.mValue);
         VISIBILITY_CONDITION(mDamageTimer, mDamageBoost.mValue);
         VISIBILITY_CONDITION(mDamageTimerSpeed, mDamageBoost.mValue && mDamageTimer.mValue);
+        VISIBILITY_CONDITION(mDontBoosStrafeSpeed, mDamageBoost.mValue);
 
         VISIBILITY_CONDITION(mStrafe, mMode.mValue != Mode::Legit);
+        VISIBILITY_CONDITION(mTest, mMode.mValue != Mode::Legit);
         VISIBILITY_CONDITION(mUseStrafeSpeed, mMode.mValue != Mode::Legit);
         VISIBILITY_CONDITION(mStrafeSpeed, mMode.mValue != Mode::Legit);
 

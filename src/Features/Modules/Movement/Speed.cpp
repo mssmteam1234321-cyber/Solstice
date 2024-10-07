@@ -208,6 +208,83 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
             if (!player->isOnGround() && player->wasOnGround() && Keyboard::isUsingMoveKeys()) {
                 paip->mInputData |= AuthInputAction::START_JUMPING;
             }
+
+            if(mStrafe.mValue && mTest.mValue) {
+
+                auto pkt = event.getPacket<PlayerAuthInputPacket>();
+                glm::vec2 moveVec = pkt->mMove;
+                glm::vec2 xzVel = {pkt->mPosDelta.x, pkt->mPosDelta.z};
+                float yaw = pkt->mRot.y;
+                yaw = -yaw;
+
+                if (moveVec.x == 0 && moveVec.y == 0 && xzVel.x == 0 && xzVel.y == 0) return;
+
+                float moveVecYaw = atan2(moveVec.x, moveVec.y);
+                moveVecYaw = glm::degrees(moveVecYaw);
+
+                float movementYaw = atan2(xzVel.x, xzVel.y);
+                float movementYawDegrees = movementYaw * (180.0f / M_PI);
+
+                float yawDiff = movementYawDegrees - yaw;
+
+                float newMoveVecX = sin(glm::radians(yawDiff));
+                float newMoveVecY = cos(glm::radians(yawDiff));
+                glm::vec2 newMoveVec = {newMoveVecX, newMoveVecY};
+
+                if (abs(newMoveVec.x) < 0.001) newMoveVec.x = 0;
+                if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
+                if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = {0, 0};
+
+                // Remove all old flags
+                pkt->mInputData &= ~AuthInputAction::UP;
+                pkt->mInputData &= ~AuthInputAction::DOWN;
+                pkt->mInputData &= ~AuthInputAction::LEFT;
+                pkt->mInputData &= ~AuthInputAction::RIGHT;
+                pkt->mInputData &= ~AuthInputAction::UP_RIGHT;
+                pkt->mInputData &= ~AuthInputAction::UP_LEFT;
+
+                pkt->mMove = newMoveVec;
+                pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
+                pkt->mInputMode = InputMode::MotionController;
+
+                // Get the move direction
+                bool forward = newMoveVec.y > 0;
+                bool backward = newMoveVec.y < 0;
+                bool left = newMoveVec.x < 0;
+                bool right = newMoveVec.x > 0;
+
+                static bool isSprinting = false;
+                bool startedThisTick = false;
+                // if the flags contain isSprinting, set the flag
+                if (pkt->hasInputData(AuthInputAction::START_SPRINTING)) {
+                    isSprinting = true;
+                    startedThisTick = true;
+                } else if (pkt->hasInputData(AuthInputAction::STOP_SPRINTING)) {
+                    isSprinting = false;
+                }
+
+                spdlog::info("Forward: {}, Backward: {}, Left: {}, Right: {}", forward ? "true" : "false",
+                             backward ? "true" : "false", left ? "true" : "false", right ? "true" : "false");
+
+                if (!forward) {
+                    // Remove all sprint flags
+                    pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
+                    if (isSprinting && !startedThisTick) {
+                        pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
+                        spdlog::info("Stopping sprint");
+                    }
+
+                    spdlog::info("Not moving forward");
+
+                    pkt->mInputData &= ~AuthInputAction::SPRINTING;
+                    pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+
+                    spdlog::info("Removed sprinting and sneaking flags");
+
+                    // Stop the player from sprinting
+                    player->getMoveInputComponent()->setmIsSprinting(false);
+                }
+            }
     }
 }
 
@@ -356,7 +433,13 @@ void Speed::tickFriction(Actor* player)
 
     if (Keyboard::isStrafing() && mUseStrafeSpeed.mValue) speed = mStrafeSpeed.as<float>();
 
-    glm::vec2 motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speed * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
+    glm::vec2 motion;
+    if(mDontBoosStrafeSpeed.mValue) {
+        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, (speed / 10) * friction, false, mStrafe.mValue);
+    }
+    else {
+        motion = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, ((speed * mDamageBoostVal) / 10) * friction, false, mStrafe.mValue);
+    }
     auto stateVector = player->getStateVectorComponent();
     stateVector->mVelocity = {motion.x, stateVector->mVelocity.y, motion.y};
 
