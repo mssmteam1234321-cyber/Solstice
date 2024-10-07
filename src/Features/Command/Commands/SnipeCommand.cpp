@@ -50,6 +50,11 @@ void SnipeCommand::execute(const std::vector<std::string>& args)
         }
         ChatUtils::displayClientMessage("Target: " + nickName + " not found");
     }
+    else if(subCommand == "clear")
+    {
+        autoSnipe->Targets.clear();
+        ChatUtils::displayClientMessage("Successfuly cleaned targets list");
+    }
     else
     {
         ChatUtils::displayClientMessage(getUsage());

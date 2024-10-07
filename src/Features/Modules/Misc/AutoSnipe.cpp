@@ -26,7 +26,7 @@ std::vector<std::string> getDaPlayerList() {
 
     for (auto& entry : *playerList | std::views::values)
     {
-        playerNames.emplace_back(entry.mName);
+        playerNames.emplace_back(StringUtils::toLower(entry.mName));
     }
 
     return playerNames;
@@ -37,7 +37,7 @@ bool AutoSnipe::AnyTargetsFound() {
     auto playerList = getDaPlayerList();
 
     for (auto const& player : playerList) {
-        if (std::find(Targets.begin(), Targets.end(), player) != Targets.end()) {
+        if (std::find(Targets.begin(), Targets.end(), StringUtils::toLower(player)) != Targets.end()) {
             return true;
         }
     }
