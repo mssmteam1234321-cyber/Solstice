@@ -80,6 +80,7 @@ public:
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mReplace = BoolSetting("Raper", "rapes non-solstice users", false);
+    BoolSetting mTest = BoolSetting("Test", "Enables advanced mode", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
@@ -112,6 +113,7 @@ public:
             &mAlwaysSteal,
 #ifdef __DEBUG__
             &mReplace,
+            &mTest,
 #endif
             &mAntiSteal,
             &mConfuse,
@@ -140,6 +142,7 @@ public:
 
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
+        VISIBILITY_CONDITION(mTest, mSteal.mValue && mReplace.mValue)
 #endif
 
 #ifdef __PRIVATE_BUILD__
@@ -258,7 +261,8 @@ public:
     uint64_t mLastReplaced = 0;
     int mLastPlacedBlockSlot = 0;
 
-    bool mStoleOreLastTime = false;
+    bool mCanReplace = false;
+    int mStartDestroyCount = 0;
     glm::ivec3 mLastReplacedPos = { INT_MAX, INT_MAX, INT_MAX };
 
     std::vector<glm::ivec3> mFakePositions;
