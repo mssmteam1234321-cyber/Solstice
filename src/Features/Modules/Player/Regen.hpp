@@ -74,6 +74,7 @@ public:
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", false);
     BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", false);
     BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", false);
+    BoolSetting mAssFuckerNotify = BoolSetting("Ass Fucker Notify", "Send message in chat when u fucking enemy", false);
     BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
@@ -83,7 +84,7 @@ public:
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
-    BoolSetting mReplace = BoolSetting("Raper", "rapes non-solstice users", false);
+    BoolSetting mReplace = BoolSetting("Raper", "kicks other hackers while hvh", false);
     BoolSetting mTest = BoolSetting("Ass Fucker", "Makes raper more effective", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
@@ -146,7 +147,8 @@ public:
 #ifdef __DEBUG__
             &mDynamicUncoverNotify,
             &mStealerDetectorNotify,
-            &mRaperNotify
+            &mRaperNotify,
+            &mAssFuckerNotify
 #endif
         );
 
@@ -202,6 +204,11 @@ public:
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mDynamicUncoverNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mStealerDetectorNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mRaperNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mAssFuckerNotify, mDebug.mValue);
 
         VISIBILITY_CONDITION(mOffset, mProgressBarStyle.mValue == ProgressBarStyle::New);
 

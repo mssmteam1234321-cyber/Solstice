@@ -1227,7 +1227,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (mTest.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
-                    ChatUtils::displayClientMessage("Opponent is targetting same ore");
+                     ChatUtils::displayClientMessage("Opponent is targetting same ore");
                 }
             }
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
