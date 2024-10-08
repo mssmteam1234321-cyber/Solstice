@@ -71,6 +71,10 @@ public:
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
     BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
     BoolSetting mNukeNotify = BoolSetting("Nuke Notify", "Send message in chat when nuked block", false);
+    BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", false);
+    BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", false);
+    BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", false);
+    BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", false);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
     NumberSetting mOffset = NumberSetting("Offeset From Center", "render pos offset from center", 20, 0, 200, 0.1);
@@ -137,7 +141,13 @@ public:
             &mFastOreNotify,
             &mSyncSpeedNotify,
             &mPriorityNotify,
-            &mNukeNotify
+            &mNukeNotify,
+            &mStealNotify,
+#ifdef __DEBUG__
+            &mDynamicUncoverNotify,
+            &mStealerDetectorNotify,
+            &mRaperNotify
+#endif
         );
 
 #ifdef __DEBUG__
