@@ -143,7 +143,7 @@ public:
 #endif
 #ifdef __DEBUG__
             &mRaperNotify,
-            &mAssFuckerNotify
+            &mAssFuckerNotify,
 #endif
             &mConfuseNotify,
             &mBlockNotify,
