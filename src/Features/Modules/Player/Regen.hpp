@@ -65,17 +65,17 @@ public:
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
     BoolSetting mAlwaysMine = BoolSetting("Always mine", "Keep mining ore", false);
     BoolSetting mDebug = BoolSetting("Debug", "Send debug message in chat", false);
-    BoolSetting mConfuseNotify = BoolSetting("Confuse Notify", "Send message in chat when confused stealer", false);
-    BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/ore got covered", false);
-    BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", false);
-    BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", false);
-    BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", false);
-    BoolSetting mNukeNotify = BoolSetting("Nuke Notify", "Send message in chat when nuked block", false);
-    BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", false);
-    BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", false);
-    BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", false);
-    BoolSetting mAssFuckerNotify = BoolSetting("Ass Fucker Notify", "Send message in chat when u fucking enemy", false);
-    BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", false);
+    BoolSetting mConfuseNotify = BoolSetting("Confuse Notify", "Send message in chat when confused stealer", true);
+    BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/ore got covered", true);
+    BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", true);
+    BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", true);
+    BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", true);
+    BoolSetting mNukeNotify = BoolSetting("Nuke Notify", "Send message in chat when nuked block", true);
+    BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", true);
+    BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", true);
+    BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", true);
+    BoolSetting mAssFuckerNotify = BoolSetting("Ass Fucker Notify", "Send message in chat when u fucking enemy", true);
+    BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", true);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
     NumberSetting mOffset = NumberSetting("Offeset From Center", "render pos offset from center", 20, 0, 200, 0.1);
@@ -137,19 +137,21 @@ public:
             &mNuke,
             &mAlwaysMine,
             &mDebug,
+#ifdef __PRIVATE_BUILD__
+            &mDynamicUncoverNotify,
+            &mStealerDetectorNotify,
+#endif
+#ifdef __DEBUG__
+            &mRaperNotify,
+            &mAssFuckerNotify
+#endif
             &mConfuseNotify,
             &mBlockNotify,
             &mFastOreNotify,
             &mSyncSpeedNotify,
             &mPriorityNotify,
             &mNukeNotify,
-            &mStealNotify,
-#ifdef __DEBUG__
-            &mDynamicUncoverNotify,
-            &mStealerDetectorNotify,
-            &mRaperNotify,
-            &mAssFuckerNotify
-#endif
+            &mStealNotify
         );
 
 #ifdef __DEBUG__
@@ -205,10 +207,16 @@ public:
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
+        VISIBILITY_CONDITION(mNukeNotify, mDebug.mValue);
+
+#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mDynamicUncoverNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealerDetectorNotify, mDebug.mValue);
+#endif
+#ifdef __DEBUG__
         VISIBILITY_CONDITION(mRaperNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mAssFuckerNotify, mDebug.mValue);
+#endif
 
         VISIBILITY_CONDITION(mOffset, mProgressBarStyle.mValue == ProgressBarStyle::New);
 

@@ -449,7 +449,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
     bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
-    
+
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
     if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) ||
         player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
@@ -1227,7 +1227,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (mTest.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
-                     ChatUtils::displayClientMessage("Opponent is targetting same ore");
+                    if(mDebug.mValue && mAssFuckerNotify.mValue) ChatUtils::displayClientMessage("Opponent is targetting same ore");
                 }
             }
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
