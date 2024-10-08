@@ -46,7 +46,6 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
             auto main = json["main"];
             PlayerInfo player = PlayerInfo(main["username_cc"], main["rank"]);
             sender->mPlayerStore.mObjects.push_back(player);
-            spdlog::info("[StaffAlert] Player found: {} ({})", player.name, player.rank);
         }
     } else if (event.mStatusCode == 404) {
         // Extract the name from the URL
@@ -161,7 +160,6 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
             if (!request.second->mRequestSent)
             {
                 request.second->sendAsync();
-                spdlog::trace("[StaffAlert] Sent request [uri: {}]", request.second->mUrl);
             }
         }
     }

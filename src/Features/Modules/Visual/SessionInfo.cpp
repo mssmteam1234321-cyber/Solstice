@@ -64,8 +64,6 @@ void SessionInfo::onHttpResponse(HttpResponseEvent event) {
         mTotalDeaths += deaths;
         mTotalPlayed += played;
 
-        spdlog::info("[SessionInfo] Stats updated from gamemode!");
-
     } else if (event.mStatusCode == 404) {
         spdlog::info("[SessionInfo] Stats not found for this gamemode!");
     } else {
@@ -158,7 +156,6 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
         return;
     }
     else if (!mShouldUpdate && NOW > lastUpdate + 15000) {
-        spdlog::info("[SessionInfo] Updating stats...");
         mShouldUpdate = true;
         makeRequestsForAllGamemodes(mPlayerName);
         lastUpdate = NOW;
@@ -178,7 +175,6 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
         auto &request = mRequests.front();
         if (!request.second->mRequestSent) {
             request.second->sendAsync();
-            spdlog::trace("[SessionInfo] Sent request [uri: {}]", request.second->mUrl);
         }
     }
 }
