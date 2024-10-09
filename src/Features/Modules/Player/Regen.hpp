@@ -93,7 +93,7 @@ public:
     BoolSetting mStealerDetecter = BoolSetting("Stealer Detector", "Does some funnies if stealer detected :>", false);
     NumberSetting mAmountOfBlocksToDetect = NumberSetting("Stolen Blocks to Detect", "amount of blocks that should be stolen in past 5 seconds to detect stealer", 4, 1, 10, 1);
     BoolSetting mDisableUncover = BoolSetting("Disable Uncover", "Disables uncover for some seconds", false);
-    NumberSetting mDisableSeconds = NumberSetting("Disable Duration", "amount of seconds uncover will be disabled for", 5, 1, 15, 1);
+    NumberSetting mDisableSeconds = NumberSetting("Disable Duration 2", "amount of seconds uncover will be disabled for", 5, 1, 15, 1);
     BoolSetting mEnableAntiSteal = BoolSetting("Enable AntiSteal", "Enables anti-steal, disables if enemy didn't steal / didn't try to steal ur ore for past 5 seconds", false);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
