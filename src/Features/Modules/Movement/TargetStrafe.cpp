@@ -3,6 +3,7 @@
 //
 
 #include "TargetStrafe.hpp"
+#include "Speed.hpp"
 
 #include <Features/Modules/Combat/Aura.hpp>
 
@@ -18,7 +19,7 @@ void TargetStrafe::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TargetStrafe::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TargetStrafe::onRenderEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TargetStrafe::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TargetStrafe::onPacketOutEvent>(this);
 }
 
 void TargetStrafe::onDisable()
@@ -40,18 +41,22 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     glm::vec3 playerPos = *player->getPos();
     auto moveInputComponent = player->getMoveInputComponent();
+    static auto speed = gFeatureManager->mModuleManager->getModule<Speed>();
+    bool isJumping = Keyboard::mPressedKeys[VK_SPACE];
 
-    if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !mIsJumping))
+    if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !isJumping) || (mSpeedOnly.mValue && (speed == nullptr || !speed->mEnabled)))
     {
         mShouldStrafe = false;
         return;
     }
 
+    if (mSpeedOnly.mValue && mJumpOnly.mValue) moveInputComponent->mIsJumping = false;
+
     mCurrentTarget = Aura::sTarget;
     glm::vec3 targetPos = *mCurrentTarget->getPos();
     float dist = glm::distance(glm::vec2(playerPos.x, playerPos.z), glm::vec2(targetPos.x, targetPos.z));
-    bool foward = mDistance.mValue < dist;
-    bool back = dist < mMinDistance.mValue;
+    mForward = mDistance.mValue < dist;
+    mBackward = dist < mMinDistance.mValue;
 
     if (mWallCheck.mValue && player->isCollidingHorizontal()) {
         mMoveRight = !mMoveRight;
@@ -61,9 +66,7 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
         else if (moveInputComponent->mRight) mMoveRight = true;
     }
 
-    mYaw = MathUtils::getRots(playerPos, mCurrentTarget->getAABB()).y;
-
-    handleKeyInput(foward, !mMoveRight, back, mMoveRight);
+    handleKeyInput(mForward, !mMoveRight, mBackward, mMoveRight);
     mShouldStrafe = true;
 }
 
@@ -75,10 +78,11 @@ void TargetStrafe::onRenderEvent(RenderEvent& event)
     if (mShouldStrafe)
     {
         if (!mCurrentTarget->getActorTypeComponent()) return;
+        float yaw = MathUtils::getRots(*player->getPos(), mCurrentTarget->getAABB()).y;
         auto rotationComponent = player->getActorRotationComponent();
-        glm::vec3 renderPosition = player->getRenderPositionComponent()->mPosition;
-        rotationComponent->mYaw = mYaw;
-        rotationComponent->mOldYaw = mYaw;
+        rotationComponent->mYaw = yaw;
+        rotationComponent->mOldYaw = yaw;
+        handleKeyInput(mForward, !mMoveRight, mBackward, mMoveRight);
     }
 }
 
@@ -90,9 +94,6 @@ void TargetStrafe::onPacketOutEvent(PacketOutEvent& event)
     if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
         auto pkt = event.getPacket<PlayerAuthInputPacket>();
-        if (pkt->hasInputData(AuthInputAction::JUMPING)) mIsJumping = true;
-        else mIsJumping = false;
-
         if (mShouldStrafe) {
             if (mAlwaysSprint.mValue) {
                 pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
