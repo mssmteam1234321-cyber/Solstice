@@ -38,10 +38,12 @@ bool ReverseStep::isVoid() {
 
 void ReverseStep::onEnable() {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &ReverseStep::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &ReverseStep::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
 }
 
 void ReverseStep::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &ReverseStep::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &ReverseStep::onPacketOutEvent>(this);
 }
 
 void ReverseStep::onBaseTickEvent(BaseTickEvent& event) {
@@ -55,7 +57,16 @@ void ReverseStep::onBaseTickEvent(BaseTickEvent& event) {
     if(mVoidCheck.mValue && isVoid()) return;
     if(mDontUseIfSpeed.mValue && speed->mEnabled) return;
     if(mDontUseIfLongJump.mValue && longJump->mEnabled) return;
-    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround()) return; // basicly u can be offground only after jumping bc 50 speed enough to fall instantly when max fall distance is 0-30 blocks
+    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround() || mJum) return; // basicly u can be offground only after jumping bc 50 speed enough to fall instantly when max fall distance is 0-30 blocks
 
     player->getStateVectorComponent()->mVelocity.y -= 50;
+}
+
+void ReverseStep::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+    {
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+        mJumped = paip->hasInputData(AuthInputAction::START_JUMPING);
+    }
 }

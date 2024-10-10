@@ -33,10 +33,13 @@ public:
         };
     }
 
+    bool mJumped = false;
+
     bool canFallDown();
     bool isVoid();
 
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
 };
