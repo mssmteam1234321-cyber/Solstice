@@ -142,10 +142,6 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
                     player->getStateVectorComponent()->mVelocity.z = 0;
                 } else if (!player->isOnGround())
                 {
-                    /*float yaw = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
-                    glm::vec2 motion = MathUtils::getMotion(yaw, 2.55 / 10);
-                    player->getStateVectorComponent()->mVelocity.x = motion.x;
-                    player->getStateVectorComponent()->mVelocity.z = motion.y;*/
                     glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
                     float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
                     float movementYaw = atan2(currentMotion.y, currentMotion.x);
@@ -235,9 +231,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     if (mSwing.mValue) player->swing();
 
     if (mShouldClip)
-    {
         player->setPosition(*player->getPos() + glm::vec3(0, 1.f * (mTowerSpeed.mValue / 10), 0));
-    }
 
     BlockUtils::placeBlock(blockPos, side);
 
