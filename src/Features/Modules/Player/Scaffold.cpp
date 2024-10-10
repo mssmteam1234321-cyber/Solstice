@@ -59,8 +59,11 @@ void Scaffold::onDisable()
     }
 }
 
+
+
 void Scaffold::onBaseTickEvent(BaseTickEvent& event)
 {
+    mShouldClip = false;
     auto player = event.mActor;
 
     int places = mPlaces.as<int>();
@@ -73,6 +76,7 @@ void Scaffold::onBaseTickEvent(BaseTickEvent& event)
     for (int i = 0; i < places; i++)
     {
         if (!tickPlace(event)) break;
+        if (mShouldClip) break;
     }
 }
 
@@ -120,13 +124,15 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     bool space = Keyboard::mPressedKeys[VK_SPACE];
     bool wasTowering = mIsTowering;
 
+
     float fallDistance = player->getFallDistance();
     if (!mFallDistanceCheck.mValue) fallDistance = 0.f;
     switch (mTowerMode.mValue)
     {
-        default:
-            break;
+    default:
+        break;
     case TowerMode::Velocity:
+        {
             if (ClientInstance::get()->getMouseGrabbed()) break;
             if ((space && mAllowMovement.mValue || space && !isMoving) && fallDistance < 3.f)
             {
@@ -162,6 +168,39 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
                 player->getStateVectorComponent()->mVelocity.y = -5.0f;
             }
             break;
+        }
+    case TowerMode::Clip: {
+            if (ClientInstance::get()->getMouseGrabbed()) break;
+            if ((space && mAllowMovement.mValue || space && !isMoving) && fallDistance < 3.f)
+            {
+                if (!mAllowMovement.mValue)
+                {
+                    player->getStateVectorComponent()->mVelocity.x = 0;
+                    player->getStateVectorComponent()->mVelocity.z = 0;
+                } else if (!player->isOnGround())
+                {
+                    glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
+                    float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
+                    float movementYaw = atan2(currentMotion.y, currentMotion.x);
+                    float moveYawDeg = movementYaw * (180 / IM_PI) - 90.f;
+                    float playerYawDeg = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+                    float yawDiff = playerYawDeg - moveYawDeg;
+                    float yawDiffRad = yawDiff * (IM_PI / 180);
+                    float newMoveYaw = movementYaw + yawDiffRad;
+                    player->getStateVectorComponent()->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
+                    player->getStateVectorComponent()->mVelocity.z = sin(newMoveYaw) * movementSpeed;
+                }
+                mStartY = player->getPos()->y;
+                mIsTowering = true;
+                maxExtend = 0.f;
+                mShouldClip = true;
+            }
+            else if (wasTowering)
+            {
+                mIsTowering = false;
+                player->getStateVectorComponent()->mVelocity.y = -5.0f;
+            }
+    }
     }
 
 
@@ -194,6 +233,12 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     mShouldRotate = true;
 
     if (mSwing.mValue) player->swing();
+
+    if (mShouldClip)
+    {
+        player->setPosition(*player->getPos() + glm::vec3(0, 1.f * (mTowerSpeed.mValue / 10), 0));
+    }
+
     BlockUtils::placeBlock(blockPos, side);
 
     return true;
