@@ -28,7 +28,8 @@ bool ReverseStep::isVoid() {
 
     for (int checkOffsetY = 1; checkOffsetY <= 255; ++checkOffsetY) {
         glm::vec3 blockPos = {pos.x, pos.y - (float)checkOffsetY, pos.z};
-        if (!BlockUtils::isAirBlock(blockPos)) {
+        Block* block = ClientInstance::get()->getBlockSource()->getBlock(blockPos);
+        if (block->mLegacy->mMaterial->mIsBlockingMotion) {
             return false;
         }
     }
@@ -57,7 +58,7 @@ void ReverseStep::onBaseTickEvent(BaseTickEvent& event) {
     if(mVoidCheck.mValue && isVoid()) return;
     if(mDontUseIfSpeed.mValue && speed->mEnabled) return;
     if(mDontUseIfLongJump.mValue && longJump->mEnabled) return;
-    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround() || mJum) return; // basicly u can be offground only after jumping bc 50 speed enough to fall instantly when max fall distance is 0-30 blocks
+    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround() || mJumped) return; // basicly u can be offground only after jumping bc 50 speed enough to fall instantly when max fall distance is 0-30 blocks
 
     player->getStateVectorComponent()->mVelocity.y -= 50;
 }
