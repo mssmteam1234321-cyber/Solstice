@@ -5,6 +5,7 @@
 
 #include <Features/Modules/Module.hpp>
 #include <Features/Modules/Setting.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 
 class TargetStrafe : public ModuleBase<TargetStrafe> {
 public:
@@ -12,6 +13,7 @@ public:
     NumberSetting mMinDistance = NumberSetting("Min Distance", "Minimum distance to target", 3.f, 0.5f, 5.f, 0.1f);
     BoolSetting mWallCheck = BoolSetting("Wall Check", "Whether or not to switch direction when you collide block", false);
     BoolSetting mJumpOnly = BoolSetting("Jump Only", "Whether or not to strafe only while jumping", false);
+    BoolSetting mSpeedOnly = BoolSetting("Speed Only", "Whether or not to strafe only while speed enabled", false);
     BoolSetting mAlwaysSprint = BoolSetting("Always Sprint", "Whether or not to always sprint", false);
     BoolSetting mRenderCircle = BoolSetting("Render Circle", "Whether or not to switch direction when you collide block", false);
 
@@ -21,6 +23,7 @@ public:
             &mMinDistance,
             &mWallCheck,
             &mJumpOnly,
+            &mSpeedOnly,
             &mAlwaysSprint
             //&mRenderCircle // TODO
         );
@@ -35,11 +38,11 @@ public:
 
     bool mShouldStrafe = false;
     Actor* mCurrentTarget = nullptr;
-    float mYaw = 0;
 
+    bool mForward = false;
+    bool mBackward = false;
     bool mMoveRight = true;
 
-    bool mIsJumping = false;
 
     void onEnable() override;
     void onDisable() override;
