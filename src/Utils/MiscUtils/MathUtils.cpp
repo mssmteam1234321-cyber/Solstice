@@ -218,9 +218,7 @@ glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget)
     yaw = wrap(yaw, -180, 180);
     const float pitch = atan2(delta.y, sqrt(delta.x * delta.x + delta.z * delta.z)) * 180.0f / IM_PI;
 
-    spdlog::info("Yaw: {}, Pitch: {}", yaw, pitch);
-
-    return {-pitch, yaw};
+w    return {-pitch, yaw};
 }
 
 glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const AABB& target)

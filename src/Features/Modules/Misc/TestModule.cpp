@@ -84,6 +84,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    /*
     auto mpp = MinecraftPackets::createPacket<MovePlayerPacket>();
     mpp->mPlayerID = player->getRuntimeID();
     mpp->mPos = *player->getPos();
@@ -96,7 +97,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     mpp->mTick = 0;
     mpp->mCause = TeleportationCause::Unknown;
     mpp->mSourceEntityType = ActorType::Player;
-    ClientInstance::get()->getPacketSender()->sendToServer(mpp.get());
+    ClientInstance::get()->getPacketSender()->sendToServer(mpp.get());*/
 
     auto ballsSource = ClientInstance::get()->getBlockSource();
     gDaBlock = ballsSource->getBlock(glm::floor(*player->getPos() - PLAYER_HEIGHT_VEC));
@@ -254,6 +255,8 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
+    if (event.mPacket->getId() == PacketID::MovePlayer) event.cancel();
+
     if (mMode.mValue == Mode::VerticalTest)
     {
         if (event.mPacket->getId() == PacketID::PlayerAuthInput && mLastLagback + 100 < NOW && hasSetClipPos)
