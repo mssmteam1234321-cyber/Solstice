@@ -19,7 +19,7 @@ void ChinaHat::onDisable() {
 }
 
 void ChinaHat::onRenderEvent(RenderEvent& event) {
-    int pointCount = mResolution.mValue;
+    int pointCount = 20;
     float radius = mSize.mValue;
 
     auto corrected = RenderUtils::transform.mMatrix;
