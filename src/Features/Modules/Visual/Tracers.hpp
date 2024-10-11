@@ -3,7 +3,6 @@
 // Created by vastrakai on 10/4/2024.
 //
 
-
 class Tracers : public ModuleBase<Tracers> {
 public:
     enum class CenterPoint {

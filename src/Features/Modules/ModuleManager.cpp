@@ -115,7 +115,7 @@
 #include "Visual/Watermark.hpp"
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
-//#include "Visual/ShowGracePeriod.hpp"
+#include "Visual/ChinaHat.hpp"
 
 void ModuleManager::init()
 {
@@ -224,8 +224,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ViewModel>());
     mModules.emplace_back(std::make_shared<SessionInfo>());
     mModules.emplace_back(std::make_shared<Tracers>());
-
-    //mModules.emplace_back(std::make_shared<ShowGracePeriod>());
+    mModules.emplace_back(std::make_shared<ChinaHat>());
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode

@@ -5,6 +5,8 @@
 #include "Tracers.hpp"
 
 #include <Features/Modules/Misc/Friends.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
 
 void Tracers::onEnable()
 {
