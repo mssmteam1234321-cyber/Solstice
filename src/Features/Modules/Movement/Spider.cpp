@@ -11,7 +11,7 @@ void Spider::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Spider::onBaseTickEvent>(this);
 }
 
-void Spider::onBaseTickEvent(BaseTickEvent& event) const {
+void Spider::onBaseTickEvent(BaseTickEvent& event) {
     const auto player = event.mActor;
     if (!player) return;
     if (mOnGroundOnly.mValue && !player->isOnGround()) return;
@@ -25,6 +25,43 @@ void Spider::onBaseTickEvent(BaseTickEvent& event) const {
         aabbShape->mMin.y += mSpeed.mValue;
         aabbShape->mMax.y += mSpeed.mValue;
     }
+
+#ifdef __PRIVATE_BUILD__
+
+    else if (mMode.mValue == Mode::Flareon) {
+
+        auto state = player->getStateVectorComponent();
+        auto playerPos = *player->getPos();
+
+        if (!player->isCollidingHorizontal() || !player->getMoveInputComponent()->mForward) {
+            mPosY = 0.f;
+            if (!player->isCollidingHorizontal() && mWasCollided) {
+                mWasCollided = false;
+                state->mVelocity.y = 0.05f;
+            }
+            return;
+        }
+
+        mWasCollided = true;
+
+        if (mPosY == 0.f) {
+            mPosY = playerPos.y;
+            state->mVelocity.y = 0.f;
+        }
+        auto dist = playerPos.y - mPosY;
+        if (dist < 1.3f) {
+            state->mVelocity.y = mSpeed.mValue;
+        }
+        else {
+            state->mVelocity.y = -(mSpeed.mValue / 10.f);
+            auto pos = playerPos;
+            pos.y -= 0.06f;
+            mPosY = pos.y;
+        }
+    }
+
+#endif
+
 }
 
 void Spider::onDisable()
