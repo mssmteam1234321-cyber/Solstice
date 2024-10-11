@@ -43,6 +43,8 @@ void Keystrokes::onRenderEvent(RenderEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
+    if(ClientInstance::get()->getScreenName() != "hud_screen") return;
+
     auto ci = ClientInstance::get();
     auto moveCo = player->getMoveInputComponent();
 

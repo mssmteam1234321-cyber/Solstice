@@ -5,6 +5,7 @@
 #include "ChinaHat.hpp"
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
 
 float ChinaHat::toRadians(float deg) {
     return deg * (PI / 180.0f);
@@ -19,6 +20,8 @@ void ChinaHat::onDisable() {
 }
 
 void ChinaHat::onRenderEvent(RenderEvent& event) {
+    if (ClientInstance::get()->getOptions()->mThirdPerson->value == 0) return;
+
     int pointCount = 20;
     float radius = mSize.mValue;
 
