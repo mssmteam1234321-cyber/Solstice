@@ -1,3 +1,4 @@
+#pragma once
 //
 // Created by Tozic on 9/17/2024.
 //
