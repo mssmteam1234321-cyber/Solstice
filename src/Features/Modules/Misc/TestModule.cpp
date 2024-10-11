@@ -10,6 +10,7 @@
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
@@ -491,6 +492,24 @@ if (mMode.mValue == Mode::Concepts)
 
         ImGui::BeginGroup();
         ImGui::Text("gameType: %d", player->getGameType());
+
+        auto& keyMouseSettings = *ci->getKeyboardSettings();
+
+        int forward = keyMouseSettings["key.forward"];
+        int back = keyMouseSettings["key.back"];
+        int left = keyMouseSettings["key.left"];
+        int right = keyMouseSettings["key.right"];
+
+        bool isForward = Keyboard::mPressedKeys[forward];
+        bool isBack = Keyboard::mPressedKeys[back];
+        bool isLeft = Keyboard::mPressedKeys[left];
+        bool isRight = Keyboard::mPressedKeys[right];
+
+        ImGui::Text("Forward: %s", isForward ? "true" : "false");
+        ImGui::Text("Back: %s", isBack ? "true" : "false");
+        ImGui::Text("Left: %s", isLeft ? "true" : "false");
+        ImGui::Text("Right: %s", isRight ? "true" : "false");
+
 
         int item = player->getSupplies()->mSelectedSlot;
         ImGui::Text("SelectedSlot: %d", item);

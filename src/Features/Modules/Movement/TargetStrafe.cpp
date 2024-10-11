@@ -12,6 +12,7 @@
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
@@ -42,7 +43,9 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
     glm::vec3 playerPos = *player->getPos();
     auto moveInputComponent = player->getMoveInputComponent();
     static auto speed = gFeatureManager->mModuleManager->getModule<Speed>();
-    bool isJumping = Keyboard::mPressedKeys[VK_SPACE];
+    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
+    bool isJumping = Keyboard::mPressedKeys[keyboard["key.jump"]];
+
 
     if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !isJumping) || (mSpeedOnly.mValue && (speed == nullptr || !speed->mEnabled)))
     {

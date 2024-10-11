@@ -11,6 +11,7 @@
 #include <Features/Events/RunUpdateCycleEvent.hpp>
 #include <Features/Modules/Player/Scaffold.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
@@ -72,7 +73,9 @@ bool Speed::tickSwiftness()
     }
 
     static bool lastSpace = false;
-    bool space = Keyboard::mPressedKeys[VK_SPACE];
+    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
+    bool space = Keyboard::mPressedKeys[keyboard["key.jump"]];
+
 
     int spellbook = ItemUtils::getSwiftnessSpellbook(mSwiftnessHotbar.mValue);
     if (spellbook == -1 && !hasSpeed) return false;

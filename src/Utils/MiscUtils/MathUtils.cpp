@@ -11,6 +11,7 @@
 #include "MathUtils.hpp"
 
 #include <random>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 
 
 float MathUtils::animate(float endPoint, float current, float speed) { // Animate the position
@@ -233,11 +234,14 @@ glm::vec2 MathUtils::getMovement() {
     glm::vec2 ret = glm::vec2(0, 0);
     float forward = 0.0f;
     float side = 0.0f;
+    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
-    bool w = Keyboard::mPressedKeys['W'];
-    bool a = Keyboard::mPressedKeys['A'];
-    bool s = Keyboard::mPressedKeys['S'];
-    bool d = Keyboard::mPressedKeys['D'];
+    bool w = Keyboard::mPressedKeys[keyboard["key.forward"]];
+    bool a = Keyboard::mPressedKeys[keyboard["key.left"]];
+    bool s = Keyboard::mPressedKeys[keyboard["key.back"]];
+    bool d = Keyboard::mPressedKeys[keyboard["key.right"]];
+    bool space = Keyboard::mPressedKeys[keyboard["key.jump"]];
+    bool shift = Keyboard::mPressedKeys[keyboard["key.sneak"]];
 
     if (!w && !a && !s && !d)
         return ret;

@@ -12,6 +12,8 @@
 #include <glm/glm.hpp>
 #include <Utils/Structs.hpp>
 
+#include "KeyboardMouseSettings.hpp"
+
 ClientInstance* ClientInstance::get()
 {
     static MinecraftGame* game = MinecraftGame::getInstance();
@@ -60,6 +62,16 @@ GuiData* ClientInstance::getGuiData()
 bgfx_context* ClientInstance::getBGFX()
 {
     return *reinterpret_cast<bgfx_context**>(SigManager::ClientInstance_mBgfx);
+}
+
+ClientInputHandler* ClientInstance::getInputHandler()
+{
+    return MemUtils::callVirtualFunc<ClientInputHandler*>(OffsetProvider::ClientInstance_getInputHandler, this);
+}
+
+KeyboardMouseSettings* ClientInstance::getKeyboardSettings()
+{
+    return getInputHandler()->getMappingFactory()->getKeyboardMouseSettings();
 }
 
 MinecraftGame* ClientInstance::getMinecraftGame()

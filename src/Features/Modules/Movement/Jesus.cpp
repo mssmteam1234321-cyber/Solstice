@@ -100,7 +100,8 @@ void Jesus::onBaseTickEvent(BaseTickEvent& event)
     int belowBlockId = belowBlock->toLegacy()->getBlockId();
     // if player is in water and isn't holding shift
 
-    bool shift = Keyboard::mPressedKeys[VK_SHIFT];
+    auto keyboard = *ci->getKeyboardSettings();
+    bool shift = Keyboard::mPressedKeys[keyboard["key.sneak"]];
 
     if ((blockId == 9 || blockId == 8) && !shift)
     {

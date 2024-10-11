@@ -8,6 +8,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 
 std::vector<unsigned char> gClrBytes = { 0xC3 };
 DEFINE_PATCH_FUNC(InventoryMove::patchFunc, SigManager::PlayerMovement_clearInputState, gClrBytes);
@@ -30,13 +31,14 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
     if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput) return;
     auto player = event.mActor;
     auto input = player->getMoveInputComponent();
+    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
-    bool w = Keyboard::mPressedKeys['W'];
-    bool a = Keyboard::mPressedKeys['A'];
-    bool s = Keyboard::mPressedKeys['S'];
-    bool d = Keyboard::mPressedKeys['D'];
-    bool space = Keyboard::mPressedKeys[VK_SPACE];
-    bool shift = Keyboard::mPressedKeys[VK_SHIFT];
+    bool w = Keyboard::mPressedKeys[keyboard["key.forward"]];
+    bool a = Keyboard::mPressedKeys[keyboard["key.left"]];
+    bool s = Keyboard::mPressedKeys[keyboard["key.back"]];
+    bool d = Keyboard::mPressedKeys[keyboard["key.right"]];
+    bool space = Keyboard::mPressedKeys[keyboard["key.jump"]];
+    bool shift = Keyboard::mPressedKeys[keyboard["key.sneak"]];
     bool pressed = w || a || s || d || space || shift;
 
     std::string screenName = ClientInstance::get()->getScreenName();

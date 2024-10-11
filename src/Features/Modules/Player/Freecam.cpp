@@ -14,6 +14,7 @@
 #include <Hook/Hooks/NetworkHooks/PacketReceiveHook.hpp>
 #include <Hook/Hooks/RenderHooks/ActorRenderDispatcherHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
@@ -176,9 +177,10 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
         glm::vec2 calc = MathUtils::getMotion(rots.y, mSpeed.mValue / 10, false);
         motion.x = calc.x;
         motion.z = calc.y;
+        auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
-        bool isJumping = Keyboard::mPressedKeys[VK_SPACE];
-        bool isSneaking = Keyboard::mPressedKeys[VK_SHIFT];
+        bool isJumping = Keyboard::mPressedKeys[keyboard["key.jump"]];
+        bool isSneaking = Keyboard::mPressedKeys[keyboard["key.sneak"]];
 
         if (isJumping)
             motion.y += mSpeed.mValue / 10;

@@ -17,6 +17,7 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 #include <Features/FeatureManager.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
 
 void Scaffold::onEnable()
 {
@@ -121,7 +122,9 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
         maxExtend = 0.f;
     }
 
-    bool space = Keyboard::mPressedKeys[VK_SPACE];
+    //bool space = Keyboard::mPressedKeys[VK_SPACE];
+    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
+    bool space = Keyboard::mPressedKeys[keyboard["key.jump"]];
     bool wasTowering = mIsTowering;
 
 

@@ -115,6 +115,10 @@ public:
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BlockLegacy_getCollisionShape, "48 8B ? ? FF 15 ? ? ? ? 0F 10 ? 0F 11 ? ? ? ? ? ? F2 0F ? ? ? F2 0F", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(BlockSource_clip, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 8D ? ? ? ? ? 48 8D ? ? ? ? ? E8 ? ? ? ? 48 8B", 3, OffsetType::Index);
 
+    DEFINE_INDEX_FIELD(ClientInstance_getInputHandler, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? E8 ? ? ? ? 0F B6 ? 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 40 0F ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 E8 ? ? ? ? CC CC CC CC", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD_TYPED(uint8_t, ClientInputHandler_mMappingFactory, "48 8B ? ? EB ? 48 8D ? ? 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 48 8B ? 48 8B ? ? ? 48 33 ? E8 ? ? ? ? 48 8B ? ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 E8 ? ? ? ? CC CC CC CC CC CC 48 89", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(ClientInputMappingFactory_mKeyboardMouseSettings, "4C 8B ? ? ? ? ? 4C 89 ? ? 48 8B ? ? ? ? ? 48 89 ? ? E9 ? ? ? ? 4C 8D", 3, OffsetType::FieldOffset);
+
     // TODO: Move all CLASS_FIELD declarations and hat::member_at offsets to here
     DEFINE_FIELD(ContainerScreenController_tryExit, 12);
     DEFINE_FIELD(ItemStack_reInit, 3);
