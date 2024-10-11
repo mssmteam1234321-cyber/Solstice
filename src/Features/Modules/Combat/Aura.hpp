@@ -53,6 +53,7 @@ public:
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
     NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 10, 0, 20, 0.01);
     NumberSetting mAPSMax = NumberSetting("APS Max", "The maximum APS to randomize", 20, 0, 20, 0.01);
+    BoolSetting mInteract = BoolSetting("Interact", "Whether or not to interact with the target", false);
     BoolSetting mThrowProjectiles = BoolSetting("Throw Projectiles", "Whether or not to throw projectiles at the target", false);
     NumberSetting mThrowDelay = NumberSetting("Throw Delay", "The delay between throwing projectiles (in ticks)", 1, 0, 20, 0.01);
     BoolSetting mAutoBow = BoolSetting("Auto Bow", "Whether or not to automatically shoot the bow", false);
@@ -94,6 +95,7 @@ public:
             &mAPS,
             &mAPSMin,
             &mAPSMax,
+            //&mInteract, // TODO: Implement this
             &mThrowProjectiles,
             &mThrowDelay,
             &mAutoBow,

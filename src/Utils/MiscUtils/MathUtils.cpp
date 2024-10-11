@@ -211,9 +211,16 @@ std::vector<ImVec2> MathUtils::getImBoxPoints(const AABB& aabb) {
 glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const glm::vec3& pTarget)
 {
     glm::vec3 delta = pTarget - pEyePos;
-    const float yaw = atan2(delta.z, delta.x) * 180.0f / IM_PI;
+    // -sin and cos for pitch and yaw respectively
+    // Generate with rads first
+    float yaw = atan2(delta.z, delta.x);
+    yaw = glm::degrees(yaw) - 90;
+    yaw = wrap(yaw, -180, 180);
     const float pitch = atan2(delta.y, sqrt(delta.x * delta.x + delta.z * delta.z)) * 180.0f / IM_PI;
-    return {-pitch, yaw - 90};
+
+    spdlog::info("Yaw: {}, Pitch: {}", yaw, pitch);
+
+    return {-pitch, yaw};
 }
 
 glm::vec2 MathUtils::getRots(const glm::vec3& pEyePos, const AABB& target)
@@ -228,6 +235,15 @@ float MathUtils::snapYaw(float yaw)
     if (yaw < 45) return 0;
     if (yaw < 135) return 90;
     return 180;
+}
+
+float MathUtils::randomFloat(float min, float max)
+{
+    // Use random_device to get a random seed
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_real_distribution<float> distr(min, max);
+    return distr(eng);
 }
 
 glm::vec2 MathUtils::getMovement() {

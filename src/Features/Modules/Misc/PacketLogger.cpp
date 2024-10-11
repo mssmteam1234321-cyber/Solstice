@@ -29,7 +29,7 @@ void PacketLogger::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::PlayerAuthInput };
 
 void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {
@@ -52,8 +52,17 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
     if (event.mPacket->getId() == PacketID::InventoryTransaction)
     {
         auto packet = event.getPacket<InventoryTransactionPacket>();
+        auto cit = packet->mTransaction.get();
 
         spdlog::info("Packet: InventoryTransaction, TransactionType: {}", magic_enum::enum_name(packet->mTransaction->type));
+        if (cit->type == ComplexInventoryTransaction::Type::ItemUseOnEntityTransaction)
+        {
+            const auto iut = reinterpret_cast<ItemUseOnActorInventoryTransaction*>(cit);
+            if (iut->mActionType == ItemUseOnActorInventoryTransaction::ActionType::Attack)
+            {
+                spdlog::info("Packet: InventoryTransaction, ClickPos: {}/{}/{}", iut->mClickPos.x, iut->mClickPos.y, iut->mClickPos.z);
+            }
+        }
     }
 
     if (event.mPacket->getId() == PacketID::ModalFormResponse)
