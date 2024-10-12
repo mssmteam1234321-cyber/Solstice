@@ -317,7 +317,6 @@ void Aura::onRenderEvent(RenderEvent& event)
 
         pct += !reversed ? (speed * ImGui::GetIO().DeltaTime) : -(speed * ImGui::GetIO().DeltaTime);
         pct = MathUtils::lerp(0.f, 1.f, pct);
-        oldPos = pos;
         pos = MathUtils::lerp(bottomOfHitbox, topOfHitbox, EaseInOutExpo(pct));
 
         auto corrected = RenderUtils::transform.mMatrix;
