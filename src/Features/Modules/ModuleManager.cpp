@@ -176,6 +176,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
+    mModules.emplace_back(std::make_shared<EditionFaker>());
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
@@ -238,7 +239,6 @@ void ModuleManager::init()
     // TODO: Finish these modules
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
-    mModules.emplace_back(std::make_shared<EditionFaker>());
 #endif
 
     // Determine if we should add UpdateForm
