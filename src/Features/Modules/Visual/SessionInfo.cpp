@@ -7,6 +7,7 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
 #include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
 
