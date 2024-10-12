@@ -15,9 +15,11 @@ public:
 #endif
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "Choose the climbing mode to use", Mode::Clip, "Clip",
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "Choose the climbing mode to use", Mode::Clip, "Clip"
 #ifdef __PRIVATE_BUILD__
-                                                  "Flareon");
+    ,"Flareon");
+#else
+    );
 #endif
     NumberSetting mSpeed = NumberSetting("Speed", "Adjust the climbing speed", 2.50, 1, 5, 0.01);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround only", "uses spider only if u on ground", false);
