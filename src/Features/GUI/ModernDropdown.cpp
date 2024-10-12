@@ -276,7 +276,7 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
             int modIndex = 0;
             int modCount = modsInCategory.size();
             bool endMod = false;
-
+            bool moduleToggled = false;
             for (const auto& mod : modsInCategory)
             {
                 ImDrawFlags flags = ImDrawFlags_RoundCornersBottom;
@@ -848,8 +848,9 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
 
                             if (ImGui::IsMouseClicked(0) && !displayColorPicker && catPositions[i].isExtended)
                             {
-                                mod->toggle();
+                                if (!moduleToggled) mod->toggle();
                                 ClientInstance::get()->playUi("random.pop", 0.75f, 1.0f);
+                                moduleToggled = true;
                             }
                             else if (ImGui::IsMouseClicked(1) && !displayColorPicker && catPositions[i].isExtended)
                             {

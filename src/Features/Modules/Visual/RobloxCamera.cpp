@@ -13,6 +13,17 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/FlagComponent.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
+
+void RobloxCamera::onBaseTickInitEvent(BaseTickInitEvent& event)
+{
+    // Only called once, used to prevent crashes :3
+    auto actor = event.mActor;
+    actor->getFlag<RenderCameraComponent>();
+    actor->getFlag<CameraRenderPlayerModelComponent>();
+    actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
+    spdlog::info("[RobloxCamera] Initialized required components :3");
+}
 
 void RobloxCamera::onEnable()
 {
@@ -114,4 +125,21 @@ void RobloxCamera::onLookInputEvent(LookInputEvent& event)
     };
 
     camera->mOrigin = origin + offset;
+
+    if (!mNoClip.mValue)
+    {
+        HitResult result = ClientInstance::get()->getBlockSource()->checkRayTrace(origin, origin + offset, player);
+        if (result.mType == HitType::BLOCK)
+        {
+            auto resultPos = result.mPos;
+            // Move the camera back a bit so it doesn't clip into the block
+            camera->mOrigin = resultPos - glm::vec3(
+                0.1f * cos(radRot.y) * sin(radRot.x),
+                0.1f * sin(radRot.y),
+                0.1f * cos(radRot.y) * cos(radRot.x)
+            );
+
+        }
+    }
+
 }

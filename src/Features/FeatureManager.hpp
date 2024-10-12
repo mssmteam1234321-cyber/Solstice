@@ -7,7 +7,6 @@
 #include "Command/CommandManager.hpp"
 #include "Modules/ModuleManager.hpp"
 
-
 class FeatureManager {
 public:
     std::unique_ptr<nes::event_dispatcher> mDispatcher;
