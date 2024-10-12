@@ -8,6 +8,9 @@ public:
     enum class Mode {
         Flareon,
         Sentinel,
+#ifdef __PRIVATE_BUILD__ // we're not allowed to release SentinelNew, do NOT include this in the final build
+        SentinelNew,
+#endif
         Custom
     };
     enum class DisablerType {
@@ -18,7 +21,11 @@ public:
 #endif
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::Flareon, "Flareon", "Sentinel", "Custom");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::Flareon, "Flareon", "Sentinel",
+#ifdef __PRIVATE_BUILD__
+        "SentinelNew",
+#endif
+        "Custom");
     EnumSettingT<DisablerType> mDisablerType = EnumSettingT<DisablerType>("Disabler Type", "The type of disabler to use.", DisablerType::PingSpoof, "Ping Spoof", "Ping Holder"
 #ifdef __PRIVATE_BUILD__
         ,"Move Fix"
@@ -71,6 +78,8 @@ public:
     bool mShouldUpdateClientTicks = false;
     glm::vec3 mLastPosition = { 0, 0, 0 };
     Actor* mFirstAttackedActor = nullptr;
+
+    std::vector<std::chrono::steady_clock::time_point> mPacketQueue;
 
     void onEnable() override;
     void onDisable() override;

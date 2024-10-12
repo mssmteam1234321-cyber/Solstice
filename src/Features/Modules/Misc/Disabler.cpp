@@ -12,7 +12,9 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/NetworkStackLatencyPacket.hpp>
 
 void Disabler::onEnable()
 {
@@ -85,6 +87,34 @@ void Disabler::onDisable()
 void Disabler::onPacketOutEvent(PacketOutEvent& event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
+
+
+#ifdef __PRIVATE_BUILD__
+    // don't release this im not allowed to
+    if (mMode.mValue == Mode::SentinelNew)
+    {
+        auto latency = event.getPacket<NetworkStackLatencyPacket>();
+        if (mPacketQueue.size() >= 120)
+        {
+            for (auto& time : mPacketQueue)
+            {
+                auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
+                newLatency->mCreateTime = time;
+                newLatency->mFromServer = false;
+
+                ClientInstance::get()->getPacketSender()->sendToServer(newLatency.get());
+            }
+
+            spdlog::info("Sent {} packets", mPacketQueue.size());
+
+            mPacketQueue.clear();
+            mPacketQueue.push_back(latency->mCreateTime);
+        } else {
+            mPacketQueue.push_back(latency->mCreateTime);
+        }
+    }
+#endif
+
 #ifdef __PRIVATE_BUILD__
     if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
         if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
