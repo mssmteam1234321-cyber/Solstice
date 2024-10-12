@@ -84,7 +84,8 @@ void Disabler::onDisable()
     return ret;
 }*/
 
-void Disabler::onPacketOutEvent(PacketOutEvent& event) {
+void Disabler::onPacketOutEvent(PacketOutEvent& event)
+{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
@@ -250,7 +251,8 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
             }
         }
     }
-    else if (mMode.mValue == Mode::Custom) {
+    else if (mMode.mValue == Mode::Custom)
+    {
         if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
             auto packet = event.getPacket<PlayerAuthInputPacket>();
             if (mGlide.mValue) {
@@ -279,37 +281,21 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event) {
                 player->getGameMode()->interact(actor, *actor->getPos());
                 //ChatUtils::displayClientMessage("Interacted");
             }
-            
-            if (packet->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
+
+            if (const auto it = event.getPacket<InventoryTransactionPacket>(); it->mTransaction->type ==
+                ComplexInventoryTransaction::Type::ItemUseTransaction)
             {
-                const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(packet->mTransaction.get());
-                if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place && mClickPosFix.mValue)
+                const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
+                if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
                 {
-                    if (transac->mFace == 0) // Down
+                    transac->mClickPos = blockFaceOffsets[transac->mFace];
+                    for (int i = 0; i < 3; i++)
                     {
-                        transac->mClickPos = glm::vec3(0.5, -0, 0.5);
+                        if (transac->mClickPos[i] == 0.5)
+                        {
+                            transac->mClickPos[i] = MathUtils::randomFloat(-0.49f, 0.49f);
+                        }
                     }
-                    else if (transac->mFace == 1) // Up
-                    {
-                        transac->mClickPos = glm::vec3(0.5, 1, 0.5);
-                    }
-                    else if (transac->mFace == 2) // North
-                    {
-                        transac->mClickPos = glm::vec3(0.5, 0.5, 0);
-                    }
-                    else if (transac->mFace == 3) // South
-                    {
-                        transac->mClickPos = glm::vec3(0.5, 0.5, 1);
-                    }
-                    else if (transac->mFace == 4) // West
-                    {
-                        transac->mClickPos = glm::vec3(0, 0.5, 0.5);
-                    }
-                    else if (transac->mFace == 5) // East
-                    {
-                        transac->mClickPos = glm::vec3(1, 0.5, 0.5);
-                    }
-                    //ChatUtils::displayClientMessage("Fixed Click Pos");
                 }
             }
         }

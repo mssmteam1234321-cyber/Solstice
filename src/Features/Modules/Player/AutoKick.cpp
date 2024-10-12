@@ -369,29 +369,18 @@ void AutoKick::onPacketOutEvent(PacketOutEvent& event) {
             const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
             if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
             {
-                //transac->mClickPos = (transac->mPlayerPos - glm::vec3(0, 1.62, 0)) - glm::vec3(transac->mBlockPos);
-                if (transac->mFace == 0) // Down
+                transac->mClickPos = blockFaceOffsets[transac->mFace];
+                for (int i = 0; i < 3; i++)
                 {
-                    transac->mClickPos = glm::vec3(0.5, -0, 0.5);
-                } else if (transac->mFace == 1) // Up
-                {
-                    transac->mClickPos = glm::vec3(0.5, 1, 0.5);
-                } else if (transac->mFace == 2) // North
-                {
-                    transac->mClickPos = glm::vec3(0.5, 0.5, 0);
-                } else if (transac->mFace == 3) // South
-                {
-                    transac->mClickPos = glm::vec3(0.5, 0.5, 1);
-                } else if (transac->mFace == 4) // West
-                {
-                    transac->mClickPos = glm::vec3(0, 0.5, 0.5);
-                } else if (transac->mFace == 5) // East
-                {
-                    transac->mClickPos = glm::vec3(1, 0.5, 0.5);
+                    if (transac->mClickPos[i] == 0.5)
+                    {
+                        transac->mClickPos[i] = MathUtils::randomFloat(-0.49f, 0.49f);
+                    }
                 }
             }
         }
     }
+
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput)
     {
