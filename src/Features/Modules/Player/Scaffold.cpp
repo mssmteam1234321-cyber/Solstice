@@ -385,7 +385,7 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
             const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
             if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
             {
-                transac->mClickPos = blockFaceOffsets[transac->mFace];
+                transac->mClickPos = BlockUtils::clickPosOffsets[transac->mFace];
                 for (int i = 0; i < 3; i++)
                 {
                     if (transac->mClickPos[i] == 0.5)

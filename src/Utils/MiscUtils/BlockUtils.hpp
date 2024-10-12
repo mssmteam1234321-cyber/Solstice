@@ -7,14 +7,7 @@
 #include <SDK/Minecraft/World/Block.hpp>
 #include <vector>
 
-std::map<int, glm::vec3> blockFaceOffsets = {
-    {0, {0.5, -0, 0.5}},
-    {1, {0.5, 1, 0.5}},
-    {2, {0.5, 0.5, 0}},
-    {3, {0.5, 0.5, 1}},
-    {4, {0, 0.5, 0.5}},
-    {5, {1, 0.5, 0.5}},
-};
+
 
 struct BlockInfo {
     Block* mBlock;
@@ -39,6 +32,14 @@ struct DestroySpeedInfo {
 
 class BlockUtils {
 public:
+    static inline std::map<int, glm::vec3> clickPosOffsets = {
+        {0, {0.5, -0, 0.5}},
+        {1, {0.5, 1, 0.5}},
+        {2, {0.5, 0.5, 0}},
+        {3, {0.5, 0.5, 1}},
+        {4, {0, 0.5, 0.5}},
+        {5, {1, 0.5, 0.5}},
+    };
     static std::vector<BlockInfo> getBlockList(const glm::ivec3& position, float r);
     static bool isOverVoid(glm::vec3 vec);
     static glm::vec3 findClosestBlockToPos(glm::vec3 pos);
