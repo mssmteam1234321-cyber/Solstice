@@ -405,12 +405,7 @@ void BlockESP::onRenderEvent(RenderEvent& event)
 
         ImColor& color = block.color;
         AABB& blockAABB = block.aabb;
-        std::vector<glm::vec2> points = MathUtils::getBoxPoints(blockAABB);
-        std::vector<ImVec2> imPoints = {};
-        for (auto point : points)
-        {
-            imPoints.emplace_back(point.x, point.y);
-        }
+        std::vector<ImVec2> imPoints = MathUtils::getImBoxPoints(blockAABB);
 
         if (mRenderMode.mValue == BlockRenderMode::Both || mRenderMode.mValue == BlockRenderMode::Outline) {
             drawList->AddPolyline(imPoints.data(), imPoints.size(), color, 0, 2.0f);

@@ -25,12 +25,14 @@ public:
     NumberSetting mClipDistance = NumberSetting("Clip Distance", "The distance to clip the player at", 0.01, 0, 4, 0.1);
 
     TestModule() : ModuleBase("TestModule", "A module for testing purposes", ModuleCategory::Misc, 0, false) {
-        addSetting(&mMode);
-        addSetting(&mOnGroundOnly);
-        addSetting(&mMaxDistance);
-        addSetting(&mDisableAfterClip);
-        addSetting(&mManuallyApplyFlags);
-        addSetting(&mClipDistance);
+        addSettings(
+            &mMode,
+            &mOnGroundOnly,
+            &mMaxDistance,
+            &mDisableAfterClip,
+            &mManuallyApplyFlags,
+            &mClipDistance
+        );
 
         VISIBILITY_CONDITION(mOnGroundOnly, mMode.mValue == Mode::ClipTest);
         VISIBILITY_CONDITION(mMaxDistance, mMode.mValue == Mode::ClipTest);
