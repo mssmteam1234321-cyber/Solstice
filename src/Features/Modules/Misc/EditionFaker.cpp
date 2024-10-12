@@ -110,8 +110,8 @@ void EditionFaker::spoofEdition() {
 void EditionFaker::onEnable() {
     spdlog::info("[EditionFaker] enable");
     inject();
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &EditionFaker::onPacketOutEvent>(this);
-    gFeatureManager->mDispatcher->listen<ConnectionRequestEvent, &EditionFaker::onConnectionRequestEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &EditionFaker::onPacketOutEvent, nes::event_priority::ABSOLUTE_LAST>(this);
+    gFeatureManager->mDispatcher->listen<ConnectionRequestEvent, &EditionFaker::onConnectionRequestEvent, nes::event_priority::ABSOLUTE_LAST>(this);
 }
 
 void EditionFaker::onDisable() {
@@ -124,6 +124,7 @@ void EditionFaker::onDisable() {
 void EditionFaker::onConnectionRequestEvent(ConnectionRequestEvent& event) {
     spdlog::info("[EditionFaker] spoof");
     spoofEdition();
+    event.mInputMode = mInputMethod.as<int>();
 }
 
 void EditionFaker::onPacketOutEvent(PacketOutEvent &event) {
@@ -131,4 +132,4 @@ void EditionFaker::onPacketOutEvent(PacketOutEvent &event) {
         auto paip = event.getPacket<PlayerAuthInputPacket>();
         paip->mInputMode = (InputMode) mInputMethod.as<int>();
     }
-}
+} 
