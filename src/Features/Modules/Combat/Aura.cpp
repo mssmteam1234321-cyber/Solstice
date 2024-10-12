@@ -270,6 +270,22 @@ void Aura::onRenderEvent(RenderEvent& event)
 
         auto playerPos = player->getRenderPositionComponent()->mPosition;
         auto actorPos = actor->getRenderPositionComponent()->mPosition;
+        auto state = actor->getStateVectorComponent();
+        auto shape = player->getAABBShapeComponent();
+
+        glm::vec3 pos = actorPos - glm::vec3(0.f, 1.62f, 0.f);
+        glm::vec3 pos2 = state->mPos - glm::vec3(0.f, 1.62f, 0.f);
+        glm::vec3 posOld = state->mPosOld - glm::vec3(0.f, 1.62f, 0.f);
+        pos = posOld + (pos2 - posOld) * ImGui::GetIO().DeltaTime;
+
+        float hitboxWidth = shape->mWidth;
+        float hitboxHeight = shape->mHeight;
+
+        glm::vec3 aabbMin = glm::vec3(pos.x - hitboxWidth / 2, pos.y, pos.z - hitboxWidth / 2);
+        glm::vec3 aabbMax = glm::vec3(pos.x + hitboxWidth / 2, pos.y + hitboxHeight, pos.z + hitboxWidth / 2);
+
+        aabbMin = aabbMin - glm::vec3(0.1f, 0.1f, 0.1f);
+        aabbMax = aabbMax + glm::vec3(0.1f, 0.1f, 0.1f);
 
         float distance = glm::distance(playerPos, actorPos) + 2.5f;
         if (distance < 0) distance = 0;
@@ -278,16 +294,8 @@ void Aura::onRenderEvent(RenderEvent& event)
         if (scaledSphereSize < 1.0f) scaledSphereSize = 1.0f;
         if (scaledSphereSize < mSpheresMinSize.mValue) scaledSphereSize = mSpheresMinSize.mValue;
 
-        float height = actor->getAABBShapeComponent()->mHeight;
-        auto realPos = actorPos;
-        realPos.y = realPos.y - 1.62f;
-        realPos.y += height;
-        static auto oldPos = realPos;
-        glm::vec3 pos = realPos;
-        pos = MathUtils::lerp(oldPos, pos, ImGui::GetIO().DeltaTime * 40.f);
-
-        glm::vec3 bottomOfHitbox = mTargetedAABB.mMin;
-        glm::vec3 topOfHitbox = mTargetedAABB.mMax;
+        glm::vec3 bottomOfHitbox = aabbMin;
+        glm::vec3 topOfHitbox = aabbMax;
         bottomOfHitbox.x = pos.x;
         bottomOfHitbox.z = pos.z;
         topOfHitbox.x = pos.x;
