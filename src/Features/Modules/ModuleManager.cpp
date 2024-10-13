@@ -116,6 +116,7 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
+#include "Visual/NameProtect.hpp"
 
 void ModuleManager::init()
 {
@@ -226,6 +227,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<SessionInfo>());
     mModules.emplace_back(std::make_shared<Tracers>());
     mModules.emplace_back(std::make_shared<ChinaHat>());
+    mModules.emplace_back(std::make_shared<NameProtect>());
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode

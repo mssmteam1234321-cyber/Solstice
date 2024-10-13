@@ -153,6 +153,7 @@ public:
     AttributeInstance* getAttribute(int id);
     bool isOnFire();
     std::string getLocalName();
+    void setLocalName(std::string newLocalName);
     std::string getXuid();
     bool isValid();
 };
