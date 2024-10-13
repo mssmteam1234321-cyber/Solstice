@@ -11,6 +11,7 @@ struct Preferences
     bool mFallbackToD3D11 = false;
     bool mEnforceDebugging = false;
     std::string mIrcName = "";
+    std::string mStreamerName = "discord.gg/stretch";
 };
 
 class PreferenceManager {

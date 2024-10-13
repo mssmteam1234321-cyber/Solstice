@@ -14,8 +14,8 @@ public:
                 {NormalSpaced, "Name Protect"}
         };
     }
-
-    std::string mNewName = "discord.gg/stretch";
+    static inline std::shared_ptr<Preferences> Prefs = PreferenceManager::load();
+    std::string mNewName = Prefs->mStreamerName;
 
     std::string mOldLocalName = "";
     std::string mOldNameTag = "";
@@ -23,5 +23,6 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
 };

@@ -26,6 +26,7 @@
 #include "Commands/IrcCommand.hpp"
 #include "Commands/VclipCommand.hpp"
 #include "Commands/SnipeCommand.hpp"
+#include "Commands/NameProtectCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
@@ -48,6 +49,7 @@ void CommandManager::init()
     ADD_COMMAND(FlingCommand);
     ADD_COMMAND(VclipCommand);
     ADD_COMMAND(SnipeCommand);
+    ADD_COMMAND(NameProtectCommand);
 
     // Look for any commands that have duplicate names
     for (size_t i = 0; i < mCommands.size(); i++)
