@@ -48,6 +48,8 @@ public:
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
     EnumSettingT<StealPriority> mStealPriority = EnumSettingT<StealPriority>("Steal Priority", "Ore stealing priority", StealPriority::Mine, "Mine", "Steal");
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
+    BoolSetting mDelayedSteal = BoolSetting("Delayed Steal", "Add delay in steal", false);
+    NumberSetting mOpponentDestroySpeed = NumberSetting("Opponent Speed", "Specify opponent's destroy speed", 1, 0.01, 1, 0.01);
     BoolSetting mAntiSteal = BoolSetting("Anti Steal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     EnumSettingT<ConfuseMode> mConfuseMode = EnumSettingT<ConfuseMode>("Confuse Mode", "The mode for confuser", ConfuseMode::Always, "Always", "Auto");
@@ -116,6 +118,10 @@ public:
             &mSteal,
             &mStealPriority,
             &mAlwaysSteal,
+#ifdef __PRIVATE_BUILD__
+            &mDelayedSteal,
+            &mOpponentDestroySpeed,
+#endif
 #ifdef __DEBUG__
             &mReplace,
             &mTest,
@@ -178,6 +184,9 @@ public:
         VISIBILITY_CONDITION(mDisableUncover, mStealerDetecter.mValue);
         VISIBILITY_CONDITION(mDisableSeconds, mDisableUncover.mValue && mStealerDetecter.mValue);
         VISIBILITY_CONDITION(mEnableAntiSteal, mStealerDetecter.mValue);
+
+        VISIBILITY_CONDITION(mDelayedSteal, mSteal.mValue);
+        VISIBILITY_CONDITION(mOpponentDestroySpeed, mSteal.mValue && mDelayedSteal.mValue);
 #endif
 
         VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
@@ -286,9 +295,13 @@ public:
     uint64_t mLastReplaced = 0;
     int mLastPlacedBlockSlot = 0;
 
+    // Replacer
     bool mCanReplace = false;
     int mStartDestroyCount = 0;
     glm::ivec3 mLastReplacedPos = { INT_MAX, INT_MAX, INT_MAX };
+
+    uint64_t mPing = 100;
+    uint64_t mEventDelay = 0;
 
     std::vector<glm::ivec3> mFakePositions;
     //std::vector<glm::ivec3> mLastUpdatedBlockPositions;
@@ -314,6 +327,8 @@ public:
     void renderFakeOres();
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
+    void onSendImmediateEvent(class SendImmediateEvent& event);
+    void onPingUpdateEvent(class PingUpdateEvent& event);
     void initializeRegen();
     void resetSyncSpeed();
     void queueBlock(glm::ivec3 blockPos);

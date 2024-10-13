@@ -4,6 +4,8 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/PingUpdateEvent.hpp>
+#include <Features/Events/SendImmediateEvent.hpp>
 #include <Features/Modules/Visual/Interface.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
@@ -84,7 +86,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     }
 
     // Steal
-    if (isStealing && !mCanSteal && exposedFace == -1) {
+    if (isStealing && (!mCanSteal || mTargettingBlockPos != mEnemyTargettingBlockPos) && exposedFace == -1) {
         if (mDebug.mValue) ChatUtils::displayClientMessage("Steal cancelled");
         return false;
     }
@@ -220,6 +222,8 @@ void Regen::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Regen::onBaseTickEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &Regen::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &Regen::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<SendImmediateEvent, &Regen::onSendImmediateEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PingUpdateEvent, &Regen::onPingUpdateEvent, nes::event_priority::VERY_FIRST>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -239,6 +243,8 @@ void Regen::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Regen::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &Regen::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &Regen::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<SendImmediateEvent, &Regen::onSendImmediateEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &Regen::onPingUpdateEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
@@ -321,6 +327,16 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
     bool steal = mSteal.mValue && (mCanSteal || mIsStealing) && stealEnabled;
+
+    bool isStealDelayed = false;
+    Block* coveredBlock = source->getBlock(mLastEnemyLayerBlockPos);
+    int coveredBlockToolSlot = ItemUtils::getBestBreakingTool(coveredBlock, mHotbarOnly.mValue);
+    uint64_t coveredBlockBreakingTime = NOW - (mLastStealerUpdate - mPing);
+    float coveredBlockProgress = ItemUtils::getDestroySpeed(coveredBlockToolSlot, coveredBlock) * (coveredBlockBreakingTime / 50);
+#ifdef __PRIVATE_BUILD__
+    isStealDelayed = mDelayedSteal.mValue && steal && !mIsStealing && coveredBlockProgress < mOpponentDestroySpeed.mValue && player->isOnGround();
+#endif
+
     int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
     ItemStack *stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
@@ -451,7 +467,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
 
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
-    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal) ||
+    if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal || isStealDelayed) ||
         player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
         initializeRegen();
         resetSyncSpeed();
@@ -464,7 +480,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             PacketUtils::spoofSlot(mPreviousSlot);
             mShouldSetbackSlot = false;
         }
-        mCanSteal = false;
+        //mCanSteal = false;
         return;
     }
 
@@ -519,7 +535,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     bool shouldChangeOre = false;
-    if (mStealPriority.mValue == StealPriority::Steal && mCanSteal && !mIsStealing) {
+    if (mStealPriority.mValue == StealPriority::Steal && steal && (!mIsStealing || mTargettingBlockPos != mEnemyTargettingBlockPos)) {
         if (mAntiConfuse.mValue) {
             std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
             std::vector<BlockInfo> exposedBlockList;
@@ -531,6 +547,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             }
             if (exposedBlockList.empty()) shouldChangeOre = true;
         } else shouldChangeOre = true;
+
+        if (isStealDelayed) shouldChangeOre = false;
     }
 
     if (
@@ -696,7 +714,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             } else continue;
         }
 
-        if (mCanSteal && mSteal.mValue && stealEnabled && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
+        if (mCanSteal && mSteal.mValue && stealEnabled && isValidBlock(mEnemyTargettingBlockPos, true, false) && !isStealDelayed) {
             if (!mAntiConfuse.mValue || exposedBlockList.empty()) {
                 queueBlock(mEnemyTargettingBlockPos);
                 mTargettingBlockPos = mEnemyTargettingBlockPos;
@@ -1273,4 +1291,21 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
         }
     }
+}
+
+void Regen::onSendImmediateEvent(SendImmediateEvent& event)
+{
+    uint8_t packetId = event.send[0];
+    if (packetId == 0)
+    {
+        uint64_t timestamp = *reinterpret_cast<uint64_t*>(&event.send[1]);
+        uint64_t timestamp64 = _byteswap_uint64(timestamp);
+        uint64_t now = NOW;
+        mEventDelay = now - timestamp64;
+    }
+}
+
+void Regen::onPingUpdateEvent(PingUpdateEvent& event)
+{
+    mPing = event.mPing - mEventDelay;
 }
