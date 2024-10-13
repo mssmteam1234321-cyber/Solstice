@@ -87,7 +87,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 
     // Steal
     if (isStealing && (!mCanSteal || mTargettingBlockPos != mEnemyTargettingBlockPos) && exposedFace == -1) {
-        if (mDebug.mValue) ChatUtils::displayClientMessage("Steal cancelled");
+        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Steal cancelled");
         return false;
     }
 
@@ -1247,7 +1247,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
                 if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = pos;
-                    if (mDebug.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
+                    if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
                 }
                 mLastStealerDetected = NOW;
             }
