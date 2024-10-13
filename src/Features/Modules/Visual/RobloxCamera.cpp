@@ -62,10 +62,16 @@ void RobloxCamera::onActorRenderEvent(ActorRenderEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (event.mEntity != player) return;
-    if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f))
+    if (mRadius.mValue != 0.f)
     {
-        event.cancel();
+        player->setFlag<RenderCameraComponent>(true);
+        player->setFlag<CameraRenderPlayerModelComponent>(true);
+        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        if (event.mEntity != player) return;
+        if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f))
+        {
+            event.cancel();
+        }
     }
 }
 
@@ -88,12 +94,15 @@ void RobloxCamera::onMouseEvent(MouseEvent& event)
             event.cancel();
         }
     }
+
+    if (mRadius.mValue < 0.f) mRadius.mValue = 0.f;
 }
 
 void RobloxCamera::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
-    player->getSupplies()->mInHandSlot = -1;
+    if (mRadius.mValue != 0.f)
+        player->getSupplies()->mInHandSlot = -1;
 }
 
 void RobloxCamera::onLookInputEvent(LookInputEvent& event)
@@ -103,9 +112,17 @@ void RobloxCamera::onLookInputEvent(LookInputEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    player->setFlag<RenderCameraComponent>(true);
-    player->setFlag<CameraRenderPlayerModelComponent>(true);
-    player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+    if (mRadius.mValue != 0.f)
+    {
+        player->setFlag<RenderCameraComponent>(true);
+        player->setFlag<CameraRenderPlayerModelComponent>(true);
+        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+    } else
+    {
+        player->setFlag<RenderCameraComponent>(false);
+        player->setFlag<CameraRenderPlayerModelComponent>(false);
+        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+    }
 
     auto camera = event.mFirstPersonCamera;
     glm::vec2 radRot = event.mCameraDirectLookComponent->mRotRads;
