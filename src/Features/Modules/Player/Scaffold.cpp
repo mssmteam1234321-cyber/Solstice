@@ -221,11 +221,18 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
     mLastSwitchTime = NOW;
 
     if (mLastSlot == -1) mLastSlot = player->getSupplies()->mSelectedSlot;
+    int lastSlot = player->getSupplies()->mSelectedSlot;
+
     if (mSwitchMode.mValue != SwitchMode::None)
     {
         int slot = ItemUtils::getPlaceableItemOnBlock(blockPos, mHotbarOnly.mValue, mSwitchPriority.mValue == SwitchPriority::Highest);
         if (slot == -1) return false;
-        player->getSupplies()->mSelectedSlot = slot;
+        if (mSwitchMode.mValue != SwitchMode::Spoof) player->getSupplies()->mSelectedSlot = slot;
+        else
+        {
+            player->getSupplies()->mSelectedSlot = slot;
+            PacketUtils::spoofSlot(slot);
+        }
     }
     mLastBlock = blockPos;
     mLastFace = side;
@@ -237,6 +244,10 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
         player->setPosition(*player->getPos() + glm::vec3(0, 1.f * (mTowerSpeed.mValue / 10), 0));
 
     BlockUtils::placeBlock(blockPos, side);
+    if (mSwitchMode.mValue == SwitchMode::Spoof) {
+        player->getSupplies()->mSelectedSlot = lastSlot;
+        PacketUtils::spoofSlot(lastSlot);
+    }
 
     return true;
 }
