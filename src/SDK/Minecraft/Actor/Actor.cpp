@@ -424,6 +424,12 @@ std::string Actor::getLocalName()
     return result.empty() ? getRawName() : result;
 }
 
+void Actor::setLocalName(std::string newLocalName)
+{
+    auto& localName = hat::member_at<std::string>(this, OffsetProvider::Actor_mLocalName);
+    localName = newLocalName;
+}
+
 std::string Actor::getXuid()
 {
     return "0";
