@@ -36,6 +36,7 @@ public:
     bool mEnabled = false;
     bool mWantedState = false; // pretty much a way of queueing up a state change for the next client tick
     int mKey;
+    int mEnableWhileHeld = false;
 
     BoolSetting mVisibleInArrayList = BoolSetting("Visible", "Whether the module is visible in the Arraylist", true);
 
