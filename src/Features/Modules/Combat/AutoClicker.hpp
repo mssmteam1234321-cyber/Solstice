@@ -13,10 +13,11 @@ public:
     enum class ClickMode
     {
         Left,
-        Right
+        Right,
+        Both
     };
 
-    EnumSettingT<ClickMode> mClickMode = EnumSettingT<ClickMode>("Click Mode", "The click mode", ClickMode::Left, "Left", "Right");
+    EnumSettingT<ClickMode> mClickMode = EnumSettingT<ClickMode>("Click Mode", "The click mode", ClickMode::Left, "Left", "Right", "Both");
     BoolSetting mHold = BoolSetting("Hold", "Only click when holding", false);
     BoolSetting mRandomizeCPS = BoolSetting("Randomize CPS", "Randomize the CPS", false);
     BoolSetting mWeaponsOnly = BoolSetting("Weapons Only", "Only click when holding a weapon", false);
