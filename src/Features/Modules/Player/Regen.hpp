@@ -46,6 +46,7 @@ public:
     NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 8, 1);
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
+    NumberSetting mStealerTimeout = NumberSetting("Stealer Timeout", "The max duration for stealer", 1500, 500, 5000, 250);
     EnumSettingT<StealPriority> mStealPriority = EnumSettingT<StealPriority>("Steal Priority", "Ore stealing priority", StealPriority::Mine, "Mine", "Steal");
     BoolSetting mAlwaysSteal = BoolSetting("Always Steal", "Steal the enemy's ore when max absorption is reached", false);
     BoolSetting mDelayedSteal = BoolSetting("Delayed Steal", "Add delay in steal", false);
@@ -116,6 +117,7 @@ public:
             &mUncoverRange,
             &mQueueRedstone,
             &mSteal,
+            &mStealerTimeout,
             &mStealPriority,
             &mAlwaysSteal,
 #ifdef __PRIVATE_BUILD__
@@ -195,6 +197,7 @@ public:
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
 
+        VISIBILITY_CONDITION(mStealerTimeout, mSteal.mValue);
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
         VISIBILITY_CONDITION(mAlwaysSteal, mSteal.mValue);
 

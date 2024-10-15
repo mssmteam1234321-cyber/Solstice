@@ -343,7 +343,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
     // Stealer Timeout
-    if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
+    if (mCanSteal && mLastStealerUpdate + mStealerTimeout.mValue <= NOW) {
         mCanSteal = false;
         if (mDebug.mValue && mStealNotify.mValue) {
             ChatUtils::displayClientMessage("Stealer timeouted");
