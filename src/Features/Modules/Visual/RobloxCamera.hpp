@@ -4,6 +4,7 @@
 //
 
 #include <Features/Modules/Module.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 
 class RobloxCamera : public ModuleBase<RobloxCamera> {
 public:

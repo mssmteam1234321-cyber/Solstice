@@ -64,6 +64,7 @@
 #include "Movement/Velocity.hpp"
 #include "Movement/AirSpeed.hpp"
 #include "Movement/ReverseStep.hpp"
+#include "Movement/Jetpack.hpp"
 
 #include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
@@ -152,6 +153,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Jesus>());
     mModules.emplace_back(std::make_shared<AirSpeed>());
     mModules.emplace_back(std::make_shared<ReverseStep>());
+    mModules.emplace_back(std::make_shared<Jetpack>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());
