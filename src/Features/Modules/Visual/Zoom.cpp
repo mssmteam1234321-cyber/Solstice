@@ -9,17 +9,59 @@
 
 void Zoom::onEnable()
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if(!player) return;
-
     mPastFov = ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue;
-    ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = 30;
+    mCurrentValue = mZoomValue.mValue;
+    ClientInstance::get()->getOptions()->mGfxFieldOfView->mMinimum = 10.f;
+
+    gFeatureManager->mDispatcher->listen<MouseEvent, &Zoom::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &Zoom::onRenderEvent>(this);
 }
 
 void Zoom::onDisable()
 {
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if(!player) return;
-
     ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = mPastFov;
+    ClientInstance::get()->getOptions()->mGfxFieldOfView->mMinimum = 30.f;
+
+    gFeatureManager->mDispatcher->deafen<MouseEvent, &Zoom::onMouseEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &Zoom::onRenderEvent>(this);
 }
+
+void Zoom::onMouseEvent(MouseEvent& event)
+{
+    if (ClientInstance::get()->getMouseGrabbed()) return;
+    if (!mScroll.mValue) return;
+
+    if (event.mActionButtonId == 4)
+    {
+        if(event.mButtonData == 0x78 || event.mButtonData == 0x7F)
+        {
+            mCurrentValue -= mScrollIncrement.mValue;
+            event.cancel();
+        }
+        else if (event.mButtonData == 0x88 || event.mButtonData == 0x80 || event.mButtonData == -0x78)
+        {
+            mCurrentValue += mScrollIncrement.mValue;
+            event.cancel();
+        }
+    }
+
+    if (mCurrentValue < 0.f) mCurrentValue = 0.f;
+}
+
+void Zoom::onRenderEvent(RenderEvent& event)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    if(mSmooth.mValue)
+    {
+        mCurrentValue = MathUtils::lerp(mCurrentValue, mZoomValue.mValue, ImGui::GetIO().DeltaTime * 10.f);
+        ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = mCurrentValue; // this sucks
+    }
+    else
+    {
+        ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = mCurrentValue;
+    }
+
+}
+
