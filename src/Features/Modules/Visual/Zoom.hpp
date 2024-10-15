@@ -7,8 +7,8 @@
 class Zoom : public ModuleBase<Zoom> {
 public:
 
-    NumberSetting mZoomValue = NumberSetting("Zoom Value", "Value should zome to", 60.f, 10.f, 120.f, 1.f);
-    BoolSetting mScroll = BoolSetting("Scroll", "Whether or not to change fov while scrolling mouse", true);
+    NumberSetting mZoomValue = NumberSetting("Zoom Value", "Value should zoom to", 60.f, 10.f, 120.f, 1.f);
+    BoolSetting mScroll = BoolSetting("Scroll", "Whether or not to change fov while scrolling mouse wheel", true);
     NumberSetting mScrollIncrement = NumberSetting("Scroll Increment", "The amount to zoom in and out", 8.0f, 0.1f, 10.0f, 0.1f);
     BoolSetting mSmooth = BoolSetting("Smooth Zoom", "Whether or not to zoom smooth", true);
 
