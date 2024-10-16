@@ -360,7 +360,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 glm::ivec3 hitPos = placePos + glm::ivec3(0, -1, 0);
                 if (BlockUtils::isAirBlock(placePos) && !BlockUtils::isAirBlock(hitPos)) {
                     mCurrentPlacePos = placePos;
-                    mShouldRotate = true;
+                    mShouldRotateToPlacePos = true;
                     mPreviousSlot = supplies->mSelectedSlot;
 
                     supplies->mSelectedSlot = hardestBlockSlot;
@@ -412,7 +412,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         if (placePositions.empty()) continue;
 
                         mCurrentPlacePos = pos;
-                        mShouldRotate = true;
+                        mShouldRotateToPlacePos = true;
                         mPreviousSlot = supplies->mSelectedSlot;
                         int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePositions[0], mHotbarOnly.mValue,
                                                                            false);
@@ -441,7 +441,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         if (player->getPos()->y < placePos.y) continue;
 
                         mCurrentPlacePos = placePos;
-                        mShouldRotate = true;
+                        mShouldRotateToPlacePos = true;
                         mPreviousSlot = supplies->mSelectedSlot;
                         int blockSlot = ItemUtils::getPlaceableItemOnBlock(placePos, mHotbarOnly.mValue, false);
                         if (blockSlot == -1) continue;
@@ -1190,6 +1190,14 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
+        }
+        if (mShouldRotateToPlacePos) {
+            const glm::vec3 blockPos = mCurrentPlacePos;
+            auto blockAABB = AABB(blockPos, glm::vec3(1, 1, 1));
+            glm::vec2 rotations = MathUtils::getRots(*player->getPos(), blockAABB);
+            paip->mRot = rotations;
+            paip->mYHeadRot = rotations.y;
+            mShouldRotateToPlacePos = false;
         }
     }
     else if (event.mPacket->getId() == PacketID::InventoryTransaction)

@@ -281,6 +281,7 @@ public:
     bool mOffGround = false;
 
     bool mShouldRotate = false;
+    bool mShouldRotateToPlacePos = false;
     bool mShouldSpoofSlot = false;
     bool mShouldSetbackSlot = false;
     glm::ivec3 mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
