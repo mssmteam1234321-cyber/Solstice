@@ -332,9 +332,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     Block* coveredBlock = source->getBlock(mLastEnemyLayerBlockPos);
     int coveredBlockToolSlot = ItemUtils::getBestBreakingTool(coveredBlock, mHotbarOnly.mValue);
     uint64_t coveredBlockBreakingTime = NOW - (mLastStealerUpdate - mPing);
-    float coveredBlockProgress = ItemUtils::getDestroySpeed(coveredBlockToolSlot, coveredBlock) * (coveredBlockBreakingTime / 50);
+    float coveredBlockDestroySpeed = ItemUtils::getDestroySpeed(coveredBlockToolSlot, coveredBlock);
+    float coveredBlockProgress = coveredBlockDestroySpeed * (coveredBlockBreakingTime / 50);
 #ifdef __PRIVATE_BUILD__
-    isStealDelayed = mDelayedSteal.mValue && steal && !mIsStealing && coveredBlockProgress < mOpponentDestroySpeed.mValue && player->isOnGround();
+    isStealDelayed = mDelayedSteal.mValue && steal && !mIsStealing && coveredBlockProgress < (mOpponentDestroySpeed.mValue - coveredBlockDestroySpeed) && player->isOnGround();
 #endif
 
     int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
@@ -342,7 +343,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
     // Stealer Timeout
-    if (mCanSteal && mLastStealerUpdate + 1500 <= NOW) {
+    if (mCanSteal && mLastStealerUpdate + mStealerTimeout.mValue <= NOW) {
         mCanSteal = false;
         if (mDebug.mValue && mStealNotify.mValue) {
             ChatUtils::displayClientMessage("Stealer timeouted");

@@ -64,6 +64,7 @@
 #include "Movement/Velocity.hpp"
 #include "Movement/AirSpeed.hpp"
 #include "Movement/ReverseStep.hpp"
+#include "Movement/Jetpack.hpp"
 
 #include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
@@ -117,6 +118,7 @@
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
 #include "Visual/NameProtect.hpp"
+#include "Visual/Zoom.hpp"
 
 void ModuleManager::init()
 {
@@ -151,6 +153,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Jesus>());
     mModules.emplace_back(std::make_shared<AirSpeed>());
     mModules.emplace_back(std::make_shared<ReverseStep>());
+    mModules.emplace_back(std::make_shared<Jetpack>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());
@@ -228,6 +231,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Tracers>());
     mModules.emplace_back(std::make_shared<ChinaHat>());
     mModules.emplace_back(std::make_shared<NameProtect>());
+    mModules.emplace_back(std::make_shared<Zoom>());
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode

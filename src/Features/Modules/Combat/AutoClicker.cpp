@@ -49,18 +49,46 @@ void AutoClicker::onRenderEvent(RenderEvent& event)
     if (mRandomCPSMin.as<int>() > mRandomCPSMax.as<int>())
         mRandomCPSMin.mValue = mRandomCPSMax.mValue;
 
-    int button = mClickMode.as<int>();
 
-    if (mHold.mValue && !ImGui::IsMouseDown(button)) return;
+    if(mClickMode.mValue == ClickMode::Both)
+    {
+        bool lmb = ImGui::IsMouseDown(0);
+        bool rmb = ImGui::IsMouseDown(1);
 
-    static uint64_t lastAction = 0;
+        if (mHold.mValue && (!lmb  && !rmb)) return;
 
-    if (NOW - lastAction < 1000 / mCurrentCPS) return;
+        static uint64_t lastAction = 0;
+        if (NOW - lastAction < 1000 / mCurrentCPS) return;
+        lastAction = NOW;
 
-    lastAction = NOW;
+        if(lmb)
+        {
+            MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
+            MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+        }
 
-    MouseHook::simulateMouseInput(button + 1, 1, 0, 0, 0, 0);
-    MouseHook::simulateMouseInput(button + 1, 0, 0, 0, 0, 0);
+        if(rmb)
+        {
+            MouseHook::simulateMouseInput(2, 1, 0, 0, 0, 0);
+            MouseHook::simulateMouseInput(2, 0, 0, 0, 0, 0);
+        }
+    }
+    else
+    {
+        int button = mClickMode.as<int>();
+
+        if (mHold.mValue && !ImGui::IsMouseDown(button)) return;
+
+        static uint64_t lastAction = 0;
+
+        if (NOW - lastAction < 1000 / mCurrentCPS) return;
+
+        lastAction = NOW;
+
+        MouseHook::simulateMouseInput(button + 1, 1, 0, 0, 0, 0);
+        MouseHook::simulateMouseInput(button + 1, 0, 0, 0, 0, 0);
+    }
+
 
     randomizeCPS();
 }

@@ -181,20 +181,21 @@ void KeyHook::onKey(uint32_t key, bool isDown)
 
     oFunc(key, isDown);
 
-    if (isDown)
+    // Look for modules
+    const auto* clickGui = gFeatureManager->mModuleManager->getModule<ClickGui>();
+
+    for (auto& module : gFeatureManager->mModuleManager->getModules())
     {
-        // Look for modules
-        const auto* clickGui = gFeatureManager->mModuleManager->getModule<ClickGui>();
+        if (ClientInstance::get()->getMouseGrabbed() && module.get() != clickGui) continue;
+        if (ClientInstance::get()->getScreenName() == "chat_screen") continue;
 
-        for (auto& module : gFeatureManager->mModuleManager->getModules())
+        if (module->mKey == key)
         {
-            if (ClientInstance::get()->getMouseGrabbed() && module.get() != clickGui) continue;
-            if (ClientInstance::get()->getScreenName() == "chat_screen") continue;
-
-            if (module->mKey == key)
+            if (module->mEnableWhileHeld)
             {
-                module->toggle();
-            };
+                module->mWantedState = isDown;
+            }
+            else if (isDown) module->toggle();
         }
     }
 }
