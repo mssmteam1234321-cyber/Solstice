@@ -85,6 +85,7 @@
 #include "Player/Scaffold.hpp"
 #include "Player/Teams.hpp"
 #include "Player/Timer.hpp"
+#include "Player/ClickTp.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -174,6 +175,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AntiVoid>());
     mModules.emplace_back(std::make_shared<Extinguisher>());
     mModules.emplace_back(std::make_shared<FastMine>());
+    mModules.emplace_back(std::make_shared<ClickTp>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
