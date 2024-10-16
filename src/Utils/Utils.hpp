@@ -18,6 +18,7 @@
 #include "FileUtils.hpp"
 #include "ChatGPT.hpp"
 #include "MessageTemplate.hpp"
+#include "AudioUtils.hpp"
 #include "SysUtils/xorstr.hpp"
 #include "SysUtils/ExceptionHandler.hpp"
 #include "SysUtils/StackWalker.hpp"
