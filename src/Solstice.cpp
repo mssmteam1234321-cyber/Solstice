@@ -154,6 +154,14 @@ void Solstice::init(HMODULE hModule)
         console->critical("Failed to initialize MinHook!");
     }
 
+    /*// Attempt to list the microphones
+    std::vector<std::string> microphones = AudioUtils::listMicrophones();
+    for (const auto& mic : microphones)
+    {
+        console->info("Microphone: {}", mic);
+    }
+
+    AudioUtils::recordVoiceClip();*/
 
     Prefs = PreferenceManager::load();
 
