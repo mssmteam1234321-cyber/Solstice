@@ -5,6 +5,7 @@
 #include "ChinaHat.hpp"
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <SDK/Minecraft/Options.hpp>
 
 float ChinaHat::toRadians(float deg) {

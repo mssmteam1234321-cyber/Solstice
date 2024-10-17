@@ -4,6 +4,7 @@
 
 #include "ItemESP.hpp"
 
+#include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/ItemActor.hpp>
 #include <SDK/Minecraft/Inventory/Item.hpp>
