@@ -102,8 +102,10 @@ void writeWavHeader(std::ofstream &file, int sampleRate, int bitsPerSample, int 
     file.write("data", 4);  // Subchunk2ID
     file.write(reinterpret_cast<const char*>(&dataSize), 4);  // Subchunk2Size
 }
-// This won't work unless you have your Minecraft AppX registered with the microphone capability
-void AudioUtils::recordVoiceClip() {
+
+#pragma comment(lib, "Ws2_32.lib")
+
+void AudioUtils::recordVoiceClip(std::function<void(const std::vector<BYTE>&)> onAudioDataReady) {
     // Set up spdlog (file logging)
     spdlog::info("Starting voice recording...");
 
@@ -112,7 +114,7 @@ void AudioUtils::recordVoiceClip() {
     WAVEFORMATEX waveFormat;
     WAVEHDR waveHeader;
     MMRESULT result;
-    const int bufferSize = 44100 * 5 * 2; // 5 seconds of 44100 Hz, 16-bit mono (2 bytes per sample)
+    const int bufferSize = 44100 * 2; // 1 second of 44100 Hz, 16-bit mono (2 bytes per sample)
     std::vector<BYTE> audioBuffer(bufferSize);
 
     // Set the format (PCM 16-bit, 44100 Hz, mono)
@@ -164,8 +166,15 @@ void AudioUtils::recordVoiceClip() {
     }
     spdlog::info("Recording started");
 
-    // Capture audio for 5 seconds
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    // Capture audio in chunks and trigger the callback
+    for (int i = 0; i < 5; ++i) { // Record 5 chunks (approx 5 seconds)
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        // Send the captured audio data using the callback function
+        if (onAudioDataReady) {
+            onAudioDataReady(audioBuffer);
+        }
+    }
 
     // Stop recording
     waveInStop(hWaveIn);
@@ -175,21 +184,4 @@ void AudioUtils::recordVoiceClip() {
     waveInUnprepareHeader(hWaveIn, &waveHeader, sizeof(WAVEHDR));
     waveInClose(hWaveIn);
     spdlog::info("Waveform input device closed");
-
-    // File to save the audio clip
-    std::string filePath = FileUtils::getSolsticeDir() + "sample.wav";
-    std::ofstream outputFile(filePath, std::ios::binary);
-    if (!outputFile) {
-        spdlog::error("Failed to open output file: {}", filePath);
-        return;
-    }
-    spdlog::info("Output file created: {}", filePath);
-
-    // Write the WAV header (with real data size)
-    int dataSize = bufferSize;
-    writeWavHeader(outputFile, waveFormat.nSamplesPerSec, waveFormat.wBitsPerSample, waveFormat.nChannels, dataSize);
-    outputFile.write(reinterpret_cast<const char*>(audioBuffer.data()), dataSize);
-    outputFile.close();
-
-    spdlog::info("Audio data written to file ({} bytes)", dataSize);
 }

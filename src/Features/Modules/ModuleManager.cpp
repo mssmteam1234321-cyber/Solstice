@@ -205,6 +205,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoSnipe>());
     mModules.emplace_back(std::make_shared<AutoHvH>());
 
+
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
     mModules.emplace_back(std::make_shared<ClickGui>());
@@ -235,14 +236,18 @@ void ModuleManager::init()
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode
-    mModules.emplace_back(std::make_shared<ItemPhysics>());
-
     mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
 
     // TODO: Finish these modules
+#endif
+
+    // Development only
+#ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<ItemPhysics>());
+    mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
 #endif
