@@ -3,8 +3,8 @@
 //
 
 #include "AutoPath.hpp"
-
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 BlockSource* AutoPath::cachedSrc = nullptr;
 const float AutoPath::SQRT_2 = sqrtf(2.f);
@@ -60,6 +60,35 @@ static glm::vec3* getPlayerHitboxPathPosOffsets() {
     };
 
     return res;
+}
+
+__forceinline float AutoPath::heuristicEstimation(const glm::ivec3& node, const glm::ivec3& target) {
+    const auto diff = node - target;
+    const int x = abs(diff.x);
+    const int z = abs(diff.z);
+    float straight;
+    float diagonal;
+
+    if (x < z) {
+        straight = static_cast<float>(z) - static_cast<float>(x);
+        diagonal = static_cast<float>(x);
+    }
+    else {
+        straight = static_cast<float>(x) - static_cast<float>(z);
+        diagonal = static_cast<float>(z);
+    }
+
+    diagonal *= SQRT_2;
+    return straight + diagonal + static_cast<float>(abs(target.y - node.y));
+}
+
+inline bool AutoPath::isCompletelyObstructed(const glm::ivec3& pos) {
+    const auto block = cachedSrc->getBlock(pos);
+
+    if (block->toLegacy()->getmMaterial()->getmIsBlockingMotion() || block->toLegacy()->getmSolid()|| block->toLegacy()->getmMaterial()->getmIsBlockingPrecipitation() || block->toLegacy()->getBlockId() != 0)
+        return true;
+
+    return false;
 }
 
 void AutoPath::onEnable()
