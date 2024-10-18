@@ -6,6 +6,7 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Options.hpp>
+#include <SDK/Minecraft/Rendering/GuiData.hpp>
 
 float ChinaHat::toRadians(float deg) {
     return deg * (PI / 180.0f);

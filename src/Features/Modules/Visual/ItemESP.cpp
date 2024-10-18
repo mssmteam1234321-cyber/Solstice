@@ -8,6 +8,7 @@
 #include <SDK/Minecraft/Actor/ItemActor.hpp>
 #include <SDK/Minecraft/Inventory/Item.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 
 void ItemESP::onEnable()
 {

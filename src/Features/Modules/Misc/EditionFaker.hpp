@@ -47,22 +47,23 @@ public:
         };
     }
 
-    bool isInjected = false;
+    static inline unsigned char mOriginalDefaultInputMode[31];
+    static inline unsigned char mOriginalData[sizeof(int32_t)];
+    static inline unsigned char mOriginalData1[5];
+    static inline unsigned char mOriginalData2[5];
+    static inline unsigned char mOriginalData3[5];
 
-    static inline unsigned char originalDefaultInputMode[31];
-    static inline unsigned char originalData[sizeof(int32_t)];
-    static inline unsigned char originalData1[5];
-    static inline unsigned char originalData2[5];
-    static inline unsigned char originalData3[5];
+    static inline unsigned char mPatch1[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8B, 0xD7, 0x48, 0x8B, 0xCE };
+    static inline unsigned char mPatch2[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x49, 0x8B, 0x06, 0x8B, 0xD7 };
+    static inline unsigned char mPatch3[] = { 0x48, 0xB8, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x48, 0x8B, 0x5C, 0x24, 0x30 };
 
-    static inline unsigned char patch1[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8B, 0xD7, 0x48, 0x8B, 0xCE };
-    static inline unsigned char patch2[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x49, 0x8B, 0x06, 0x8B, 0xD7 };
-    static inline unsigned char patch3[] = { 0x48, 0xB8, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x48, 0x8B, 0x5C, 0x24, 0x30 };
+    static inline void* mPatch1Ptr = nullptr;
+    static inline void* mPatch2Ptr = nullptr;
+    static inline void* mPatch3Ptr = nullptr;
 
-    static inline void* patch1Ptr = nullptr;
-    static inline void* patch2Ptr = nullptr;
-    static inline void* patch3Ptr = nullptr;
-
+    void injectOsSpoofer();
+    void ejectOsSpoofer();
+    void updateOs();
     void inject();
     void eject();
     void spoofEdition();
