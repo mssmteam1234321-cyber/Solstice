@@ -326,7 +326,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
-    bool steal = mSteal.mValue && (mCanSteal || mIsStealing) && stealEnabled;
+    bool steal = mSteal.mValue && (mCanSteal || mIsStealing) && isValidBlock(mEnemyTargettingBlockPos, true, false) && stealEnabled;
 
     bool isStealDelayed = false;
     Block* coveredBlock = source->getBlock(mLastEnemyLayerBlockPos);
@@ -554,11 +554,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     if (
 #ifdef __DEBUG__
-            isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) &&
+            isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) && isValidBlock(mTargettingBlockPos, true, false) &&
 #else
-            isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) &&
+            isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos &&
 #endif
-            mTargettingBlockPos != mBlackListedOrePos && !shouldChangeOre) { // Check if current block is valid
+            !shouldChangeOre) { // Check if current block is valid
         Block *currentBlock = source->getBlock(mCurrentBlockPos);
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
