@@ -18,6 +18,8 @@ public:
     CLASS_FIELD(bool, mIsNeverBuildable, 0x5);
     CLASS_FIELD(bool, mIsLiquid, 0x6);
     CLASS_FIELD(bool, mIsBlockingMotion, 0xC);
+    CLASS_FIELD(bool, mIsBlockingPrecipitation, 0xD);
+    CLASS_FIELD(bool, mIsSolid, 0xE);
     CLASS_FIELD(bool, mIsSuperHot, 0xF);
 
     bool isTopSolid(bool includeWater, bool includeLeaves)

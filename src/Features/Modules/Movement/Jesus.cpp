@@ -6,6 +6,12 @@
 
 #include <SDK/OffsetProvider.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/KeyboardMouseSettings.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
 bool Jesus::sdjReplace(bool patch)
 {
