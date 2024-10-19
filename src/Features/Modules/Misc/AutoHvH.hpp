@@ -13,10 +13,10 @@ public:
     {
 
         mNames = {
-                {Lowercase, "autohvh"},
-                {LowercaseSpaced, "auto hvh"},
-                {Normal, "AutoHvH"},
-                {NormalSpaced, "Auto HvH"}
+            {Lowercase, "autohvh"},
+            {LowercaseSpaced, "auto hvh"},
+            {Normal, "AutoHvH"},
+            {NormalSpaced, "Auto HvH"}
         };
     }
 

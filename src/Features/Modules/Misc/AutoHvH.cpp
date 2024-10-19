@@ -24,6 +24,7 @@ void AutoHvH::onHttpResponse(HttpResponseEvent event)
             auto main = json["main"];
             PlayerInfo player = PlayerInfo(main["username_cc"], main["first_played"]);
             sender->mPlayerStore.mObjects.push_back(player);
+            spdlog::info("[AutoHvH] Player found: {} (first played: {})", player.name, player.firstPlayed);
         }
     } else if (event.mStatusCode == 429) {
         spdlog::warn("[AutoHvH] Rate limited, waiting {} seconds", rateLimitMs / 1000);
