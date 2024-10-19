@@ -4,19 +4,17 @@
 
 #include "NoFire.hpp"
 #include <SDK/SigManager.hpp>
+#include <Utils/MemUtils.hpp>
 
-void NoFire::onInit()
-{
-    mFuncAddr = SigManager::FireRender;
-}
+std::vector<unsigned char> gFrBytes = {0xC3}; // 0xC3 is the opcode for "ret"
+DEFINE_PATCH_FUNC(patchFireRender, SigManager::FireRender, gFrBytes);
 
 void NoFire::onEnable()
 {
-    MemUtils::ReadBytes((void*)mFuncAddr, mOriginalData, sizeof(mOriginalData));
-    MemUtils::writeBytes(mFuncAddr, "\xC3", 1);
+    patchFireRender(true);
 }
 
 void NoFire::onDisable()
 {
-    MemUtils::writeBytes(mFuncAddr, mOriginalData, sizeof(mOriginalData));
+    patchFireRender(false);
 }

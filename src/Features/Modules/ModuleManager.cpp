@@ -118,6 +118,7 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
+#include "Visual/Glint.hpp"
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
 #include "Visual/NoFire.hpp"
@@ -237,6 +238,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NameProtect>());
     mModules.emplace_back(std::make_shared<Zoom>());
     mModules.emplace_back(std::make_shared<NoFire>());
+    mModules.emplace_back(std::make_shared<Glint>());
+
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode

@@ -54,6 +54,18 @@ void Derp::onPacketOutEvent(PacketOutEvent& event)
             paip->mRot.y = (float)(rand() % 360 - 180);
             paip->mVehicleRotation = paip->mRot;
             paip->mYHeadRot = paip->mRot.y;
+        } else if (mMode.mValue == Mode::Headroll)
+        {
+            // just like spin but only the head
+            auto player = ClientInstance::get()->getLocalPlayer();
+            if (player->isDestroying()) return;
+
+            int64_t now = NOW;
+            float maxPitch = -179.9f;
+            float minPitch = 179.9f;
+            // Determine the pitch from (-90, 90) based on the current time and mSpeed
+            const auto pitch = (float)(static_cast<uint64_t>(static_cast<double>(NOW) * mSpeed.as<double>()) % static_cast<int>(maxPitch - minPitch) + minPitch);
+            paip->mRot.x = pitch;
         }
     }
 }

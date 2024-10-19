@@ -148,6 +148,8 @@ std::unique_ptr<SkinCapePair> getRandSkinCapePair()
         skinCapePair->capeDepth = capeDepth;
     }
 
+    spdlog::info("Using skin name: {} (has cape: {})", skinFile, !skinCapePair->capeData.empty());
+
     skinCapePair->slimSkin = slimSkin;
 
     return skinCapePair;

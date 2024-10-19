@@ -14,10 +14,6 @@ public:
         };
     }
 
-    uintptr_t mFuncAddr = 0x0;
-    static inline unsigned char mOriginalData[1];
-
-    void onInit() override;
     void onEnable() override;
     void onDisable() override;
 };

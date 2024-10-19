@@ -102,7 +102,7 @@ public:
             } \
             if (patch) { \
                  if (!wasPatched) { \
-                     ogBytes = MemUtils::readBytes(addr, sizeof(bytes)); \
+                     ogBytes = MemUtils::readBytes(addr, bytes.size()); \
                      MemUtils::writeBytes(addr, bytes); \
                      spdlog::trace("Patched {} at 0x{:X}", #name, addr); \
                      wasPatched = true; \

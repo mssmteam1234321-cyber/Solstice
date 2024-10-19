@@ -527,7 +527,6 @@ if (mMode.mValue == Mode::Concepts)
         ImGui::Text("Left: %s", isLeft ? "true" : "false");
         ImGui::Text("Right: %s", isRight ? "true" : "false");
 
-
         int item = player->getSupplies()->mSelectedSlot;
         ImGui::Text("SelectedSlot: %d", item);
         ItemStack* stack = player->getSupplies()->getContainer()->getItem(item);

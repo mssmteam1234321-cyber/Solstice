@@ -22,6 +22,7 @@
 #include "Hooks/RenderHooks/D3DHook.hpp"
 #include "Hooks/RenderHooks/ItemRendererHook.hpp"
 #include "Hooks/RenderHooks/LookInputHook.hpp"
+#include "Hooks/RenderHooks/RenderItemInHandHook.hpp"
 #include "Hooks/RenderHooks/SetupAndRenderHook.hpp"
 
 #define ADD_HOOK(hook) hooks.emplace_back(std::make_shared<hook>())
@@ -58,6 +59,8 @@ void HookManager::init(bool initLp)
         ADD_HOOK(ItemRendererHook);
         ADD_HOOK(FireBlockChangedHook);
         ADD_HOOK(CanShowNameHook);
+        ADD_HOOK(RenderItemInHandHook);
+
 
         for (auto& hook : hooks)
         {
