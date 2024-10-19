@@ -10,6 +10,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 #include <Hook/Hooks/RenderHooks/D3DHook.hpp>
+#include "NameProtect.hpp"
 
 std::vector<std::string> gamemodesToGetStatsFor = { "sky", "sky-duos", "sky-squads", "sky-mega", "ctf", "bed", "bed-duos", "bed-squads", "sg", "sg-duos" };
 
@@ -162,7 +163,15 @@ void SessionInfo::onBaseTickEvent(BaseTickEvent& event) {
         lastUpdate = NOW;
     }
 
-    mPlayerName = player->getLocalName();
+    auto nameProtect = gFeatureManager->mModuleManager->getModule<NameProtect>();
+    if(nameProtect->mEnabled)
+    {
+        mPlayerName = nameProtect->mOldLocalName;
+    }
+    else
+    {
+        mPlayerName = player->getLocalName();
+    }
 
     for (auto it = mRequests.begin(); it != mRequests.end();) {
         if (it->second->isDone()) {
