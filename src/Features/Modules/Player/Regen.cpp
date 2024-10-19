@@ -758,10 +758,9 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 }
                 if (glm::ivec3(blockPos) == mLastTargettingBlockPos && mWasUncovering) foundTargettingBlock = true;
             }
-            if (mTest2.mValue && foundTargettingBlock) {
+            if (mOreSelectionMode.mValue == OreSelectionMode::Normal && foundTargettingBlock) {
                 if (pos != mLastTargettingBlockPos) {
                     pos = mLastTargettingBlockPos;
-                    if (mDebug.mValue && mPriorityNotify.mValue) ChatUtils::displayClientMessage("Prioritized ore");
                 }
             }
 #ifdef __PRIVATE_BUILD__

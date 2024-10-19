@@ -24,6 +24,10 @@ public:
         Always,
         Auto
     };
+    enum class OreSelectionMode {
+        Normal,
+        Closest
+    };
     enum class ProgressBarStyle
     {
         Old,
@@ -62,7 +66,7 @@ public:
     BoolSetting mAntiCover = BoolSetting("Anti Cover", "Keep mining even if ore is covered", false);
     NumberSetting mCompensation = NumberSetting("Compensation", "The minium breaking progress percentage value for keep mining", 1, 0.01, 1, 0.01);
     BoolSetting mInfiniteDurability = BoolSetting("Infinite Durability", "Infinite durability for tools (may cause issues!)", false);
-    BoolSetting mTest2 = BoolSetting("Prioritization", "test", false);
+    EnumSettingT<OreSelectionMode> mOreSelectionMode = EnumSettingT<OreSelectionMode>("Ore Selection Mode", "The mode for ore selection", OreSelectionMode::Normal, "Normal", "Closest");
     BoolSetting mDynamicDestroySpeed = BoolSetting("Dynamic Destroy Speed", "use faster destroy speed to specified block", false);
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     BoolSetting mNuke = BoolSetting("Nuke", "destroy block instantly", false);
@@ -72,7 +76,6 @@ public:
     BoolSetting mBlockNotify = BoolSetting("Block Notify", "Send message in chat when you blocked ore/ore got covered", true);
     BoolSetting mFastOreNotify = BoolSetting("Fast Ore Notify", "Send message in chat when fast ore found", true);
     BoolSetting mSyncSpeedNotify = BoolSetting("Sync Speed Notify", "Send message in chat when broke block faster", true);
-    BoolSetting mPriorityNotify = BoolSetting("Priority Notify", "Send message in chat when prioritized ore", true);
     BoolSetting mNukeNotify = BoolSetting("Nuke Notify", "Send message in chat when nuked block", true);
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", true);
     BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", true);
@@ -139,7 +142,7 @@ public:
             &mAntiCover,
             &mCompensation,
             &mInfiniteDurability,
-            &mTest2,
+            &mOreSelectionMode,
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
             &mNuke,
@@ -157,7 +160,6 @@ public:
             &mBlockNotify,
             &mFastOreNotify,
             &mSyncSpeedNotify,
-            &mPriorityNotify,
             &mNukeNotify,
             &mStealNotify
         );
@@ -217,7 +219,6 @@ public:
         VISIBILITY_CONDITION(mBlockNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
-        VISIBILITY_CONDITION(mPriorityNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mNukeNotify, mDebug.mValue);
 
