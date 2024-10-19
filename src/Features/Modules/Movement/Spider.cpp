@@ -67,4 +67,13 @@ void Spider::onBaseTickEvent(BaseTickEvent& event) {
 void Spider::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Spider::onBaseTickEvent>(this);
+#ifdef __PRIVATE_BUILD__
+    if(mMode.mValue == Mode::Flareon)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if(!player) return;
+        const auto state = player->getStateVectorComponent();
+        state->mVelocity.y = 0.f;
+    }
+#endif
 }
