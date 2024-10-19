@@ -35,17 +35,19 @@ void Zoom::onMouseEvent(MouseEvent& event)
     {
         if(event.mButtonData == 0x78 || event.mButtonData == 0x7F)
         {
-            mCurrentValue -= mScrollIncrement.mValue;
+            mZoomValue.mValue -= mScrollIncrement.mValue;
             event.cancel();
         }
         else if (event.mButtonData == 0x88 || event.mButtonData == 0x80 || event.mButtonData == -0x78)
         {
-            mCurrentValue += mScrollIncrement.mValue;
+            mZoomValue.mValue += mScrollIncrement.mValue;
             event.cancel();
         }
     }
 
-    if (mCurrentValue < 0.f) mCurrentValue = 0.f;
+    if (mZoomValue.mValue < 10.f) mZoomValue.mValue = 10.f;
+    if (mPastFov < mZoomValue.mValue) mZoomValue.mValue = mPastFov;
+    if (mCurrentValue < 10.f) mCurrentValue = 10.f;
 }
 
 void Zoom::onRenderEvent(RenderEvent& event)
@@ -56,7 +58,7 @@ void Zoom::onRenderEvent(RenderEvent& event)
     if(mSmooth.mValue)
     {
         mCurrentValue = MathUtils::lerp(mCurrentValue, mZoomValue.mValue, ImGui::GetIO().DeltaTime * 10.f);
-        ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = mCurrentValue; // this sucks
+        ClientInstance::get()->getOptions()->mGfxFieldOfView->mValue = mCurrentValue;
     }
     else
     {
