@@ -274,14 +274,27 @@ void Solstice::init(HMODULE hModule)
             NotifyUtils::notify("Solstice initialized!", 5.0f, Notification::Type::Info);
             firstCall = false;
 
-            std::string latestHash = OAuthUtils::getLatestCommitHash();
-            if (latestHash != SOLSTICE_BUILD_VERSION)
+            std::string latestHash;
+
+            try
             {
-                console->warn("Solstice is out of date! Latest commit: {}", latestHash);
-                NotifyUtils::notify("There is a new version of Solstice available!\nIt is recommended to update.", 10.0f, Notification::Type::Warning);
-                ChatUtils::displayClientMessage("§aThere is a new version of Solstice available! Download it from the Discord server.");
-            } else {
-                console->info("Solstice is up to date!");
+                latestHash = OAuthUtils::getLatestCommitHash();
+            }
+            catch(...)
+            {
+                ChatUtils::displayClientMessage("§cError while retrieving the hash of the latest commit.");
+            }
+
+            if(latestHash != "")
+            {
+                if (latestHash != SOLSTICE_BUILD_VERSION)
+                {
+                    console->warn("Solstice is out of date! Latest commit: {}", latestHash);
+                    NotifyUtils::notify("There is a new version of Solstice available!\nIt is recommended to update.", 10.0f, Notification::Type::Warning);
+                    ChatUtils::displayClientMessage("§aThere is a new version of Solstice available! Download it from the Discord server.");
+                } else {
+                    console->info("Solstice is up to date!");
+                }
             }
         }
 
