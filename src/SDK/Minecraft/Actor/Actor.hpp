@@ -156,6 +156,7 @@ public:
     void setLocalName(std::string newLocalName);
     std::string getXuid();
     bool isValid();
+    bool canSee(Actor* actor);
 };
 
 static_assert(sizeof(Actor) == 0x408, "Actor size is invalid");
