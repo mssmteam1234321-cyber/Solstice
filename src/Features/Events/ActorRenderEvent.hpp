@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Event.hpp"
-#include <glm/glm.hpp>
+
 #include <memory>
 #include <Hook/Hook.hpp>
 

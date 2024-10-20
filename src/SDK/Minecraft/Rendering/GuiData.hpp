@@ -2,7 +2,7 @@
 #include <string>
 #include <Utils/MemUtils.hpp>
 
-#include <glm/glm.hpp>
+
 //
 // Created by vastrakai on 6/25/2024.
 //

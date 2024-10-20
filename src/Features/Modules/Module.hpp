@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <glm/glm.hpp>
+
 #include <nlohmann/json.hpp>
 #include <Utils/Logger.hpp>
 

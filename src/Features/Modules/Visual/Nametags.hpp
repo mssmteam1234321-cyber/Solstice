@@ -20,6 +20,8 @@ public:
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 23, 1, 40, 0.01);;
     NumberSetting mScalingMultiplier = NumberSetting("Scaling Multiplier", "The multiplier to use for scaling the font", 0, 0.f, 5.f, 0.01f);
     NumberSetting mMinScale = NumberSetting("Minimum Scale", "The minimum scale to use for scaling the font", 20.f, 0.01f, 20.f, 0.01f);
+    BoolSetting mShowBps = BoolSetting("Show BPS", "Show the BPS of the player", false);
+    BoolSetting mAverageBps = BoolSetting("Average BPS", "Show the average BPS of the player", true);
 
     Nametags() : ModuleBase("Nametags", "Draws nametags above entities", ModuleCategory::Visual, 0, false) {
         addSettings(
@@ -28,15 +30,19 @@ public:
             &mRenderLocal,
             //&mDistanceScaledFont,
             &mShowIrcUsers,
-            &mBlurStrength
+            &mBlurStrength,
             /*&mFontSize,
             &mScalingMultiplier,
             &mMinScale*/
+            &mShowBps,
+            &mAverageBps
+
         );
 
         VISIBILITY_CONDITION(mFontSize, !mDistanceScaledFont.mValue);
         VISIBILITY_CONDITION(mScalingMultiplier, mDistanceScaledFont.mValue);
         VISIBILITY_CONDITION(mMinScale, mDistanceScaledFont.mValue);
+        VISIBILITY_CONDITION(mAverageBps, mShowBps.mValue);
 
         mNames = {
             {Lowercase, "nametags"},
@@ -49,5 +55,6 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onCanShowNameTag(class CanShowNameTagEvent& event);
+    void onBaseTickEvent(BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };

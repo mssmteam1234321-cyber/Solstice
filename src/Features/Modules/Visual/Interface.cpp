@@ -18,7 +18,7 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
-#include <glm/glm.hpp>
+
 #include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/World/Level.hpp>

@@ -5,7 +5,7 @@
 #include "Packet.hpp"
 
 #include <optional>
-#include <glm/glm.hpp>
+
 
 struct CameraInstruction {
 public:

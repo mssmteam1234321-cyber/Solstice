@@ -7,7 +7,7 @@
 #include <Features/Events/SwingDurationEvent.hpp>
 #include <Features/Events/BobHurtEvent.hpp>
 
-#include <glm/glm.hpp>
+
 #include <SDK/Minecraft/ClientInstance.hpp>
 
 std::unique_ptr<Detour> AnimationHooks::mSwingDetour;

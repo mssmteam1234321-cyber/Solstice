@@ -7,7 +7,7 @@
 #include <cmath>
 #include <vector>
 
-#include <glm/glm.hpp>
+
 #include <Utils/Structs.hpp>
 
 struct SPolygon {

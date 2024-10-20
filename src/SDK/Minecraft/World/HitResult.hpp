@@ -2,7 +2,7 @@
 //
 // Created by vastrakai on 7/10/2024.
 //
-#include <glm/glm.hpp>
+
 #include <SDK/Minecraft/Actor/EntityId.hpp>
 
 enum HitType : uint32_t

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Packet.hpp"
-#include <glm/glm.hpp>
+
 
 class SetActorMotionPacket : public Packet {
 public:

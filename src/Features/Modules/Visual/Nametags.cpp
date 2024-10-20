@@ -17,11 +17,13 @@ void Nametags::onEnable()
 {
     gFeatureManager->mDispatcher->listen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Nametags::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
 }
 void Nametags::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Nametags::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
 }
 
 void Nametags::onCanShowNameTag(CanShowNameTagEvent& event)
@@ -32,6 +34,64 @@ void Nametags::onCanShowNameTag(CanShowNameTagEvent& event)
     if (gFriendManager->isFriend(actor) && !mShowFriends.mValue) return;
     if (ActorUtils::isBot(actor)) return;
     event.setResult(false); // hides the original nametag
+}
+
+std::mutex bpsMutex;
+std::unordered_map<Actor*, float> bpsMap;
+std::unordered_map<Actor*, std::map<int64_t, float>> bpsHistory;
+std::unordered_map<Actor*, float> avgBpsMap;
+
+void Nametags::onBaseTickEvent(BaseTickEvent& event)
+{
+    std::lock_guard<std::mutex> lock(bpsMutex);
+
+    auto actors = ActorUtils::getActorList(true, true);
+    auto localPlayer = ClientInstance::get()->getLocalPlayer();
+    for (auto actor : actors)
+    {
+        if (!actor->isPlayer()) continue;
+        if (actor == localPlayer && !mRenderLocal.mValue) continue;
+        auto shape = actor->getAABBShapeComponent();
+        if (!shape) continue;
+        auto posComp = actor->getRenderPositionComponent();
+        if (!posComp) continue;
+
+        static std::map<Actor*, glm::vec3> prevPosMap;
+        glm::vec3 p = *actor->getPos();
+        glm::vec3 prevPos = prevPosMap.contains(actor) ? prevPosMap[actor] : p;
+        prevPosMap[actor] = p;
+
+        glm::vec2 posxz = { p.x, p.z };
+        glm::vec2 prevPosxz = { prevPos.x, prevPos.z };
+        float bps = glm::distance(posxz, prevPosxz) * (ClientInstance::get()->getMinecraftSim()->getSimTimer() * ClientInstance::get()->getMinecraftSim()->getSimSpeed());
+        if (!bpsHistory.contains(actor)) bpsHistory[actor] = {};
+
+        std::map<int64_t, float>& history = bpsHistory[actor];
+        history[NOW] = bps;
+        // Remove entries from more than 1 second ago
+        for (auto it = history.begin(); it != history.end();)
+        {
+            if (NOW - it->first > 1000) it = history.erase(it);
+            else ++it;
+        }
+
+        float total = 0.f;
+        int count = 0;
+        for (auto it = history.begin(); it != history.end(); ++it)
+        {
+            total += it->second;
+            count++;
+        }
+        avgBpsMap[actor] = total / count;
+        bpsMap[actor] = bps;
+    }
+}
+
+float getActorBps(bool avg, Actor* actor) {
+    std::lock_guard<std::mutex> lock(bpsMutex);
+
+    if (avg) return avgBpsMap.contains(actor) ? avgBpsMap[actor] : 0;
+    return bpsMap.contains(actor) ? bpsMap[actor] : 0;
 }
 
 void Nametags::onRenderEvent(RenderEvent& event)
@@ -63,6 +123,12 @@ void Nametags::onRenderEvent(RenderEvent& event)
         if (!shape) continue;
         auto posComp = actor->getRenderPositionComponent();
         if (!posComp) continue;
+
+        float bps = getActorBps(false, actor);
+        std::string formattedBps = fmt::format("{:.2f}", bps);
+        float avgBps = getActorBps(true, actor);
+        std::string formattedAvgBps = fmt::format("{:.2f}", avgBps);
+
 
         auto themeColor = ImColor(1.f, 1.f, 1.f, 1.f); //ColorUtils::getThemedColor(0);
 
@@ -117,6 +183,18 @@ void Nametags::onRenderEvent(RenderEvent& event)
                     name = user.username + " (" + user.playerName + ")";
                     break;
                 }
+            }
+        }
+
+        if (mShowBps.mValue)
+        {
+            if (mAverageBps.mValue)
+            {
+                name += " [" + formattedAvgBps + "]";
+            }
+            else
+            {
+                name += " [" + formattedBps + "]";
             }
         }
 

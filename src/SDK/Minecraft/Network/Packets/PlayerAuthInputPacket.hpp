@@ -7,7 +7,7 @@
 #include "Packet.hpp"
 #include <bitset>
 #include <memory>
-#include <glm/glm.hpp>
+
 #include <vector>
 
 enum class InputMode : int {
