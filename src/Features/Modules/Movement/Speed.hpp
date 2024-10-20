@@ -65,6 +65,7 @@ public:
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
     NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);
     NumberSetting mSwiftnessFriction = NumberSetting("Swiftness Friction", "The friction to apply when swiftness is active", 0.975, 0, 1, 0.01);
+    NumberSetting mSwiftnessTimer = NumberSetting("Swiftness Timer", "Whether or not to boost timer speed when swiftness is active", 35, 0, 40, 0.1);
 
     BoolSetting mDamageBoost = BoolSetting("Damage Boost", "Whether or not to boost speed when taking damage", false);
     NumberSetting mDamageBoostSpeed = NumberSetting("Damage Boost Speed", "The speed to boost when taking damage", 3, 1, 10, 0.01);
@@ -101,6 +102,7 @@ public:
             &mSwiftnessHotbar,
             &mSwiftnessSpeed,
             &mSwiftnessFriction,
+            &mSwiftnessTimer,
             &mHoldSpace,
             &mDamageBoost,
             &mDamageBoostSpeed,
@@ -133,6 +135,7 @@ public:
         VISIBILITY_CONDITION(mSwiftnessHotbar, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessSpeed, mSwiftness.mValue);
         VISIBILITY_CONDITION(mSwiftnessFriction, mSwiftness.mValue);
+        VISIBILITY_CONDITION(mSwiftnessTimer, mSwiftness.mValue);
         VISIBILITY_CONDITION(mHoldSpace, mSwiftness.mValue);
 
         VISIBILITY_CONDITION(mDamageBoostSpeed, mDamageBoost.mValue);

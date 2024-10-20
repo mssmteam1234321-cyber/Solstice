@@ -479,49 +479,56 @@ void ModuleManager::deserialize(const nlohmann::json& j, bool showMessages)
             {
                 for (const auto& setting : module["settings"].items())
                 {
-                    const auto& settingValue = setting.value();
-                    const std::string settingName = settingValue["name"];
-                    std::erase(settingNames, settingName);
-
-                    auto* set = mod->getSetting(settingName);
-                    if (set)
+                    try
                     {
-                        if (set->mType == SettingType::Bool)
-                        {
-                            auto* boolSetting = static_cast<BoolSetting*>(set);
-                            boolSetting->mValue = settingValue["boolValue"];
-                        }
-                        else if (set->mType == SettingType::Number)
-                        {
-                            auto* numberSetting = static_cast<NumberSetting*>(set);
-                            numberSetting->mValue = settingValue["numberValue"];
-                        }
-                        else if (set->mType == SettingType::Enum)
-                        {
-                            auto* enumSetting = static_cast<EnumSetting*>(set);
-                            // Make sure the enum value is valid and within the bounds
-                            if (settingValue["enumValue"] >= 0 && settingValue["enumValue"] < enumSetting->mValues.size())
-                                enumSetting->mValue = settingValue["enumValue"];
-                            else
-                            {
-                                spdlog::warn("Invalid enum value for setting {} in module {}", settingName, name);
-                                if (showMessages) ChatUtils::displayClientMessage("§cInvalid enum value for setting §6" + settingName + "§c in module §6" + name + "§c.");
-                            }
-                        } else if (set->mType == SettingType::Color)
-                        {
-                            auto* colorSetting = static_cast<ColorSetting*>(set);
-                            // Get the  settingValue["colorValue"] as a float[4]
-                            for (int i = 0; i < 4; i++)
-                            {
-                                colorSetting->mValue[i] = settingValue["colorValue"][i];
-                            }
-                        }
+                        const auto& settingValue = setting.value();
+                        const std::string settingName = settingValue["name"];
+                        std::erase(settingNames, settingName);
 
-                        settingsLoaded++;
-                    } else
+                        auto* set = mod->getSetting(settingName);
+                        if (set)
+                        {
+                            if (set->mType == SettingType::Bool)
+                            {
+                                auto* boolSetting = static_cast<BoolSetting*>(set);
+                                boolSetting->mValue = settingValue["boolValue"];
+                            }
+                            else if (set->mType == SettingType::Number)
+                            {
+                                auto* numberSetting = static_cast<NumberSetting*>(set);
+                                numberSetting->mValue = settingValue["numberValue"];
+                            }
+                            else if (set->mType == SettingType::Enum)
+                            {
+                                auto* enumSetting = static_cast<EnumSetting*>(set);
+                                // Make sure the enum value is valid and within the bounds
+                                if (settingValue["enumValue"] >= 0 && settingValue["enumValue"] < enumSetting->mValues.size())
+                                    enumSetting->mValue = settingValue["enumValue"];
+                                else
+                                {
+                                    spdlog::warn("Invalid enum value for setting {} in module {}", settingName, name);
+                                    if (showMessages) ChatUtils::displayClientMessage("§cInvalid enum value for setting §6" + settingName + "§c in module §6" + name + "§c.");
+                                }
+                            } else if (set->mType == SettingType::Color)
+                            {
+                                auto* colorSetting = static_cast<ColorSetting*>(set);
+                                // Get the  settingValue["colorValue"] as a float[4]
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    colorSetting->mValue[i] = settingValue["colorValue"][i];
+                                }
+                            }
+
+                            settingsLoaded++;
+                        } else
+                        {
+                            spdlog::warn("Setting {} not found for module {}", settingName, name);
+                            if (showMessages) ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
+                        }
+                    } catch (const std::exception& e)
                     {
-                        spdlog::warn("Setting {} not found for module {}", settingName, name);
-                        if (showMessages) ChatUtils::displayClientMessage("§cSetting §6" + settingName + "§c not found for module §6" + name + "§c.");
+                        spdlog::warn("Failed to load setting {} for module {}: {}", setting.key(), name, e.what());
+                        if (showMessages) ChatUtils::displayClientMessage("§cFailed to load setting §6" + setting.key() + "§c for module §6" + name + "§c.");
                     }
                 }
 

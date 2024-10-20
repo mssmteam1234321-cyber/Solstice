@@ -113,8 +113,10 @@ bool Speed::tickSwiftness()
             movementSpeed = mSwiftnessSpeed.mValue * fric;
         }
         glm::vec3 newVelocity = {cos(newMovementYaw) * movementSpeed, velocity.y, sin(newMovementYaw) * movementSpeed};
-        player->getStateVectorComponent()->mVelocity = newVelocity;
+        if (mSwiftnessSpeed.mValue != 0) player->getStateVectorComponent()->mVelocity = newVelocity;
 
+        // Set swiftness timer
+        ClientInstance::get()->getMinecraftSim()->setSimTimer(mSwiftnessTimer.mValue);
         return true;
     }
 
