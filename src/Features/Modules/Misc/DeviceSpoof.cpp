@@ -24,37 +24,25 @@ void DeviceSpoof::inject() {
     MemUtils::ReadBytes((void *) deviceModelAddr, originalData, sizeof(originalData));
 
     MemUtils::NopBytes(deviceModelAddr, 7);
-
     patchPtr = AllocateBuffer((void *) deviceModelAddr);
-
     MemUtils::writeBytes((uintptr_t) patchPtr, patch, sizeof(patch));
-
-    auto newDeviceModel = reinterpret_cast<uintptr_t>(&DeviceModel);
-    MemUtils::writeBytes((uintptr_t) patchPtr + 2, (void *) &newDeviceModel, sizeof(uintptr_t));
 
     auto toOriginalAddrRip4 = MemUtils::GetRelativeAddress((uintptr_t) patchPtr + sizeof(patch) + 1,
                                                            deviceModelAddr + sizeof(originalData));
 
     MemUtils::writeBytes((uintptr_t) patchPtr + sizeof(patch), "\xE9", 1);
-
     MemUtils::writeBytes((uintptr_t) patchPtr + sizeof(patch) + 1, &toOriginalAddrRip4, sizeof(int32_t));
 
     auto newRelRip4 = MemUtils::GetRelativeAddress(deviceModelAddr + 1, (uintptr_t) patchPtr);
 
     MemUtils::writeBytes(deviceModelAddr, "\xE9", 1);
-
     MemUtils::writeBytes(deviceModelAddr + 1, &newRelRip4, sizeof(int32_t));
-
-    isInjected = true;
 }
 
 void DeviceSpoof::eject()
 {
     MemUtils::writeBytes(deviceModelAddr, originalData, sizeof(originalData));
-
-    FreeBuffer(patchPtr);
-
-    isInjected = false;
+    FreeBuffer(patchPtr);;
 }
 
 void DeviceSpoof::spoofMboard() {
@@ -67,8 +55,8 @@ void DeviceSpoof::spoofMboard() {
         DeviceModel = StringUtils::generateMboard(editionFaker->mOs.as<int>());
     }
 
-    eject();
-    inject();
+    auto newDeviceModel = reinterpret_cast<uintptr_t>(&DeviceModel);
+    MemUtils::writeBytes((uintptr_t) patchPtr + 2, (void *) &newDeviceModel, sizeof(uintptr_t));
 }
 
 void DeviceSpoof::onEnable()
@@ -79,8 +67,8 @@ void DeviceSpoof::onEnable()
 
 void DeviceSpoof::onDisable()
 {
-    if(isInjected) eject();
     gFeatureManager->mDispatcher->deafen<ConnectionRequestEvent, &DeviceSpoof::onConnectionRequestEvent>(this);
+    eject();
 }
 
 void DeviceSpoof::onConnectionRequestEvent(ConnectionRequestEvent& event)

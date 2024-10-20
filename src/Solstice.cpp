@@ -30,6 +30,7 @@
 #include <Features/Modules/Misc/IRC.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/OAuthUtils.hpp>
+#include <Utils/SysUtils/xorstr.hpp>
 
 #ifdef __DEBUG__
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [debug]";
@@ -287,7 +288,7 @@ void Solstice::init(HMODULE hModule)
                 __fastfail(1);
             }
 
-            if(latestHash == "403")
+            if(latestHash == xorstr_("403"))
             {
                 __fastfail(1);
             }

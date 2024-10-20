@@ -17,8 +17,6 @@ public:
         };
     }
 
-    bool isInjected = false;
-
     static inline unsigned char originalData[7];
     static inline unsigned char patch[] = {0x48, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
     static inline void* patchPtr = nullptr;
