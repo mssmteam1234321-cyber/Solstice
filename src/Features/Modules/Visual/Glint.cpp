@@ -25,7 +25,4 @@ void Glint::onRenderItemInHandDescriptionEvent(RenderItemInHandDescriptionEvent&
     ImColor color = ColorUtils::getThemedColor(0);
     event.mThis->mGlintColor = glm::vec3(color.Value.x * sat, color.Value.y * sat, color.Value.z * sat);
     event.mThis->mGlintAlpha = 1.f;
-    event.mThis->mOverlayAlpha = 1.f;
-    event.mThis->mChangeAlpha = 1.f;
-    event.mThis->mMultiplicativeTintColorAlpha = 1.f;
 }
