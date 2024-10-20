@@ -7,6 +7,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
 #include <Utils/MiscUtils/DataStore.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 // example: (URL: https://api.playhive.com/v0/game/all/main/FlareonRapier, Method: GET)
 /*
@@ -44,14 +45,15 @@ void StaffAlert::onHttpResponse(HttpResponseEvent event)
         if (json.contains("main"))
         {
             auto main = json["main"];
-            PlayerInfo player = PlayerInfo(main["username_cc"], main["rank"]);
+            int64_t firstPlayed = main["first_played"].get<int64_t>();
+            PlayerInfo player = PlayerInfo(main["username_cc"], main["rank"], firstPlayed);
             sender->mPlayerStore.mObjects.push_back(player);
         }
     } else if (event.mStatusCode == 404) {
         // Extract the name from the URL
         std::string name = originalRequest->mUrl.substr(originalRequest->mUrl.find_last_of('/') + 1);
         // Name is not found, so we add it to the cache with the rank "NICKED"
-        PlayerInfo player = PlayerInfo(name, "NICKED");
+        PlayerInfo player = PlayerInfo(name, "NICKED", 0);
         sender->mPlayerStore.mObjects.push_back(player);
         spdlog::info("[StaffAlert] Player not found: {}, adding as rank 'NICKED'", name);
     } else if (event.mStatusCode == 429) {
@@ -87,6 +89,19 @@ const std::string& StaffAlert::getRank(const std::string& name)
         }
     }
     return unknown;
+}
+
+int64_t StaffAlert::getFirstJoined(const std::string& name) const
+{
+    for (const auto& player : mPlayerStore.mObjects)
+    {
+        if (player.name == name)
+        {
+            return player.getFirstJoined();
+        }
+    }
+
+    return -1;
 }
 
 // Default ranks: REGULAR, PLUS
@@ -126,7 +141,8 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
         if (mSaveToDatabase.mValue) mPlayerStore.load();
     }
 
-    //spdlog::info("[StaffAlert] Players: {}, Requests: {}, Events: {}", mPlayers.size(), mRequests.size(), mPlayerEvents.size()); // Debugging
+    //spdlog::info("[StaffAlert] Players: {}, Requests: {}, Events: {}", mPlayers.size(), mRequests.size(), mPlayerEvents.size());
+
     for (auto it = mRequests.begin(); it != mRequests.end();)
     {
         if (it->second->isDone())
@@ -167,10 +183,15 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
     // ---- Event handling ----
     std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
     std::vector<std::string> playerNames;
+
     for (auto& entry : *playerList | std::views::values)
     {
-        playerNames.emplace_back(entry.mName);
+        if (entry.mName.length() <= 17)
+        {
+            playerNames.emplace_back(entry.mName);
+        }
     }
+
     static std::vector<std::string> lastPlayerNames = playerNames;
 
     for (auto& playerName : playerNames)
@@ -201,29 +222,64 @@ void StaffAlert::onBaseTickEvent(BaseTickEvent& event)
         if (isPlayerCached(daEvent.name))
         {
             std::string rank = getRank(daEvent.name);
+            int64_t firstJoined = getFirstJoined(daEvent.name);
 
             bool isDefaultRank = std::ranges::find(ranks, rank) != ranks.end();
 
-            if (!isDefaultRank && mStaffOnly.mValue || !mStaffOnly.mValue)
+            if (firstJoined < 0)
             {
-                std::string nameColor = isDefaultRank ? "§7" : "§c"; // Gray color for default ranks, Yellow color for custom ranks
-                std::string spz = rank;
-                if (spz == "NICKED") spz = "§cNICKED"; // Red color for nicked players
-                if (daEvent.type == PlayerEvent::Type::JOIN)
-                {
+                it = mPlayerEvents.erase(it);
+                continue;
+            }
+
+            std::string nameColor = isDefaultRank ? "§7" : "§c"; // Gray color for default ranks, Yellow color for custom ranks
+            std::string spz = rank;
+            if (spz == "NICKED") spz = "§cNICKED"; // Red color for nicked players
+
+            // Process the JOIN event
+            if (daEvent.type == PlayerEvent::Type::JOIN)
+            {
+                if (mShowRecentJoins.mValue) {
+                    auto currentTime = std::chrono::system_clock::now();
+                    auto playerJoinTime = std::chrono::system_clock::from_time_t(firstJoined);
+                    auto duration = std::chrono::duration_cast<std::chrono::minutes>(currentTime - playerJoinTime);
+
+                    auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
+                    auto minutes = duration - hours;
+
+                    if (duration.count() <= 24 * 60) {  // Within 1 day
+                        std::string timeStr;
+                        if (hours.count() > 0) {
+                            timeStr += std::to_string(hours.count()) + "h ";
+                        }
+
+                        timeStr += std::to_string(minutes.count()) + "m";
+
+                        std::string newPlayerStr = "§aRecent joined player detected: §f" + daEvent.name + " (" + timeStr + ")";
+                        ChatUtils::displayClientMessage(newPlayerStr);
+                    }
+                }
+
+                if ((!isDefaultRank && mStaffOnly.mValue) || !mStaffOnly.mValue) {
                     ChatUtils::displayClientMessageRaw("§a§l» §r§6[{}§6]{} {} §ajoined.", spz, nameColor, daEvent.name);
-
                     if (mShowNotifications.mValue) NotifyUtils::notify("[" + rank + "] " + daEvent.name + " joined", 5.0f, Notification::Type::Info);
-                } else if (daEvent.type == PlayerEvent::Type::LEAVE) {
+                    if (mPlaySound.mValue) ClientInstance::get()->playUi("random.orb", 1.0f, 1.0f);
+                }
+            }
+            else if (daEvent.type == PlayerEvent::Type::LEAVE)
+            {
+                if ((!isDefaultRank && mStaffOnly.mValue) || !mStaffOnly.mValue) {
                     ChatUtils::displayClientMessageRaw("§c§l» §r§6[{}§6]{} {} §cleft.", spz, nameColor, daEvent.name);
-
                     if (mShowNotifications.mValue) NotifyUtils::notify("[" + rank + "] " + daEvent.name + " left", 5.0f, Notification::Type::Info);
                 }
             }
+
             it = mPlayerEvents.erase(it);
-        } else {
+        }
+        else
+        {
             makeRequest(daEvent.name);
             ++it;
         }
     }
-};
+}

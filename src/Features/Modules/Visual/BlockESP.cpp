@@ -36,6 +36,11 @@ constexpr int DEEPSLATE_LAPIS_ORE = 655;
 constexpr int DEEPSLATE_COAL_ORE = 661;
 constexpr int PORTAL = 90;
 
+constexpr int CHEST = 54;
+constexpr int ENDER_CHEST = 130;
+constexpr int TRAPPED_CHEST = 146;
+constexpr int BARREL = 458;
+
 std::unordered_map<int, ImColor> blockColors = {
     { 73, ImColor(1.f, 0.f, 0.f, 1.f) },
     { 74, ImColor(1.f, 0.f, 0.f, 1.f) },
@@ -54,7 +59,12 @@ std::unordered_map<int, ImColor> blockColors = {
     { 16, ImColor(0.f, 0.f, 0.f, 1.f) },
     { 661, ImColor(0.f, 0.f, 0.f, 1.f) },
     // purple portal
-    { 90, ImColor(0.5f, 0.f, 0.5f, 1.f) }
+    { 90, ImColor(0.5f, 0.f, 0.5f, 1.f) },
+
+    { 130, ImColor(0.5f, 0.f, 0.5f, 1.f) },
+    { 54, ImColor(255, 165, 0) },
+    { 146, ImColor(255, 165, 0) },
+    { 458, ImColor(255, 165, 0) }
 };
 
 bool isValidBlock(int id)
@@ -160,6 +170,11 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
                 pos.z = (processChunk.y * 16) + z;
                 pos.y = y + (subChunk.subchunkIndex * 16);
 
+                int exposedFace = BlockUtils::getExposedFace(pos);
+                if (mOnlyExposedOres.mValue && exposedFace == -1) {
+                    continue;
+                }
+
                 //spdlog::debug("Block at ({}, {}, {}) is {} [{}]", pos.x, pos.y, pos.z, found->mLegacy->mName, found->mLegacy->getBlockId());
                 mFoundBlocks[pos] = { found, AABB(pos, glm::vec3(1.f, 1.f, 1.f)), getColorFromId(found->mLegacy->getBlockId()) };
             }
@@ -252,6 +267,14 @@ std::vector<int> BlockESP::getEnabledBlocks()
     if (mPortal.mValue)
     {
         enabledBlocks.push_back(PORTAL);
+    }
+
+    if (mChests.mValue)
+    {
+        enabledBlocks.push_back(CHEST);
+        enabledBlocks.push_back(ENDER_CHEST);
+        enabledBlocks.push_back(TRAPPED_CHEST);
+        enabledBlocks.push_back(BARREL);
     }
 
     return enabledBlocks;

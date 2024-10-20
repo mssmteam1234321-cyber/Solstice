@@ -68,6 +68,7 @@ public:
     NumberSetting mSpheresSize = NumberSetting("Spheres Size", "Size of spheres", 4, 0, 20, 0.01);
     NumberSetting mSpheresMinSize = NumberSetting("Spheres Min Size", "Min size of spheres", 2.60, 0, 20, 0.01);
     NumberSetting mSpheresRadius = NumberSetting("Spheres radius", "Distance from speheres to target", 0.9, 0, 2, 0.1);
+    BoolSetting mDisableOnDimensionChange = BoolSetting("Auto Disable", "Whether or not to disable the aura on dimension change", true);
     BoolSetting mDebug = BoolSetting("Debug", "Whether or not to display debug information", false);
 
     Aura() : ModuleBase("Aura", "Automatically attacks nearby enemies", ModuleCategory::Combat, 0, false) {
@@ -103,6 +104,7 @@ public:
             &mSwingDelay,
             &mSwingDelayValue,
             &mStrafe,
+            &mDisableOnDimensionChange,
             &mDebug
         );
 

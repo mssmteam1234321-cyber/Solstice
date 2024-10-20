@@ -29,6 +29,8 @@ public:
     BoolSetting mRedstone = BoolSetting("Redstone", "Draws around redstone ore", true);
     BoolSetting mLapis = BoolSetting("Lapis", "Draws around lapis ore", true);
     BoolSetting mPortal = BoolSetting("Portal", "Draws around portal blocks", true);
+    BoolSetting mChests = BoolSetting("Chests", "Draws around chests", false);
+    BoolSetting mOnlyExposedOres = BoolSetting("Only Exposed Ores", "Show only ores that are exposed to air", false);
 
     BlockESP() : ModuleBase("BlockESP", "Draws a box around selected blocks", ModuleCategory::Visual, 0, false) {
         addSettings(
@@ -45,7 +47,9 @@ public:
             &mCoal,
             &mRedstone,
             &mLapis,
-            &mPortal
+            &mPortal,
+            &mChests,
+            &mOnlyExposedOres
         );
 
         mNames = {

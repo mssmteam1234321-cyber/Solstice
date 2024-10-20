@@ -7,10 +7,12 @@
 class AutoCosmetic : public ModuleBase<AutoCosmetic> {
 public:
     NumberSetting mUiDelay = NumberSetting("UI Delay", "The delay in milliseconds between each UI interaction", 200, 0, 1000, 100);
+    BoolSetting mDebug = BoolSetting("Debug", "Whether or not to display cosmetic application information", false);
 
     AutoCosmetic() : ModuleBase("AutoCosmetic", "Automatically applies cosmetics on The Hive", ModuleCategory::Misc, 0, false)
     {
         addSetting(&mUiDelay);
+        addSetting(&mDebug);
 
         mNames = {
             {Lowercase, "autocosmetic"},

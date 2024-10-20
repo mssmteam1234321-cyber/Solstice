@@ -14,6 +14,8 @@ public:
     BoolSetting mDistanceScaledFont = BoolSetting("Distance Scaled Font", "Whether to scale the font based on distance", true);
     NumberSetting mFontSize = NumberSetting("Font Size", "The size of the font", 20, 1, 40, 0.01);;
     NumberSetting mScalingMultiplier = NumberSetting("Scaling Multiplier", "The multiplier to use for scaling the font", 1.25f, 0.f, 5.f, 0.01f);
+    BoolSetting mHighlightUsefulItems = BoolSetting("Highlight Useful Items", "Toggle highlighting of useful items", true);
+    BoolSetting mShowEnchant = BoolSetting("Show Enchant", "Whether to show the enchantments of the items", true);
 
     ItemESP () : ModuleBase("ItemESP", "Draws a box around items", ModuleCategory::Visual, 0, false) {
         addSettings(
@@ -24,7 +26,9 @@ public:
             &mShowNames,
             &mDistanceScaledFont,
             &mFontSize,
-            &mScalingMultiplier
+            &mScalingMultiplier,
+            &mHighlightUsefulItems,
+            &mShowEnchant
         );
 
         VISIBILITY_CONDITION(mDistance, mDistanceLimited.mValue);

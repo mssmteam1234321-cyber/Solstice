@@ -9,10 +9,12 @@ class AutoLootbox : public ModuleBase<AutoLootbox> {
 public:
 
     NumberSetting mRange = NumberSetting("Range", "The max range for the lootboxes", 5.f, 0.f, 10.f, 1.f);
+    BoolSetting mRotate = BoolSetting("Rotate", "Enable or disable rotation", true);
 
     AutoLootbox() : ModuleBase("AutoLootbox", "Automatically breaks death treasures on The Hive", ModuleCategory::Player, 0, false) {
 
         addSettings(&mRange);
+        addSettings(&mRotate);
 
         mNames = {
                 {Lowercase, "autolootbox"},

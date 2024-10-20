@@ -8,10 +8,12 @@ class Extinguisher : public ModuleBase<Extinguisher> {
 public:
 
     NumberSetting mRange = NumberSetting("Range", "Range of the extinguisher", 7, 0, 10, 0.01);
+    BoolSetting mRotate = BoolSetting("Rotate", "Enable or disable rotation", true);
 
     Extinguisher() : ModuleBase("Extinguisher", "Destroys fire", ModuleCategory::Player, 0, false) {
 
         addSetting(&mRange);
+        addSetting(&mRotate);
 
         mNames = {
                 {Lowercase, "extinguisher"},

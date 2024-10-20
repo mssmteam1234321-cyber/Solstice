@@ -144,14 +144,14 @@ void AutoCosmetic::onBaseTickEvent(BaseTickEvent& event)
         spdlog::info("[AutoCosmetic] Applying cosmetic: {}, title: {}", buttonText, mLastFormTitle);
         std::string title = ColorUtils::removeColorCodes(mLastFormTitle);
         if (title.find("\n") != std::string::npos) title = title.substr(0, title.find("\n"));
-        ChatUtils::displayClientMessage("[" + std::to_string(mCosmeticIndex) + "] Applying cosmetic: " + buttonText + " for " + title);
+        if (mDebug.mValue) ChatUtils::displayClientMessage("[" + std::to_string(mCosmeticIndex) + "] Applying cosmetic: " + buttonText + " for " + title);
     } else
     {
         closeForm();
         std::string title = ColorUtils::removeColorCodes(mLastFormTitle);
         if (title.find("\n") != std::string::npos) title = title.substr(0, title.find("\n"));
         spdlog::info("[AutoCosmetic] No cosmetics to apply for {}", title);
-        ChatUtils::displayClientMessage("No cosmetics to apply for " + title);
+        if (mDebug.mValue) ChatUtils::displayClientMessage("No cosmetics to apply for " + title);
     }
 }
 

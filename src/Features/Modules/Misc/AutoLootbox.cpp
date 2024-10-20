@@ -82,7 +82,7 @@ void AutoLootbox::onBaseTickEvent(BaseTickEvent& event) {
 }
 
 void AutoLootbox::onPacketOutEvent(PacketOutEvent& event) {
-    if (!mRotating) return;
+    if (!mRotating || !mRotate.mValue) return;
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;

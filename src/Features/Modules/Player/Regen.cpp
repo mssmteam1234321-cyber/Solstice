@@ -1232,12 +1232,19 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
     if (event.mPacket->getId() == PacketID::LevelEvent) {
         auto levelEvent = event.getPacket<LevelEventPacket>();
         if (levelEvent->mEventId == 3600) { // Start destroying block
+            auto blockAtPos = ClientInstance::get()->getBlockSource()->getBlock(levelEvent->mPos);
+
+            if (blockAtPos->mLegacy->getBlockId() == 10099) { // ignore crumbling blocks due to false detecting
+                return;
+            }
+
             if (mTest.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
                     if(mDebug.mValue && mAssFuckerNotify.mValue) ChatUtils::displayClientMessage("Opponent is targetting same ore");
                 }
             }
+
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
             for (auto& offset : mOffsetList) {

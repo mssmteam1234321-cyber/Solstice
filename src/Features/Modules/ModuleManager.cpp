@@ -17,7 +17,6 @@
 #include "Misc/AutoAccept.hpp"
 #include "Misc/AutoCosmetic.hpp"
 #include "Misc/AutoDodge.hpp"
-#include "Misc/AutoHvH.hpp"
 #include "Misc/AutoLootbox.hpp"
 #include "Misc/AutoMessage.hpp"
 #include "Misc/AutoQueue.hpp"
@@ -207,7 +206,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
     mModules.emplace_back(std::make_shared<AutoSnipe>());
-    mModules.emplace_back(std::make_shared<AutoHvH>());
 
 
     // Visual

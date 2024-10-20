@@ -582,6 +582,14 @@ void Aura::onPacketInEvent(PacketInEvent& event)
             sTarget = nullptr;
         }
     }
+
+    if (event.mPacket->getId() == PacketID::ChangeDimension)
+    {
+        if (mDisableOnDimensionChange.mValue)
+        {
+            this->setEnabled(false);
+        }
+    }
 }
 
 void Aura::onBobHurtEvent(BobHurtEvent& event)

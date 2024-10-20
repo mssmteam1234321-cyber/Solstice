@@ -9,6 +9,8 @@ class StaffAlert : public ModuleBase<StaffAlert>
 public:
     BoolSetting mStaffOnly = BoolSetting("Staff Only", "Only show events from staff members or nicked players", true);
     BoolSetting mShowNotifications = BoolSetting("Show Notifications", "Show notifications when a staff member/nicked player joins or leaves", true);
+    BoolSetting mPlaySound = BoolSetting("Play Sound", "Plays a sound when a staff member/nicked player joins", true);
+    BoolSetting mShowRecentJoins = BoolSetting("Show Recent Joins", "Show when a player joined for the first time within the last 24 hours", false);
     BoolSetting mSaveToDatabase = BoolSetting("Save To Database", "Save all found members to a database", false);
 
     StaffAlert() : ModuleBase("StaffAlert", "Automatically detects staff members", ModuleCategory::Misc, 0, false)
@@ -16,7 +18,9 @@ public:
         addSettings(
             &mStaffOnly,
             &mShowNotifications,
-            &mSaveToDatabase
+            &mPlaySound,
+            &mSaveToDatabase,
+            &mShowRecentJoins
         );
 
         mNames = {
@@ -32,9 +36,13 @@ public:
     public:
         std::string name = "";
         std::string rank = "";
+        int64_t first_played;
         uint64_t storedAt = 0;
 
-        PlayerInfo(std::string name, std::string rank) : name(std::move(name)), rank(std::move(rank)), storedAt(NOW) {}
+        PlayerInfo(const std::string& name, const std::string& rank, int64_t firstPlayed)
+        : name(name), rank(rank), first_played(firstPlayed) {}
+
+        int64_t getFirstJoined() const { return first_played; }
 
         nlohmann::json toJson() override
         {
@@ -51,6 +59,7 @@ public:
             rank = json["rank"];
             storedAt = json["storedAt"];
         }
+
         PlayerInfo() = default;
     };
 
@@ -76,6 +85,7 @@ public:
     static void onHttpResponse(HttpResponseEvent event);
     [[nodiscard]] bool isPlayerCached(const std::string& name) const;
     const std::string& getRank(const std::string& name);
+    int64_t getFirstJoined(const std::string& name) const;
     void makeRequest(const std::string& name);
 
     void onEnable() override;

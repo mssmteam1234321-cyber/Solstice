@@ -17,8 +17,7 @@ void AntiCheatDetector::onEnable()
     mLastCheck = NOW;
     mDetectedAntiCheat = AntiCheats::None;
     ChatUtils::displayClientMessageRaw("§8[§cF§8]§r §7Recalculating...");
-    ClientInstance::get()->playUi("random.orb", 1.0f, 0.5f);
-
+    if (mPlaySound.mValue) ClientInstance::get()->playUi("random.orb", 1.0f, 0.5f);
 }
 
 void AntiCheatDetector::onDisable()
@@ -42,13 +41,13 @@ void AntiCheatDetector::onBaseTickEvent(BaseTickEvent& event)
     if (!hasRecentlyPinged && hasCheckedAfterPing) {
         mDetectedAntiCheat = AntiCheats::FlareonV2;
         ChatUtils::displayClientMessageRaw("§8[§cF§8]§r §cFlareon V2 §fwas detected to be running. The new Anti-Cheat is currently §aactive§f.");
-        ClientInstance::get()->playUi("random.orb", 1.0f, 1.0f);
+        if (mPlaySound.mValue) ClientInstance::get()->playUi("random.orb", 1.0f, 1.0f);
     } else if (hasRecentlyPinged) {
         mDetectedAntiCheat = AntiCheats::FlareonV1;
         if (!V2NotifyOnly.mValue)
         {
             ChatUtils::displayClientMessageRaw("§8[§cF§8]§r §cFlareon V1 §fwas detected to be running. The new Anti-Cheat is currently §cinactive§f.");
-            ClientInstance::get()->playUi("random.orb", 1.0f, 0.75f);
+            if (mPlaySound.mValue) ClientInstance::get()->playUi("random.orb", 1.0f, 0.75f);
         }
     }
 }

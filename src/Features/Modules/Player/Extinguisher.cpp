@@ -59,7 +59,7 @@ void Extinguisher::onBaseTickEvent(BaseTickEvent &event) {
 
     mCurrentPosition = exposedBlockList[0].mPosition;
     BlockUtils::startDestroyBlock(mCurrentPosition, -6);
-    mShouldRotate = true;
+    mShouldRotate = mRotate.mValue;
 }
 
 void Extinguisher::onPacketOutEvent(PacketOutEvent &event) {

@@ -10,6 +10,7 @@
 #include <SDK/Minecraft/Inventory/Item.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Modules/Player/InvManager.hpp>
 
 void ItemESP::onEnable()
 {
@@ -23,24 +24,26 @@ void ItemESP::onDisable()
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &ItemESP::onBaseTickEvent>(this);
 }
 
-struct ItemLol
+struct ItemInfo
 {
     glm::vec3* pos;
     glm::vec2 size;
     std::string name;
+    bool isUseful;
+    std::vector<std::pair<std::string, int>> enchants;
 };
 
-std::vector<ItemLol> items;
+std::vector<ItemInfo> items;
 std::mutex itemMutex;
 
 void ItemESP::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
-
     std::lock_guard<std::mutex> lock(itemMutex);
 
     items.clear();
     auto actors = ActorUtils::getActorsTyped<ItemActor>(ActorType::ItemEntity);
+
     for (auto actor : actors)
     {
         if (!actor) continue;
@@ -58,16 +61,25 @@ void ItemESP::onBaseTickEvent(BaseTickEvent& event)
         float aabbHeight = shape->mHeight;
         float aabbWidth = shape->mWidth;
 
-
         ItemStack* stack = &actor->mItem;
-
         if (!stack->mItem) continue;
 
+        bool isUseful = !InvManager::isItemUseless(stack, -1);
         std::string name = actor->mItem.getItem()->mName;
         if (name.empty()) return;
         name += " x" + std::to_string(stack->mCount);
 
-        items.push_back({&renderPosComp->mPosition, {aabbWidth, aabbHeight}, name});
+        std::vector<std::pair<std::string, int>> enchants;
+        for (int i = 0; i <= static_cast<int>(Enchant::SWIFT_SNEAK); ++i)
+        {
+            int enchantValue = stack->getEnchantValue(i);
+            if (enchantValue > 0)
+            {
+                enchants.emplace_back(stack->getEnchantName(static_cast<Enchant>(i)), enchantValue);
+            }
+        }
+
+        items.push_back({&renderPosComp->mPosition, {aabbWidth, aabbHeight}, name, isUseful, enchants});
     }
 }
 
@@ -104,11 +116,21 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         glm::vec3 origin = RenderUtils::transform.mOrigin;
         glm::vec2 screen = glm::vec2(0, 0);
 
-
         if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, pos, screen, ci->getFov(), ci->getGuiData()->mResolution)) continue;
 
         if (!mShowNames.mValue) continue;
         std::string name = actor.name;
+
+        if (mShowEnchant.mValue && !actor.enchants.empty()) {
+            std::string enchantText;
+            for (const auto& enchant : actor.enchants) {
+                if (!enchantText.empty()) {
+                    enchantText += ", ";
+                }
+                enchantText += "[" + enchant.first + "]";
+            }
+            name += " " + enchantText;
+        }
 
         FontHelper::pushPrefFont(true, true);
 
@@ -126,12 +148,10 @@ void ItemESP::onRenderEvent(RenderEvent& event)
         ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
         ImVec2 textPos = ImVec2(screen.x - textSize.x / 2, screen.y - textSize.y - 5);
         //drawList->AddText(ImGui::GetFont(), fontSize, textPos, ImColor(1.0f, 1.0f, 1.0f, 1.0f), name.c_str());
-        ImColor textCol = ImColor(1.0f, 1.0f, 1.0f, 1.0f);
+        ImColor textCol = actor.isUseful && mHighlightUsefulItems.mValue ? ImColor(0.0f, 1.0f, 0.0f) : ImColor(1.0f, 1.0f, 1.0f); // Green for useful and white for others
 
         ImRenderUtils::drawShadowText(drawList, name, textPos, textCol, fontSize, true);
 
         FontHelper::popPrefFont();
-
-
     }
 }
