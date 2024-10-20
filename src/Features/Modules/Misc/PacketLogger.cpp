@@ -29,7 +29,7 @@ void PacketLogger::onDisable()
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &PacketLogger::onPacketInEvent>(this);
 }
 
-std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes, PacketID::PlayerAuthInput };
+std::vector<PacketID> ignored = { PacketID::LevelChunk, PacketID::MovePlayer, PacketID::Animate, PacketID::SetActorMotion, PacketID::MoveActorAbsolute, PacketID::MoveActorDelta, PacketID::UpdateAttributes/*, PacketID::PlayerAuthInput*/ };
 
 void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
 {

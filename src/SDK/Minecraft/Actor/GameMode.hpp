@@ -5,7 +5,7 @@
 
 #include <Utils/MemUtils.hpp>
 #include <SDK/SigManager.hpp>
-#include <glm/glm.hpp>
+
 
 class GameMode {
 public:

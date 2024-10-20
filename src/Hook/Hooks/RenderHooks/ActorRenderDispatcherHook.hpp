@@ -5,7 +5,7 @@
 
 #include <Hook/Hook.hpp>
 #include <Hook/HookManager.hpp>
-#include <glm/glm.hpp>
+
 
 class ActorRenderDispatcher;
 class BaseActorRenderContext;

@@ -5,7 +5,7 @@
 
 #include <Utils/MemUtils.hpp>
 #include "EntityContext.hpp"
-#include <glm/glm.hpp>
+
 #include "ActorFlags.hpp"
 #include "Components/StateVectorComponent.hpp"
 #include "Components/MoveInputComponent.hpp"

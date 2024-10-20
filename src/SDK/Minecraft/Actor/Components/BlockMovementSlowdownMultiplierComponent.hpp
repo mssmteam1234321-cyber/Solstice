@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+
 
 struct BlockMovementSlowdownMultiplierComponent {
     glm::vec3 mBlockMovementSlowdownMultiplier;

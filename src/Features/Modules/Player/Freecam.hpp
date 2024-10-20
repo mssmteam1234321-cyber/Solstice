@@ -9,7 +9,7 @@
 #include <SDK/Minecraft/Actor/Components/ActorHeadRotationComponent.hpp>
 #include <SDK/Minecraft/Actor/Components/ActorRotationComponent.hpp>
 #include <SDK/Minecraft/Actor/Components/MobBodyRotationComponent.hpp>
-#include <glm/glm.hpp>
+
 
 class Freecam : public ModuleBase<Freecam> {
 public:

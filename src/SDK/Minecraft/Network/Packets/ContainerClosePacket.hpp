@@ -7,7 +7,7 @@
 #include "Packet.hpp"
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 #include <SDK/Minecraft/Inventory/NetworkItemStackDescriptor.hpp>
-#include <glm/glm.hpp>
+
 
 class InventoryContentPacket : public Packet
 {

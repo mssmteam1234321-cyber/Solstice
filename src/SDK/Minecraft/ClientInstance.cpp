@@ -9,7 +9,7 @@
 #include <SDK/SigManager.hpp>
 
 #include "MinecraftGame.hpp"
-#include <glm/glm.hpp>
+
 #include <Utils/Structs.hpp>
 
 #include "KeyboardMouseSettings.hpp"

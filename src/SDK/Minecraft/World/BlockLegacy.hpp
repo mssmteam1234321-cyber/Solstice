@@ -7,7 +7,7 @@
 #include <vector>
 #include <Utils/MemUtils.hpp>
 
-#include <glm/glm.hpp>
+
 #include <Utils/Structs.hpp>
 
 class Material

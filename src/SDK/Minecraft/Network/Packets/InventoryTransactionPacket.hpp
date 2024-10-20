@@ -9,7 +9,7 @@
 #include <SDK/Minecraft/Inventory/ItemStack.hpp>
 #include <SDK/Minecraft/Inventory/CompoundTag.hpp>
 
-#include <glm/glm.hpp>
+
 
 enum class InventorySourceType : int {
     InvalidInventory          = -1,

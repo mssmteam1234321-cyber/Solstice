@@ -1,7 +1,7 @@
 #pragma once
 #include <Utils/MemUtils.hpp>
 
-#include <glm/glm.hpp>
+
 //
 // Created by vastrakai on 7/7/2024.
 //
