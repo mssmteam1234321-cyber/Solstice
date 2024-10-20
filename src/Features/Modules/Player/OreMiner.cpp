@@ -174,6 +174,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     mWasMiningBlock = mIsMiningBlock;
 
     auto player = event.mActor;
+    if(player->isDestroying()) reset();
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
     PlayerInventory* supplies = player->getSupplies();

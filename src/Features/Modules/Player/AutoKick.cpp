@@ -264,6 +264,7 @@ void AutoKick::onBaseTickEvent(BaseTickEvent& event)
         mLastBlockPlace = NOW;
     }else if (mMode.mValue == Mode::Replace) {
         mPreviousSlot = supplies->mSelectedSlot;
+        if(player->isDestroying()) return;
 
         if (isValidBlock(mCurrentBlockPos)) {
             Block* currentBlock = ClientInstance::get()->getBlockSource()->getBlock(mCurrentBlockPos);

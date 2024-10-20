@@ -3,6 +3,7 @@
 // Created by vastrakai on 8/10/2024.
 //
 
+#include <Features/Events/BaseTickEvent.hpp>
 
 class Nametags : public ModuleBase<Nametags>
 {

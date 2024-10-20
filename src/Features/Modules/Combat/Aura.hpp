@@ -61,6 +61,7 @@ public:
     BoolSetting mSwingDelay = BoolSetting("Swing Delay", "Whether or not to delay the swing", false);
     NumberSetting mSwingDelayValue = NumberSetting("Swing Delay Value", "The delay between swings (in seconds)", 4.5f, 0.f, 10.f, 0.01f);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
+    BoolSetting mAttackThroughWalls = BoolSetting("Attack through walls", "Whether or not to attack throw walls", true);
     BoolSetting mVisuals = BoolSetting("Visuals", "Whether or not to render visuals around the target", true);
     NumberSetting mUpDownSpeed = NumberSetting("Up-Down Speed", "Speed of spheres rotate", 1.2, 0, 20, 0.01);
     NumberSetting mSpheresAmount = NumberSetting("Spheres Amount", "Amount of spheres to draw", 12, 0, 20, 1);
@@ -104,6 +105,7 @@ public:
             &mSwingDelay,
             &mSwingDelayValue,
             &mStrafe,
+            &mAttackThroughWalls,
             &mDisableOnDimensionChange,
             &mDebug
         );

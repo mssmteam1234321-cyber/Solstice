@@ -444,3 +444,8 @@ bool Actor::isValid()
     auto player = ClientInstance::get()->getLocalPlayer();
     return player->mContext.mRegistry->valid(mContext.mEntityId);
 }
+
+bool Actor::canSee(Actor* actor)
+{
+    return MemUtils::callFastcall<bool>(SigManager::Actor_canSee, this, actor);
+}

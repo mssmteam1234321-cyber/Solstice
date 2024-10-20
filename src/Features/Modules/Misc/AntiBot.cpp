@@ -64,7 +64,8 @@ std::vector<std::string> AntiBot::getDaPlayerList() {
     return playerNames;
 }
 
-bool AntiBot::isBot(Actor* actor) const {
+bool AntiBot::isBot(Actor* actor)
+{
     if (!mEnabled) return false;
     if (mPlayerCheck.mValue && !actor->isPlayer()) return true;
     auto aabbShapeComponent = actor->getAABBShapeComponent();
@@ -100,5 +101,42 @@ bool AntiBot::isBot(Actor* actor) const {
         }
     }
 
+    if(mHasArmorCheck.mValue && !hasArmor(actor)) return true;
+
     return false;
+}
+
+bool AntiBot::hasArmor(Actor* actor)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if(!player) return false;
+    if(!actor->isPlayer()) return false;
+
+    ItemStack* helmetItem = actor->getArmorContainer()->getItem(0);
+    ItemStack* chestplateItem = actor->getArmorContainer()->getItem(1);
+    ItemStack* legginsItem = actor->getArmorContainer()->getItem(2);
+    ItemStack* bootsItem = actor->getArmorContainer()->getItem(3);
+
+    if(mArmorMode.mValue == ArmorMode::Full)
+    {
+        if (!helmetItem->mItem || !chestplateItem->mItem || !legginsItem->mItem || !bootsItem->mItem)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else if(mArmorMode.mValue == ArmorMode::OneElement)
+    {
+        if (helmetItem->mItem || chestplateItem->mItem || legginsItem->mItem || bootsItem->mItem)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

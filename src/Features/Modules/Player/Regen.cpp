@@ -260,6 +260,17 @@ void Regen::onDisable()
 void Regen::onBaseTickEvent(BaseTickEvent& event) {
     mWasMiningBlock = mIsMiningBlock;
 
+    auto player = event.mActor;
+    if(player->isDestroying())
+    {
+        if (mIsMiningBlock) {
+            player->getSupplies()->mSelectedSlot = mToolSlot;
+            player->getGameMode()->stopDestroyBlock(mCurrentBlockPos);
+            mIsMiningBlock = false;
+        }
+        mWasMiningBlock = false;
+    }
+
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;
 
@@ -318,7 +329,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         }
     } else mCurrentUncover = false;
 
-    auto player = event.mActor;
     BlockSource *source = ClientInstance::get()->getBlockSource();
     if (!source) return;
     PlayerInventory *supplies = player->getSupplies();

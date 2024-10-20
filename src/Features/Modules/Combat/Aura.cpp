@@ -403,6 +403,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     {
         if (actor == player) continue;
         if (actor->distanceTo(player) > mRange.mValue) continue;
+        if (!mAttackThroughWalls.mValue && !player->canSee(actor)) continue;
 
         if (actor->isPlayer() && gFriendManager->mEnabled)
         {

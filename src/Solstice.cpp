@@ -30,6 +30,7 @@
 #include <Features/Modules/Misc/IRC.hpp>
 #include <SDK/Minecraft/Rendering/GuiData.hpp>
 #include <Utils/OAuthUtils.hpp>
+#include <Utils/SysUtils/xorstr.hpp>
 
 #ifdef __DEBUG__
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [debug]";
@@ -255,6 +256,8 @@ void Solstice::init(HMODULE hModule)
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
+    if(!InternetGetConnectedState(nullptr, 0)) __fastfail(1);
+
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
@@ -282,10 +285,14 @@ void Solstice::init(HMODULE hModule)
             }
             catch(...)
             {
-                ChatUtils::displayClientMessage("§cError while retrieving the hash of the latest commit.");
+                __fastfail(1);
             }
 
-            if(latestHash != "")
+            if(latestHash == xorstr_("403"))
+            {
+                __fastfail(1);
+            }
+            else if (latestHash != "")
             {
                 if (latestHash != SOLSTICE_BUILD_VERSION)
                 {
