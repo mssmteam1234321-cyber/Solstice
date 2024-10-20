@@ -123,6 +123,7 @@ void Nuker::onDisable()
 void Nuker::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
+    if(player->isDestroying()) reset();
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
     PlayerInventory* supplies = player->getSupplies();

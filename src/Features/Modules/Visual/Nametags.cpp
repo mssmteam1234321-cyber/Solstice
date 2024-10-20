@@ -8,6 +8,7 @@
 #include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/FlagComponent.hpp>

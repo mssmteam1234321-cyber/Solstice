@@ -44,6 +44,7 @@ void Extinguisher::onDisable() {
 void Extinguisher::onBaseTickEvent(BaseTickEvent &event) {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;
+    if(player->isDestroying()) return;
 
     std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
     std::vector<BlockInfo> exposedBlockList;
