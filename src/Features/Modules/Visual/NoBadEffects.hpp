@@ -6,12 +6,12 @@
 
 class NoBadEffects : public ModuleBase<NoBadEffects> {
 public:
-    NoBadEffects() : ModuleBase<NoBadEffects>("NoFire", "Dont render bad effects", ModuleCategory::Visual, 0, false) {
+    NoBadEffects() : ModuleBase<NoBadEffects>("NoDebuff", "Dont render bad effects", ModuleCategory::Visual, 0, false) {
         mNames = {
-            {Lowercase, "nobadeffects"},
-            {LowercaseSpaced, "no bad effects"},
-            {Normal, "NoBadEffects"},
-            {NormalSpaced, "No Bad Effects"}
+            {Lowercase, "nodebuff"},
+            {LowercaseSpaced, "no debuff"},
+            {Normal, "NoDebuff"},
+            {NormalSpaced, "No Debuff"}
         };
     }
 
