@@ -13,6 +13,7 @@
 #include <Features/Modules/Misc/AntiBot.hpp>
 #include <Hook/Hooks/MiscHooks/MouseHook.hpp>
 #include <SDK/Minecraft/Actor/Components/RuntimeIDComponent.hpp>
+#include <SDK/Minecraft/Inventory/Item.hpp>
 
 void AutoClicker::onEnable() {
     gFeatureManager->mDispatcher->listen<RenderEvent, &AutoClicker::onRenderEvent>(this);
@@ -32,8 +33,6 @@ void AutoClicker::onRenderEvent(RenderEvent& event)
     if (!ci->getLocalPlayer() || ci->getScreenName() != "hud_screen") return;
 
     auto hitres = ci->getLocalPlayer()->getLevel()->getHitResult();
-    if (mAllowBlockBreaking.mValue && hitres && hitres->mType == HitType::BLOCK)
-        return;
 
     if (mWeaponsOnly.mValue)
     {
@@ -63,8 +62,16 @@ void AutoClicker::onRenderEvent(RenderEvent& event)
 
         if(lmb)
         {
-            MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
-            MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+            if(mAllowBlockBreaking.mValue)
+            {
+                MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+                MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
+            }
+            else
+            {
+                MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
+                MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+            }
         }
 
         if(rmb)
@@ -85,10 +92,25 @@ void AutoClicker::onRenderEvent(RenderEvent& event)
 
         lastAction = NOW;
 
-        MouseHook::simulateMouseInput(button + 1, 1, 0, 0, 0, 0);
-        MouseHook::simulateMouseInput(button + 1, 0, 0, 0, 0, 0);
+        if(button == 0)
+        {
+            if(mAllowBlockBreaking.mValue)
+            {
+                MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+                MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
+            }
+            else
+            {
+                MouseHook::simulateMouseInput(1, 1, 0, 0, 0, 0);
+                MouseHook::simulateMouseInput(1, 0, 0, 0, 0, 0);
+            }
+        }
+        else if(button == 1)
+        {
+            MouseHook::simulateMouseInput(2, 1, 0, 0, 0, 0);
+            MouseHook::simulateMouseInput(2, 0, 0, 0, 0, 0);
+        }
     }
-
 
     randomizeCPS();
 }
