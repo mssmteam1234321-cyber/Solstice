@@ -49,17 +49,10 @@ class Speed : public ModuleBase<Speed> {
 public:
     enum class Mode {
         Friction,
-        Hive,
         Legit
     };
 
-    enum class FlareonPreset {
-        Semi
-    };
-
-
-    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Hive", "Legit");
-    EnumSettingT<FlareonPreset> mFlareonPreset = EnumSettingT("Type", "The preset for Flareon", FlareonPreset::Semi, "Semi");
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Legit");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
     BoolSetting mHoldSpace = BoolSetting("Hold Space", "Only applies swiftness effect while holding space", false);
@@ -97,7 +90,6 @@ public:
     Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
         addSettings(
             &mMode,
-            &mFlareonPreset,
             &mSwiftness,
             &mSwiftnessHotbar,
             &mSwiftnessSpeed,
@@ -150,7 +142,6 @@ public:
         VISIBILITY_CONDITION(mStrafeSpeed, mMode.mValue != Mode::Legit);
 
 
-        VISIBILITY_CONDITION(mFlareonPreset, mMode.mValue == Mode::Hive);
         VISIBILITY_CONDITION(mSpeed, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
         VISIBILITY_CONDITION(mFriction, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
         VISIBILITY_CONDITION(mTimerBoost, mMode.mValue == Mode::Friction || mMode.mValue == Mode::Legit);
