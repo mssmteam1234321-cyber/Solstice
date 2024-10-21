@@ -121,6 +121,7 @@
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
 #include "Visual/NoFire.hpp"
+#include "Visual/NoBadEffects.hpp"
 
 void ModuleManager::init()
 {
@@ -237,6 +238,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Zoom>());
     mModules.emplace_back(std::make_shared<NoFire>());
     mModules.emplace_back(std::make_shared<Glint>());
+    mModules.emplace_back(std::make_shared<NoBadEffects>());
 
 
 #ifdef __PRIVATE_BUILD__
