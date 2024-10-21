@@ -34,7 +34,7 @@ Actor* TriggerBot::getActorFromEntityId(EntityId entityId)
     for (auto actor : actors)
     {
         if(mUseAntibot.mValue && antiBot->isBot(actor)) continue;
-        if(mHive.mValue && actor->getmEntityIdentifier() == "hivecommon:shadow" || actor->getmEntityIdentifier() == "minecraft:pig") continue;
+        if(mHive.mValue && actor->getmEntityIdentifier() == "hivecommon:shadow") continue;
         if(actor == player) continue;
 
         if(actor->mContext.mEntityId == entityId) return actor;

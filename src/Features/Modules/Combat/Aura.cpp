@@ -682,16 +682,6 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
 
                 return actor;
             }
-
-            if (id == "minecraft:pig" && distance < 3.f && mBypassMode.mValue == BypassMode::FlareonV1)
-            {
-                if (mDebug.mValue)
-                {
-                    spdlog::info("Found pig: {}", actor->mEntityIdentifier);
-                    ChatUtils::displayClientMessage("Found pig: " + actor->mEntityIdentifier);
-                }
-                return actor;
-            }
         }
 
         return target;
