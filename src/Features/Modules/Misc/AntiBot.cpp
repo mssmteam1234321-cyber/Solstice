@@ -139,4 +139,6 @@ bool AntiBot::hasArmor(Actor* actor)
             return false;
         }
     }
+
+    return false;
 }
