@@ -243,8 +243,18 @@ void Solstice::init(HMODULE hModule)
     }
 
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
+    // press enter to continue if failed sigs
+    if (failedSigs > 0)
+    {
+        console->info("Press ENTER to continue...");
+        std::string input;
+        std::getline(std::cin, input);
+    }
+
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
+
     console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
+
 
 
     gFeatureManager = std::make_shared<FeatureManager>();
