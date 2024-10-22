@@ -40,6 +40,7 @@ std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std:
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 #endif
 
+
 void setTitle(std::string title)
 {
     auto w = winrt::Windows::ApplicationModel::Core::CoreApplication::MainView().CoreWindow().Dispatcher().RunAsync(winrt::Windows::UI::Core::CoreDispatcherPriority::Normal, [title]() {

@@ -109,6 +109,8 @@ int getFirstEmptySlot()
     return -1;
 }
 
+// TODO: This will cause issues with high ping because the items aren't updated with setSlot.
+
 void ChestStealer::takeItem(int slot, NetworkItemStackDescriptor item)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
