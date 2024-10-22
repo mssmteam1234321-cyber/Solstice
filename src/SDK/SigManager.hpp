@@ -105,8 +105,8 @@ public:
     DEFINE_SIG(ConnectionRequest_create_DeviceModel, "48 8B 11 48 83 C2 ? EB", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DeviceOS, "74 ? 41 80 3F ? 74 ? 49 8B ? 49 8B ? 48 8B ? ? ? ? ? FF 15", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DefaultInputMode, "74 ? 80 3E ? 74 ? 49 8B ? 49 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? EB ? 33 C0 C6 44 24 58 ? 48 63 ? 48 89 ? ? ? 48 8D ? ? ? ? ? 48 8D ? ? ? ? ? E8 ? ? ? ? 48 8B ? 33 D2 48 8D ? ? ? E8 ? ? ? ? 0F B6 ? ? 0F B6", SigType::Sig, 0);
-    DEFINE_SIG(GetInputModeBypass, "8B D7 48 8B CE 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 49 8B 06", SigType::Sig, 0);
-    DEFINE_SIG(MobileRotations, "48 8b 5c 24 ? 89 07 48 83 c4 ? 5f c3 f2 0f 10 02", SigType::Sig, 0);
+    DEFINE_SIG(GetInputModeBypass, "8B D7 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 49 8B ? 8B D7", SigType::Sig, 0);
+    DEFINE_SIG(MobileRotations, "48 8B ? ? ? 89 07 48 83 C4 ? 5F C3 48 8B", SigType::Sig, 0);
     DEFINE_SIG(TapSwingAnim, "F3 44 ? ? ? ? ? ? ? 41 0F ? ? F3 0F ? ? ? ? C6 40 38 ? 48 8B ? 41 0F ? ? E8 ? ? ? ? 45 84 ? 0F 85 ? ? ? ? 48 8B", SigType::RefSig, 5);
     DEFINE_SIG(FluxSwing, "E8 ? ? ? ? 48 8B ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? F3 0F ? ? ? ? ? ? C6 40 38 ? 48 8B ? EB", SigType::Sig, 0);
     DEFINE_SIG(BobHurt, "40 ? 56 48 83 EC ? 0F 29 ? ? ? 48 81 C1", SigType::Sig, 0);
