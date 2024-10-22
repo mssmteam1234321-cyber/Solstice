@@ -103,7 +103,7 @@ public:
     DEFINE_SIG(BlockReach, "F3 0F ? ? ? ? ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 83 C0", SigType::Sig, 0);
     DEFINE_SIG(GetSpeedInAirWithSprint, "41 C7 40 ? ? ? ? ? F6 02", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DeviceModel, "48 8B 11 48 83 C2 ? EB", SigType::Sig, 0);
-    DEFINE_SIG(ConnectionRequest_create_DeviceOS, "74 ? 48 83 3E ? 74 ? 48 8B 0E 48 8B 01 48 8B 40 ? FF 15 ? ? ? ? EB", SigType::Sig, 0);
+    DEFINE_SIG(ConnectionRequest_create_DeviceOS, "74 ? 41 80 3F ? 74 ? 49 8B ? 49 8B ? 48 8B ? ? ? ? ? FF 15", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create_DefaultInputMode, "74 1B 49 83 3E 00", SigType::Sig, 0);
     DEFINE_SIG(GetInputModeBypass, "8B D7 48 8B CE 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 49 8B 06", SigType::Sig, 0);
     DEFINE_SIG(MobileRotations, "48 8b 5c 24 ? 89 07 48 83 c4 ? 5f c3 f2 0f 10 02", SigType::Sig, 0);
