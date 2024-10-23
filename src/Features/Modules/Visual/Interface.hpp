@@ -56,7 +56,7 @@ public:
         gFeatureManager->mDispatcher->listen<PacketOutEvent, &Interface::onPacketOutEvent, nes::event_priority::ABSOLUTE_LAST>(this);
         gFeatureManager->mDispatcher->listen<DrawImageEvent, &Interface::onDrawImageEvent>(this);
 
-        addSettings(&mNamingStyle, &mMode, &mFont, &mColors, &mColor1, &mColor2, &mColor3, &mColor4, &mColor5, &mColor6, /*&mColorSpeed,*/ &mSaturation, &mSlotEasing, &mSlotEasingSpeed);
+        addSettings(&mNamingStyle, &mMode, &mFont, &mColors, &mColor1, &mColor2, &mColor3, &mColor4, &mColor5, &mColor6, &mColorSpeed, &mSaturation, &mSlotEasing, &mSlotEasingSpeed);
 
         VISIBILITY_CONDITION(mColors, mMode.mValue == Custom);
         VISIBILITY_CONDITION(mColor1, mMode.mValue == Custom && mColors.mValue >= 1);
