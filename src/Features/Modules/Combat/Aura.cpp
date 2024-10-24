@@ -92,12 +92,18 @@ bool Aura::shouldUseFireSword(Actor* target)
     auto container = supplies->getContainer();
 
     int fireSw = ItemUtils::getFireSword(mHotbarOnly.mValue);
+#ifdef __PRIVATE_BUILD__ //anyway doesnt bypass without spoof
     if (fireSw != -1 && mAutoFireSword.mValue && !target->isOnFire())
     {
         return true;
     }
-
+    else
+    {
+        return false;
+    }
+#else
     return false;
+#endif
 }
 
 void Aura::onEnable()
@@ -142,7 +148,11 @@ void Aura::shootBow(Actor* target)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
+#ifdef __PRIVATE_BUILD__
     if (!mAutoBow.mValue) return;
+#else
+    return;
+#endif
 
     int bowSlot = -1;
     int arrowSlot = -1;

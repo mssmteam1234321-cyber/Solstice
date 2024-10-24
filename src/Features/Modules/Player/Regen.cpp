@@ -80,7 +80,11 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     int exposedFace = BlockUtils::getExposedFace(blockPos);
     bool canSkipExposedCheck = false;
     float percentage = (mBreakingProgress / mCurrentDestroySpeed);
-    canSkipExposedCheck = mIsMiningBlock && !mIsUncovering && blockPos == mCurrentBlockPos && mAntiCover.mValue && mCompensation.mValue <= percentage && percentage <= 1;
+    bool antiCover;
+#ifdef __PRIVATE_BUILD__
+    antiCover = mAntiCover.mValue;
+#endif
+    canSkipExposedCheck = mIsMiningBlock && !mIsUncovering && blockPos == mCurrentBlockPos && antiCover && mCompensation.mValue <= percentage && percentage <= 1;
     if (exposedOnly && (!isStealing || !isRedstone) && !canSkipExposedCheck) {
         if (exposedFace == -1) return false;
     }
@@ -141,6 +145,7 @@ void Regen::queueBlock(glm::ivec3 blockPos)
     mToolSlot = bestToolSlot;
     mShouldSetbackSlot = true;
 
+#ifdef __PRIVATE_BUILD__
     if (mDynamicDestroySpeed.mValue) {
         std::string blockName = block->getmLegacy()->getmName();
         for (auto& c : BlockUtils::mDynamicSpeeds) {
@@ -150,6 +155,7 @@ void Regen::queueBlock(glm::ivec3 blockPos)
             }
         }
     }
+#endif
 }
 
 Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos) 
@@ -163,6 +169,11 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos)
     float currentBreakingTime = 0;
     float bestBreakingTime = INT_MAX;
     glm::ivec3 bestPos = { INT_MAX, INT_MAX, INT_MAX };
+
+    int uncoverRange = mUncoverRange.mValue;
+#ifndef  __PRIVATE_BUILD__
+    if(uncoverRange > 3) uncoverRange = 3;
+#endif
 
     if (mUncoverMode.mValue == UncoverMode::Normal) {
         bool foundPath = false;
@@ -180,6 +191,7 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos)
         }
         if(!foundPath) return { glm::ivec3(INT_MAX, INT_MAX, INT_MAX), 0 };
     }
+#ifdef __PRIVATE_BUILD__
     else if (mUncoverMode.mValue == UncoverMode::Fast) {
 
         static std::vector<glm::ivec3> offsetList = {
@@ -213,7 +225,7 @@ Regen::PathFindingResult Regen::getBestPathToBlock(glm::ivec3 blockPos)
             }
         }
     }
-
+#endif
     return { bestPos, bestBreakingTime };
 }
 
@@ -336,8 +348,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     float absorption = player->getAbsorption();
     bool maxAbsorption = 10 <= absorption;
-    bool steal = mSteal.mValue && (mCanSteal || mIsStealing) && isValidBlock(mEnemyTargettingBlockPos, true, false) && stealEnabled;
-
+    bool steal;
+#ifdef __PRIVATE_BUILD__
+    steal = mSteal.mValue && (mCanSteal || mIsStealing) && isValidBlock(mEnemyTargettingBlockPos, true, false) && stealEnabled;
+#endif
     bool isStealDelayed = false;
     Block* coveredBlock = source->getBlock(mLastEnemyLayerBlockPos);
     int coveredBlockToolSlot = ItemUtils::getBestBreakingTool(coveredBlock, mHotbarOnly.mValue);
@@ -398,7 +412,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 #endif
 
-
+#ifdef __PRIVATE_BUILD__
     // Ore Blocker
     if (mBlockOre.mValue) {
         bool placedBlock = false;
@@ -473,6 +487,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         miningRedstones.clear();
         if (placedBlock) return;
     }
+#endif
 
     auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
     bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
@@ -547,6 +562,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     bool shouldChangeOre = false;
     if (mStealPriority.mValue == StealPriority::Steal && steal && (!mIsStealing || mTargettingBlockPos != mEnemyTargettingBlockPos)) {
+#ifdef __PRIVATE_BUILD__
         if (mAntiConfuse.mValue) {
             std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
             std::vector<BlockInfo> exposedBlockList;
@@ -558,8 +574,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             }
             if (exposedBlockList.empty()) shouldChangeOre = true;
         } else shouldChangeOre = true;
-
+#else
+        shouldChangeOre = true;
+#endif
+#ifdef __PRIVATE_BUILD__
         if (isStealDelayed) shouldChangeOre = false;
+#endif
     }
 
     if (
@@ -602,7 +622,11 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         bool synchedSpeed = false;
         resetSyncSpeed();
         bool nukedBlock = false;
-        if (!mDynamicDestroySpeed.mValue || (mOnGroundOnly.mValue && mOffGround)) {
+        bool dynamicDspeed;
+#ifdef __PRIVATE_BUILD__
+        dynamicDspeed = mDynamicDestroySpeed.mValue;
+#endif
+        if (!dynamicDspeed || (mOnGroundOnly.mValue && mOffGround)) {
             if (isRedstone) {
 #ifdef __PRIVATE_BUILD__
                 if (mCalcMode.mValue == CalcMode::Test) {
@@ -739,9 +763,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         glm::ivec3 targettingPos = {INT_MAX, INT_MAX, INT_MAX};
         if (!exposedBlockList.empty()) {
             // Confuser
-            bool shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always ||
+            bool shouldConfuse;
+#ifdef __PRIVATE_BUILD__
+            shouldConfuse = mConfuse.mValue && (mConfuseMode.mValue == ConfuseMode::Always ||
                                                      (mConfuseMode.mValue == ConfuseMode::Auto &&
                                                       mLastStealerDetected + mConfuseDuration.mValue > NOW));
+#endif
             if (shouldConfuse) {
                 if (mIsConfuserActivated) {
                     player->getGameMode()->stopDestroyBlock(mLastConfusedPos);
@@ -1276,13 +1303,14 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 }
                 mLastStealerDetected = NOW;
             }
-
+#ifdef __PRIVATE_BUILD__
             // Ore Blocker
             if (mBlockOre.mValue) {
                 // normal ore blocker
                 if (std::find(mFakePositions.begin(), mFakePositions.end(), glm::ivec3(levelEvent->mPos)) != mFakePositions.end()) return;
                 if (isValidRedstone(levelEvent->mPos)) miningRedstones.push_back(levelEvent->mPos);
             }
+#endif
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
             if (mCanSteal && glm::ivec3(levelEvent->mPos) == mLastEnemyLayerBlockPos) {

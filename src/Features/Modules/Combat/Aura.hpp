@@ -84,8 +84,8 @@ public:
             &mRotateMode,
             &mSwitchMode,
             &mBypassMode,
-            &mAutoFireSword,
 #ifdef __PRIVATE_BUILD__
+            &mAutoFireSword,
             &mFireSwordSpoof,
 #endif
             &mHotbarOnly,
@@ -99,7 +99,9 @@ public:
             //&mInteract, // TODO: Implement this
             &mThrowProjectiles,
             &mThrowDelay,
+#ifdef __PRIVATE_BUILD__
             &mAutoBow,
+#endif
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,
