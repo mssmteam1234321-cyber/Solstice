@@ -29,10 +29,14 @@ public:
         };
 
         gFeatureManager->mDispatcher->listen<BaseTickInitEvent, &RobloxCamera::onBaseTickInitEvent>(this);
+        gFeatureManager->mDispatcher->listen<ModuleStateChangeEvent, &RobloxCamera::onModuleStateChangeEvent>(this);
     }
+
+    void onModuleStateChangeEvent(ModuleStateChangeEvent& event);
 
     void onBaseTickInitEvent(BaseTickInitEvent& event);
 
+    bool mHasComponents = false;
     float mCurrentDistance = 4.f;
 
     void onEnable() override;

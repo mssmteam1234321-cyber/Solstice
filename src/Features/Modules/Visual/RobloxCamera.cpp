@@ -15,18 +15,62 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
+template<typename Func, typename... Args>
+bool TryCallWrapper(Func func, Args&&... args) {
+    __try
+    {
+        func(std::forward<Args>(args)...);
+        return true;
+    } __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        return false;
+    }
+}
+
+// Refactored TRY_CALL using lambdas and spdlog
+#define TRY_CALL(func, ...) \
+[&]() { \
+    bool result = TryCallWrapper([&]() { func(__VA_ARGS__); }); \
+    if (!result) { \
+        spdlog::error("Exception thrown in {} at line {} in {}", __FUNCTION__, __LINE__, __FILE__); \
+    } \
+    return result; \
+}()
+
+void RobloxCamera::onModuleStateChangeEvent(ModuleStateChangeEvent& event)
+{
+    if (event.mModule == this && !mHasComponents)
+    {
+        NotifyUtils::notify("RobloxCamera: Failed to initialize required components :(", 5.f, Notification::Type::Error);
+        event.cancel();
+    }
+}
+
 void RobloxCamera::onBaseTickInitEvent(BaseTickInitEvent& event)
 {
-    // Only called once, used to prevent crashes :3
-    auto actor = event.mActor;
-    actor->getFlag<RenderCameraComponent>();
-    actor->getFlag<CameraRenderPlayerModelComponent>();
-    actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
-    spdlog::info("[RobloxCamera] Initialized required components :3");
+    if (!TRY_CALL([&](BaseTickInitEvent& event) {
+        auto actor = event.mActor;
+        actor->getFlag<RenderCameraComponent>();
+        actor->getFlag<CameraRenderPlayerModelComponent>();
+        actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
+        spdlog::info("[RobloxCamera] Initialized required components :3");
+        mHasComponents = true;
+    }, event))
+    {
+        spdlog::error("[RobloxCamera] Failed to initialize required components :(");
+        NotifyUtils::notify("RobloxCamera: Failed to initialize required components :(", 15.f, Notification::Type::Error);
+        mHasComponents = false;
+    }
 }
 
 void RobloxCamera::onEnable()
 {
+    if (!mHasComponents)
+    {
+        NotifyUtils::notify("RobloxCamera: Failed to initialize required components :(", 15.f, Notification::Type::Error);
+        this->disable();
+        return;
+    }
     gFeatureManager->mDispatcher->listen<LookInputEvent, &RobloxCamera::onLookInputEvent>(this);
     gFeatureManager->mDispatcher->listen<MouseEvent, &RobloxCamera::onMouseEvent>(this);
     gFeatureManager->mDispatcher->listen<ActorRenderEvent, &RobloxCamera::onActorRenderEvent>(this);
