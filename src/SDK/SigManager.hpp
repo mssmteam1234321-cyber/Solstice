@@ -44,7 +44,7 @@ public:
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
     DEFINE_SIG(Actor_setPosition, "E8 ? ? ? ? 48 8B ? 48 8B ? E8 ? ? ? ? 48 8B ? 33 D2 48 8B ? 48 8B ? ? FF 15 ? ? ? ? EB", SigType::RefSig, 1);
-    DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 48 8B ? 48 8B ? 48 83 78 18 ? 48 8B", SigType::RefSig, 1);
+    DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 4C 8B ? 4C 8D ? ? ? ? ? 49 8B ? E8 ? ? ? ? 90", SigType::RefSig, 1); // TODO: Check this and make sure it works, as a lot of the other references were inlined
     DEFINE_SIG(Actor_setNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 8B ? 4C 8B", SigType::Sig, 0);
     DEFINE_SIG(ActorRenderDispatcher_render, "48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 F7 4C 89 4C 24 ?", SigType::Sig, 0);
     DEFINE_SIG(ClientInstance_mBgfx, "48 8B ? ? ? ? ? 48 8D ? ? ? ? ? FF 15 ? ? ? ? 0F B7", SigType::RefSig, 3);
