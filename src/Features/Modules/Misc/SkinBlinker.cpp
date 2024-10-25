@@ -19,7 +19,10 @@ void SkinBlinker::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &SkinBlinker::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &SkinBlinker::onPacketOutEvent>(this);
     auto player = ClientInstance::get()->getLocalPlayer();
-
+    if (!player)
+    {
+        return;
+    }
     auto currentSkin = player->getSkin();
     mId = currentSkin->mId;
     mPlayFabId = currentSkin->mPlayFabId;
