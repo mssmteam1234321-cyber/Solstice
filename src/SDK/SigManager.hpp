@@ -88,7 +88,7 @@ public:
     DEFINE_SIG(glm_translateRef2, "E8 ? ? ? ? C6 46 ? ? F3 0F 11 74 24 ? F3 0F 10 1D", SigType::Sig, 0);
     DEFINE_SIG(BlockSource_fireBlockChanged, "4C 8B ? 45 89 ? ? 49 89 ? ? 53", SigType::Sig, 0);
     DEFINE_SIG(ActorAnimationControllerPlayer_applyToPose, "48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 18", SigType::Sig, 0);
-    DEFINE_SIG(JSON_parse, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 0F 57 ? 0F 11 ? ? ? ? ? 0F BE ? ? ? ? ? 44 8B", SigType::RefSig, 1);
+    DEFINE_SIG(JSON_parse, "E8 ? ? ? ? 0F B6 D8 48 8D 8D ? ? ? ? E8 ? ? ? ? 90 48 8D 8D ? ? ? ? E8 ? ? ? ? 84 DB 0F 84 ? ? ? ? C6 44 24", SigType::RefSig, 1);
     DEFINE_SIG(Actor_getStatusFlag, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F 10 BF", SigType::RefSig, 1); // bro the amount of references for this went from 43 to 4.
     DEFINE_SIG(Level_getRuntimeActorList, "40 ? 48 83 EC ? 48 81 C1 ? ? ? ? 48 8B ? E8 ? ? ? ? 48 8B ? 48 83 C4 ? 5B C3 CC CC 48 83 EC ? 48 8B ? ? 48 85", SigType::Sig, 0);
     DEFINE_SIG(ConcreteBlockLegacy_getCollisionShapeForCamera, "40 ? 48 83 EC ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? 4C 8B ? 4D 8B ? 49 8B", SigType::Sig, 0);
