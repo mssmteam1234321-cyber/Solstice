@@ -43,7 +43,7 @@ public:
     static inline bool mIsInitialized = false;
     static inline std::unordered_map<std::string, uintptr_t> mSigs;
 
-    DEFINE_SIG(Actor_setPosition, "E8 ? ? ? ? 48 8B ? 48 8B ? E8 ? ? ? ? 48 8B ? 33 D2 48 8B ? 48 8B ? ? FF 15 ? ? ? ? EB", SigType::RefSig, 1);
+    DEFINE_SIG(Actor_setPosition, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? ? ? ? FF 15", SigType::Sig, 0);
     DEFINE_SIG(Actor_getNameTag, "E8 ? ? ? ? 4C 8B ? 4C 8D ? ? ? ? ? 49 8B ? E8 ? ? ? ? 90", SigType::RefSig, 1); // TODO: Check this and make sure it works, as a lot of the other references were inlined
     DEFINE_SIG(Actor_setNameTag, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? 48 85 ? 0F 84 ? ? ? ? 48 8B ? 4C 8B", SigType::Sig, 0);
     DEFINE_SIG(ActorRenderDispatcher_render, "48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 F7 4C 89 4C 24 ?", SigType::Sig, 0);
@@ -59,7 +59,7 @@ public:
     DEFINE_SIG(GuiData_displayClientMessage, "40 ? 53 56 57 41 ? 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 45 0F ? ? 49 8B", SigType::Sig, 0);
     DEFINE_SIG(InventoryTransaction_addAction, "E8 ? ? ? ? 48 81 C3 ? ? ? ? 48 3B ? 75 ? BE", SigType::RefSig, 1);
     DEFINE_SIG(ItemStack_vTable, "48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 8D 0D", SigType::RefSig, 3);
-    DEFINE_SIG(ItemStack_getCustomName, "E8 ? ? ? ? 48 8B ? 48 8D ? ? ? 48 8B ? E8 ? ? ? ? 90 4C 8B ? 4C 8B ? 0F B6", SigType::RefSig, 1);
+    DEFINE_SIG(ItemStack_getCustomName, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 48 8B ? E8 ? ? ? ? 84 C0 74 ? 48 8B ? 48 8B ? E8 ? ? ? ? 48 8B", SigType::Sig, 0);
     DEFINE_SIG(ItemUseInventoryTransaction_vtable, "48 8D ? ? ? ? ? 48 8B ? 48 89 ? ? 48 81 C1 ? ? ? ? E8 ? ? ? ? 48 8D ? ? ? ? ? 48 8D", SigType::RefSig, 3);
     DEFINE_SIG(ItemUseOnActorInventoryTransaction_vtable, "48 8D 05 ? ? ? ? 48 89 4B ? 0F 57 C0 48 89 4B ? 48 89 4B ? 48 8B 5C 24 ? 48 89 07 48 8D 05 ? ? ? ? 48 89 4F ? 89 4F", SigType::RefSig, 3);
     DEFINE_SIG(ItemReleaseInventoryTransaction_vtable, "48 8D 05 ? ? ? ? 48 89 4B ? 0F 57 C0 48 89 4B ? 48 89 4B ? 48 8B 5C 24 ? 48 89 07 48 8D 05 ? ? ? ? 89 4F ? C7 47", SigType::RefSig, 3);
@@ -77,7 +77,7 @@ public:
     DEFINE_SIG(ScreenView_setupAndRender, "E8 ? ? ? ? 48 8B 44 24 ? 48 8D 4C 24 ? 48 8B 80", SigType::RefSig, 1);
     DEFINE_SIG(SimulatedPlayer_simulateJump, "40 53 48 83 EC ? 48 8B 01 48 8B D9 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ? 4C 8B 53", SigType::Sig, 0);
     DEFINE_SIG(ItemInHandRenderer_render_bytepatch, "F3 0F ? ? ? ? ? ? 48 8B ? F3 41 ? ? ? 0F 57", SigType::Sig, 0);
-    DEFINE_SIG(SneakMovementSystem_tickSneakMovementSystem, "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 48 8B 2A 48 8B F9", SigType::Sig, 0);
+    DEFINE_SIG(SneakMovementSystem_tickSneakMovementSystem, "32 C0 41 88 41 ? 84 C0", SigType::Sig, 0);
     DEFINE_SIG(ConnectionRequest_create, "40 ? 53 56 57 41 ? 41 ? 41 ? 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 0F 29 ? ? ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 49 8B ? 48 89 ? ? ? ? ? 48 89 ? ? 48 89", SigType::Sig, 0);
     DEFINE_SIG(CameraDirectLookSystemUtil_handleLookInput, "48 89 ? ? ? 57 48 83 EC ? F3 41 ? ? ? 49 8B ? F3 41", SigType::Sig, 0) ;
     DEFINE_SIG(ItemRenderer_render, "48 8B ? 48 89 ? ? 55 56 57 41 ? 41 ? 41 ? 41 ? 48 81 EC ? ? ? ? 0F 29 ? ? 0F 29 ? ? 44 0F ? ? ? 44 0F ? ? ? 49 8B", SigType::Sig, 0);
@@ -89,7 +89,7 @@ public:
     DEFINE_SIG(BlockSource_fireBlockChanged, "4C 8B ? 45 89 ? ? 49 89 ? ? 53", SigType::Sig, 0);
     DEFINE_SIG(ActorAnimationControllerPlayer_applyToPose, "48 8B C4 55 53 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 0F 29 70 A8 0F 29 78 98 44 0F 29 40 ? 44 0F 29 88 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 18", SigType::Sig, 0);
     DEFINE_SIG(JSON_parse, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 0F 57 ? 0F 11 ? ? ? ? ? 0F BE ? ? ? ? ? 44 8B", SigType::RefSig, 1);
-    DEFINE_SIG(Actor_getStatusFlag, "E8 ? ? ? ? 84 C0 74 ? 48 8B 93 ? ? ? ? 80 BA ? ? ? ? ? 75 ? 48 8B 8A ? ? ? ? 8B 52 ? 48 8B 01 48 8B 40 ? FF 15 ? ? ? ? 48 8B F8", SigType::RefSig, 1);
+    DEFINE_SIG(Actor_getStatusFlag, "E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? F3 0F 10 BF", SigType::RefSig, 1); // bro the amount of references for this went from 43 to 4.
     DEFINE_SIG(Level_getRuntimeActorList, "40 ? 48 83 EC ? 48 81 C1 ? ? ? ? 48 8B ? E8 ? ? ? ? 48 8B ? 48 83 C4 ? 5B C3 CC CC 48 83 EC ? 48 8B ? ? 48 85", SigType::Sig, 0);
     DEFINE_SIG(ConcreteBlockLegacy_getCollisionShapeForCamera, "40 ? 48 83 EC ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? 4C 8B ? 4D 8B ? 49 8B", SigType::Sig, 0);
     DEFINE_SIG(WaterBlockLegacy_getCollisionShapeForCamera, "0F 10 ? ? ? ? ? 48 8B ? F2 0F ? ? ? ? ? ? 0F 11 ? F2 0F ? ? ? C3 CC", SigType::Sig, 0);
