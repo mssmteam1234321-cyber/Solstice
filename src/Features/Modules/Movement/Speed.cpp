@@ -348,10 +348,20 @@ void Speed::tickLegit(Actor* player)
         {
             player->jumpFromGround();
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     }
 }
@@ -436,10 +446,20 @@ void Speed::tickFriction(Actor* player)
         {
             player->jumpFromGround();
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     }
 };

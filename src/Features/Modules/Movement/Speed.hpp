@@ -87,6 +87,9 @@ public:
     NumberSetting mJumpHeight = NumberSetting("Jump Height", "The height to jump at", 0.42f, 0, 1, 0.01);
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
+    BoolSetting mExtraHeight = BoolSetting("Extra Height", "Extra Height", false);
+    NumberSetting mClipHeight = NumberSetting("Clip Height", "The height of clip", 1.00, 0, 2, 0.1);
+
     Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
         addSettings(
             &mMode,
@@ -120,6 +123,11 @@ public:
             &mJumpHeight,
             &mApplyNetskip
         );
+#ifdef __PRIVATE_BUILD__
+        addSettings(&mExtraHeight, &mClipHeight);
+        VISIBILITY_CONDITION(mExtraHeight, mJumpType.mValue != JumpType::None);
+        VISIBILITY_CONDITION(mClipHeight, mJumpType.mValue != JumpType::None && mExtraHeight.mValue);
+#endif
 
         VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
         VISIBILITY_CONDITION(mStrafeSpeed, mStrafe.mValue);
