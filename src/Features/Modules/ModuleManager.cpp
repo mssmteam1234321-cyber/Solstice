@@ -122,6 +122,7 @@
 #include "Visual/Zoom.hpp"
 #include "Visual/NoFire.hpp"
 #include "Visual/NoBadEffects.hpp"
+#include "Visual/JumpCircles.hpp"
 
 void ModuleManager::init()
 {
@@ -239,6 +240,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<NoFire>());
     mModules.emplace_back(std::make_shared<Glint>());
     mModules.emplace_back(std::make_shared<NoBadEffects>());
+    mModules.emplace_back(std::make_shared<JumpCircles>());
 
 
 #ifdef __PRIVATE_BUILD__

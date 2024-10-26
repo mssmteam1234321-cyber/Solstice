@@ -9,6 +9,7 @@
 #include <Features/Modules/Player/Teams.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
+#include <SDK/Minecraft/Inventory/SimpleContainer.hpp>
 
 void AntiBot::onEnable()
 {
