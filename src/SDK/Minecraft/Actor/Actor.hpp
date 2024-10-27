@@ -36,7 +36,7 @@
 
 class Actor {
 public:
-    unsigned char filler[1032]; // From levilamina
+    unsigned char filler[1024]; // ItemActor::ItemActor on bds line 35 ItemStack::ItemStack((ItemActor *)((char *)this + 1024));
 
     CLASS_FIELD(uintptr_t**, vtable, 0x0)
     CLASS_FIELD(EntityContext, mContext, 0x8);
