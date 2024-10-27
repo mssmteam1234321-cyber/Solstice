@@ -76,18 +76,18 @@ public:
     DEFINE_INDEX_FIELD(MinecraftGame_playUi, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 83 C4 ? C3 40", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(MinecraftGame_mClientInstances, "48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? 80 78 19 ? 75 ? 48 8B ? 48 8B ? 80 78 19 ? 74 ? 80 79 19 ? 75 ? 80 79 20 ? 76 ? 48 8B ? 48 3B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftGame_mProfanityContext, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 90 48 C7 44 24 20", 3, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(MinecraftGame_mMouseGrabbed, "88 9F ? ? ? ? 48 8D ? ? ? E8 ? ? ? ? 90", 2, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftGame_mMouseGrabbed, "80 B9 ? ? ? ? ? 0F 84 ? ? ? ? 48 8B 01 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 48 85 C0", 2, OffsetType::FieldOffset); // TODO: Replace with better sig :3
     DEFINE_INDEX_FIELD(MainView_bedrockPlatform, "48 8B ? ? ? ? ? 48 8B ? B2 ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 84 C0", 3, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(Actor_baseTick, "48 8B 8B ? ? ? ? 48 8B 01 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 45 84 ED", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(Actor_baseTick, "48 8B 80 ? ? ? ? FF 15 ? ? ? ? 48 8B 8B ? ? ? ? 48 8B 01 48 8B 80 ? ? ? ? FF 15 ? ? ? ? 45 84 ED", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(MinecraftSim_mGameSim, "49 8B 85 ? ? ? ? 8B 40", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(MinecraftSim_mRenderSim, "48 8B ? ? ? ? ? F3 0F ? ? ? F3 41 ? ? ? ? 48 8D", 3, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(MinecraftSim_mGameSession, "48 8B ? ? ? ? ? 48 85 ? 74 ? 48 8B ? ? 48 85 ? 74 ? 48 83 39 ? 74 ? 48 8B ? 48 8B", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(MinecraftSim_mGameSession, "48 8B 89 ? ? ? ? 45 33 F6 48 8B FA", 3, OffsetType::FieldOffset); // TODO: Replace with better sig :3
     DEFINE_INDEX_FIELD_TYPED(uint8_t, GameSession_mEventCallback, "48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 8B ? ? 48 85 ? 74 ? 48 8B ? 48 8B ? ? 48 83 C4 ? 5B 48 FF ? ? ? ? ? 48 83 C4 ? 5B C3 CC CC 48 89", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BedrockPlatformUWP_mcGame, "48 8B ? ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0 74 ? 48 8B ? ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 84 C0", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(bgfx_d3d12_RendererContextD3D12_m_commandQueue, "48 8B ? ? ? ? ? 4C 8B ? ? 48 8B ? 48 8B ? ? 48 8B ? ? FF 15 ? ? ? ? 48 FF ? ? 48 8B ? ? 48 8B ? 48 3B ? 74 ? 48 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(bgfx_context_m_renderCtx, "48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? FF 15 ? ? ? ? 48 89 ? ? ? ? ? 48 63", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(BlockLegacy_mBlockId, "44 0F ? ? ? ? ? ? B8 ? ? ? ? 48 8B ? 48 8B", 4, OffsetType::FieldOffset);
-    DEFINE_INDEX_FIELD(BlockLegacy_mayPlaceOn, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? 0F B6 ? E8 ? ? ? ? 48 85 ? 75 ? 48 8B ? ? 48 85 ? 74", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(BlockLegacy_mayPlaceOn, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 49 8B ? 0F B6 ? E8 ? ? ? ? 48 85 ? 74 ? 45 0F", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Actor_mContainerManagerModel, "49 8B ? ? ? ? ? 48 89 ? ? ? 48 89 ? ? ? F0 FF ? ? 66 0F ? ? ? ? EB ? 0F 57 ? 66 0F 73 D8 ? 66 48 ? ? ? 0F 57 ? 66 0F ? ? ? ? ? ? 48 85", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Actor_mGameMode, "49 8B 8E ? ? ? ? 45 84 FF 74 ? 84 DB", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Actor_mSupplies, "48 8B ? ? ? ? ? 80 BA B0 00 00 00 ? 75 ? 48 8B ? ? ? ? ? 8B 52 ? 48 8B ? 48 8B ? ? 48 FF ? ? ? ? ? 48 8D ? ? ? ? ? C3 48 89", 3, OffsetType::FieldOffset);
@@ -115,7 +115,7 @@ public:
     DEFINE_INDEX_FIELD_TYPED(uint8_t, BlockLegacy_getCollisionShape, "48 8B ? ? FF 15 ? ? ? ? 0F 10 ? 0F 11 ? ? ? ? ? ? F2 0F ? ? ? F2 0F", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(BlockSource_clip, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 90 48 8D ? ? ? ? ? 48 8D ? ? ? ? ? E8 ? ? ? ? 48 8B", 3, OffsetType::Index);
 
-    DEFINE_INDEX_FIELD(ClientInstance_getInputHandler, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 8B ? E8 ? ? ? ? 0F B6 ? 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 40 0F ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 E8 ? ? ? ? CC CC CC CC", 3, OffsetType::Index);
+    DEFINE_INDEX_FIELD(ClientInstance_getInputHandler, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 8D 7E", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(ClientInputMappingFactory_mKeyboardMouseSettings, "49 8B 9D ? ? ? ? 48 89 5D ? 4D 8B AD ? ? ? ? 4C 89 6D ? E9", 3, OffsetType::FieldOffset); // TODO: replace with betta siggy
 
     //DEFINE_INDEX_FIELD_TYPED(uint8_t, ClientInputHandler_mMappingFactory, "48 8B ? ? EB ? 48 8D ? ? 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 48 8B ? 48 8B ? ? ? 48 33 ? E8 ? ? ? ? 48 8B ? ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 E8 ? ? ? ? CC CC CC CC CC CC 48 89", 3, OffsetType::FieldOffset);
