@@ -201,7 +201,7 @@ void KeyHook::onKey(uint32_t key, bool isDown)
             }
         }
 
-        if (isDown)
+        /*if (isDown)
         {
             for (Setting* setting : module->mSettings)
             {
@@ -214,7 +214,7 @@ void KeyHook::onKey(uint32_t key, bool isDown)
                     }
                 }
             }
-        }
+        }*/
     }
 }
 
