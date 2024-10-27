@@ -15,7 +15,7 @@ public:
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use", Mode::Boombox, "Boombox", "TNT");
     NumberSetting mDelay = NumberSetting("Delay", "The delay in milliseconds to place boombox", 1000, 100, 1500, 10);
     BoolSetting mHotbarOnly = BoolSetting{ "Hotbar Only", "Only switch to boomboxes in the hotbar", true };
-    AutoBoombox() : ModuleBase("AutoBoombox", "Automatically places boombox in the hive", ModuleCategory::Player, 0, false)
+    AutoBoombox() : ModuleBase("AutoBoombox", "Automatically places boomboxes around enemies on the hive", ModuleCategory::Player, 0, false)
     {
         addSetting(&mMode);
         addSetting(&mDelay);

@@ -90,7 +90,7 @@ public:
     BoolSetting mExtraHeight = BoolSetting("Extra Height", "Extra Height", false);
     NumberSetting mClipHeight = NumberSetting("Clip Height", "The height of clip", 1.00, 0, 2, 0.1);
 
-    Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
+    Speed() : ModuleBase("Speed", "Lets you move faster", ModuleCategory::Movement, 0, false) {
         addSettings(
             &mMode,
             &mSwiftness,

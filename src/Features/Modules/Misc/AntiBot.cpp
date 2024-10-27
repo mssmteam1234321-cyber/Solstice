@@ -40,24 +40,18 @@ void AntiBot::onBaseTickEvent(BaseTickEvent& event)
     }*/
 }
 
-/*float normalPlayerHeightMax = 1.81f;
-float normalPlayerHeightMin = 1.35f;
-float normalPlayerWidthMin = 0.54f;
-float normalPlayerWidthMax = 0.66f;*/
+constexpr float NORMAL_PLAYER_HEIGHT_MAX = 1.81f;
+constexpr float NORMAL_PLAYER_HEIGHT_MIN = 1.35f;
+constexpr float NORMAL_PLAYER_WIDTH_MIN = 0.54f;
+constexpr float NORMAL_PLAYER_WIDTH_MAX = 0.66f;
 
-#define NORMAL_PLAYER_HEIGHT_MAX 1.81f
-#define NORMAL_PLAYER_HEIGHT_MIN 1.35f
-#define NORMAL_PLAYER_WIDTH_MIN 0.54f
-#define NORMAL_PLAYER_WIDTH_MAX 0.66f
-
-std::vector<std::string> AntiBot::getDaPlayerList() {
+std::vector<std::string> AntiBot::getPlayerNames() {
     auto player = ClientInstance::get()->getLocalPlayer();
     std::vector<std::string> playerNames;
-    if(!player) return playerNames;
+    if (!player) return playerNames;
 
-    std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
-
-    for (auto& entry : *playerList | std::views::values)
+    auto playerList = player->getLevel()->getPlayerList();
+    for (const auto& entry : *playerList | std::views::values)
     {
         playerNames.emplace_back(entry.mName);
     }
@@ -69,14 +63,16 @@ bool AntiBot::isBot(Actor* actor)
 {
     if (!mEnabled) return false;
     if (mPlayerCheck.mValue && !actor->isPlayer()) return true;
+
     auto aabbShapeComponent = actor->getAABBShapeComponent();
     if (!aabbShapeComponent) return true;
 
     float hitboxWidth = aabbShapeComponent->mWidth;
     float hitboxHeight = aabbShapeComponent->mHeight;
+
     // Return if the hitbox dimensions are incorrect
     if (mHitboxCheck.mValue && (hitboxWidth < NORMAL_PLAYER_WIDTH_MIN || hitboxWidth > NORMAL_PLAYER_WIDTH_MAX ||
-                                hitboxHeight < NORMAL_PLAYER_HEIGHT_MIN || hitboxHeight > NORMAL_PLAYER_HEIGHT_MAX))
+                                 hitboxHeight < NORMAL_PLAYER_HEIGHT_MIN || hitboxHeight > NORMAL_PLAYER_HEIGHT_MAX))
         return true;
 
     if (mInvisibleCheck.mValue && actor->getStatusFlag(ActorFlags::Invisible)) return true;
@@ -88,21 +84,17 @@ bool AntiBot::isBot(Actor* actor)
         }
     }
 
-    if(mPlayerListCheck.mValue)
+    if (mPlayerListCheck.mValue)
     {
-        std::vector<std::string> playerList = getDaPlayerList();
+        auto playerList = getPlayerNames();
         std::string nickName = actor->getNameTag();
 
-        for (auto it = playerList.begin(); it != playerList.end(); ) {
-            if (*it == nickName) {
-                return true;
-            } else {
-                ++it;
-            }
+        if (std::find(playerList.begin(), playerList.end(), nickName) != playerList.end()) {
+            return true;
         }
     }
 
-    if(mHasArmorCheck.mValue && !hasArmor(actor)) return true;
+    if (mHasArmorCheck.mValue && !hasArmor(actor)) return true;
 
     return false;
 }
@@ -110,34 +102,22 @@ bool AntiBot::isBot(Actor* actor)
 bool AntiBot::hasArmor(Actor* actor)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
-    if(!player) return false;
-    if(!actor->isPlayer()) return false;
+    if (!player) return false;
+    if (!actor->isPlayer()) return false;
 
     ItemStack* helmetItem = actor->getArmorContainer()->getItem(0);
     ItemStack* chestplateItem = actor->getArmorContainer()->getItem(1);
     ItemStack* legginsItem = actor->getArmorContainer()->getItem(2);
     ItemStack* bootsItem = actor->getArmorContainer()->getItem(3);
 
-    if(mArmorMode.mValue == ArmorMode::Full)
+    if (mArmorMode.mValue == ArmorMode::Full)
     {
-        if (!helmetItem->mItem || !chestplateItem->mItem || !legginsItem->mItem || !bootsItem->mItem)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return helmetItem->mItem && chestplateItem->mItem && legginsItem->mItem && bootsItem->mItem;
     }
-    else if(mArmorMode.mValue == ArmorMode::OneElement)
+    else if (mArmorMode.mValue == ArmorMode::OneElement)
     {
-        if (helmetItem->mItem || chestplateItem->mItem || legginsItem->mItem || bootsItem->mItem)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return helmetItem->mItem || chestplateItem->mItem || legginsItem->mItem || bootsItem->mItem;
     }
+
+    return false;
 }

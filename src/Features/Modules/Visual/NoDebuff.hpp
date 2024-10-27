@@ -4,9 +4,9 @@
 
 #pragma once
 
-class NoBadEffects : public ModuleBase<NoBadEffects> {
+class NoDebuff : public ModuleBase<NoDebuff> {
 public:
-    NoBadEffects() : ModuleBase<NoBadEffects>("NoDebuff", "Dont render bad effects", ModuleCategory::Visual, 0, false) {
+    NoDebuff() : ModuleBase<NoDebuff>("NoDebuff", "Prevents the rendering of negative effects", ModuleCategory::Visual, 0, false) {
         mNames = {
             {Lowercase, "nodebuff"},
             {LowercaseSpaced, "no debuff"},

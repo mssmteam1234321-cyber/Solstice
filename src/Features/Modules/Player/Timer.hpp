@@ -9,7 +9,7 @@
 class Timer : public ModuleBase<Timer> {
 public:
     NumberSetting mSpeed = NumberSetting("Speed", "The speed of the game.", 20.0f, 1.f, 60.0f, 0.01f);
-    Timer() : ModuleBase("Timer", "Speeds up the game.", ModuleCategory::Player, VK_F4, false) {
+    Timer() : ModuleBase("Timer", "Changes the game tick speed", ModuleCategory::Player, VK_F4, false) {
         addSetting(&mSpeed);
 
         mNames = {

@@ -40,6 +40,8 @@
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
+#include "Misc/AutoVote.hpp"
+#include "Misc/Anticheat.hpp"
 
 #include "Movement/AirJump.hpp"
 #include "Movement/AntiImmobile.hpp"
@@ -64,6 +66,7 @@
 #include "Movement/AirSpeed.hpp"
 #include "Movement/ReverseStep.hpp"
 #include "Movement/Jetpack.hpp"
+#include "Movement/DamageBoost.hpp"
 
 #include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
@@ -85,6 +88,8 @@
 #include "Player/Teams.hpp"
 #include "Player/Timer.hpp"
 #include "Player/ClickTp.hpp"
+#include "Player/ChestAura.hpp"
+#include "Player/NoRotate.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -121,7 +126,7 @@
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
 #include "Visual/NoFire.hpp"
-#include "Visual/NoBadEffects.hpp"
+#include "Visual/NoDebuff.hpp"
 #include "Visual/JumpCircles.hpp"
 
 void ModuleManager::init()
@@ -158,6 +163,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AirSpeed>());
     mModules.emplace_back(std::make_shared<ReverseStep>());
     mModules.emplace_back(std::make_shared<Jetpack>());
+    mModules.emplace_back(std::make_shared<DamageBoost>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());
@@ -179,6 +185,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Extinguisher>());
     mModules.emplace_back(std::make_shared<FastMine>());
     mModules.emplace_back(std::make_shared<ClickTp>());
+    mModules.emplace_back(std::make_shared<ChestAura>());
+    mModules.emplace_back(std::make_shared<NoRotate>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
@@ -208,7 +216,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
     mModules.emplace_back(std::make_shared<AutoSnipe>());
-
+    mModules.emplace_back(std::make_shared<AutoVote>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -239,9 +247,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Zoom>());
     mModules.emplace_back(std::make_shared<NoFire>());
     mModules.emplace_back(std::make_shared<Glint>());
-    mModules.emplace_back(std::make_shared<NoBadEffects>());
+    mModules.emplace_back(std::make_shared<NoDebuff>());
     mModules.emplace_back(std::make_shared<JumpCircles>());
-
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode
@@ -249,6 +256,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
+    mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
 
     // TODO: Finish these modules
 #endif
@@ -496,6 +504,15 @@ void ModuleManager::deserialize(const nlohmann::json& j, bool showMessages)
                             {
                                 auto* boolSetting = static_cast<BoolSetting*>(set);
                                 boolSetting->mValue = settingValue["boolValue"];
+
+                                if (settingValue.contains("key"))
+                                {
+                                    boolSetting->mKey = settingValue["key"];
+                                }
+                                else
+                                {
+                                    boolSetting->mKey = -1;
+                                }
                             }
                             else if (set->mType == SettingType::Number)
                             {

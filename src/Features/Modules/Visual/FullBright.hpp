@@ -7,7 +7,7 @@
 class FullBright : public ModuleBase<FullBright>
 {
 public:
-    FullBright() : ModuleBase("FullBright", "Makes everything brighter", ModuleCategory::Visual, 0, false) {
+    FullBright() : ModuleBase("FullBright", "Gives your game full brightness", ModuleCategory::Visual, 0, false) {
         mNames = {
             {Lowercase, "fullbright"},
             {LowercaseSpaced, "full bright"},

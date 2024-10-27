@@ -191,6 +191,12 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         if (mIgnoreFireSword.mValue && fireSwordSlot != -1 && fireSwordSlot == i) continue;
         auto itemType = item->getItem()->getItemType();
         auto itemValue = ItemUtils::getItemValue(item);
+        bool hasFireProtection = item->getEnchantValue(Enchant::FIRE_PROTECTION) > 0;
+
+        if (mStealFireProtection.mValue && hasFireProtection) {
+            continue;
+        }
+
         if (itemType == SItemType::Sword && i != bestSwordSlot)
         {
             itemsToDrop.push_back(i);
@@ -209,19 +215,27 @@ void InvManager::onBaseTickEvent(BaseTickEvent& event)
         }
         else if (itemType == SItemType::Helmet && i != bestHelmetSlot)
         {
-            itemsToDrop.push_back(i);
+            if (!(mStealFireProtection.mValue && hasFireProtection)) {
+                itemsToDrop.push_back(i);
+            }
         }
         else if (itemType == SItemType::Chestplate && i != bestChestplateSlot)
         {
-            itemsToDrop.push_back(i);
+            if (!(mStealFireProtection.mValue && hasFireProtection)) {
+                itemsToDrop.push_back(i);
+            }
         }
         else if (itemType == SItemType::Leggings && i != bestLeggingsSlot)
         {
-            itemsToDrop.push_back(i);
+            if (!(mStealFireProtection.mValue && hasFireProtection)) {
+                itemsToDrop.push_back(i);
+            }
         }
         else if (itemType == SItemType::Boots && i != bestBootsSlot)
         {
-            itemsToDrop.push_back(i);
+            if (!(mStealFireProtection.mValue && hasFireProtection)) {
+                itemsToDrop.push_back(i);
+            }
         }
     }
 
@@ -383,16 +397,25 @@ bool InvManager::isItemUseless(ItemStack* item, int slot)
     auto player = ClientInstance::get()->getLocalPlayer();
     SItemType itemType = item->getItem()->getItemType();
     auto itemValue = ItemUtils::getItemValue(item);
-    // if the item is a piece of armor
+    auto Inv_Manager = gFeatureManager->mModuleManager->getModule<InvManager>();
+
     if (itemType == SItemType::Helmet || itemType == SItemType::Chestplate || itemType == SItemType::Leggings || itemType == SItemType::Boots)
     {
         int equippedItemValue = ItemUtils::getItemValue(player->getArmorContainer()->getItem(static_cast<int>(itemType)));
+        bool hasFireProtection = item->getEnchantValue(Enchant::FIRE_PROTECTION) > 0;
+
+        if (Inv_Manager->mStealFireProtection.mValue && hasFireProtection) {
+            return false;
+        }
+
         return equippedItemValue >= itemValue;
     }
+
     if (itemType == SItemType::Sword || itemType == SItemType::Pickaxe || itemType == SItemType::Axe || itemType == SItemType::Shovel)
     {
         int bestSlot = ItemUtils::getBestItem(itemType);
         int bestValue = ItemUtils::getItemValue(player->getSupplies()->getContainer()->getItem(bestSlot));
+
         return bestValue >= itemValue && bestSlot != slot;
     }
 

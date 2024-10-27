@@ -507,8 +507,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     if (mStealerDetecter.mValue) {
         if (startedStealerDetection) {
             if (NOW > stealerDetectionStartTime + 5000) {
-                if (!amountOfStolenBlocks > mAmountOfBlocksToDetect.mValue) {
-                    if(mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("Reset");
+                if (!(amountOfStolenBlocks > mAmountOfBlocksToDetect.mValue)) {
+                    if (mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("Reset");
                     startedStealerDetection = false;
                     stealerDetectionStartTime = 0;
                     amountOfStolenBlocks = 0;
@@ -547,7 +547,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
 
     bool shouldChangeOre = false;
     if (mStealPriority.mValue == StealPriority::Steal && steal && (!mIsStealing || mTargettingBlockPos != mEnemyTargettingBlockPos)) {
-        if (mAntiConfuse.mValue) {
+        if (mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::RedstoneCheck) {
             std::vector<BlockInfo> blockList = BlockUtils::getBlockList(*player->getPos(), mRange.mValue);
             std::vector<BlockInfo> exposedBlockList;
 
@@ -1245,6 +1245,11 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             auto blockAtPos = ClientInstance::get()->getBlockSource()->getBlock(levelEvent->mPos);
 
             if (blockAtPos->mLegacy->getBlockId() == 10099) { // ignore crumbling blocks due to false detecting
+                return;
+            }
+
+            int exposedFace = BlockUtils::getExposedFace(levelEvent->mPos);
+            if (exposedFace == -1 && (mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::ExposedCheck)) {
                 return;
             }
 

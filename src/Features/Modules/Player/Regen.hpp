@@ -24,6 +24,12 @@ public:
         Always,
         Auto
     };
+    enum class AntiConfuseMode {
+        RedstoneCheck,
+#ifdef __PRIVATE_BUILD__
+        ExposedCheck
+#endif
+    };
     enum class OreSelectionMode {
         Normal,
         Closest
@@ -59,7 +65,12 @@ public:
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     EnumSettingT<ConfuseMode> mConfuseMode = EnumSettingT<ConfuseMode>("Confuse Mode", "The mode for confuser", ConfuseMode::Always, "Always", "Auto");
     NumberSetting mConfuseDuration = NumberSetting("Confuse Duration", "The time for confuse", 3000, 1000, 10000, 500);
-    BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
+    BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Ignore confused blocks due to false stealing", false);
+    EnumSettingT<AntiConfuseMode> mAntiConfuseMode = EnumSettingT<AntiConfuseMode>("Anti Confuse Mode", "The anti confuser mode", AntiConfuseMode::RedstoneCheck, "Redstone"
+#ifdef __PRIVATE_BUILD__
+        ,"Exposed"
+#endif
+        );
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
     NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
     BoolSetting mMulti = BoolSetting("Multi", "Allows placing multiple blocks", false);
@@ -136,6 +147,7 @@ public:
             &mConfuseMode,
             &mConfuseDuration,
             &mAntiConfuse,
+            &mAntiConfuseMode,
             &mBlockOre,
             &mBlockRange,
             &mMulti,
@@ -205,6 +217,8 @@ public:
 
         VISIBILITY_CONDITION(mConfuseMode, mConfuse.mValue);
         VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
+
+        VISIBILITY_CONDITION(mAntiConfuseMode, mAntiConfuse.mValue);
 
         VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
         VISIBILITY_CONDITION(mMulti, mBlockOre.mValue);

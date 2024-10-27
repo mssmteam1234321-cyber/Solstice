@@ -34,6 +34,8 @@ public:
     std::vector<CategoryPosition> catPositions;
     std::shared_ptr<Module> lastMod = nullptr;
     bool isBinding = false;
+    bool isBoolSettingBinding = false;
+    BoolSetting* lastBoolSetting = nullptr;
     ColorSetting* lastColorSetting = nullptr;
     bool displayColorPicker = false;
     bool resetPosition = false;

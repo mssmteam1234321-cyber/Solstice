@@ -20,7 +20,7 @@ public:
         FINISHED
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "criticals mode", Mode::Sentinel, "Sentinel");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The critical mode", Mode::Sentinel, "Sentinel");
     BoolSetting mVelocity = BoolSetting("Use Velocity", "Whether to use velocity change", true);
     BoolSetting mPositionChange = BoolSetting("Position Change", "Whether to change pos", true);
     BoolSetting mBiggerPositionChange = BoolSetting("Bigger Position Change", "Whether to change more pos", true);
@@ -28,7 +28,7 @@ public:
     BoolSetting mOffSprint = BoolSetting("Disable Sprint", "Whether to disable sprint", true);
     NumberSetting mPositionChangePersent = NumberSetting("Position Change Percent", "Changes delta", 1.5, 0, 2, 0.01);
 
-    Criticals() : ModuleBase("Criticals", "make u attack crits", ModuleCategory::Combat, 0, false) {
+    Criticals() : ModuleBase("Criticals", "Makes you always get a critical hit on your opponent", ModuleCategory::Combat, 0, false) {
 
         addSetting(&mMode);
         addSetting(&mVelocity);

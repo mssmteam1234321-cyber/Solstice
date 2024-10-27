@@ -7,7 +7,7 @@
 class ClickTp : public ModuleBase<ClickTp> {
 public:
 
-    ClickTp() : ModuleBase("ClickTp", "teleports u to block u loking at", ModuleCategory::Player, 0, false)
+    ClickTp() : ModuleBase("ClickTp", "Teleports you to the block you're looking at", ModuleCategory::Player, 0, false)
     {
         mNames = {
             {Lowercase, "clicktp"},

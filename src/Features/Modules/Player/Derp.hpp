@@ -22,7 +22,7 @@ public:
     BoolSetting mHeadYawFlip = BoolSetting("Head Yaw Flip", "Whether to flip the head yaw", false);
     NumberSetting mFlipTick = NumberSetting("Flip Tick", "The tick to flip the head yaw", 20.0f, 1.0f, 20.0f, 1.0f);
 
-    Derp() : ModuleBase("Derp", "funny rotation go brrr", ModuleCategory::Player, 0, false)
+    Derp() : ModuleBase("Derp", "Makes you look like a derp", ModuleCategory::Player, 0, false)
     {
         addSettings(&mMode, &mSpeed, &mHeadYawDesync, &mHeadYawFlip, &mFlipTick);
 

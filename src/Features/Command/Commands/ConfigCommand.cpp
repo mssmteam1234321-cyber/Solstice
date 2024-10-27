@@ -30,21 +30,21 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
 
         if (!ConfigManager::configExists(name))
         {
-            ChatUtils::displayClientMessage("§cThe config §6'" + name + "' §cdoes not exist.");
+            ChatUtils::displayClientMessage("§cThe configuration §6'" + name + "' §cdoes not exist.");
             return;
         }
 
         try
         {
             ConfigManager::loadConfig(name); // Any exceptions here are usually from nlohmann::json
-            ChatUtils::displayClientMessage("§aLoaded config §6" + name + "§a!");
+            ChatUtils::displayClientMessage("§aLoaded configuration §6" + name + "§a!");
         } catch (const std::exception& e)
         {
-            ChatUtils::displayClientMessage("§cFailed to load config §6" + name + "§c.");
+            ChatUtils::displayClientMessage("§cFailed to load configuration §6" + name + "§c.");
             ChatUtils::displayClientMessage("§cError: §6" + std::string(e.what()));
         } catch (...)
         {
-            ChatUtils::displayClientMessage("§cFailed to load config §6" + name + "§c.");
+            ChatUtils::displayClientMessage("§cFailed to load configuration §6" + name + "§c.");
             ChatUtils::displayClientMessage("§cUnknown error occurred.");
         }
     }
@@ -55,12 +55,12 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
             // Save the current config
             if (ConfigManager::LastLoadedConfig.empty())
             {
-                ChatUtils::displayClientMessage("§cNo config loaded. Please load a config first.");
+                ChatUtils::displayClientMessage("§cNo configuration loaded. Please load a config first.");
                 return;
             }
 
             ConfigManager::saveConfig(ConfigManager::LastLoadedConfig);
-            ChatUtils::displayClientMessage("§aSaved config as §6" + ConfigManager::LastLoadedConfig + "§a.");
+            ChatUtils::displayClientMessage("§aSaved configuration as §6" + ConfigManager::LastLoadedConfig + "§a.");
             return;
         }
 
@@ -83,11 +83,11 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
 
         const std::string& name = args[2];
         ConfigManager::saveConfig(name);
-        ChatUtils::displayClientMessage("§aSaved config as §6" + name + "§a.");
+        ChatUtils::displayClientMessage("§aSaved configuration as §6" + name + "§a.");
     }
     else if (action == "list" || action == "l")
     {
-        ChatUtils::displayClientMessage("§aConfigs:");
+        ChatUtils::displayClientMessage("§aConfigurations:");
         for (const auto& f : FileUtils::listFiles(ConfigManager::getConfigPath()))
         {
             std::string file = f;
@@ -113,17 +113,17 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
 
         if (!ConfigManager::configExists(name))
         {
-            ChatUtils::displayClientMessage("§cThe config §6'" + name + "' §cdoes not exist.");
+            ChatUtils::displayClientMessage("§cThe configuration §6'" + name + "' §cdoes not exist.");
             return;
         }
 
         if (!FileUtils::deleteFile(ConfigManager::getConfigPath() + name + ".json"))
         {
-            ChatUtils::displayClientMessage("§cUnable to delete config!");
+            ChatUtils::displayClientMessage("§cUnable to delete configuration!");
             return;
         }
 
-        ChatUtils::displayClientMessage("§aSuccessfully deleted config §6" + name + "§a.");
+        ChatUtils::displayClientMessage("§aSuccessfully deleted configuration §6" + name + "§a.");
     }
     else if (action == "default" || action == "d")
     {
@@ -133,7 +133,7 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
             // Clear the current config
             Solstice::Prefs->mDefaultConfigName = "";
             PreferenceManager::save(Solstice::Prefs);
-            ChatUtils::displayClientMessage("§eSuccessfully cleared the default config.");
+            ChatUtils::displayClientMessage("§eSuccessfully cleared the default configuration.");
             return;
         }
 
@@ -141,13 +141,13 @@ void ConfigCommand::execute(const std::vector<std::string>& args)
 
         if (!ConfigManager::configExists(name))
         {
-            ChatUtils::displayClientMessage("§cThe config §6'" + name + "' §cdoes not exist.");
+            ChatUtils::displayClientMessage("§cThe configuration §6'" + name + "' §cdoes not exist.");
             return;
         }
 
         Solstice::Prefs->mDefaultConfigName = name;
         PreferenceManager::save(Solstice::Prefs);
-        ChatUtils::displayClientMessage("§aSuccessfully set the default config to §6" + name + "§a.");
+        ChatUtils::displayClientMessage("§aSuccessfully set the default configuration to §6" + name + "§a.");
     }
     else
     {
@@ -163,7 +163,7 @@ std::vector<std::string> ConfigCommand::getAliases() const
 
 std::string ConfigCommand::getDescription() const
 {
-    return "Manage configs.";
+    return "Manage configurations.";
 }
 
 std::string ConfigCommand::getUsage() const

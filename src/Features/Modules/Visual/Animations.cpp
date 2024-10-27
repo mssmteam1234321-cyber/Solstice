@@ -165,7 +165,7 @@ void Animations::onBobHurtEvent(BobHurtEvent& event)
     int oldSwingProgress = mOldSwingDuration;
     float lerpedSwingProgress = MathUtils::lerp(oldSwingProgress, swingProgress, ClientInstance::get()->getMinecraftSim()->getGameSim()->mDeltaTime);
     float percent = lerpedSwingProgress / swingTime;
-    spdlog::info("swingProgress: {} oldSwingProgress: {} lerpedSwingProgress: {} percent: {}", swingProgress, oldSwingProgress, lerpedSwingProgress, percent);
+    // spdlog::info("swingProgress: {} oldSwingProgress: {} lerpedSwingProgress: {} percent: {}", swingProgress, oldSwingProgress, lerpedSwingProgress, percent);
 
     // TODO: Take transforms from Java Edition that swing and apply them here (they should work fine for bedrock?)
 };

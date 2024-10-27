@@ -57,7 +57,7 @@ public:
     EnumSettingT<int> mPreferredBlocksSlot = EnumSettingT("Blocks Slot", "The slot where your blocks are", 6, mSlots);
     BoolSetting mDropExtraBows = BoolSetting("Drop Extra Bows", "Drop extra bows when you have more than one", false);
     BoolSetting mIgnoreFireSword = BoolSetting("Ignore Fire Sword", "Don't drop the fire sword", false);
-
+    BoolSetting mStealFireProtection = BoolSetting("Steal Fire Protection", "Keep all armor with Fire Protection", false);
 
     InvManager() : ModuleBase("InvManager", "Manages your inventory", ModuleCategory::Player, 0, false) {
         addSetting(&mMode);
@@ -72,6 +72,9 @@ public:
         addSetting(&mPreferredBlocksSlot);
         addSetting(&mDropExtraBows);
         addSetting(&mIgnoreFireSword);
+#ifdef __PRIVATE_BUILD__
+        addSetting(&mStealFireProtection);
+#endif
 
         VISIBILITY_CONDITION(mPreferredSwordSlot, mPreferredSlots.mValue);
         VISIBILITY_CONDITION(mPreferredPickaxeSlot, mPreferredSlots.mValue);
