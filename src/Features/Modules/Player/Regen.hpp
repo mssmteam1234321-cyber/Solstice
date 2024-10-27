@@ -26,9 +26,7 @@ public:
     };
     enum class AntiConfuseMode {
         RedstoneCheck,
-#ifdef __PRIVATE_BUILD__
-        ExposedCheck
-#endif
+        ExposedCheck // note for ssi: including this here, and excluding this in the setting, will *not* make it visible in release if using ifdef.
     };
     enum class OreSelectionMode {
         Normal,
