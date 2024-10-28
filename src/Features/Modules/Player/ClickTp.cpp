@@ -10,27 +10,19 @@
 
 void ClickTp::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<BaseTickEvent, &ClickTp::onBaseTickEvent>(this);
-}
-
-void ClickTp::onDisable()
-{
-    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &ClickTp::onBaseTickEvent>(this);
-}
-
-void ClickTp::onBaseTickEvent(BaseTickEvent& event)
-{
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    if (HitResult* hitResult = player->getLevel()->getHitResult(); hitResult->mType == HitType::BLOCK) {
-        glm::vec3 blockPos = hitResult->mBlockPos;
-        glm::vec3 newPos = {blockPos.x, blockPos.y + 1.01f + PLAYER_HEIGHT, blockPos.z};
+    HitResult* hitResult = player->getLevel()->getHitResult();
+    glm::vec3 newPos = {0, 0, 0};
 
-        static bool lastRightClick = false;
-        if (ImGui::IsMouseDown(1) && !lastRightClick) {
-            player->setPosition(newPos);
-        }
-        lastRightClick = ImGui::IsMouseDown(1);
+    if(hitResult->mType == HitType::BLOCK)
+    {
+        glm::vec3 blockPos = hitResult->mBlockPos;
+        newPos = {blockPos.x, blockPos.y + 1.01f + PLAYER_HEIGHT, blockPos.z};
+
+        player->setPosition(newPos);
     }
+
+    setEnabled(false);
 }
