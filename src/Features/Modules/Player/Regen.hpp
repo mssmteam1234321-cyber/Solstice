@@ -8,9 +8,7 @@ public:
     };
     enum class CalcMode {
         Minecraft,
-#ifdef __PRIVATE_BUILD__
-        Test
-#endif
+        Test // note for WHOEVER!)=?!)=?!!/)(/(!: including this here, and excluding this in the setting, will *not* make it visible in release if using ifdef.
     };
     enum class UncoverMode {
         Normal,
