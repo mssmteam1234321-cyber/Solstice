@@ -8,7 +8,9 @@ public:
     };
     enum class CalcMode {
         Minecraft,
-        Test // note for WHOEVER!)=?!)=?!!/)(/(!: including this here, and excluding this in the setting, will *not* make it visible in release if using ifdef.
+#ifdef __PRIVATE_BUILD__
+        Test // note for ssi: dont touch working code
+#endif
     };
     enum class UncoverMode {
         Normal,
@@ -24,7 +26,9 @@ public:
     };
     enum class AntiConfuseMode {
         RedstoneCheck,
-        ExposedCheck // note for ssi: including this here, and excluding this in the setting, will *not* make it visible in release if using ifdef.
+#ifdef __PRIVATE_BUILD__
+        ExposedCheck
+#endif
     };
     enum class OreSelectionMode {
         Normal,
@@ -87,7 +91,6 @@ public:
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", true);
     BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", true);
     BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", true);
-    BoolSetting mAssFuckerNotify = BoolSetting("Ass Fucker Notify", "Send message in chat when u fucking enemy", true);
     BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", true);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
@@ -98,7 +101,6 @@ public:
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mReplace = BoolSetting("Raper", "kicks other hackers while hvh", false);
-    BoolSetting mTest = BoolSetting("Ass Fucker", "Makes raper more effective", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
@@ -136,7 +138,6 @@ public:
 #endif
 #ifdef __DEBUG__
             &mReplace,
-            &mTest,
 #endif
             &mAntiSteal,
             &mConfuse,
@@ -160,9 +161,8 @@ public:
             &mDynamicUncoverNotify,
             &mStealerDetectorNotify,
 #endif
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             &mRaperNotify,
-            &mAssFuckerNotify,
 #endif
             &mConfuseNotify,
             &mBlockNotify,
@@ -174,7 +174,6 @@ public:
 
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
-        VISIBILITY_CONDITION(mTest, mSteal.mValue && mReplace.mValue)
 #endif
 
 #ifdef __PRIVATE_BUILD__
@@ -238,7 +237,6 @@ public:
 #endif
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mRaperNotify, mDebug.mValue);
-        VISIBILITY_CONDITION(mAssFuckerNotify, mDebug.mValue);
 #endif
 
         VISIBILITY_CONDITION(mOffset, mProgressBarStyle.mValue == ProgressBarStyle::New);

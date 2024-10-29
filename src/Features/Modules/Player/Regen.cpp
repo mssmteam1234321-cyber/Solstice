@@ -20,6 +20,7 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <Features/Modules/Player/ChestStealer.hpp>
+#include <Features/Modules/Player/Scaffold.hpp>
 
 void Regen::initializeRegen() 
 {
@@ -87,7 +88,7 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 
     // Steal
     if (isStealing && (!mCanSteal || mTargettingBlockPos != mEnemyTargettingBlockPos) && exposedFace == -1) {
-        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Steal cancelled");
+        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("§esteal cancelled");
         return false;
     }
 
@@ -145,7 +146,7 @@ void Regen::queueBlock(glm::ivec3 blockPos)
         std::string blockName = block->getmLegacy()->getmName();
         for (auto& c : BlockUtils::mDynamicSpeeds) {
             if (c.blockName == blockName) {
-                if (mDebug.mValue && mFastOreNotify.mValue) ChatUtils::displayClientMessage("gaming");
+                if (mDebug.mValue && mFastOreNotify.mValue) ChatUtils::displayClientMessage("§agaming");
                 break;
             }
         }
@@ -296,7 +297,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         for (auto &pos: mLastBrokenCoveringBlockPos) {
             // detect opponent uncovered ore
             if (BlockUtils::isAirBlock(pos)) {
-                if(mDebug.mValue && mDynamicUncoverNotify.mValue) ChatUtils::displayClientMessage("Opponent uncovered ore");
+                if(mDebug.mValue && mDynamicUncoverNotify.mValue) ChatUtils::displayClientMessage("§eenemy uncovered ore");
                 mLastUncoverDetected = NOW;
                 break;
             }
@@ -356,7 +357,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     if (mCanSteal && mLastStealerUpdate + mStealerTimeout.mValue <= NOW) {
         mCanSteal = false;
         if (mDebug.mValue && mStealNotify.mValue) {
-            ChatUtils::displayClientMessage("Stealer timeouted");
+            ChatUtils::displayClientMessage("§cstealer timeouted!");
         }
     }
 
@@ -377,7 +378,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     PacketUtils::spoofSlot(hardestBlockSlot);
                     if (mSwing.mValue) player->swing();
                     BlockUtils::placeBlock(placePos, 1);
-                    if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("touching enemy");
+                    if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("§etrying to flag enemy");
                     mShouldSetbackSlot = true;
                     mShouldSpoofSlot = true;
                     supplies->mSelectedSlot = mPreviousSlot;
@@ -388,13 +389,14 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 }
             }
         }
-
+#ifdef __DEBUG__
         if (mReplace.mValue) {
             if (NOW <= mLastReplaced + 1000 && BlockUtils::isAirBlock(mLastReplacedPos)) {
-                if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("raped");
+                if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("§aenemy flagged!");
                 mLastReplaced = 0;
             }
         }
+#endif
     }
 #endif
 
@@ -434,7 +436,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         for (auto &placePos: placePositions) {
                             BlockUtils::placeBlock(placePos, 1);
                         }
-                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
+                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("§acovered enemy's ore");
                         mShouldSetbackSlot = true;
                         mShouldSpoofSlot = true;
                         supplies->mSelectedSlot = mPreviousSlot;
@@ -460,7 +462,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         PacketUtils::spoofSlot(blockSlot);
                         if (mSwing.mValue) player->swing();
                         BlockUtils::placeBlock(placePos, 1);
-                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("Blocked ore");
+                        if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("§acovered enemy's ore");
                         mShouldSetbackSlot = true;
                         mShouldSpoofSlot = true;
                         supplies->mSelectedSlot = mPreviousSlot;
@@ -477,9 +479,12 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
     bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
 
+    auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
+    bool isScaffold = scaffold && scaffold->mEnabled;
+
     // Return if maxAbsorption is reached, OR if a block was placed in the last 200ms
     if (maxAbsorption && !mAlwaysMine.mValue && !mQueueRedstone.mValue && (!mAlwaysSteal.mValue || !steal || isStealDelayed) ||
-        player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
+        player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing || isScaffold) {
         initializeRegen();
         resetSyncSpeed();
         if (mIsConfuserActivated) {
@@ -508,7 +513,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         if (startedStealerDetection) {
             if (NOW > stealerDetectionStartTime + 5000) {
                 if (!(amountOfStolenBlocks > mAmountOfBlocksToDetect.mValue)) {
-                    if (mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("Reset");
+                    if (mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("§ereset");
                     startedStealerDetection = false;
                     stealerDetectionStartTime = 0;
                     amountOfStolenBlocks = 0;
@@ -518,7 +523,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     if (mIsMiningBlock && source->getBlock(mTargettingBlockPos)->mLegacy->isAir()) {
-        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Current ore was stolen!");
+        if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("§cyour ore was stolen!");
 
         if (mStealerDetecter.mValue) {
             if (startedStealerDetection) {
@@ -531,7 +536,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         stealerDetectionStartTime = 0;
                         amountOfStolenBlocks = 0;
                         lastStealerDetected = NOW;
-                        if(mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("Stealer detected");
+                        if(mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("§estealer detected");
                     }
                 } else {
                     amountOfStolenBlocks++;
@@ -540,7 +545,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 stealerDetectionStartTime = NOW;
                 startedStealerDetection = true;
                 amountOfStolenBlocks = 1;
-                if(mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("Started stealer detection");
+                if(mDebug.mValue && mStealerDetectorNotify.mValue) ChatUtils::displayClientMessage("§astarted stealer detection");
             }
         }
     }
@@ -563,7 +568,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     if (
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) && isValidBlock(mTargettingBlockPos, true, false) &&
 #else
             isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos &&
@@ -694,15 +699,15 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             BlockUtils::destroyBlock(mCurrentBlockPos, exposedFace, mInfiniteDurability.mValue);
             mCanReplace = mIsStealing || (2 <= mStartDestroyCount && !mIsUncovering);
             if (mIsStealing) {
-                if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Stole ore");
+                if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("§astole enemy's ore");
                 if (mNoUncoverWhileStealing.mValue)
                     lastStoleTime = NOW;
             }
             if (mDebug.mValue && mSyncSpeedNotify.mValue && synchedSpeed)
-                ChatUtils::displayClientMessage("Synched destroy speed");
+                ChatUtils::displayClientMessage("§asynched destroy speed");
 
             if (nukedBlock)
-                if (mDebug.mValue && mNukeNotify.mValue) ChatUtils::displayClientMessage("Nuked block");
+                if (mDebug.mValue && mNukeNotify.mValue) ChatUtils::displayClientMessage("§enuked block");
             supplies->mSelectedSlot = mPreviousSlot;
             mIsMiningBlock = false;
 
@@ -752,7 +757,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     mLastConfusedPos = confusePos;
                     mIsConfuserActivated = true;
                     mLastConfuse = NOW;
-                    if (mDebug.mValue && mConfuseNotify.mValue) ChatUtils::displayClientMessage("Confused stealer");
+                    if (mDebug.mValue && mConfuseNotify.mValue) ChatUtils::displayClientMessage("§aconfused enemy's stealer");
                     return;
                 }
             }
@@ -1247,19 +1252,20 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (blockAtPos->mLegacy->getBlockId() == 10099) { // ignore crumbling blocks due to false detecting
                 return;
             }
-
+#ifdef __PRIVATE_BUILD__
             int exposedFace = BlockUtils::getExposedFace(levelEvent->mPos);
             if (exposedFace == -1 && (mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::ExposedCheck)) {
                 return;
             }
-
-            if (mTest.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
+#endif
+#ifdef __DEBUG__
+            if (mReplace.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
-                    if(mDebug.mValue && mAssFuckerNotify.mValue) ChatUtils::displayClientMessage("Opponent is targetting same ore");
+                    if(mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("§eenemy targetting same ore!");
                 }
             }
-
+#endif
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
             // Steal
             for (auto& offset : mOffsetList) {
@@ -1277,7 +1283,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
                 if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = pos;
-                    if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("Opponent tried to steal your ore");
+                    if (mDebug.mValue && mStealNotify.mValue) ChatUtils::displayClientMessage("§eenemy tried to steal your ore, switching ores!");
                 }
                 mLastStealerDetected = NOW;
             }

@@ -19,6 +19,7 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 #include <Features/Modules/Player/ChestStealer.hpp>
+#include <Features/Modules/Player/Scaffold.hpp>
 
 void OreMiner::reset() {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -183,11 +184,14 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     auto chestStealer = gFeatureManager->mModuleManager->getModule<ChestStealer>();
     bool mStealing = chestStealer && chestStealer->mEnabled && chestStealer->mIsStealing;
 
+    auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
+    bool isScaffold = scaffold && scaffold->mEnabled;
+
     int pickaxeSlot = ItemUtils::getBestItem(SItemType::Pickaxe, mHotbarOnly.mValue);
     ItemStack *stack = supplies->getContainer()->getItem(pickaxeSlot);
     bool hasPickaxe = stack->mItem && stack->getItem()->getItemType() == SItemType::Pickaxe;
 
-    if (Regen::mIsMiningBlock || Regen::mWasMiningBlock || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing) {
+    if (Regen::mIsMiningBlock || Regen::mWasMiningBlock || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing || isScaffold) {
         reset();
         mShouldSetbackSlot = false;
         return;
