@@ -133,7 +133,7 @@ public:
     DEFINE_FIELD(Block_mRuntimeId, 0xC0);
     DEFINE_FIELD(Block_mLegacy, 0x30);
     DEFINE_FIELD(ClientInstance_getScreenName, 266); // i will make sig for it later (maybe)
-    DEFINE_FIELD(ClientInstance_mGuiData, 590); // i will make sig for it later (maybe)
+    DEFINE_FIELD(ClientInstance_mGuiData, 0x590); // i will make sig for it later (maybe)
 
     static void initialize();
     static void deinitialize();
