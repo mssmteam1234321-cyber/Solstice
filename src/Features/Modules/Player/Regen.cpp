@@ -568,7 +568,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     if (
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) && isValidBlock(mTargettingBlockPos, true, false) &&
 #else
             isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos &&
