@@ -69,6 +69,7 @@ public:
 
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
+    BoolSetting mAvoidCheck = BoolSetting("Avoid Check", "Avoid strafe check in The Hive", false);
     BoolSetting mTest = BoolSetting("Test", "test", true);
     BoolSetting mUseStrafeSpeed = BoolSetting("Custom Strafe Speed", "Whether or not to apply custom speed when strafing", true);
     NumberSetting mStrafeSpeed = NumberSetting("Strafe Speed", "The speed to strafe at", 0.5, 0, 10, 0.01);
@@ -107,6 +108,9 @@ public:
             &mDontBoosStrafeSpeed,
             &mSpeed,
             &mStrafe,
+#ifdef __PRIVATE_BUILD__
+            &mAvoidCheck,
+#endif
             &mTest,
             &mUseStrafeSpeed,
             &mStrafeSpeed,
@@ -127,8 +131,10 @@ public:
         addSettings(&mExtraHeight, &mClipHeight);
         VISIBILITY_CONDITION(mExtraHeight, mJumpType.mValue != JumpType::None);
         VISIBILITY_CONDITION(mClipHeight, mJumpType.mValue != JumpType::None && mExtraHeight.mValue);
-#endif
 
+        VISIBILITY_CONDITION(mAvoidCheck, mStrafe.mValue);
+#endif
+        
         VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
         VISIBILITY_CONDITION(mStrafeSpeed, mStrafe.mValue);
 
@@ -177,6 +183,7 @@ public:
     std::map<EffectType, uint64_t> mEffectTimers = {};
     float mDamageBoostVal = 1.f;
     bool mDamageTimerApplied = false;
+    bool mClip = false;
 
     void onEnable() override;
     void onDisable() override;
