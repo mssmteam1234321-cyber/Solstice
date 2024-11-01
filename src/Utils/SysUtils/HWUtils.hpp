@@ -4,7 +4,12 @@
 //
 
 #include <SDK/Minecraft/mce.hpp>
-
+#include <array>
+#include <string>
+#include <memory>
+#include <stdexcept>
+#include <cstdio>
+#include <intrin.h>
 
 class HWUtils {
 public:
@@ -25,6 +30,7 @@ public:
         uuid.mLow = hash;
         return uuid;
     }
+    static mce::UUID getCpuInfo();
 };
 
 

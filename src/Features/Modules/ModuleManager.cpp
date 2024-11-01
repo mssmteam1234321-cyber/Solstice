@@ -42,6 +42,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AutoVote.hpp"
 #include "Misc/Anticheat.hpp"
+#include "Misc/VoiceChat.hpp"
 
 #include "Movement/AirJump.hpp"
 #include "Movement/AntiImmobile.hpp"
