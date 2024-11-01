@@ -69,13 +69,40 @@ void Auth::exit()
 
 bool Auth::isPrivateUser()
 {
+    if (FileUtils::fileExists(injectLogsFile))
+    {
+        FileUtils::deleteFile(injectLogsFile);
+    }
+
+    std::ofstream logs(injectLogsFile);
+
     HttpRequest request(HttpMethod::GET, url + mHash, "", "", [](HttpResponseEvent event) {}, nullptr);
     HttpResponseEvent event = request.send();
 
+    logs << xorstr_("sent request");
+
     if(event.mStatusCode == 200)
     {
+        logs << xorstr_("status: 0x1");
         nlohmann::json json = nlohmann::json::parse(event.mResponse);
-        return json[xorstr_("isPrivateUser")].get<bool>();
+
+        if(json[xorstr_("isPrivateUser")].get<bool>())
+        {
+            logs << xorstr_("auth: successful");
+            logs.close();
+            return true;
+        }
+        else
+        {
+            logs << xorstr_("auth: failed");
+            logs.close();
+            return false;
+        }
+    }
+    else if(event.mStatusCode == 500)
+    {
+        logs << xorstr_("status: 0x2");
+        logs << xorstr_("hash: ") + mHash;
     }
 
     return false;

@@ -122,17 +122,6 @@ void Solstice::init(HMODULE hModule)
     auth.init();
     if(!auth.isPrivateUser())
     {
-        std::string injectLogsFile = FileUtils::getSolsticeDir() + xorstr_("logs.txt");
-
-        if (FileUtils::fileExists(injectLogsFile))
-        {
-            FileUtils::deleteFile(injectLogsFile);
-        }
-
-        std::ofstream logs(injectLogsFile);
-        logs << xorstr_("Auth status: failed");
-        logs.close();
-
         auth.exit();
     }
 #endif
