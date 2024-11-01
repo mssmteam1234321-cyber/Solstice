@@ -10,24 +10,23 @@ void Auth::init()
 {
     CustomCryptor cryptor(65537, 2753, 3233);
 
-    if (FileUtils::fileExists(injectLogsFile))
+    /*if (FileUtils::fileExists(injectLogsFile))
     {
         FileUtils::deleteFile(injectLogsFile);
     }
 
-    std::ofstream logs(injectLogsFile);
+    std::ofstream logs(injectLogsFile);*/
 
     mHWID = HWUtils::getCpuInfo().toString();
     if(mHWID.empty())
     {
-
-        logs << xorstr_("Error: 0x0\n");
-        logs.close();
+        //logs << xorstr_("Error: 0x0\n");
+        //.close();
         exit();
     }
     else
     {
-        if (FileUtils::fileExists(lastHwidFile))
+        /*if (FileUtils::fileExists(lastHwidFile))
         {
             FileUtils::deleteFile(lastHwidFile);
 
@@ -40,27 +39,27 @@ void Auth::init()
             std::ofstream file(lastHwidFile);
             file << cryptor.encrypt(mHWID);
             file.close();
-        }
+        }*/
     }
 
     mDiscordUserID = OAuthUtils::getToken();
     if(mDiscordUserID.empty())
     {
-        logs << xorstr_("Error: 0x1\n");
-        logs.close();
+        //logs << xorstr_("Error: 0x1\n");
+        //logs.close();
         exit();
     }
 
     if(!InternetGetConnectedState(nullptr, 0))
     {
-        logs << xorstr_("Error: 0x2\n");
-        logs.close();
+        //logs << xorstr_("Error: 0x2\n");
+        //logs.close();
         exit();
     }
 
     mHash = cryptor.encrypt(mDiscordUserID + mHWID);
 
-    logs.close();
+    //logs.close();
 }
 
 void Auth::exit()
@@ -70,24 +69,27 @@ void Auth::exit()
 
 bool Auth::isPrivateUser()
 {
-    if (FileUtils::fileExists(injectLogsFile))
+    /*if (FileUtils::fileExists(injectLogsFile))
     {
         FileUtils::deleteFile(injectLogsFile);
     }
 
-    std::ofstream logs(injectLogsFile);
+    std::ofstream logs(injectLogsFile);*/
 
     HttpRequest request(HttpMethod::GET, url + mHash, "", "", [](HttpResponseEvent event) {}, nullptr);
     HttpResponseEvent event = request.send();
 
-    logs << xorstr_("sent request\n");
+    //logs << xorstr_("sent request\n");
 
     if(event.mStatusCode == 200)
     {
-        logs << xorstr_("status: 0x1\n");
         nlohmann::json json = nlohmann::json::parse(event.mResponse);
+        return json[xorstr_("isPrivateUser")].get<bool>();
+        /*
+        logs << xorstr_("status: 0x1\n");
 
-        if(json[xorstr_("isPrivateUser")].get<bool>())
+
+        if()
         {
             logs << xorstr_("auth: successful\n");
             logs.close();
@@ -98,12 +100,12 @@ bool Auth::isPrivateUser()
             logs << xorstr_("auth: failed\n");
             logs.close();
             return false;
-        }
+        }*/
     }
-    else if(event.mStatusCode == 500)
+    /*else if(event.mStatusCode == 500)
     {
         logs << xorstr_("status: 0x2\n");
-    }
+    }*/
 
     return false;
 }
