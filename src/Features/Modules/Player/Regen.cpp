@@ -362,7 +362,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     // Replacer
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
     if (mReplace.mValue) {
         if (mCanReplace && hasPickaxe) {
             int hardestBlockSlot = ItemUtils::getHardestBlock(pickaxeSlot, mHotbarOnly.mValue);
@@ -389,7 +389,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                 }
             }
         }
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         if (mReplace.mValue) {
             if (NOW <= mLastReplaced + 1000 && BlockUtils::isAirBlock(mLastReplacedPos)) {
                 if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("§aenemy flagged!");
@@ -568,7 +568,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     }
 
     if (
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             isValidBlock(mCurrentBlockPos, !mIsUncovering, !mIsUncovering, mIsStealing) && isValidBlock(mTargettingBlockPos, true, false) &&
 #else
             isValidBlock(mCurrentBlockPos, !mCurrentUncover, !mIsUncovering, mIsStealing) && mTargettingBlockPos != mBlackListedOrePos &&
@@ -1258,7 +1258,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 return;
             }
 #endif
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             if (mReplace.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
