@@ -21,7 +21,7 @@ void Auth::init()
     if(mHWID.empty())
     {
 
-        logs << xorstr_("Error: 0x1");
+        logs << xorstr_("Error: 0x0");
         logs.close();
         exit();
     }
@@ -46,14 +46,14 @@ void Auth::init()
     mDiscordUserID = OAuthUtils::getToken();
     if(mDiscordUserID.empty())
     {
-        logs << xorstr_("Error: 0x2");
+        logs << xorstr_("Error: 0x1");
         logs.close();
         exit();
     }
 
     if(!InternetGetConnectedState(nullptr, 0))
     {
-        logs << xorstr_("Error: 0x3");
+        logs << xorstr_("Error: 0x2");
         logs.close();
         exit();
     }
