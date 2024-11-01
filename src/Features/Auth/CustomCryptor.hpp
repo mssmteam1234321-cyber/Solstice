@@ -1,47 +1,45 @@
 //
 // Created by alteik on 31/10/2024.
 //
-class CustomCryptor { // im just testing stuff, 0 comments plz (anyway its better then previous killswitch :>)
+
+class CustomCryptor {
 public:
-    CustomCryptor(const std::string& key) : key(key) {}
+    CustomCryptor(unsigned long publicKey, unsigned long privateKey, unsigned long modulus)
+        : e(publicKey), d(privateKey), n(modulus) {}
 
     std::string encrypt(const std::string& text) const {
-        std::string encrypted = xorCrypt(text);
-        return toAlphaNumeric(encrypted);
+        std::string encrypted;
+        for (char c : text) {
+            unsigned long encryptedChar = modular_pow(c, e, n);
+            encrypted += std::to_string(encryptedChar) + " ";
+        }
+        return encrypted;
     }
 
     std::string decrypt(const std::string& text) const {
-        std::string fromAlphaNum = fromAlphaNumeric(text);
-        return xorCrypt(fromAlphaNum);
+        std::istringstream iss(text);
+        std::string decrypted;
+        unsigned long encryptedChar;
+        while (iss >> encryptedChar) {
+            char decryptedChar = static_cast<char>(modular_pow(encryptedChar, d, n));
+            decrypted += decryptedChar;
+        }
+        return decrypted;
     }
 
 private:
-    std::string key;
-    const std::string alphaNum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    unsigned long e;
+    unsigned long d;
+    unsigned long n;
 
-    std::string xorCrypt(const std::string& text) const {
-        std::string result = text;
-        for (size_t i = 0; i < text.size(); ++i) {
-            result[i] = text[i] ^ key[i % key.size()];
-        }
-        return result;
-    }
-
-    std::string toAlphaNumeric(const std::string& text) const {
-        std::string result;
-        for (unsigned char c : text) {
-            result += alphaNum[(c >> 4) & 0x3F];
-            result += alphaNum[c & 0x3F];
-        }
-        return result;
-    }
-
-    std::string fromAlphaNumeric(const std::string& text) const {
-        std::string result;
-        for (size_t i = 0; i < text.size(); i += 2) {
-            unsigned char high = alphaNum.find(text[i]) << 4;
-            unsigned char low = alphaNum.find(text[i + 1]);
-            result += high | low;
+    unsigned long modular_pow(unsigned long base, unsigned long exponent, unsigned long mod) const {
+        unsigned long result = 1;
+        while (exponent > 0) {
+            if (exponent % 2 == 1) {
+                result = (result * base) % mod;
+            }
+            base = (base * base) % mod;
+            exponent /= 2;
         }
         return result;
     }
