@@ -20,7 +20,7 @@ public:
     BoolSetting mShowFireTrailSpells = BoolSetting("Show Fire Trail Spells", "Show the number of Fire Trail spells in your inventory.", false);
     BoolSetting mShowKicksAmount = BoolSetting("Kicks Counter", "Show the number of times you have been kicked (useful for avoiding bans in Flareon v2).", false);
 
-    LevelInfo() : ModuleBase("LevelInfo", "Display general information.", ModuleCategory::Visual, 0, true) {
+    LevelInfo() : ModuleBase("LevelInfo", "Display general information.", ModuleCategory::Visual, 0, false) {
         addSetting(&mShowFPS);
         addSetting(&mShowPing);
         addSetting(&mShowBPS);

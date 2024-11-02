@@ -43,7 +43,9 @@ void Auth::init()
 
 void Auth::exit()
 {
+#ifndef __DEBUG__
     __fastfail(0);
+#endif
 }
 
 bool Auth::isPrivateUser()
@@ -54,7 +56,7 @@ bool Auth::isPrivateUser()
     if(event.mStatusCode == 200)
     {
         nlohmann::json json = nlohmann::json::parse(event.mResponse);
-        return json[xorstr_("isPrivateUser")].get<bool>();
+        return json[xorstr_("hasPrivateAccess")].get<bool>();
     }
 
     return false;

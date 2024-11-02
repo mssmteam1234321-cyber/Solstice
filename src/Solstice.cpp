@@ -193,6 +193,9 @@ void Solstice::init(HMODULE hModule)
     }
 
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
+    console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
+    console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
+
     // press enter to continue if failed sigs
     if (failedSigs > 0)
     {
@@ -200,11 +203,6 @@ void Solstice::init(HMODULE hModule)
         std::string input;
         std::getline(std::cin, input);
     }
-
-    console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
-
-    console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
-
 
 
     gFeatureManager = std::make_shared<FeatureManager>();
@@ -272,7 +270,7 @@ void Solstice::init(HMODULE hModule)
             HookManager::init(true); // Initialize the base tick hook
 
             auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
-            if (!ircModule->mEnabled) ircModule->toggle();
+            if (ircModule && !ircModule->mEnabled) ircModule->toggle();
 
             if (!Prefs->mDefaultConfigName.empty())
             {
