@@ -123,6 +123,7 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
+#include "Visual/Freelook.hpp"
 #include "Visual/Glint.hpp"
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
@@ -250,6 +251,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Glint>());
     mModules.emplace_back(std::make_shared<NoDebuff>());
     mModules.emplace_back(std::make_shared<JumpCircles>());
+    mModules.emplace_back(std::make_shared<Freelook>());
+
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode

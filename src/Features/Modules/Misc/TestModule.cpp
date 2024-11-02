@@ -356,6 +356,8 @@ enum class Tab
     Scripting
 };
 
+
+
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     /*AABB& blockAABB = lastBlockAABB;
@@ -582,7 +584,9 @@ if (mMode.mValue == Mode::Concepts)
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("MoveInputComponent", player->mContext.getComponent<MoveInputComponent>());
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
-        displayCopyableAddress("AABBShapeComponent", player->mContext.try_get<AABBShapeComponent>());
+        displayCopyableAddress("ShadowOffsetComponent", player->mContext.getComponent<ShadowOffsetComponent>());;
+        displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());;
+        displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
         ImGui::EndGroup();
     }
 

@@ -944,6 +944,6 @@ std::string StringUtils::randomString(int length)
     std::random_device rd;
     std::mt19937 generator(rd());
 
-    ranges::shuffle(str, generator);
+    std::ranges::shuffle(str, generator);
 
     return str.substr(0, length);};
