@@ -47,6 +47,7 @@ public:
     }
 
     void setStatusFlag(ActorFlags flag, bool value) {
+        // TODO: implement this
         //MemUtils::callFastcall<void>(SigManager::Actor_setStatusFlag, this, flag, value);
     }
 
@@ -159,4 +160,4 @@ public:
     bool canSee(Actor* actor);
 };
 
-static_assert(sizeof(Actor) == 0x408, "Actor size is invalid");
+static_assert(sizeof(Actor) == 0x400, "Actor size is invalid");

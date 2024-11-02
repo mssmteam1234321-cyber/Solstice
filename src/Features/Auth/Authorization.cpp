@@ -14,8 +14,8 @@ void Auth::init()
     {
         nlohmann::json authData;
 
-        authData["password"] = "";
-        authData["username"] = "";
+        authData[xorstr_("password")] = "";
+        authData[xorstr_("username")] = "";
 
         std::ofstream file(authFile);
         file << authData.dump(4);
@@ -29,8 +29,8 @@ void Auth::init()
         file >> authData;
         file.close();
 
-        mPassword = authData.value("password", "");
-        mUsername = authData.value("username", "");
+        mPassword = authData.value(xorstr_("password"), "");
+        mUsername = authData.value(xorstr_("username"), "");
     }
 
     mHWID = HWUtils::getCpuInfo().toString();
@@ -38,7 +38,7 @@ void Auth::init()
 
     if(!InternetGetConnectedState(nullptr, 0)) exit();
 
-    mHash = cryptor.encrypt(mUsername + ":" + mPassword + ":" + mHWID);
+    mHash = cryptor.encrypt(mUsername + ':' + mPassword + ':' + mHWID);
 }
 
 void Auth::exit()

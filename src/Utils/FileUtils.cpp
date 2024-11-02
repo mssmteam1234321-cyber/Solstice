@@ -23,7 +23,7 @@ std::string FileUtils::getRoamingStatePath()
 
 std::string FileUtils::getSolsticeDir()
 {
-    return getRoamingStatePath() + "Solstice\\";
+    return getRoamingStatePath() + xorstr_("Solstice\\");
 }
 
 bool FileUtils::fileExists(const std::string& path)
