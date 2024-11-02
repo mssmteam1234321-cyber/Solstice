@@ -10,56 +10,35 @@ void Auth::init()
 {
     CustomCryptor cryptor(65537, 2753, 3233);
 
-    /*if (FileUtils::fileExists(injectLogsFile))
+    if (!FileUtils::fileExists(authFile))
     {
-        FileUtils::deleteFile(injectLogsFile);
-    }
+        nlohmann::json authData;
 
-    std::ofstream logs(injectLogsFile);*/
+        authData["password"] = "";
+        authData["username"] = "";
 
-    mHWID = HWUtils::getCpuInfo().toString();
-    if(mHWID.empty())
-    {
-        //logs << xorstr_("Error: 0x0\n");
-        //.close();
+        std::ofstream file(authFile);
+        file << authData.dump(4);
+        file.close();
         exit();
     }
     else
     {
-        /*if (FileUtils::fileExists(lastHwidFile))
-        {
-            FileUtils::deleteFile(lastHwidFile);
+        std::ifstream file(authFile);
+        nlohmann::json authData;
+        file >> authData;
+        file.close();
 
-            std::ofstream file(lastHwidFile);
-            file << cryptor.encrypt(mHWID);
-            file.close();
-        }
-        else
-        {
-            std::ofstream file(lastHwidFile);
-            file << cryptor.encrypt(mHWID);
-            file.close();
-        }*/
+        mPassword = authData.value("password", "");
+        mUsername = authData.value("username", "");
     }
 
-    mDiscordUserID = OAuthUtils::getToken();
-    if(mDiscordUserID.empty())
-    {
-        //logs << xorstr_("Error: 0x1\n");
-        //logs.close();
-        exit();
-    }
+    mHWID = HWUtils::getCpuInfo().toString();
+    if(mHWID.empty()) exit();
 
-    if(!InternetGetConnectedState(nullptr, 0))
-    {
-        //logs << xorstr_("Error: 0x2\n");
-        //logs.close();
-        exit();
-    }
+    if(!InternetGetConnectedState(nullptr, 0)) exit();
 
-    mHash = cryptor.encrypt(mDiscordUserID + mHWID);
-
-    //logs.close();
+    mHash = cryptor.encrypt(mUsername + ":" + mPassword + ":" + mHWID);
 }
 
 void Auth::exit()
@@ -69,43 +48,14 @@ void Auth::exit()
 
 bool Auth::isPrivateUser()
 {
-    /*if (FileUtils::fileExists(injectLogsFile))
-    {
-        FileUtils::deleteFile(injectLogsFile);
-    }
-
-    std::ofstream logs(injectLogsFile);*/
-
     HttpRequest request(HttpMethod::GET, url + mHash, "", "", [](HttpResponseEvent event) {}, nullptr);
     HttpResponseEvent event = request.send();
-
-    //logs << xorstr_("sent request\n");
 
     if(event.mStatusCode == 200)
     {
         nlohmann::json json = nlohmann::json::parse(event.mResponse);
         return json[xorstr_("isPrivateUser")].get<bool>();
-        /*
-        logs << xorstr_("status: 0x1\n");
-
-
-        if()
-        {
-            logs << xorstr_("auth: successful\n");
-            logs.close();
-            return true;
-        }
-        else
-        {
-            logs << xorstr_("auth: failed\n");
-            logs.close();
-            return false;
-        }*/
     }
-    /*else if(event.mStatusCode == 500)
-    {
-        logs << xorstr_("status: 0x2\n");
-    }*/
 
     return false;
 }

@@ -6,10 +6,10 @@ class Auth
 {
 public:
     std::string mHWID = "";
-    std::string mDiscordUserID = "";
+    std::string mUsername = "";
+    std::string mPassword = "";
     std::string mHash = "";
-    //std::string lastHwidFile = FileUtils::getSolsticeDir() + xorstr_("hwid.txt");
-    //std::string injectLogsFile = FileUtils::getSolsticeDir() + xorstr_("logs.txt");
+    std::string authFile = FileUtils::getSolsticeDir() + xorstr_("auth.txt");
     static inline std::string url = xorstr_("https://dllserver.solstice.works/isPrivateUser?id=");
 
     void init();
