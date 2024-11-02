@@ -120,4 +120,23 @@ void AutoBoombox::onPacketOutEvent(PacketOutEvent& event) {
             mShouldRotate = false;
         }
     }
+    else if (event.mPacket->getId() == PacketID::InventoryTransaction)
+    {
+        if (const auto it = event.getPacket<InventoryTransactionPacket>(); it->mTransaction->type ==
+            ComplexInventoryTransaction::Type::ItemUseTransaction)
+        {
+            const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
+            if (transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
+            {
+                transac->mClickPos = BlockUtils::clickPosOffsets[transac->mFace];
+                for (int i = 0; i < 3; i++)
+                {
+                    if (transac->mClickPos[i] == 0.5)
+                    {
+                        transac->mClickPos[i] = MathUtils::randomFloat(-0.49f, 0.49f);
+                    }
+                }
+            }
+        }
+    }
 }
