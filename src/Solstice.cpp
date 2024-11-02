@@ -137,19 +137,14 @@ void Solstice::init(HMODULE hModule)
 
     setTitle(title);
 
+
+    sHWID = GET_HWID().toString();
+    spdlog::info("HWID: {}", sHWID);
+
     if (MH_Initialize() != MH_OK)
     {
         console->critical("Failed to initialize MinHook!");
     }
-
-    /*// Attempt to list the microphones
-    std::vector<std::string> microphones = AudioUtils::listMicrophones();
-    for (const auto& mic : microphones)
-    {
-        console->info("Microphone: {}", mic);
-    }
-
-    AudioUtils::recordVoiceClip();*/
 
     Prefs = PreferenceManager::load();
 
