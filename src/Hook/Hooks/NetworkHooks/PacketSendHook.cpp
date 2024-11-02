@@ -39,5 +39,5 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
 
 
 void PacketSendHook::init() {
-    mDetour = std::make_unique<Detour>("LoopbackPacketSender::send", reinterpret_cast<void*>(ClientInstance::get()->getPacketSender()->vtable[1]), &PacketSendHook::onPacketSend);
+    mDetour = std::make_unique<Detour>("LoopbackPacketSender::send", reinterpret_cast<void*>(ClientInstance::get()->getPacketSender()->vtable[2]), &PacketSendHook::onPacketSend);
 }
