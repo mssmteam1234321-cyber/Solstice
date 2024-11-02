@@ -10,7 +10,11 @@ public:
         Form,
         Command
     };
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the party spammer", Mode::Form, "Form", "Command");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the party spammer", Mode::Form, "Form"
+#ifdef __PRIVATE_BUILD__
+        , "Command"
+#endif
+    );
     BoolSetting mActive = BoolSetting("Active", "Whether the party spammer is active", false);
     NumberSetting mDelay = NumberSetting("Delay", "The delay in milliseconds between each party invite", 1000, 0, 10000, 100);
     BoolSetting mHideInviteMessage = BoolSetting("Hide Invite Message", "Dont show invite message in chat", false);
@@ -19,7 +23,9 @@ public:
         addSetting(&mMode);
         addSetting(&mActive);
         addSetting(&mDelay);
+#ifdef __PRIVATE_BUILD__
         addSetting(&mHideInviteMessage);
+#endif
 
         VISIBILITY_CONDITION(mActive, mMode.mValue == Mode::Form);
         VISIBILITY_CONDITION(mDelay, mMode.mValue == Mode::Form);
