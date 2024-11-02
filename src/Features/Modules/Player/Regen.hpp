@@ -136,7 +136,7 @@ public:
             &mDelayedSteal,
             &mOpponentDestroySpeed,
 #endif
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             &mReplace,
 #endif
             &mAntiSteal,
@@ -161,7 +161,7 @@ public:
             &mDynamicUncoverNotify,
             &mStealerDetectorNotify,
 #endif
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             &mRaperNotify,
 #endif
             &mConfuseNotify,
