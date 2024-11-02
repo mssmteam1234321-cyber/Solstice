@@ -172,7 +172,7 @@ public:
             &mStealNotify
         );
 
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
 #endif
 
