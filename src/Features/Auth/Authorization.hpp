@@ -10,7 +10,7 @@ public:
     std::string mPassword = "";
     std::string mHash = "";
     std::string authFile = FileUtils::getSolsticeDir() + xorstr_("auth.txt");
-    static inline std::string url = xorstr_("https://dllserver.solstice.works/isPrivateUser?id=");
+    static inline std::string url = xorstr_("https://dllserver.solstice.works/hasPrivateAccess?id=");
 
     void init();
     void exit();
