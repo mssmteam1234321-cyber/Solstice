@@ -119,7 +119,7 @@ public:
     DEFINE_INDEX_FIELD(ClientInputMappingFactory_mKeyboardMouseSettings, "49 8B 9D ? ? ? ? 48 89 5D ? 4D 8B AD ? ? ? ? 4C 89 6D ? E9", 3, OffsetType::FieldOffset); // TODO: replace with betta siggy
 
     //DEFINE_INDEX_FIELD_TYPED(uint8_t, ClientInputHandler_mMappingFactory, "48 8B ? ? EB ? 48 8D ? ? 48 85 ? 74 ? 48 8B ? E8 ? ? ? ? 48 8B ? 48 8B ? ? ? 48 33 ? E8 ? ? ? ? 48 8B ? ? ? 48 8B ? ? ? 48 83 C4 ? 5F C3 E8 ? ? ? ? CC CC CC CC CC CC 48 89", 3, OffsetType::FieldOffset);
-    DEFINE_FIELD(ClientInputHandler_mMappingFactory, 0x20);
+    DEFINE_FIELD(ClientInputHandler_mMappingFactory, 0x28);
 
     // TODO: Move all CLASS_FIELD declarations and hat::member_at offsets to here
     DEFINE_FIELD(ContainerScreenController_tryExit, 12);
