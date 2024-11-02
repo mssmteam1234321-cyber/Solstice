@@ -195,8 +195,26 @@ void KeyHook::onKey(uint32_t key, bool isDown)
             {
                 module->mWantedState = isDown;
             }
-            else if (isDown) module->toggle();
+            else if (isDown)
+            {
+                module->toggle();
+            }
         }
+
+        /*if (isDown)
+        {
+            for (Setting* setting : module->mSettings)
+            {
+                if (auto boolSetting = dynamic_cast<BoolSetting*>(setting))
+                {
+                    if (boolSetting->mKey == key)
+                    {
+                        bool oldValue = static_cast<bool>(*boolSetting);
+                        boolSetting->setValue(!oldValue);
+                    }
+                }
+            }
+        }*/
     }
 }
 

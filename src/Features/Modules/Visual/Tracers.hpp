@@ -16,7 +16,7 @@ public:
     BoolSetting mRenderLocal = BoolSetting("Render Local", "Whether or not to render the ESP on the local player.", false);
     BoolSetting mShowFriends = BoolSetting("Show Friends", "Whether or not to render the ESP on friends.", true);
 
-    Tracers() : ModuleBase("Tracers", "Draws a line to entities", ModuleCategory::Visual, 0, false) {
+    Tracers() : ModuleBase("Tracers", "Draws a line to every entity", ModuleCategory::Visual, 0, false) {
         addSetting(&mCenterPoint);
         addSetting(&mRenderFilled);
         addSetting(&mRenderLocal);

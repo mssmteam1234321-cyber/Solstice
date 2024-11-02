@@ -10,7 +10,7 @@ public:
     enum class CalcMode {
         Minecraft,
 #ifdef __PRIVATE_BUILD__
-        Test
+        Test // note for ssi: dont touch working code
 #endif
     };
     enum class UncoverMode {
@@ -26,6 +26,12 @@ public:
     enum class ConfuseMode {
         Always,
         Auto
+    };
+    enum class AntiConfuseMode {
+        RedstoneCheck,
+#ifdef __PRIVATE_BUILD__
+        ExposedCheck
+#endif
     };
     enum class OreSelectionMode {
         Normal,
@@ -70,7 +76,12 @@ public:
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
     EnumSettingT<ConfuseMode> mConfuseMode = EnumSettingT<ConfuseMode>("Confuse Mode", "The mode for confuser", ConfuseMode::Always, "Always", "Auto");
     NumberSetting mConfuseDuration = NumberSetting("Confuse Duration", "The time for confuse", 3000, 1000, 10000, 500);
-    BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Dont steal if there are exposed redstones", false);
+    BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Ignore confused blocks due to false stealing", false);
+    EnumSettingT<AntiConfuseMode> mAntiConfuseMode = EnumSettingT<AntiConfuseMode>("Anti Confuse Mode", "The anti confuser mode", AntiConfuseMode::RedstoneCheck, "Redstone"
+#ifdef __PRIVATE_BUILD__
+        ,"Exposed"
+#endif
+        );
     BoolSetting mBlockOre = BoolSetting("Block Ore", "Cover opponent targetting ore", false);
     NumberSetting mBlockRange = NumberSetting("Block Range", "The max range for ore blocker", 5, 0, 10, 0.01);
     BoolSetting mMulti = BoolSetting("Multi", "Allows placing multiple blocks", false);
@@ -91,7 +102,6 @@ public:
     BoolSetting mStealNotify = BoolSetting("Steal Notify", "Send message in chat when u stole ore / ur ore was stolen", true);
     BoolSetting mDynamicUncoverNotify = BoolSetting("Dynamic Uncover Notify", "Debug info abt dynamic uncover", true);
     BoolSetting mRaperNotify = BoolSetting("Raper Notify", "Send message in chat when u raping enemy", true);
-    BoolSetting mAssFuckerNotify = BoolSetting("Ass Fucker Notify", "Send message in chat when u fucking enemy", true);
     BoolSetting mStealerDetectorNotify = BoolSetting("StealerDetector Notify", "Send message in chat when u raping enemy", true);
     BoolSetting mRenderBlock = BoolSetting("Render Block", "Renders the block you are currently breaking", true);
     EnumSettingT<ProgressBarStyle> mProgressBarStyle = EnumSettingT<ProgressBarStyle>("Progress Bar Style", "The render progress mode", ProgressBarStyle::New, "Old", "New");
@@ -102,7 +112,6 @@ public:
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mReplace = BoolSetting("Raper", "kicks other hackers while hvh", false);
-    BoolSetting mTest = BoolSetting("Ass Fucker", "Makes raper more effective", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
     BoolSetting mDynamicUncover = BoolSetting("Dynamic Uncover", "Disables uncover if enemy uncovering ores", false);
     NumberSetting mDisableDuration = NumberSetting("Disable Duration", "The time for dynamic uncover", 3, 1, 10, 1);
@@ -138,9 +147,8 @@ public:
             &mDelayedSteal,
             &mOpponentDestroySpeed,
 #endif
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             &mReplace,
-            &mTest,
 #endif
             &mAntiSteal,
 #ifdef __PRIVATE_BUILD__
@@ -148,6 +156,7 @@ public:
             &mConfuseMode,
             &mConfuseDuration,
             &mAntiConfuse,
+            &mAntiConfuseMode,
             &mBlockOre,
             &mBlockRange,
             &mMulti,
@@ -167,9 +176,8 @@ public:
             &mDynamicUncoverNotify,
             &mStealerDetectorNotify,
 #endif
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
             &mRaperNotify,
-            &mAssFuckerNotify,
 #endif
 #ifdef __PRIVATE_BUILD__
             &mConfuseNotify,
@@ -181,9 +189,8 @@ public:
             &mFastOreNotify
         );
 
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
-        VISIBILITY_CONDITION(mTest, mSteal.mValue && mReplace.mValue)
 #endif
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
@@ -223,6 +230,8 @@ public:
         VISIBILITY_CONDITION(mConfuseMode, mConfuse.mValue);
         VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
 
+        VISIBILITY_CONDITION(mAntiConfuseMode, mAntiConfuse.mValue);
+
         VISIBILITY_CONDITION(mBlockRange, mBlockOre.mValue);
         VISIBILITY_CONDITION(mMulti, mBlockOre.mValue);
 
@@ -243,9 +252,8 @@ public:
         VISIBILITY_CONDITION(mDynamicUncoverNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealerDetectorNotify, mDebug.mValue);
 #endif
-#ifdef __DEBUG__
+#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mRaperNotify, mDebug.mValue);
-        VISIBILITY_CONDITION(mAssFuckerNotify, mDebug.mValue);
 #endif
 
         VISIBILITY_CONDITION(mOffset, mProgressBarStyle.mValue == ProgressBarStyle::New);

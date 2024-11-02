@@ -12,6 +12,8 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
+#include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
 
 void PartySpammer::onEnable()
 {
@@ -86,63 +88,7 @@ void PartySpammer::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
-    int partyItem = -1;
-    for (int i = 0; i < 9; i++) {
-        auto item = player->getSupplies()->getContainer()->getItem(i);
-        if (!item->mItem) continue;
-        if (StringUtils::containsIgnoreCase(ColorUtils::removeColorCodes(item->getCustomName()), "Party [Use]")) {
-            partyItem = i;
-            break;
-        }
-    }
-
-    if (partyItem == -1) return;
-
-    auto item = player->getSupplies()->getContainer()->getItem(partyItem);
-    if (!item->mItem) return;
-
-    if (!mActive.mValue) return;
-
-    // interact with party item
-    if (NOW - mLastInteract > mDelay.mValue)
-    {
-        player->getSupplies()->getContainer()->startUsingItem(partyItem);
-        player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
-        mLastInteract = NOW;
-    }
-
-    for (auto& id : mOpenFormIds) {
-        auto json = nlohmann::json::parse(mFormJsons[id]);
-        std::string title = json.contains("title") ? json["title"] : "Unknown";
-        std::string contentStr = json.contains("content") ? json["content"] : "";
-
-        spdlog::info("Form ID {} with title {} was opened [json: {}]", id, title, mFormJsons[id]);
-
-        if (title == "Party" && contentStr.contains("You're not currently in a party!")) {
-            submitForm(0, id); // Invite
-        }
-        else if (title == "Party Invites" && contentStr.contains("or invite by username.")) {
-            submitForm(1, id); // Invite all online friends
-        }
-        // couldn't get submit via string to work :(
-        else if (title == "Are you sure?" && contentStr.contains("ALL your online friends")) {
-            submitBoolForm(true, id); // Accept
-            ChatUtils::displayClientMessage("Party invite sent to all online friends");
-            mInteractable = true;
-        }
-        else if (title == "Party" && contentStr.contains("Use the controls below to manage")) {
-            submitForm(2, id); // Disband
-            ChatUtils::displayClientMessage("Disbanding party");
-            mInteractable = true;
-        }
-    }
-
-}
-
-void PartySpammer::onPacketInEvent(PacketInEvent& event)
-{
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (event.mPacket->getId() == PacketID::ModalFormRequest) {
+    if (mMode.mValue == Mode::Form) {
         int partyItem = -1;
         for (int i = 0; i < 9; i++) {
             auto item = player->getSupplies()->getContainer()->getItem(i);
@@ -155,22 +101,115 @@ void PartySpammer::onPacketInEvent(PacketInEvent& event)
 
         if (partyItem == -1) return;
 
-        auto packet = event.getPacket<ModalFormRequestPacket>();
-        nlohmann::json json = nlohmann::json::parse(packet->mJSON);
-        std::string jsonStr = json.dump(4);
-        mOpenFormIds.push_back(packet->mFormId);
-        mFormJsons[packet->mFormId] = packet->mJSON;
-        mFormTitles[packet->mFormId] = json.contains("title") ? json["title"] : "Unknown";
+        auto item = player->getSupplies()->getContainer()->getItem(partyItem);
+        if (!item->mItem) return;
 
-        if (mActive.mValue) event.cancel();
+        if (!mActive.mValue) return;
 
-        spdlog::info("Form ID {} with title {} was opened", packet->mFormId, mFormTitles[packet->mFormId]);
+        // interact with party item
+        if (NOW - mLastInteract > mDelay.mValue)
+        {
+            player->getSupplies()->getContainer()->startUsingItem(partyItem);
+            player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+            mLastInteract = NOW;
+        }
+
+        for (auto& id : mOpenFormIds) {
+            auto json = nlohmann::json::parse(mFormJsons[id]);
+            std::string title = json.contains("title") ? json["title"] : "Unknown";
+            std::string contentStr = json.contains("content") ? json["content"] : "";
+
+            spdlog::info("Form ID {} with title {} was opened [json: {}]", id, title, mFormJsons[id]);
+
+            if (title == "Party" && contentStr.contains("You're not currently in a party!")) {
+                submitForm(0, id); // Invite
+            }
+            else if (title == "Party Invites" && contentStr.contains("or invite by username.")) {
+                submitForm(1, id); // Invite all online friends
+            }
+            // couldn't get submit via string to work :(
+            else if (title == "Are you sure?" && contentStr.contains("ALL your online friends")) {
+                submitBoolForm(true, id); // Accept
+                ChatUtils::displayClientMessage("Party invite sent to all online friends");
+                mInteractable = true;
+            }
+            else if (title == "Party" && contentStr.contains("Use the controls below to manage")) {
+                submitForm(2, id); // Disband
+                ChatUtils::displayClientMessage("Disbanding party");
+                mInteractable = true;
+            }
+        }
+    }
+    else if (mMode.mValue == Mode::Command) {
+        if (mLastCommandRequestPacketSent + 1000 > NOW) return;
+
+        std::unordered_map<mce::UUID, PlayerListEntry>* playerList = player->getLevel()->getPlayerList();
+        std::string names = "";
+
+        int inviteCount = 0;
+        for (auto& entry : *playerList | std::views::values)
+        {
+            if (entry.mName.length() <= 17 && entry.mName != player->getRawName())
+            {
+                names = names + " \"" + entry.mName + "\"";
+                inviteCount++;
+                if (3 <= inviteCount) break;
+            }
+        }
+
+        if (!mInvited) {
+            CommandUtils::executeCommand("/p invite" + names);
+            mInvited = true;
+        }
+        else {
+            CommandUtils::executeCommand("/p disband");
+            mInvited = false;
+        }
+    }
+}
+
+void PartySpammer::onPacketInEvent(PacketInEvent& event)
+{
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (mMode.mValue == Mode::Form) {
+        if (event.mPacket->getId() == PacketID::ModalFormRequest) {
+            int partyItem = -1;
+            for (int i = 0; i < 9; i++) {
+                auto item = player->getSupplies()->getContainer()->getItem(i);
+                if (!item->mItem) continue;
+                if (StringUtils::containsIgnoreCase(ColorUtils::removeColorCodes(item->getCustomName()), "Party [Use]")) {
+                    partyItem = i;
+                    break;
+                }
+            }
+
+            if (partyItem == -1) return;
+
+            auto packet = event.getPacket<ModalFormRequestPacket>();
+            nlohmann::json json = nlohmann::json::parse(packet->mJSON);
+            std::string jsonStr = json.dump(4);
+            mOpenFormIds.push_back(packet->mFormId);
+            mFormJsons[packet->mFormId] = packet->mJSON;
+            mFormTitles[packet->mFormId] = json.contains("title") ? json["title"] : "Unknown";
+
+            if (mActive.mValue) event.cancel();
+
+            spdlog::info("Form ID {} with title {} was opened", packet->mFormId, mFormTitles[packet->mFormId]);
+        }
+    }
+    else if (mMode.mValue == Mode::Command) {
+        if (event.mPacket->getId() == PacketID::Text) {
+            auto textPacket = event.getPacket<TextPacket>();
+            if (mHideInviteMessage.mValue && StringUtils::containsIgnoreCase(textPacket->mMessage, "Invited") && StringUtils::containsIgnoreCase(textPacket->mMessage, "to your current party. They have 1 minute to accept.")) {
+                event.mCancelled = true;
+            }
+        }
     }
 }
 
 void PartySpammer::onPacketOutEvent(PacketOutEvent& event)
 {
-    if (event.mPacket->getId() == PacketID::ModalFormResponse) {
+    if (event.mPacket->getId() == PacketID::ModalFormResponse && mMode.mValue == Mode::Form) {
         auto packet = event.getPacket<ModalFormResponsePacket>();
         if (std::ranges::find(mOpenFormIds, packet->mFormId) != mOpenFormIds.end()) {
             std::erase(mOpenFormIds, packet->mFormId);
@@ -178,5 +217,8 @@ void PartySpammer::onPacketOutEvent(PacketOutEvent& event)
 
         spdlog::info("Form ID {} was closed [{}] [{}]", packet->mFormId, packet->mFormCancelReason.value_or(ModalFormCancelReason::UserClosed) == ModalFormCancelReason::UserClosed ? "UserClosed" : "UserBusy",
             packet->mJSONResponse.has_value() ? packet->mJSONResponse.value().toString() : "No response");
+    }
+    if (event.mPacket->getId() == PacketID::CommandRequest && mMode.mValue == Mode::Command) {
+        mLastCommandRequestPacketSent = NOW;
     }
 }

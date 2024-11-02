@@ -69,6 +69,7 @@ public:
 
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
+    BoolSetting mAvoidCheck = BoolSetting("Avoid Check", "Avoid strafe check in The Hive", false);
     BoolSetting mTest = BoolSetting("Test", "test", true);
     BoolSetting mUseStrafeSpeed = BoolSetting("Custom Strafe Speed", "Whether or not to apply custom speed when strafing", true);
     NumberSetting mStrafeSpeed = NumberSetting("Strafe Speed", "The speed to strafe at", 0.5, 0, 10, 0.01);
@@ -87,7 +88,10 @@ public:
     NumberSetting mJumpHeight = NumberSetting("Jump Height", "The height to jump at", 0.42f, 0, 1, 0.01);
     BoolSetting mApplyNetskip = BoolSetting("Apply Netskip", "Apply Netskip", false);
 
-    Speed() : ModuleBase("Speed", "Move faster", ModuleCategory::Movement, 0, false) {
+    BoolSetting mExtraHeight = BoolSetting("Extra Height", "Extra Height", false);
+    NumberSetting mClipHeight = NumberSetting("Clip Height", "The height of clip", 1.00, 0, 2, 0.1);
+
+    Speed() : ModuleBase("Speed", "Lets you move faster", ModuleCategory::Movement, 0, false) {
         addSettings(
             &mMode,
             &mSwiftness,
@@ -104,6 +108,9 @@ public:
             &mDontBoosStrafeSpeed,
             &mSpeed,
             &mStrafe,
+#ifdef __PRIVATE_BUILD__
+            &mAvoidCheck,
+#endif
             &mTest,
             &mUseStrafeSpeed,
             &mStrafeSpeed,
@@ -120,7 +127,14 @@ public:
             &mJumpHeight,
             &mApplyNetskip
         );
+#ifdef __PRIVATE_BUILD__
+        addSettings(&mExtraHeight, &mClipHeight);
+        VISIBILITY_CONDITION(mExtraHeight, mJumpType.mValue != JumpType::None);
+        VISIBILITY_CONDITION(mClipHeight, mJumpType.mValue != JumpType::None && mExtraHeight.mValue);
 
+        VISIBILITY_CONDITION(mAvoidCheck, mStrafe.mValue);
+#endif
+        
         VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
         VISIBILITY_CONDITION(mStrafeSpeed, mStrafe.mValue);
 
@@ -169,6 +183,7 @@ public:
     std::map<EffectType, uint64_t> mEffectTimers = {};
     float mDamageBoostVal = 1.f;
     bool mDamageTimerApplied = false;
+    bool mClip = false;
 
     void onEnable() override;
     void onDisable() override;

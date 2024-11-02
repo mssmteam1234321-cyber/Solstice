@@ -13,6 +13,7 @@
 #include <Features/Events/RenderEvent.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
 #include <Utils/GameUtils/ActorUtils.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
@@ -114,6 +115,8 @@ void Aura::onEnable()
     gFeatureManager->mDispatcher->listen<RenderEvent, &Aura::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Aura::onBobHurtEvent, nes::event_priority::FIRST>(this);
     gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Aura::onBoneRenderEvent, nes::event_priority::FIRST>(this);
+
+    if (mThirdPerson.mValue && !mThirdPersonOnlyOnAttack.mValue) ClientInstance::get()->getOptions()->mThirdPerson->value = 1;
 }
 
 bool chargingBow = false;
@@ -129,8 +132,7 @@ void Aura::onDisable()
     sTarget = nullptr;
     mRotating = false;
 
-    auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
+    if (mThirdPerson.mValue && !mThirdPersonOnlyOnAttack.mValue) ClientInstance::get()->getOptions()->mThirdPerson->value = 0;
 }
 
 void Aura::rotate(Actor* target)
@@ -192,11 +194,11 @@ void Aura::shootBow(Actor* target)
     else if (useTicks >= maxUseTicks)
     {
         spdlog::info("Releasing bow");
+        rotate(target);
         player->getSupplies()->getContainer()->releaseUsingItem(bowSlot);
         chargingBow = false;
         useTicks = 0;
     }
-
 }
 
 void Aura::throwProjectiles(Actor* target)
@@ -374,8 +376,8 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     auto supplies = player->getSupplies();
 
     auto actors = ActorUtils::getActorList(false, true);
-
     static std::unordered_map<Actor*, int64_t> lastAttacks = {};
+    bool isMoving = Keyboard::isUsingMoveKeys();
 
     // Sort actors by lastAttack if mode is switch
     if (mMode.mValue == Mode::Switch)
@@ -412,7 +414,8 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
     for (auto actor : actors)
     {
         if (actor == player) continue;
-        if (actor->distanceTo(player) > mRange.mValue) continue;
+        float range = mDynamicRange.mValue && !isMoving ? mDynamicRangeValue.mValue : mRange.mValue;
+        if (actor->distanceTo(player) > range) continue;
         if (!mAttackThroughWalls.mValue && !player->canSee(actor)) continue;
 
         if (actor->isPlayer() && gFriendManager->mEnabled)
@@ -530,6 +533,19 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         sTarget = nullptr;
     }
     sHasTarget = foundAttackable;
+
+    if (mThirdPerson.mValue && mThirdPersonOnlyOnAttack.mValue && sHasTarget) {
+        if (!mIsThirdPerson) {
+            ClientInstance::get()->getOptions()->mThirdPerson->value = 1;
+            mIsThirdPerson = true;
+        }
+    }
+    else if (mThirdPerson.mValue && mThirdPersonOnlyOnAttack.mValue && !sHasTarget) {
+        if (mIsThirdPerson) {
+            ClientInstance::get()->getOptions()->mThirdPerson->value = 0;
+            mIsThirdPerson = false;
+        }
+    }
 }
 
 void Aura::onPacketOutEvent(PacketOutEvent& event)
@@ -623,6 +639,7 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
 {
     if (mBypassMode.mValue == BypassMode::None) return target;
 
+    bool isMoving = Keyboard::isUsingMoveKeys();
     auto actors = ActorUtils::getActorList(false, false);
     std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
     {
@@ -640,7 +657,8 @@ Actor* Aura::findObstructingActor(Actor* player, Actor* target)
         for (auto actor : actors)
         {
             if (actor == player || actor == target) continue;
-            if (actor->distanceTo(player) > mRange.mValue) continue;
+            float range = mDynamicRange.mValue && !isMoving ? mDynamicRangeValue.mValue : mRange.mValue;
+            if (actor->distanceTo(player) > range) continue;
 
             auto hitbox = *actor->getAABBShapeComponent();
             actorHitboxes[actor] = hitbox;

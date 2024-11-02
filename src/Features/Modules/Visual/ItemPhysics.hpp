@@ -16,7 +16,7 @@ public:
     NumberSetting mY = NumberSetting("Y Multiplier", "The intensity of the y rotation", 18.f, 7.f, 30.f, 0.01f);
     NumberSetting mZ = NumberSetting("Z Multiplier", "The intensity of the z rotation", 18.f, 7.f, 30.f, 0.01f);
 
-    ItemPhysics() : ModuleBase("ItemPhysics", "Physica for items dumabss", ModuleCategory::Visual, 0, false) {
+    ItemPhysics() : ModuleBase("ItemPhysics", "Gives items physics", ModuleCategory::Visual, 0, false) {
         addSetting(&mSpeed);
         addSetting(&mX);
         addSetting(&mY);

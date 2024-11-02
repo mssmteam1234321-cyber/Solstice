@@ -48,6 +48,7 @@ bool Jesus::sdjReplace(bool patch)
     // Restore memory protection
     VirtualProtect(vfTable + funcIndex, sizeof(uintptr_t), oldProtect, &oldProtect);
 
+    return true;
 }
 
 void Jesus::onEnable()

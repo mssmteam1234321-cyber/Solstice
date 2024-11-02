@@ -382,6 +382,13 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                                                 //*(bool*)setting->getValue() = !*(bool*)setting->getValue();
                                                 boolSetting->mValue = !boolSetting->mValue;
                                             }
+
+                                            if (ImGui::IsMouseClicked(2) && !displayColorPicker && catPositions[i].isExtended)
+                                            {
+                                                lastBoolSetting = boolSetting;
+                                                isBoolSettingBinding = true;
+                                                ClientInstance::get()->playUi("random.pop", 0.75f, 1.0f);
+                                            }
                                         }
 
                                         setting->boolScale = MathUtils::animate(
@@ -894,6 +901,28 @@ void ModernGui::render(float animation, float inScale, int& scrollDirection, cha
                         {
                             ClientInstance::get()->playUi("random.break", 0.75f, 1.0f);
                         } else
+                        {
+                            ClientInstance::get()->playUi("random.orb", 0.75f, 1.0f);
+                        }
+                    }
+                }
+            }
+
+            if (isBoolSettingBinding)
+            {
+                tooltip = "Currently binding " + lastBoolSetting->mName + "... Press ESC to unbind.";
+                for (const auto& key : Keyboard::mPressedKeys)
+                {
+                    if (key.second && lastBoolSetting)
+                    {
+                        lastBoolSetting->mKey = (key.first == VK_ESCAPE) ? 0 : key.first;
+                        isBoolSettingBinding = false;
+
+                        if (key.first == VK_ESCAPE)
+                        {
+                            ClientInstance::get()->playUi("random.break", 0.75f, 1.0f);
+                        }
+                        else
                         {
                             ClientInstance::get()->playUi("random.orb", 0.75f, 1.0f);
                         }

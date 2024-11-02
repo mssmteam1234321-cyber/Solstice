@@ -13,6 +13,7 @@
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlaySoundPacket.hpp>
+#include <Features/Modules/Misc/AutoVote.hpp>
 
 void AutoCosmetic::onEnable()
 {
@@ -95,10 +96,8 @@ void AutoCosmetic::onBaseTickEvent(BaseTickEvent& event)
         mInteractedWithItem = true;
     }
 
-    // Log each button if the form is open
-    if (!mHasFormOpen) return;
-    if (mFinishedApplying) return;
-    if (!mIsCosmeticMenu) return;
+    auto autoVote = gFeatureManager->mModuleManager->getModule<AutoVote>();
+    if (!mHasFormOpen || mFinishedApplying || !mIsCosmeticMenu || !autoVote->mVotedThisDimension) return;
 
     auto jsonObj = nlohmann::json::parse(mJson);
     if (!jsonObj.contains("buttons")) return;

@@ -24,7 +24,7 @@ public:
     BoolSetting mManuallyApplyFlags = BoolSetting("Manually Apply Flags", "Manually apply flags to the player", false);
     NumberSetting mClipDistance = NumberSetting("Clip Distance", "The distance to clip the player at", 0.01, 0, 4, 0.1);
 
-    TestModule() : ModuleBase("TestModule", "A module for testing purposes", ModuleCategory::Misc, 0, false) {
+    TestModule() : ModuleBase("TestModule", "A module for testin purposes", ModuleCategory::Misc, 0, false) {
         addSettings(
             &mMode,
             &mOnGroundOnly,

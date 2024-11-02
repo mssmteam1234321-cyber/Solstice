@@ -5,7 +5,7 @@
 
 class NoFire : public ModuleBase<NoFire> {
 public:
-    NoFire() : ModuleBase<NoFire>("NoFire", "Dont render fire", ModuleCategory::Visual, 0, false) {
+    NoFire() : ModuleBase<NoFire>("NoFire", "Prevents fire animation from being rendered", ModuleCategory::Visual, 0, false) {
         mNames = {
             {Lowercase, "nofire"},
             {LowercaseSpaced, "no fire"},

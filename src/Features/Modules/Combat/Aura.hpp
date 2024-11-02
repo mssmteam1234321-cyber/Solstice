@@ -48,6 +48,8 @@ public:
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Whether or not to only attack with items in the hotbar", false);
     BoolSetting mFistFriends = BoolSetting("Fist Friends", "Whether or not to fist friends", false);
     NumberSetting mRange = NumberSetting("Range", "The range at which to attack enemies", 5, 0, 10, 0.01);
+    BoolSetting mDynamicRange = BoolSetting("Dynamic Range", "Sets the range to the specified value when not moving", false);
+    NumberSetting mDynamicRangeValue = NumberSetting("Dynamic Value", "The value for the dynamic range", 3, 0, 10, 0.01);
     BoolSetting mRandomizeAPS = BoolSetting("Randomize APS", "Whether or not to randomize the APS", false);
     NumberSetting mAPS = NumberSetting("APS", "The amount of attacks per second", 10, 0, 20, 0.01);
     NumberSetting mAPSMin = NumberSetting("APS Min", "The minimum APS to randomize", 10, 0, 20, 0.01);
@@ -60,7 +62,9 @@ public:
     BoolSetting mSwingDelay = BoolSetting("Swing Delay", "Whether or not to delay the swing", false);
     NumberSetting mSwingDelayValue = NumberSetting("Swing Delay Value", "The delay between swings (in seconds)", 4.5f, 0.f, 10.f, 0.01f);
     BoolSetting mStrafe = BoolSetting("Strafe", "Whether or not to strafe around the target", true);
-    BoolSetting mAttackThroughWalls = BoolSetting("Attack through walls", "Whether or not to attack throw walls", true);
+    BoolSetting mAttackThroughWalls = BoolSetting("Attack through walls", "Whether or not to attack through walls", true);
+    BoolSetting mThirdPerson = BoolSetting("Third Person", "Whether or not switch to third-person camera view on enable", false);
+    BoolSetting mThirdPersonOnlyOnAttack = BoolSetting("Only On Attack", "Switch to third-person view only when attacking", false);
     BoolSetting mVisuals = BoolSetting("Visuals", "Whether or not to render visuals around the target", true);
     NumberSetting mUpDownSpeed = NumberSetting("Up-Down Speed", "Speed of spheres rotate", 1.2, 0, 20, 0.01);
     NumberSetting mSpheresAmount = NumberSetting("Spheres Amount", "Amount of spheres to draw", 12, 0, 20, 1);
@@ -92,6 +96,8 @@ public:
             &mFistFriends,
             &mVisuals,
             &mRange,
+            &mDynamicRange,
+            &mDynamicRangeValue,
             &mRandomizeAPS,
             &mAPS,
             &mAPSMin,
@@ -107,6 +113,8 @@ public:
             &mSwingDelayValue,
             &mStrafe,
             &mAttackThroughWalls,
+            &mThirdPerson,
+            &mThirdPersonOnlyOnAttack,
             &mDisableOnDimensionChange,
             &mDebug
         );
@@ -117,9 +125,12 @@ public:
         VISIBILITY_CONDITION(mAPSMin, mRandomizeAPS.mValue);
         VISIBILITY_CONDITION(mAPSMax, mRandomizeAPS.mValue);
         VISIBILITY_CONDITION(mThrowDelay, mThrowProjectiles.mValue);
+        VISIBILITY_CONDITION(mDynamicRangeValue, mDynamicRange.mValue);
 
         VISIBILITY_CONDITION(mSwingDelay, mSwing.mValue);
         VISIBILITY_CONDITION(mSwingDelayValue, mSwingDelay.mValue && mSwing.mValue);
+
+        VISIBILITY_CONDITION(mThirdPersonOnlyOnAttack, mThirdPerson.mValue);
 
         // vis conditions for visuals
         VISIBILITY_CONDITION(mUpDownSpeed, mVisuals.mValue);
@@ -146,6 +157,7 @@ public:
     int64_t mLastSwing = 0;
     int64_t mLastTransaction = 0;
     int mLastSlot = 0;
+    bool mIsThirdPerson = false;
 
     int getSword(Actor* target);
     bool shouldUseFireSword(Actor* target);

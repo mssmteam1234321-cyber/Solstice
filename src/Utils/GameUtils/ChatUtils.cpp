@@ -11,17 +11,17 @@ void ChatUtils::displayClientMessage(const std::string& msg)
 {
     if (!msg.contains("\n"))
     {
-        ClientInstance::get()->getGuiData()->displayClientMessageQueued("§asolstice§7 » §r" + msg);
+        ClientInstance::get()->getGuiData()->displayClientMessageQueued("§2solstice§7 » §r" + msg);
         return;
     }
 
     // Newline handling
-    std::string formattedMsg = "§asolstice§7 » §r";
+    std::string formattedMsg = "§2solstice§7 » §r";
     for (const auto& c : msg)
     {
         if (c == '\n')
         {
-            formattedMsg += "\n§asolstice§7 » §r";
+            formattedMsg += "\n§2solstice§7 » §r";
         }
         else
         {
@@ -33,7 +33,7 @@ void ChatUtils::displayClientMessage(const std::string& msg)
 
 void ChatUtils::displayClientMessageSub(const std::string& subcaption, const std::string& msg)
 {
-    ClientInstance::get()->getGuiData()->displayClientMessageQueued("§asolstice§7 » §7[" + subcaption + "§7] §r" + msg);
+    ClientInstance::get()->getGuiData()->displayClientMessageQueued("§2solstice§7 » §7[" + subcaption + "§7] §r" + msg);
 }
 
 void ChatUtils::displayClientMessageRaw(const std::string& msg)

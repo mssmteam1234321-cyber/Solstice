@@ -47,6 +47,11 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
     static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
     if (scaffold->mEnabled) return;
 
+    if (mClip && mStrafe.mValue && mAvoidCheck.mValue) {
+        event.cancel();
+        return;
+    }
+
     bool applyNetskip = false;
 
     if (mMode.mValue != Mode::Friction || mApplyNetskip.mValue) {
@@ -144,6 +149,10 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
         if (tickSwiftness()) return;
     }
 
+#ifdef __PRIVATE_BUILD__
+    if (mAvoidCheck.mValue) mClip = player->isOnGround() && !player->getStatusFlag(ActorFlags::Noai) && Keyboard::isUsingMoveKeys();
+#endif
+
     if (mMode.mValue == Mode::Friction)
     {
         tickFriction(player);
@@ -201,6 +210,10 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
             if (Keyboard::isUsingMoveKeys()) paip->mInputData |= AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN;
             if (!player->isOnGround() && player->wasOnGround() && Keyboard::isUsingMoveKeys()) {
                 paip->mInputData |= AuthInputAction::START_JUMPING;
+            }
+
+            if (mClip && mStrafe.mValue && mAvoidCheck.mValue) {
+                paip->mPos.y -= 1;
             }
 
             if(mStrafe.mValue && mTest.mValue) {
@@ -348,10 +361,20 @@ void Speed::tickLegit(Actor* player)
         {
             player->jumpFromGround();
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     }
 }
@@ -436,10 +459,20 @@ void Speed::tickFriction(Actor* player)
         {
             player->jumpFromGround();
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     } else if (usingMoveKeys && mJumpType.mValue == JumpType::Velocity) {
         if (player->isOnGround()) {
             player->getStateVectorComponent()->mVelocity.y = mJumpHeight.as<float>();
+            if (mExtraHeight.mValue) {
+                AABBShapeComponent* aabb = player->getAABBShapeComponent();
+                aabb->mMin.y += mClipHeight.mValue;
+                aabb->mMax.y += mClipHeight.mValue;
+            }
         }
     }
 };

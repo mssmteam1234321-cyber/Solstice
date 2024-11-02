@@ -18,6 +18,15 @@ void SkinBlinker::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &SkinBlinker::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &SkinBlinker::onPacketOutEvent>(this);
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player)
+    {
+        return;
+    }
+    auto currentSkin = player->getSkin();
+    mId = currentSkin->mId;
+    mPlayFabId = currentSkin->mPlayFabId;
+    mFullId = currentSkin->mFullId;
 }
 
 void SkinBlinker::onDisable()
@@ -175,15 +184,12 @@ void SkinBlinker::onBaseTickEvent(BaseTickEvent& event)
     auto currentSkin = player->getSkin();
 
     auto skinpacket = MinecraftPackets::createPacket<PlayerSkinPacket>();
-    skinpacket->mSkin.mId = currentSkin->mId;
-    skinpacket->mSkin.mPlayFabId = currentSkin->mPlayFabId;
-    skinpacket->mSkin.mFullId = currentSkin->mFullId;
-    /*
-{
-   "geometry" : {
-      "default" : "geometry.humanoid.customSlim"
-   }
-}*/
+
+
+    skinpacket->mSkin.mId = mId;
+    skinpacket->mSkin.mPlayFabId = mPlayFabId;
+    skinpacket->mSkin.mFullId = mFullId;
+
     if (skinCapePair->slimSkin)
     {
         skinpacket->mSkin.mResourcePatch = "{\n   \"geometry\" : {\n      \"default\" : \"geometry.humanoid.customSlim\"\n   }\n}";
@@ -207,9 +213,6 @@ void SkinBlinker::onBaseTickEvent(BaseTickEvent& event)
     skinpacket->mSkin.mCapeImage.mDepth = skinCapePair->capeDepth;
     skinpacket->mSkin.mCapeImage.mUsage = currentSkin->mCapeImage.mUsage;
     skinpacket->mSkin.mCapeImage.imageFormat = currentSkin->mCapeImage.imageFormat;
-
-
-
 
     ClientInstance::get()->getPacketSender()->send(skinpacket.get());
 }

@@ -2,7 +2,7 @@
 // Created by alteik on 20/10/2024.
 //
 
-#include "NoBadEffects.hpp"
+#include "NoDebuff.hpp"
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -11,17 +11,17 @@
 #include <SDK/Minecraft/Network/Packets/MobEffectPacket.hpp>
 #include <Utils/GameUtils/ChatUtils.hpp>
 
-void NoBadEffects::onEnable()
+void NoDebuff::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<PacketInEvent, &NoBadEffects::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &NoDebuff::onPacketInEvent>(this);
 }
 
-void NoBadEffects::onDisable()
+void NoDebuff::onDisable()
 {
-    gFeatureManager->mDispatcher->deafen<PacketInEvent, &NoBadEffects::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &NoDebuff::onPacketInEvent>(this);
 }
 
-void NoBadEffects::onPacketInEvent(PacketInEvent& event)
+void NoDebuff::onPacketInEvent(PacketInEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if(!player) return;

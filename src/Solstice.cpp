@@ -19,6 +19,8 @@
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <spdlog/spdlog.h>
 
+#include <Features/Auth/Authorization.hpp>
+
 #include "spdlog/sinks/stdout_color_sinks-inl.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <winrt/base.h>
@@ -116,6 +118,15 @@ void Solstice::init(HMODULE hModule)
 #endif
 );
 
+#ifdef __PRIVATE_BUILD__
+    Auth auth;
+    auth.init();
+    if(!auth.isPrivateUser())
+    {
+        auth.exit();
+    }
+#endif
+
     spdlog::info("Minecraft version: {}", ProcUtils::getVersion());
 
     ExceptionHandler::init();
@@ -128,42 +139,13 @@ void Solstice::init(HMODULE hModule)
     setTitle(title);
 
 
-    /*std::string lastHwidFile = FileUtils::getSolsticeDir() + xorstr_("lasthwid.txt");
-
-    if (FileUtils::fileExists(lastHwidFile))
-    {
-        std::ifstream file(lastHwidFile);
-        std::string lastHwid;
-        file >> lastHwid;
-        file.close();
-
-        if (lastHwid != GET_HWID().toString())
-        {
-            FileUtils::deleteFile(lastHwidFile);
-        }
-    }
-    else
-    {
-        std::ofstream file(lastHwidFile);
-        file << GET_HWID().toString();
-        file.close();
-    }*/
-
     sHWID = GET_HWID().toString();
+    spdlog::info("HWID: {}", sHWID);
 
     if (MH_Initialize() != MH_OK)
     {
         console->critical("Failed to initialize MinHook!");
     }
-
-    /*// Attempt to list the microphones
-    std::vector<std::string> microphones = AudioUtils::listMicrophones();
-    for (const auto& mic : microphones)
-    {
-        console->info("Microphone: {}", mic);
-    }
-
-    AudioUtils::recordVoiceClip();*/
 
     Prefs = PreferenceManager::load();
 
@@ -180,6 +162,7 @@ void Solstice::init(HMODULE hModule)
         }
     }
 #endif
+
 
     console->info("initializing signatures...");
     int64_t sstart = NOW;
@@ -233,9 +216,6 @@ void Solstice::init(HMODULE hModule)
     }
 
     console->info("initialized signatures in {}ms", send - sstart);
-
-
-
 
     if (!ClientInstance::get())
     {
@@ -348,8 +328,6 @@ void Solstice::init(HMODULE hModule)
         gFeatureManager->mModuleManager->onClientTick();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-
-
 
     mRequestEject = true;
 

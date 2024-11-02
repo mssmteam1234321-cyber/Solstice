@@ -141,10 +141,18 @@ namespace MinecraftJson
             return result;
         }
 
-        nlohmann::json toNlohmannJson()
-        {
-
+        std::string toStyledString(std::string* output) {
+            /*static uintptr_t func = SigManager::JSON_toStyledString;
+            MemUtils::callFastcall<void, void*, std::string*>(func, this, output);
+            return *output;*/
         }
+
+        nlohmann::json toNlohmannJson() {
+            /*std::string styledString;
+            this->toStyledString(&styledString);
+            return nlohmann::json::parse(styledString);*/
+        }
+
         static inline MinecraftJson::Value fromNlohmannJson(nlohmann::json const &json)
         {
 

@@ -3,12 +3,16 @@
 //
 
 #include "ReverseStep.hpp"
+
 #include "Speed.hpp"
 #include "LongJump.hpp"
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftSim.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/StateVectorComponent.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 bool ReverseStep::canFallDown() {
     auto pos = *ClientInstance::get()->getLocalPlayer()->getPos();

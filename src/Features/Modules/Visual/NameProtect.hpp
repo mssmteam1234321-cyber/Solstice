@@ -6,7 +6,7 @@
 
 class NameProtect : public ModuleBase<NameProtect> {
 public:
-    NameProtect() : ModuleBase("NameProtect", "changes ur real name (useful for streaming or some)", ModuleCategory::Visual, 0, false) {
+    NameProtect() : ModuleBase("NameProtect", "Changes your real name (useful for streaming and similar purposes)", ModuleCategory::Visual, 0, false) {
         mNames = {
                 {Lowercase, "nameprotect"},
                 {LowercaseSpaced, "name protect"},

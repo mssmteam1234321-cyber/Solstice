@@ -202,12 +202,14 @@ void Nametags::onRenderEvent(RenderEvent& event)
         ImVec2 imFontSize = ImGui::GetFont()->CalcTextSizeA(fontSize, FLT_MAX, 0, name.c_str());
         ImVec2 pos = ImVec2(screen.x - imFontSize.x / 2, screen.y - imFontSize.y - 5);
 
-
         ImVec2 rectMin = ImVec2(pos.x - padding, pos.y - padding);
         ImVec2 rectMax = ImVec2(pos.x + imFontSize.x + padding, pos.y + imFontSize.y + padding);
 
-        drawList->AddShadowRect(rectMin, rectMax, ImColor(0.f, 0.f, 0.f, 1.f), 40.f, ImVec2(0,0));
-        drawList->AddRectFilled(rectMin, rectMax, ImColor(0.0f, 0.0f, 0.0f, 0.5f), 10.f);
+        if (mBlurStrength.mValue == 0.0f) {
+            // Only draw the background if blur strength is 0
+            drawList->AddRectFilled(rectMin, rectMax, ImColor(0.0f, 0.0f, 0.0f, 0.5f), 10.f);
+        }
+
         ImRenderUtils::addBlur(ImVec4(rectMin.x, rectMin.y, rectMax.x, rectMax.y), mBlurStrength.mValue, 10, drawList, true);
         drawList->AddText(ImGui::GetFont(), fontSize, pos, themeColor, name.c_str());
 

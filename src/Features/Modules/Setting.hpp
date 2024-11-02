@@ -61,9 +61,10 @@ class BoolSetting : public Setting
 {
 public:
     bool mValue = false;
+    int mKey;
 
-    BoolSetting(std::string name, std::string description, bool value)
-        : Setting(std::move(name), std::move(description), SettingType::Bool), mValue(value)
+    BoolSetting(std::string name, std::string description, bool value, int key = -1)
+       : Setting(std::move(name), std::move(description), SettingType::Bool), mValue(value), mKey(key)
     {
 
     }
@@ -73,10 +74,16 @@ public:
         mValue = value;
     }
 
+    std::string getName()
+    {
+        return mName;
+    }
+
     nlohmann::json serialize() override
     {
         nlohmann::json j = Setting::serialize();
         j["boolValue"] = mValue;
+        j["key"] = mKey;
         return j;
     }
 

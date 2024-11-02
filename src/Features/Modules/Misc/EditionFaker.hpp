@@ -31,10 +31,10 @@ public:
         MotionController
     };
 
-    EnumSettingT<OS> mOs = EnumSettingT<OS>("OS", "Operating System to which should spoof", OS::Windows10, "Unknown", "Android", "iOS", "macOS", "FireOs", "GearVR", "HoloLens", "Windows 10", "Windows", "Dedicated", "Orbis", "NX");
-    EnumSettingT<InputMethod> mInputMethod = EnumSettingT<InputMethod>("Input Method", "Input Method to which should spoof", InputMethod::Mouse,  "Unknown", "Mouse", "Touch", "GamePad", "MotionController");
+    EnumSettingT<OS> mOs = EnumSettingT<OS>("OS", "Operating system to spoof", OS::Windows10, "Unknown", "Android", "iOS", "macOS", "FireOs", "GearVR", "HoloLens", "Windows 10", "Windows", "Dedicated", "Orbis", "NX");
+    EnumSettingT<InputMethod> mInputMethod = EnumSettingT<InputMethod>("Input Method", "Input method to spoof", InputMethod::Mouse,  "Unknown", "Mouse", "Touch", "GamePad", "MotionController");
 
-    EditionFaker() : ModuleBase("EditionFaker", "spoofs ur os & input method", ModuleCategory::Misc, 0, false)
+    EditionFaker() : ModuleBase("EditionFaker", "Spoofs your operating system and input method", ModuleCategory::Misc, 0, false)
     {
         addSetting(&mOs);
         addSetting(&mInputMethod);

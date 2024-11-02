@@ -52,12 +52,10 @@ public:
         };
     }
 
-
-
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
-    static std::vector<std::string> getDaPlayerList();
+    static std::vector<std::string> getPlayerNames();
     bool isBot(Actor* actor);
     bool hasArmor(Actor* actor);
 

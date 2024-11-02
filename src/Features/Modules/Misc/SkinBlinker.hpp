@@ -22,6 +22,10 @@ public:
     std::string mLastSkin = "";
     uint64_t mLastSkinChange = 0;
 
+    std::string mId = "";
+    std::string mPlayFabId = "";
+    std::string mFullId = "";
+
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
