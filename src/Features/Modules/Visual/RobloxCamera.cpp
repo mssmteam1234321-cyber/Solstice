@@ -15,27 +15,6 @@
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
-template<typename Func, typename... Args>
-bool TryCallWrapper(Func func, Args&&... args) {
-    __try
-    {
-        func(std::forward<Args>(args)...);
-        return true;
-    } __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        return false;
-    }
-}
-
-// Refactored TRY_CALL using lambdas and spdlog
-#define TRY_CALL(func, ...) \
-[&]() { \
-    bool result = TryCallWrapper([&]() { func(__VA_ARGS__); }); \
-    if (!result) { \
-        spdlog::error("Exception thrown in {} at line {} in {}", __FUNCTION__, __LINE__, __FILE__); \
-    } \
-    return result; \
-}()
 
 void RobloxCamera::onModuleStateChangeEvent(ModuleStateChangeEvent& event)
 {
@@ -52,7 +31,7 @@ void RobloxCamera::onBaseTickInitEvent(BaseTickInitEvent& event)
         auto actor = event.mActor;
         actor->getFlag<RenderCameraComponent>();
         actor->getFlag<CameraRenderPlayerModelComponent>();
-        actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
+        //actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
         spdlog::info("[RobloxCamera] Initialized required components :3");
         mHasComponents = true;
     }, event))
@@ -80,7 +59,7 @@ void RobloxCamera::onEnable()
     {
         player->setFlag<RenderCameraComponent>(true);
         player->setFlag<CameraRenderPlayerModelComponent>(true);
-        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        ////player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     }
 }
 
@@ -95,7 +74,7 @@ void RobloxCamera::onDisable()
     {
         player->setFlag<RenderCameraComponent>(false);
         player->setFlag<CameraRenderPlayerModelComponent>(false);
-        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        //player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     }
 
     mCurrentDistance = 0.f;
@@ -110,7 +89,7 @@ void RobloxCamera::onActorRenderEvent(ActorRenderEvent& event)
     {
         player->setFlag<RenderCameraComponent>(true);
         player->setFlag<CameraRenderPlayerModelComponent>(true);
-        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        //player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
         if (event.mEntity != player) return;
         if (*event.mPos == glm::vec3(0.f, 0.f, 0.f) && *event.mRot == glm::vec2(0.f, 0.f))
         {
@@ -160,12 +139,12 @@ void RobloxCamera::onLookInputEvent(LookInputEvent& event)
     {
         player->setFlag<RenderCameraComponent>(true);
         player->setFlag<CameraRenderPlayerModelComponent>(true);
-        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        //player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     } else
     {
         player->setFlag<RenderCameraComponent>(false);
         player->setFlag<CameraRenderPlayerModelComponent>(false);
-        player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
+        //player->setFlag<CameraRenderFirstPersonObjectsComponent>(false);
     }
 
     auto camera = event.mFirstPersonCamera;

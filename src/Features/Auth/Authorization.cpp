@@ -55,8 +55,16 @@ bool Auth::isPrivateUser()
 
     if(event.mStatusCode == 200)
     {
-        nlohmann::json json = nlohmann::json::parse(event.mResponse);
-        return json[xorstr_("hasPrivateAccess")].get<bool>();
+        try
+        {
+            nlohmann::json json = nlohmann::json::parse(event.mResponse);
+            return json[xorstr_("hasPrivateAccess")].get<bool>();
+        } catch (nlohmann::json::exception& e) {
+#ifdef __DEBUG__
+            Solstice::console->error(e.what());
+#endif
+            return false;
+        }
     }
 
     return false;

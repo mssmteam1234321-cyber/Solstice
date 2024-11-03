@@ -213,7 +213,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoAccept>());
     mModules.emplace_back(std::make_shared<PartySpammer>());
     mModules.emplace_back(std::make_shared<Spammer>());
-    // mModules.emplace_back(std::make_shared<IRC>());
+    mModules.emplace_back(std::make_shared<IRC>());
     mModules.emplace_back(std::make_shared<SkinStealer>());
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
