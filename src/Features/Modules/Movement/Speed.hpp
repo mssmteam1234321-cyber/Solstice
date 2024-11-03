@@ -52,6 +52,11 @@ public:
         Legit
     };
 
+    enum class BypassMode {
+        Always,
+        StrafeOnly
+    };
+
     EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode of speed", Mode::Friction, "Friction", "Legit");
     BoolSetting mSwiftness = BoolSetting("Swiftness", "Whether or not to apply swiftness when space is pressed (will not be applied when scaffold is enabled)", false);
     BoolSetting mSwiftnessHotbar = BoolSetting("Swiftness Hotbar", "Only uses swiftness from hotbar", false);
@@ -70,6 +75,9 @@ public:
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
     BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
     BoolSetting mAvoidCheck = BoolSetting("Avoid Check", "Avoid strafe check in The Hive", false);
+    EnumSettingT<BypassMode> mBypassMode = EnumSettingT("Bypass Mode", "The mode of avoid check", BypassMode::Always, "Always", "Strafe Only");
+    NumberSetting mAvoidCheckDelay = NumberSetting("Delay", "The delay for avoid check", 400, 0, 3000, 50);
+    BoolSetting mDebug = BoolSetting("Debug", "Send message in chat when applied strafe bypass", false);
     BoolSetting mTest = BoolSetting("Test", "test", true);
     BoolSetting mUseStrafeSpeed = BoolSetting("Custom Strafe Speed", "Whether or not to apply custom speed when strafing", true);
     NumberSetting mStrafeSpeed = NumberSetting("Strafe Speed", "The speed to strafe at", 0.5, 0, 10, 0.01);
@@ -110,6 +118,9 @@ public:
             &mStrafe,
 #ifdef __PRIVATE_BUILD__
             &mAvoidCheck,
+            &mBypassMode,
+            &mAvoidCheckDelay,
+            &mDebug,
 #endif
             &mTest,
             &mUseStrafeSpeed,
@@ -133,6 +144,9 @@ public:
         VISIBILITY_CONDITION(mClipHeight, mJumpType.mValue != JumpType::None && mExtraHeight.mValue);
 
         VISIBILITY_CONDITION(mAvoidCheck, mStrafe.mValue);
+        VISIBILITY_CONDITION(mBypassMode, mStrafe.mValue && mAvoidCheck.mValue);
+        VISIBILITY_CONDITION(mAvoidCheckDelay, mStrafe.mValue && mAvoidCheck.mValue);
+        VISIBILITY_CONDITION(mDebug, mStrafe.mValue && mAvoidCheck.mValue);
 #endif
         
         VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
@@ -184,6 +198,7 @@ public:
     float mDamageBoostVal = 1.f;
     bool mDamageTimerApplied = false;
     bool mClip = false;
+    uint64_t mLastAvoidCheck = 0;
 
     void onEnable() override;
     void onDisable() override;
