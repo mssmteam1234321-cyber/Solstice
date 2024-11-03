@@ -267,7 +267,7 @@ void ModuleManager::init()
 
     // Development only
 #ifdef __DEBUG__
-    mModules.emplace_back(std::make_shared<ItemPhysics>());
+    //mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());

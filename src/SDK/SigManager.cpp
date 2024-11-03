@@ -35,9 +35,7 @@ hat::scan_result SigManager::scanSig(hat::signature_view sig, const std::string&
 void SigManager::initialize()
 {
     int64_t start = NOW;
-#ifndef __DEBUG__
     #pragma omp parallel for
-#endif
     for (int i = 0; i < mSigInitializers.size(); i++) {
         mSigInitializers[i]();
     }

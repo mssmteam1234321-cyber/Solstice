@@ -28,9 +28,7 @@ hat::scan_result OffsetProvider::scanSig(hat::signature_view sig, const std::str
 void OffsetProvider::initialize()
 {
     int64_t start = NOW;
-#ifndef __DEBUG__
     #pragma omp parallel for
-#endif
     for (int i = 0; i < mSigInitializers.size(); i++)
     {
         mSigInitializers[i]();
