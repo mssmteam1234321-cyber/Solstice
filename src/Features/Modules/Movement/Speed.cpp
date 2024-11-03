@@ -344,7 +344,15 @@ void Speed::tickLegit(Actor* player)
 
     if (!player->isOnGround() && Keyboard::isUsingMoveKeys() && player->wasOnGround())
     {
-        movementSpeed += (mSpeed.as<float>() / 10 / 10) * mDamageBoostVal;
+        if(mRandomizeSpeed.mValue)
+        {
+            movementSpeed += (MathUtils::random(mMinSpeed.as<float>(), mMaxSpeed.as<float>()) / 10 / 10) * mDamageBoostVal;
+        }
+        else
+        {
+            movementSpeed += (mSpeed.as<float>() / 10 / 10) * mDamageBoostVal;
+        }
+
     }
     else if (Keyboard::isUsingMoveKeys() && !player->isOnGround() && !player->wasOnGround() && player->getFallDistance() > 0) {
         movementSpeed *= mFriction.as<float>();
@@ -442,7 +450,15 @@ void Speed::tickFriction(Actor* player)
         }
     }
 
-    float speed = mSpeed.as<float>();
+    float speed;
+    if(mRandomizeSpeed.mValue)
+    {
+        speed = MathUtils::random(mMinSpeed.as<float>(), mMaxSpeed.as<float>());
+    }
+    else
+    {
+        speed = mSpeed.as<float>();
+    }
 
     if (Keyboard::isStrafing() && mUseStrafeSpeed.mValue) speed = mStrafeSpeed.as<float>();
 

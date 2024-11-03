@@ -262,15 +262,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     mWasMiningBlock = mIsMiningBlock;
 
     auto player = event.mActor;
-    if(player->isDestroying())
-    {
-        if (mIsMiningBlock) {
-            player->getSupplies()->mSelectedSlot = mToolSlot;
-            player->getGameMode()->stopDestroyBlock(mCurrentBlockPos);
-            mIsMiningBlock = false;
-        }
-        mWasMiningBlock = false;
-    }
 
     bool gaming = false;
     if (!mIsMiningBlock) gaming = false;

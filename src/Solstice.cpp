@@ -132,6 +132,15 @@ void Solstice::init(HMODULE hModule)
     }
 #endif
 
+#ifdef __PRIVATE_BUILD__
+    Auth auth;
+    auth.init();
+    if(!auth.isPrivateUser())
+    {
+        auth.exit();
+    }
+#endif
+
     console->info("initializing signatures...");
     int64_t sstart = NOW;
     OffsetProvider::initialize();

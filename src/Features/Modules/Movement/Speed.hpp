@@ -73,6 +73,9 @@ public:
     BoolSetting mDontBoosStrafeSpeed = BoolSetting("Ignore Strafe", "Dont increase strafe speed", true);
 
     NumberSetting mSpeed = NumberSetting("Speed", "The speed to move at", 0.5, 0, 10, 0.01);
+    BoolSetting mRandomizeSpeed = BoolSetting("Randomize Speed", "Whether or not to randomize speed", false);
+    NumberSetting mMinSpeed = NumberSetting("Min Speed", "The min speed to move at", 0.5, 0, 10, 0.01);
+    NumberSetting mMaxSpeed = NumberSetting("Max Speed", "The max speed to move at", 1, 0, 10, 0.01);
     BoolSetting mStrafe = BoolSetting("Strafe Only", "Whether or not to allow strafing", true);
     BoolSetting mAvoidCheck = BoolSetting("Avoid Check", "Avoid strafe check in The Hive", false);
     EnumSettingT<BypassMode> mBypassMode = EnumSettingT("Bypass Mode", "The mode of avoid check", BypassMode::Always, "Always", "Strafe Only");
@@ -115,6 +118,9 @@ public:
             &mDamageTimerSpeed,
             &mDontBoosStrafeSpeed,
             &mSpeed,
+            &mRandomizeSpeed,
+            &mMinSpeed,
+            &mMaxSpeed,
             &mStrafe,
 #ifdef __PRIVATE_BUILD__
             &mAvoidCheck,
@@ -148,7 +154,11 @@ public:
         VISIBILITY_CONDITION(mAvoidCheckDelay, mStrafe.mValue && mAvoidCheck.mValue);
         VISIBILITY_CONDITION(mDebug, mStrafe.mValue && mAvoidCheck.mValue);
 #endif
-        
+
+        VISIBILITY_CONDITION(mSpeed, !mRandomizeSpeed.mValue)
+        VISIBILITY_CONDITION(mMinSpeed, mRandomizeSpeed.mValue)
+        VISIBILITY_CONDITION(mMaxSpeed, mRandomizeSpeed.mValue)
+
         VISIBILITY_CONDITION(mUseStrafeSpeed, mStrafe.mValue);
         VISIBILITY_CONDITION(mStrafeSpeed, mStrafe.mValue);
 
