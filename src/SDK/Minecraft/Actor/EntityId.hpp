@@ -5,9 +5,9 @@
 #pragma once
 
 #include <cstdint>
+#include <entt.hpp>
 
 enum class EntityId : std::uint32_t {};
-#define ENTT_ID_TYPE EntityId
 
 template<>
 struct entt::internal::entt_traits<EntityId> {
@@ -19,4 +19,3 @@ struct entt::internal::entt_traits<EntityId> {
     static constexpr entity_type entity_mask = 0x3FFFF;
     static constexpr entity_type version_mask = 0x7FF;
 };
-#include <entt.hpp>

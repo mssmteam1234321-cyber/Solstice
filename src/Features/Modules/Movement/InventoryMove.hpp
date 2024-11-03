@@ -16,8 +16,15 @@ public:
         };
     }
 
-    static void patchFunc(bool);
+    static void patchFunc1(bool);
+    static void patchFunc2(bool);
+    static void patchFunc(bool b)
+    {
+        patchFunc1(b);
+        patchFunc2(b);
+    }
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
+    void onRenderEvent(class RenderEvent& event);
 };

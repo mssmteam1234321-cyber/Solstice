@@ -583,6 +583,8 @@ if (mMode.mValue == Mode::Concepts)
         displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
         displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
         displayCopyableAddress("MoveInputComponent", player->mContext.getComponent<MoveInputComponent>());
+        displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
+
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
         displayCopyableAddress("ShadowOffsetComponent", player->mContext.getComponent<ShadowOffsetComponent>());;
         displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());;

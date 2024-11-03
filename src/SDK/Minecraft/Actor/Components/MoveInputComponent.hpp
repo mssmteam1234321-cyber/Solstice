@@ -9,7 +9,7 @@
 
 struct MoveInputComponent {
 public:
-    CLASS_FIELD(bool, mIsMoveLocked, 0x82);
+    CLASS_FIELD(bool, mIsMoveLocked, 0x8A);
     CLASS_FIELD(bool, mIsSneakDown, 0x20);
     CLASS_FIELD(bool, mIsJumping, 0x26);
     CLASS_FIELD(bool, mIsJumping2, 0x80);
