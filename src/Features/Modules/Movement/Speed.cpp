@@ -44,13 +44,13 @@ void Speed::onRunUpdateCycleEvent(RunUpdateCycleEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
-    if (scaffold->mEnabled) return;
-
     if (mClip && mStrafe.mValue && mAvoidCheck.mValue) {
         event.cancel();
         return;
     }
+
+    static auto scaffold = gFeatureManager->mModuleManager->getModule<Scaffold>();
+    if (scaffold->mEnabled) return;
 
     bool applyNetskip = false;
 
@@ -150,7 +150,8 @@ void Speed::onBaseTickEvent(BaseTickEvent& event)
     }
 
 #ifdef __PRIVATE_BUILD__
-    if (mAvoidCheck.mValue) mClip = player->isOnGround() && !player->getStatusFlag(ActorFlags::Noai) && Keyboard::isUsingMoveKeys();
+    bool isMoving = (mBypassMode.mValue == BypassMode::Always && Keyboard::isUsingMoveKeys()) || (mBypassMode.mValue == BypassMode::StrafeOnly && Keyboard::isStrafing());
+    if (mAvoidCheck.mValue) mClip = player->isOnGround() && !player->getStatusFlag(ActorFlags::Noai) && mLastAvoidCheck + mAvoidCheckDelay.mValue <= NOW && isMoving;
 #endif
 
     if (mMode.mValue == Mode::Friction)
@@ -214,6 +215,8 @@ void Speed::onPacketOutEvent(PacketOutEvent& event)
 
             if (mClip && mStrafe.mValue && mAvoidCheck.mValue) {
                 paip->mPos.y -= 1;
+                mLastAvoidCheck = NOW;
+                if (mDebug.mValue) ChatUtils::displayClientMessage("Applied");
             }
 
             if(mStrafe.mValue && mTest.mValue) {

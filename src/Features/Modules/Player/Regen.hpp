@@ -147,7 +147,7 @@ public:
             &mDelayedSteal,
             &mOpponentDestroySpeed,
 #endif
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             &mReplace,
 #endif
             &mAntiSteal,
@@ -176,7 +176,7 @@ public:
             &mDynamicUncoverNotify,
             &mStealerDetectorNotify,
 #endif
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             &mRaperNotify,
 #endif
 #ifdef __PRIVATE_BUILD__
@@ -189,7 +189,7 @@ public:
             &mFastOreNotify
         );
 
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
 #endif
 #ifdef __PRIVATE_BUILD__
