@@ -87,15 +87,6 @@ void Solstice::init(HMODULE hModule)
 #endif
 );
 
-#ifdef __PRIVATE_BUILD__
-    Auth auth;
-    auth.init();
-    if(!auth.isPrivateUser())
-    {
-        auth.exit();
-    }
-#endif
-
     spdlog::info("Minecraft version: {}", ProcUtils::getVersion());
 
     ExceptionHandler::init();
@@ -132,6 +123,14 @@ void Solstice::init(HMODULE hModule)
     }
 #endif
 
+#ifdef __PRIVATE_BUILD__
+    Auth auth;
+    auth.init();
+    if(!auth.isPrivateUser())
+    {
+        auth.exit();
+    }
+#endif
 
     console->info("initializing signatures...");
     int64_t sstart = NOW;
