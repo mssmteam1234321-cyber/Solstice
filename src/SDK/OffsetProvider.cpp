@@ -14,7 +14,7 @@ hat::scan_result OffsetProvider::scanSig(hat::signature_view sig, const std::str
 {
     mSigScanCount++;
     auto minecraft = hat::process::get_process_module();
-    auto result = hat::find_pattern(sig, ".text", minecraft, hat::scan_hint::x86_64);
+    auto result = hat::find_pattern(sig, ".text", minecraft);
 
     if (!result.has_result()) {
         mSigs[name] = 0;

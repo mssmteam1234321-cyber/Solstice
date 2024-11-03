@@ -16,7 +16,7 @@ namespace serenity::utils::ptr {
     using ptr_t = union ptr_data_t {
         uintptr_t address;
         void *v_ptr;
-        hat::process::module_t hat_module;
+        uintptr_t hat_module;
 
         template <typename pointing_t>
         pointing_t as() {

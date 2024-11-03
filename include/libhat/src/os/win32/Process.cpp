@@ -35,45 +35,101 @@ namespace hat::process {
         return true;
     }
 
-    static const IMAGE_NT_HEADERS& getNTHeaders(const module_t mod) {
-        const auto* scanBytes = reinterpret_cast<const std::byte*>(mod);
-        const auto* dosHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(mod);
+    static const IMAGE_NT_HEADERS& getNTHeaders(const hat::process::module mod) {
+        const auto* scanBytes = reinterpret_cast<const std::byte*>(mod.address());
+        const auto* dosHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(mod.address());
         return *reinterpret_cast<const IMAGE_NT_HEADERS*>(scanBytes + dosHeader->e_lfanew);
     }
 
-    module_t get_process_module() {
-        return module_t{reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr))};
+    bool is_readable(const std::span<const std::byte> region) {
+        constexpr DWORD readFlags = PAGE_EXECUTE_READ
+            | PAGE_EXECUTE_READWRITE
+            | PAGE_EXECUTE_WRITECOPY
+            | PAGE_READONLY
+            | PAGE_READWRITE
+            | PAGE_WRITECOPY;
+        for (auto* addr = region.data(); addr < region.data() + region.size();) {
+            MEMORY_BASIC_INFORMATION mbi{};
+            if (!VirtualQuery(addr, &mbi, sizeof(mbi))) {
+                return false;
+            }
+            if (mbi.State != MEM_COMMIT) {
+                return false;
+            }
+            if (!(mbi.Protect & readFlags)) {
+                return false;
+            }
+            addr = static_cast<const std::byte*>(mbi.BaseAddress) + mbi.RegionSize;
+        }
+        return true;
     }
 
-    std::optional<module_t> get_module(const std::string& name) {
-        if (const auto module = GetModuleHandleA(name.c_str()); module) {
-            return module_t{std::bit_cast<uintptr_t>(module)};
+    bool is_writable(const std::span<const std::byte> region) {
+        constexpr DWORD writeFlags = PAGE_EXECUTE_READWRITE
+            | PAGE_EXECUTE_WRITECOPY
+            | PAGE_READWRITE
+            | PAGE_WRITECOPY;
+        for (auto* addr = region.data(); addr < region.data() + region.size();) {
+            MEMORY_BASIC_INFORMATION mbi{};
+            if (!VirtualQuery(addr, &mbi, sizeof(mbi))) {
+                return false;
+            }
+            if (mbi.State != MEM_COMMIT) {
+                return false;
+            }
+            if (!(mbi.Protect & writeFlags)) {
+                return false;
+            }
+            addr = static_cast<const std::byte*>(mbi.BaseAddress) + mbi.RegionSize;
+        }
+        return true;
+    }
+
+    hat::process::module get_process_module() {
+        return module{reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr))};
+    }
+
+    std::optional<hat::process::module> get_module(const std::string_view name) {
+        const int size = MultiByteToWideChar(CP_UTF8, 0, name.data(), static_cast<int>(name.size()), nullptr, 0);
+        if (!size) {
+            return {};
+        }
+
+        std::wstring str;
+        str.resize(size);
+
+        MultiByteToWideChar(CP_UTF8, 0, name.data(), static_cast<int>(name.size()), str.data(), size);
+
+        if (const auto handle = GetModuleHandleW(str.c_str()); handle) {
+            return hat::process::module{std::bit_cast<uintptr_t>(handle)};
         }
         return {};
     }
 
-    std::optional<module_t> module_at(void* address, std::optional<size_t> size) {
+    std::optional<hat::process::module> module_at(void* address, const std::optional<size_t> size) {
         if (isValidModule(address, size)) {
-            return module_t{std::bit_cast<uintptr_t>(address)};
+            return hat::process::module{std::bit_cast<uintptr_t>(address)};
         }
         return {};
     }
 
-    std::span<std::byte> get_module_data(const module_t mod) {
-        auto* const scanBytes = reinterpret_cast<std::byte*>(mod);
-        const size_t sizeOfImage = getNTHeaders(mod).OptionalHeader.SizeOfImage;
+    std::span<std::byte> hat::process::module::get_module_data() const {
+        auto* const scanBytes = reinterpret_cast<std::byte*>(this->address());
+        const size_t sizeOfImage = getNTHeaders(*this).OptionalHeader.SizeOfImage;
         return {scanBytes, sizeOfImage};
     }
 
-    std::span<std::byte> get_section_data(const module_t mod, const std::string_view name) {
-        auto* bytes = reinterpret_cast<std::byte*>(mod);
-        const auto& ntHeaders = getNTHeaders(mod);
-
-        const auto maxChars = std::min<size_t>(name.size(), 8);
+    std::span<std::byte> hat::process::module::get_section_data(const std::string_view name) const {
+        auto* bytes = reinterpret_cast<std::byte*>(this->address());
+        const auto& ntHeaders = getNTHeaders(*this);
 
         const auto* sectionHeader = IMAGE_FIRST_SECTION(&ntHeaders);
-        for (int i = 0; i < ntHeaders.FileHeader.NumberOfSections; i++, sectionHeader++) {
-            if (strncmp(name.data(), reinterpret_cast<const char*>(sectionHeader->Name), maxChars) == 0) {
+        for (WORD i = 0; i < ntHeaders.FileHeader.NumberOfSections; i++, sectionHeader++) {
+            const std::string_view sectionName{
+                reinterpret_cast<const char*>(sectionHeader->Name),
+                strnlen_s(reinterpret_cast<const char*>(sectionHeader->Name), IMAGE_SIZEOF_SHORT_NAME)
+            };
+            if (sectionName == name) {
                 return {
                     bytes + sectionHeader->VirtualAddress,
                     static_cast<size_t>(sectionHeader->Misc.VirtualSize)
