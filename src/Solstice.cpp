@@ -238,7 +238,7 @@ void Solstice::init(HMODULE hModule)
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    if (!InternetCheckConnectionA("https://dllserver.solstice.works", FLAG_ICC_FORCE_CONNECTION, 0)) {
+    if (!InternetCheckConnectionA(xorstr_("https://dllserver.solstice.works"), FLAG_ICC_FORCE_CONNECTION, 0)) {
         __fastfail(0);
     }
 
