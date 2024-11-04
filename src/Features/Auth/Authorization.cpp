@@ -36,7 +36,9 @@ void Auth::init()
     mHWID = HWUtils::getCpuInfo().toString();
     if(mHWID.empty()) exit();
 
-    if(!InternetGetConnectedState(nullptr, 0)) exit();
+    if (!InternetCheckConnectionA(xorstr_("https://dllserver.solstice.works"), FLAG_ICC_FORCE_CONNECTION, 0)) {
+        exit();
+    }
 
     mHash = cryptor.encrypt(mUsername + ':' + mPassword + ':' + mHWID);
 }

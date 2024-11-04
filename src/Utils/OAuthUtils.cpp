@@ -57,12 +57,13 @@ std::string OAuthUtils::getLatestCommitHash()
 
     HttpResponseEvent event = request.send();
 
-    //var obj = new { commitHash = LatestCommitHash };
-    //return JsonConvert.SerializeObject(obj);
+    if(event.mStatusCode == 200)
+    {
+        nlohmann::json json = nlohmann::json::parse(event.mResponse);
+        return json[xorstr_("commitHash")].get<std::string>();
+    }
 
-    nlohmann::json json = nlohmann::json::parse(event.mResponse);
-
-    return json["commitHash"].get<std::string>();
+    return "";
 }
 
 std::vector<std::string> OAuthUtils::getCommitsBetweenHash(const std::string& startHash, const std::string& endHash)
