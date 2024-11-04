@@ -166,8 +166,8 @@ enum class AuthInputAction : uint64_t {
     WANT_DOWN_SLOW = 1ULL << 18,
     WANT_UP_SLOW = 1ULL << 19,
     SPRINTING = 1ULL << 20,
-    ASCEND_BLOCK = 1ULL << 21,
-    DESCEND_BLOCK = 1ULL << 22,
+    ASCEND_SCAFFOLDING = 1ULL << 21,   // Added missing value
+    DESCEND_SCAFFOLDING = 1ULL << 22,  // Added missing value
     SNEAK_TOGGLE_DOWN = 1ULL << 23,
     PERSIST_SNEAK = 1ULL << 24,
     START_SPRINTING = 1ULL << 25,
@@ -191,10 +191,19 @@ enum class AuthInputAction : uint64_t {
     STOP_FLYING = 1ULL << 43,
     RECEIVED_SERVER_DATA = 1ULL << 44,
     IN_CLIENT_PREDICTED_IN_VEHICLE = 1ULL << 45,
-    PADDLING_LEFT = 1ULL << 46,
-    PADDLING_RIGHT = 1ULL << 47,
+    PADDLE_LEFT = 1ULL << 46,
+    PADDLE_RIGHT = 1ULL << 47,
     BLOCK_BREAKING_DELAY_ENABLED = 1ULL << 48,
-    INPUT_NUM = 1ULL << 49,
+    HORIZONTAL_COLLISION = 1ULL << 49,
+    VERTICAL_COLLISION = 1ULL << 50,
+    DOWN_LEFT = 1ULL << 51,
+    DOWN_RIGHT = 1ULL << 52,
+    START_USING_ITEM = 1ULL << 53,
+    IS_CAMERA_RELATIVE_MOVEMENT_ENABLED = 1ULL << 54,
+    IS_ROT_CONTROLLED_BY_MOVE_DIRECTION = 1ULL << 55,
+    START_SPIN_ATTACK = 1ULL << 56,
+    STOP_SPIN_ATTACK = 1ULL << 57,
+    INPUT_NUM = 1ULL << 58,
 };
 
 
@@ -296,7 +305,7 @@ public:
     glm::vec2                                                           mAnalogMoveVector;
     glm::vec2                                                           mVehicleRotation;
     glm::vec2                                                           mMove;
-    glm::vec3                                                           mGazeDir;
+    glm::vec2                                                           mInteractRots;
     AuthInputAction                                                     mInputData;
     InputMode                                                           mInputMode;
     ClientPlayMode                                                      mPlayMode;
