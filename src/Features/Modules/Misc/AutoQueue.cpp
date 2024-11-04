@@ -15,7 +15,16 @@
 
 void AutoQueue::queueForGame()
 {
-    mQueuedCommands[NOW] = "/q " + mLastGame;
+    if(mMode.mValue == Mode::Auto)
+    {
+        mQueuedCommands[NOW] = "/q " + mLastGame;
+    }
+    else if (mMode.mValue == Mode::Random)
+    {
+        int gamemodeToSelect = MathUtils::random(0, mGamemodes.size() - 1);
+        mLastGame = mGamemodes[gamemodeToSelect];
+        mQueuedCommands[NOW] = "/q " + mLastGame;
+    }
 }
 
 
