@@ -36,7 +36,7 @@ void Auth::init()
     mHWID = HWUtils::getCpuInfo().toString();
     if(mHWID.empty()) exit();
 
-    if (!InternetCheckConnectionA("https://dllserver.solstice.works", FLAG_ICC_FORCE_CONNECTION, 0)) {
+    if (!InternetCheckConnectionA(xorstr_("https://dllserver.solstice.works"), FLAG_ICC_FORCE_CONNECTION, 0)) {
         exit();
     }
 
