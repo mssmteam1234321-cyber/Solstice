@@ -34,6 +34,9 @@
 #include <Utils/OAuthUtils.hpp>
 #include <Utils/SysUtils/xorstr.hpp>
 
+#include <wininet.h>
+#pragma comment(lib, "wininet.lib")
+
 #ifdef __DEBUG__
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "] [debug]";
 #elif __PRIVATE_BUILD__
@@ -235,7 +238,9 @@ void Solstice::init(HMODULE hModule)
 
     while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    if(!InternetGetConnectedState(nullptr, 0)) __fastfail(1);
+    if (!InternetCheckConnectionA("https://dllserver.solstice.works", FLAG_ICC_FORCE_CONNECTION, 0)) {
+        __fastfail(0);
+    }
 
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
