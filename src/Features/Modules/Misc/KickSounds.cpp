@@ -29,5 +29,9 @@ void KickSounds::onPacketInEvent(PacketInEvent& event)
         {
             SoundUtils::playSoundFromEmbeddedResource("mariodeath.wav", mVolume.mValue);
         }
+        else if (mSound.mValue == Sound::Windows)
+        {
+            SoundUtils::playSoundFromEmbeddedResource("windows_background.wav", mVolume.mValue);
+        }
     }
 }
