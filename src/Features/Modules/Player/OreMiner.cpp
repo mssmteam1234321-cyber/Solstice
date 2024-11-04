@@ -175,7 +175,6 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     mWasMiningBlock = mIsMiningBlock;
 
     auto player = event.mActor;
-    if(player->isDestroying()) reset();
     BlockSource* source = ClientInstance::get()->getBlockSource();
     if (!source) return;
     PlayerInventory* supplies = player->getSupplies();
@@ -194,12 +193,6 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
     if (Regen::mIsMiningBlock || Regen::mWasMiningBlock || player->getStatusFlag(ActorFlags::Noai) || !hasPickaxe || player->isDestroying() || mStealing || isScaffold) {
         reset();
         mShouldSetbackSlot = false;
-        return;
-    }
-
-    // Return without reset breaking progress
-    if (mLastBlockPlace + 100 > NOW) {
-        if (mIsMiningBlock) PacketUtils::spoofSlot(mLastPlacedBlockSlot);
         return;
     }
 
@@ -374,18 +367,6 @@ void OreMiner::onPacketOutEvent(PacketOutEvent& event)
             paip->mRot = rotations;
             paip->mYHeadRot = rotations.y;
             mShouldRotate = false;
-        }
-    }
-    else if (event.mPacket->getId() == PacketID::InventoryTransaction) {
-        if (const auto it = event.getPacket<InventoryTransactionPacket>();
-            it->mTransaction->type == ComplexInventoryTransaction::Type::ItemUseTransaction)
-        {
-            if (const auto transac = reinterpret_cast<ItemUseInventoryTransaction*>(it->mTransaction.get());
-                transac->mActionType == ItemUseInventoryTransaction::ActionType::Place)
-            {
-                mLastBlockPlace = NOW;
-                mLastPlacedBlockSlot = transac->mSlot;
-            }
         }
     }
     else if (event.mPacket->getId() == PacketID::MobEquipment) {
