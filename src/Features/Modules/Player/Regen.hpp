@@ -148,8 +148,8 @@ public:
 #ifdef __DEBUG__
             &mReplace,
 #endif
-#ifdef __PRIVATE_BUILD__
             &mAntiSteal,
+#ifdef __PRIVATE_BUILD__
             &mConfuse,
             &mConfuseMode,
             &mConfuseDuration,

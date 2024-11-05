@@ -7,9 +7,7 @@ public:
     enum class UncoverMode {
         None,
         PathFind,
-#ifdef __PRIVATE_BUILD__
         UnderGround,
-#endif
     };
     enum class CalcMode {
         Normal,
@@ -20,11 +18,7 @@ public:
         Medium,
         Low
     };
-    EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The mode for uncover", UncoverMode::None, "None", "Path Find"
-#ifdef __PRIVATE_BUILD__
-    , "Under Ground"
-#endif
-    );
+    EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The mode for uncover", UncoverMode::None, "None", "Path Find", "Under Ground");
     EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Normal, "Normal", "Dynamic");
     BoolSetting mOnGroundOnly = BoolSetting("OnGround Only", "use dynamic destroy speed only on ground", false);
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);

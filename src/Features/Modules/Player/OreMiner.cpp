@@ -121,7 +121,6 @@ OreMiner::PathFindResult OreMiner::getBestPathToBlock(glm::ivec3 blockPos) {
         }
         return { closestBlockPos, foundPath };
     }
-#ifdef __PRIVATE_BUILD__
     else if (mUncoverMode.mValue == UncoverMode::UnderGround) {
         for (int i = 0; i < mOffsetList.size(); i++) {
             glm::ivec3 currentPos = blockPos + mOffsetList[i];
@@ -132,7 +131,7 @@ OreMiner::PathFindResult OreMiner::getBestPathToBlock(glm::ivec3 blockPos) {
         }
         return { blockPos, true };
     }
-#endif
+
     return { glm::ivec3(INT_MAX, INT_MAX, INT_MAX), false };
 }
 
@@ -277,7 +276,6 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
                 mTargettingBlockPos = targettingPos;
                 return;
             }
-#ifdef __PRIVATE_BUILD__
             else if ((mUncoverMode.mValue == UncoverMode::PathFind || mUncoverMode.mValue == UncoverMode::UnderGround) && !unexposedBlockList.empty()) {
                 float closestDistance = INT_MAX;
                 for (int i = 0; i < unexposedBlockList.size(); i++) {
@@ -297,27 +295,6 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
                     return;
                 }
             }
-#else
-            else if ((mUncoverMode.mValue == UncoverMode::PathFind) && !unexposedBlockList.empty()) {
-                float closestDistance = INT_MAX;
-                for (int i = 0; i < unexposedBlockList.size(); i++) {
-                    glm::vec3 blockPos = unexposedBlockList[i].mPosition;
-                    float dist = glm::distance(playerPos, blockPos);
-                    if (dist < closestDistance) {
-                        closestDistance = dist;
-                        pos = blockPos;
-                        targettingPos = blockPos;
-                    }
-                }
-                PathFindResult result = getBestPathToBlock(pos);
-                if (result.foundPath) {
-                    queueBlock(result.blockPos);
-                    mIsUncovering = true;
-                    mTargettingBlockPos = targettingPos;
-                    return;
-                }
-            }
-#endif
         }
 
         if (mShouldSetbackSlot) {

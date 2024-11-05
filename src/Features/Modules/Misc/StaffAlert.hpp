@@ -19,10 +19,8 @@ public:
             &mStaffOnly,
             &mShowNotifications,
             &mPlaySound,
-#ifdef __PRIVATE_BUILD__
-            &mShowRecentJoins,
-#endif
-            &mSaveToDatabase
+            &mSaveToDatabase,
+            &mShowRecentJoins
         );
 
         mNames = {

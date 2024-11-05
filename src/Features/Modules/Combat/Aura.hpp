@@ -107,12 +107,12 @@ public:
             &mThrowDelay,
 #ifdef __PRIVATE_BUILD__
             &mAutoBow,
-            &mAttackThroughWalls,
 #endif
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,
             &mStrafe,
+            &mAttackThroughWalls,
             &mThirdPerson,
             &mThirdPersonOnlyOnAttack,
             &mDisableOnDimensionChange,

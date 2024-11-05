@@ -141,6 +141,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TriggerBot>());
     mModules.emplace_back(std::make_shared<AutoClicker>());
     mModules.emplace_back(std::make_shared<Reach>());
+    mModules.emplace_back(std::make_shared<Criticals>());
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
@@ -162,7 +163,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<TargetStrafe>());
     mModules.emplace_back(std::make_shared<Jesus>());
     mModules.emplace_back(std::make_shared<AirSpeed>());
+    mModules.emplace_back(std::make_shared<ReverseStep>());
     mModules.emplace_back(std::make_shared<Jetpack>());
+    mModules.emplace_back(std::make_shared<DamageBoost>());
 
     // Player
     mModules.emplace_back(std::make_shared<AutoSpellBook>());
@@ -182,18 +185,21 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Teams>());
     mModules.emplace_back(std::make_shared<AntiVoid>());
     mModules.emplace_back(std::make_shared<Extinguisher>());
+    mModules.emplace_back(std::make_shared<FastMine>());
     mModules.emplace_back(std::make_shared<ClickTp>());
     mModules.emplace_back(std::make_shared<ChestAura>());
     mModules.emplace_back(std::make_shared<NoRotate>());
 
     // Misc
+    mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
+    mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
     mModules.emplace_back(std::make_shared<EditionFaker>());
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
-    // mModules.emplace_back(std::make_shared<AntiCheatDetector>()); dont need anymore
+    mModules.emplace_back(std::make_shared<AntiCheatDetector>());
     mModules.emplace_back(std::make_shared<Friends>());
     mModules.emplace_back(std::make_shared<NoPacket>());
     mModules.emplace_back(std::make_shared<NoFilter>());
@@ -201,12 +207,18 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Killsults>());
     mModules.emplace_back(std::make_shared<NetSkip>());
     mModules.emplace_back(std::make_shared<Disabler>());
+    mModules.emplace_back(std::make_shared<AutoReport>());
     mModules.emplace_back(std::make_shared<StaffAlert>());
+    mModules.emplace_back(std::make_shared<AutoCosmetic>());
+    mModules.emplace_back(std::make_shared<AutoAccept>());
+    mModules.emplace_back(std::make_shared<PartySpammer>());
     mModules.emplace_back(std::make_shared<Spammer>());
     mModules.emplace_back(std::make_shared<IRC>());
     mModules.emplace_back(std::make_shared<SkinStealer>());
     mModules.emplace_back(std::make_shared<AutoLootbox>());
     mModules.emplace_back(std::make_shared<AutoDodge>());
+    mModules.emplace_back(std::make_shared<AutoSnipe>());
+    mModules.emplace_back(std::make_shared<AutoVote>());
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
@@ -243,18 +255,13 @@ void ModuleManager::init()
 
 
 #ifdef __PRIVATE_BUILD__
-    mModules.emplace_back(std::make_shared<SkinBlinker>());
-    mModules.emplace_back(std::make_shared<Anticheat>());
-    mModules.emplace_back(std::make_shared<AutoReport>());
-    mModules.emplace_back(std::make_shared<AutoVote>());
-    mModules.emplace_back(std::make_shared<TestModule>());
-    mModules.emplace_back(std::make_shared<DamageBoost>());
-    mModules.emplace_back(std::make_shared<FastMine>());
-    mModules.emplace_back(std::make_shared<AutoSnipe>());
-    mModules.emplace_back(std::make_shared<AutoCosmetic>());
-    mModules.emplace_back(std::make_shared<AutoAccept>());
-    mModules.emplace_back(std::make_shared<PartySpammer>());
-    mModules.emplace_back(std::make_shared<ReverseStep>());
+    // TODO: Fix these modules so they can be enabled in release mode
+    mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
+    mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
+    mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
+    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
+    mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
+
     // TODO: Finish these modules
 #endif
 
@@ -264,11 +271,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
-    mModules.emplace_back(std::make_shared<AutoKick>()); // no raper allowed
-    mModules.emplace_back(std::make_shared<HiveFly>());
-    mModules.emplace_back(std::make_shared<DebugFly>());
-    mModules.emplace_back(std::make_shared<PacketLogger>());
-    mModules.emplace_back(std::make_shared<Criticals>());
 #endif
 
     // Determine if we should add UpdateForm
