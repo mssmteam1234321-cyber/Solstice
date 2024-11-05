@@ -166,8 +166,8 @@ enum class AuthInputAction : uint64_t {
     WANT_DOWN_SLOW = 1ULL << 18,
     WANT_UP_SLOW = 1ULL << 19,
     SPRINTING = 1ULL << 20,
-    ASCEND_SCAFFOLDING = 1ULL << 21,   // Added missing value
-    DESCEND_SCAFFOLDING = 1ULL << 22,  // Added missing value
+    ASCEND_SCAFFOLDING = 1ULL << 21,
+    DESCEND_SCAFFOLDING = 1ULL << 22,
     SNEAK_TOGGLE_DOWN = 1ULL << 23,
     PERSIST_SNEAK = 1ULL << 24,
     START_SPRINTING = 1ULL << 25,
@@ -306,15 +306,17 @@ public:
     glm::vec2                                                           mVehicleRotation;
     glm::vec2                                                           mMove;
     glm::vec2                                                           mInteractRots;
+    glm::vec2                                                           mCameraOrientation;
     AuthInputAction                                                     mInputData;
     InputMode                                                           mInputMode;
     ClientPlayMode                                                      mPlayMode;
     NewInteractionModel                                                 mNewInteractionModel;
-    uint64_t                                                            mClientTick;
+    int64_t                                                             mClientTick;
     std::unique_ptr<class PackedItemUseLegacyInventoryTransaction>      mItemUseTransaction;
     std::unique_ptr<class ItemStackRequestData>                         mItemStackRequest;
     PlayerBlockActions                                                  mPlayerBlockActions;
     uint64_t                                                            mPredictedVehicle;
+
 
     void removeAllInputData() {
         mInputData = AuthInputAction::NONE;
@@ -352,9 +354,10 @@ public:
         inputString += "mAnalogMoveVector: " + std::to_string(mAnalogMoveVector.x) + ", " + std::to_string(mAnalogMoveVector.y) + "\n";
         inputString += "mVehicleRotation: " + std::to_string(mVehicleRotation.x) + ", " + std::to_string(mVehicleRotation.y) + "\n";
         inputString += "mMove: " + std::to_string(mMove.x) + ", " + std::to_string(mMove.y) + "\n";
-        inputString += "mGazeDir: " + std::to_string(mGazeDir.x) + ", " + std::to_string(mGazeDir.y) + ", " + std::to_string(mGazeDir.z) + "\n";
-        inputString += "mInputData: ";
-        for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
+        inputString += "mInteractRots: " + std::to_string(mInteractRots.x) + ", " + std::to_string(mInteractRots.y) + "\n";
+        inputString += "mCameraOrientation: " + std::to_string(mCameraOrientation.x) + ", " + std::to_string(mCameraOrientation.y) + "\n";
+        inputString += "mInputData: (hidden)";
+        /*for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
             // Continue if this input data isn't valid
             if (i == 2 || i == 27 || i == 31 || i == 0x22 || i == 0x23 || i == 0x24) {
                 continue;
@@ -365,18 +368,21 @@ public:
             else if (hasInputData(static_cast<AuthInputAction>(1ULL << i))) {
                 inputString += ", " + std::string(magic_enum::enum_name(static_cast<InputData>(i)).data());
             }
-        }
+        }*/
         inputString += "\n";
-        inputString += "mInputMode: " + std::string(magic_enum::enum_name(mInputMode).data()) + "\n";
+        /*inputString += "mInputMode: " + std::string(magic_enum::enum_name(mInputMode).data()) + "\n";
         inputString += "mPlayMode: " + std::string(magic_enum::enum_name(mPlayMode).data()) + "\n";
-        inputString += "mNewInteractionModel: " + std::string(magic_enum::enum_name(mNewInteractionModel).data()) + "\n";
+        inputString += "mNewInteractionModel: " + std::string(magic_enum::enum_name(mNewInteractionModel).data()) + "\n";*/
+        inputString += "mInputMode: " + std::to_string(static_cast<int>(mInputMode)) + "\n";
+        inputString += "mPlayMode: " + std::to_string(static_cast<int>(mPlayMode)) + "\n";
+        inputString += "mNewInteractionModel: " + std::to_string(static_cast<int>(mNewInteractionModel)) + "\n";
         inputString += "mClientTick: " + std::to_string(mClientTick) + "\n";
-        inputString += "mPlayerBlockActions: ";
-        for (auto& action : mPlayerBlockActions.mActions) {
+        inputString += "mPlayerBlockActions: (hidden)";
+        /*for (auto& action : mPlayerBlockActions.mActions) {
             inputString += "\n\tmAction: " + std::string(magic_enum::enum_name(action.mAction).data());
             inputString += "\n\tmPos: " + std::to_string(action.mPos.x) + ", " + std::to_string(action.mPos.y) + ", " + std::to_string(action.mPos.z);
             inputString += "\n\tmFace: " + std::to_string(action.mFace);
-        }
+        }*/
 
 
 
@@ -385,3 +391,5 @@ public:
     }
 };
 
+/*static_assert(offsetof(PlayerAuthInputPacket, mNewInteractionModel) == 0x90, "PlayerAuthInputPacket: mNewInteractionModel offset");
+static_assert(offsetof(PlayerAuthInputPacket, mClientTick) == 0x98, "PlayerAuthInputPacket: mClientTick offset");*/

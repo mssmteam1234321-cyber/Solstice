@@ -17,7 +17,6 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <spdlog/spdlog.h>
 
 #include <Features/Auth/Authorization.hpp>
 
@@ -123,15 +122,6 @@ void Solstice::init(HMODULE hModule)
             spdlog::info("Waiting for debugger...");
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-    }
-#endif
-
-#ifdef __PRIVATE_BUILD__
-    Auth auth;
-    auth.init();
-    if(!auth.isPrivateUser())
-    {
-        auth.exit();
     }
 #endif
 

@@ -13,7 +13,6 @@
 
 #include "EntityId.hpp"
 #include "Components/FlagComponent.hpp"
-#include "spdlog/spdlog.h"
 
 class EntityRegistry
 {

@@ -170,6 +170,7 @@ void IrcClient::sendSkin()
 
 bool IrcClient::connectToServer()
 {
+    bool success = false;
     if (!TRY_CALL([&]()
     {
         mLastPing = NOW;
@@ -177,6 +178,7 @@ bool IrcClient::connectToServer()
         if (mConnectionState == ConnectionState::Connecting)
         {
             logm("Cannot connect to server, already connecting");
+            success = false;
             return false;
         }
 
@@ -196,6 +198,7 @@ bool IrcClient::connectToServer()
         hints.ai_socktype = SOCK_STREAM;
         hints.ai_protocol = IPPROTO_TCP;
         if (getaddrinfo(host.c_str(), port.c_str(), &hints, &result) != 0) {
+            success = false;
             return false;
         }
 
@@ -301,20 +304,23 @@ bool IrcClient::connectToServer()
         } catch (winrt::hresult_error const& ex)
         {
             logm("Error: {} [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
+            success = false;
             return false;
         } catch (const std::exception& ex)
         {
             logm("Error: {}", ex.what());
+            success = false;
             return false;
         } catch (...)
         {
             logm("Unknown error");
+            success = false;
             return false;
         }
 
         logm("Connected to server");
-
-        return true;
+        success = true;
+         return true;
     }))
     {
         logm("Failed to connect to server");
