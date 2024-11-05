@@ -9,10 +9,10 @@
 class AutoQueue : public ModuleBase<AutoQueue> {
 public:
     enum class Mode {
-        Hive,
-        Custom
+        Auto,
+        Random
     };
-    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode", Mode::Hive, "Hive");
+    EnumSettingT<Mode> mMode = EnumSettingT("Mode", "The mode", Mode::Auto, "Auto", "Random");
     NumberSetting mQueueDelay = NumberSetting("Queue Delay", "The delay between queueing for games (in seconds)", 1.f, 0.f, 5.f, 0.01f);
     BoolSetting mShowInChat = BoolSetting("Show In Chat", "Show the current game in chat", true);
     BoolSetting mQueueOnDeath = BoolSetting("Queue On Death", "Queue for a game when you die", true);
@@ -34,8 +34,7 @@ public:
     uint64_t mLastQueueTime = 0;
     uint64_t mLastCommandExecuted = 0;
     std::map<uint64_t, std::string> mQueuedCommands = {};
-
-
+    std::vector<std::string> mGamemodes = { "sky", "sky-duos", "sky-squads", "sky-mega", "ctf", "bed", "bed-duos", "bed-squads", "sg", "sg-duos" };
 
     void onEnable() override;
     void onDisable() override;
