@@ -14,6 +14,7 @@
 #include "Hooks/MiscHooks/FireBlockChangedHook.hpp"
 #include "Hooks/MiscHooks/KeyHook.hpp"
 #include "Hooks/MiscHooks/MouseHook.hpp"
+#include "Hooks/MiscHooks/PreGameHook.hpp"
 #include "Hooks/NetworkHooks/ConnectionRequestHook.hpp"
 #include "Hooks/NetworkHooks/PacketReceiveHook.hpp"
 #include "Hooks/NetworkHooks/PacketSendHook.hpp"
@@ -60,6 +61,8 @@ void HookManager::init(bool initLp)
         ADD_HOOK(FireBlockChangedHook);
         ADD_HOOK(CanShowNameHook);
         ADD_HOOK(RenderItemInHandHook);
+        ADD_HOOK(PreGameHook);
+
 
 
         for (auto& hook : hooks)

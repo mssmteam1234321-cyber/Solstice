@@ -7,7 +7,7 @@ public:
     bool                                     needsInitLighting;                // this+0x0020
     bool                                     needsClientLighting;              // this+0x0021
     char                                     pad_0022[6];                      // this+0x0022
-    std::unique_ptr<SubChunkStorage<Block>>* blocks;                           // this+0x0028
+    std::unique_ptr<SubChunkStorage<Block>>* blocks;                            // this+0x0028
     char                                     pad_0030[8];                      // this+0x0030
     class SubChunkBlockStorage*              blockReadPtr;                     // this+0x0038
     char                                     pad_0040[24];                     // this+0x0040

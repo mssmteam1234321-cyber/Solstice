@@ -9,6 +9,7 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/DrawImageEvent.hpp>
+#include <Features/Events/PreGameCheckEvent.hpp>
 #include <Features/Events/RenderEvent.hpp>
 
 #include <Features/Modules/Visual/Interface.hpp>
@@ -22,6 +23,11 @@
 #include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/World/Level.hpp>
+
+#ifdef __DEBUG__
+std::vector<unsigned char> gFsBytes2 = { 0x0f, 0x85 };
+DEFINE_PATCH_FUNC(patchFullStack, SigManager::ResourcePackManager_composeFullStackBp, gFsBytes2);
+#endif
 
 float pYaw;
 float pOldYaw;
@@ -49,7 +55,9 @@ void Interface::onEnable()
 
 void Interface::onDisable()
 {
-
+#ifdef __DEBUG__
+    patchFullStack(false);
+#endif
 }
 
 void Interface::onModuleStateChange(ModuleStateChangeEvent& event)
@@ -60,10 +68,35 @@ void Interface::onModuleStateChange(ModuleStateChangeEvent& event)
     }
 }
 
+void Interface::onPregameCheckEvent(PreGameCheckEvent& event)
+{
+#ifdef __DEBUG__
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player || ! mForcePackSwitching.mValue) return;
+
+    std::string screenName = ClientInstance::get()->getScreenName();
+
+    // prevent other screens from breaking
+    if (screenName.contains("screen_world_controls_and_settings") && !screenName.contains("global_texture_pack_tab")) return;
+
+    event.setPreGame(true);
+#endif
+}
+
 void Interface::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     static bool lastPlayerState = false;
+
+#ifdef __DEBUG__
+    if (player && mForcePackSwitching.mValue)
+    {
+        patchFullStack(true);
+    } else
+    {
+        patchFullStack(false);
+    }
+#endif
 
     if (player && !lastPlayerState)
     {

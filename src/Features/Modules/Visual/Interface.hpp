@@ -3,6 +3,7 @@
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/ModuleStateChangeEvent.hpp>
 #include <Features/Events/DrawImageEvent.hpp>
+#include <Features/Events/PreGameCheckEvent.hpp>
 //
 // Created by vastrakai on 7/1/2024.
 //
@@ -45,6 +46,9 @@ public:
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
     BoolSetting mSlotEasing = BoolSetting("Slot Easing", "Eases the selection of slots", true);
     NumberSetting mSlotEasingSpeed = NumberSetting("Easing Speed", "The speed of the slot easing", 20.f, 0.1f, 20.f, 0.01f);
+#ifdef __DEBUG__
+    BoolSetting mForcePackSwitching = BoolSetting("Force Pack Switching", "Allows pack switching in-game", false);
+#endif
     //BoolSetting mShowRotations = BoolSetting("Show Rotations", "Shows normally invisible server-sided rotations", false);
 
 
@@ -55,8 +59,27 @@ public:
         gFeatureManager->mDispatcher->listen<BaseTickEvent, &Interface::onBaseTickEvent>(this);
         gFeatureManager->mDispatcher->listen<PacketOutEvent, &Interface::onPacketOutEvent, nes::event_priority::ABSOLUTE_LAST>(this);
         gFeatureManager->mDispatcher->listen<DrawImageEvent, &Interface::onDrawImageEvent>(this);
+        gFeatureManager->mDispatcher->listen<PreGameCheckEvent, &Interface::onPregameCheckEvent>(this);
 
-        addSettings(&mNamingStyle, &mMode, &mFont, &mColors, &mColor1, &mColor2, &mColor3, &mColor4, &mColor5, &mColor6, &mColorSpeed, &mSaturation, &mSlotEasing, &mSlotEasingSpeed);
+        addSettings(
+            &mNamingStyle,
+            &mMode,
+            &mFont,
+            &mColors,
+            &mColor1,
+            &mColor2,
+            &mColor3,
+            &mColor4,
+            &mColor5,
+            &mColor6,
+            &mColorSpeed,
+            &mSaturation,
+            &mSlotEasing,
+            &mSlotEasingSpeed
+#ifdef __DEBUG_
+            ,&mForcePackSwitching
+#endif
+        );
 
         VISIBILITY_CONDITION(mColors, mMode.mValue == Custom);
         VISIBILITY_CONDITION(mColor1, mMode.mValue == Custom && mColors.mValue >= 1);
@@ -131,6 +154,7 @@ public:
     void onEnable() override;
     void onDisable() override;
     void onModuleStateChange(ModuleStateChangeEvent& event);
+    void onPregameCheckEvent(class PreGameCheckEvent& event);
     void onRenderEvent(class RenderEvent& event);
     void onActorRenderEvent(class ActorRenderEvent& event);
     void onDrawImageEvent(class DrawImageEvent& event);

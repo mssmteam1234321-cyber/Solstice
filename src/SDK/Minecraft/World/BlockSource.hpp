@@ -15,6 +15,9 @@ enum class ShapeType {
 class BlockSource {
 public:
     CLASS_FIELD(uintptr_t**, mVfTable, 0x0);
+    CLASS_FIELD(ChunkSource*, mChunkSource, 0x28);
+    CLASS_FIELD(Dimension*, mDimension, 0x30);
+
     int16_t getBuildHeight() {
         return hat::member_at<int16_t>(this, OffsetProvider::BlockSource_mBuildHeight);
     }
