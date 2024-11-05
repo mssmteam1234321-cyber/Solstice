@@ -131,52 +131,10 @@ public:
     }
 
     std::string getEnchantName(Enchant enchant) const {
-        /*switch (enchant) {
-            case Enchant::PROTECTION: return "Protection";
-            case Enchant::FIRE_PROTECTION: return "Fire Protection";
-            case Enchant::FEATHER_FALLING: return "Feather Falling";
-            case Enchant::BLAST_PROTECTION: return "Blast Protection";
-            case Enchant::PROJECTILE_PROTECTION: return "Projectile Protection";
-            case Enchant::THORNS: return "Thorns";
-            case Enchant::RESPIRATION: return "Respiration";
-            case Enchant::DEPTH_STRIDER: return "Depth Strider";
-            case Enchant::AQUA_AFFINITY: return "Aqua Affinity";
-            case Enchant::SHARPNESS: return "Sharpness";
-            case Enchant::SMITE: return "Smite";
-            case Enchant::BANE_OF_ARTHROPODS: return "Bane of Arthropods";
-            case Enchant::KNOCKBACK: return "Knockback";
-            case Enchant::FIRE_ASPECT: return "Fire Aspect";
-            case Enchant::LOOTING: return "Looting";
-            case Enchant::EFFICIENCY: return "Efficiency";
-            case Enchant::SILK_TOUCH: return "Silk Touch";
-            case Enchant::UNBREAKING: return "Unbreaking";
-            case Enchant::FORTUNE: return "Fortune";
-            case Enchant::POWER: return "Power";
-            case Enchant::PUNCH: return "Punch";
-            case Enchant::FLAME: return "Flame";
-            case Enchant::BOW_INFINITY: return "Infinity";
-            case Enchant::LUCK_OF_THE_SEA: return "Luck of the Sea";
-            case Enchant::LURE: return "Lure";
-            case Enchant::FROST_WALKER: return "Frost Walker";
-            case Enchant::MENDING: return "Mending";
-            case Enchant::BINDING: return "Binding Curse";
-            case Enchant::VANISHING: return "Vanishing Curse";
-            case Enchant::IMPALING: return "Impaling";
-            case Enchant::RIPTIDE: return "Riptide";
-            case Enchant::LOYALTY: return "Loyalty";
-            case Enchant::CHANNELING: return "Channeling";
-            case Enchant::MULTISHOT: return "Multishot";
-            case Enchant::PIERCING: return "Piercing";
-            case Enchant::QUICK_CHARGE: return "Quick Charge";
-            case Enchant::SOUL_SPEED: return "Soul Speed";
-            case Enchant::SWIFT_SNEAK: return "Swift Sneak";
-            default: return "Unknown";
-        }*/
         std::string name = std::string(magic_enum::enum_name(enchant));
-        // Format each word to be capitalized (e.g. "SHARPNESS" -> "Sharpness") or (e.g. "FIRE_ASPECT" -> "Fire Aspect") using regex
-        std::regex reg("([a-z])([A-Z])");
-        name = std::regex_replace(name, reg, "$1 $2");
-        return StringUtils::replaceAll(name, "_", " ");
+        name = StringUtils::toLower(name);
+        name = StringUtils::replaceAll(name, "_", " ");
+        return name;
     }
 };
 
