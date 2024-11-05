@@ -93,8 +93,10 @@ public:
             &mClutchFallDistance,
             &mCluchPlaces,
             &mLockY,
-            &mSwing,
-            &mTest);
+#ifdef __PRIVATE_BUILD__
+            &mTest,
+#endif
+            &mSwing);
 
         VISIBILITY_CONDITION(mFlickMode, mRotateMode.mValue != RotateMode::None);
 
