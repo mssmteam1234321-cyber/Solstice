@@ -93,7 +93,9 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
     }
 
     // Anti Steal
+#ifdef __PRIVATE_BUILD__
     if ((mAntiSteal.mValue || antiStealerEnabled) && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
+#endif
 
     return true;
 }
@@ -298,6 +300,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
     mLastBrokenOrePos.clear();
     mLastBrokenCoveringBlockPos.clear();
 
+#ifdef __PRIVATE_BUILD__
     if (!mAntiSteal.mValue) {
         if (mEnableAntiSteal.mValue) {
             if (NOW < lastStealerDetected + 5000) {
@@ -307,6 +310,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             }
         } else if (!mEnableAntiSteal.mValue && antiStealerEnabled) antiStealerEnabled = false;
     }
+#endif
 
     if (mUncover.mValue) {
         if (mDynamicUncover.mValue && NOW < mLastUncoverDetected + (mDisableDuration.mValue * 1000)) {
@@ -1269,6 +1273,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 }
             }
 
+#ifdef __PRIVATE_BUILD__
             // Anti Steal
             glm::ivec3 pos = glm::ivec3(levelEvent->mPos);
             if (pos == mTargettingBlockPos && pos != mCurrentBlockPos && mIsMiningBlock && mIsUncovering) {
@@ -1278,6 +1283,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 }
                 mLastStealerDetected = NOW;
             }
+#endif
 
             // Ore Blocker
             if (mBlockOre.mValue) {
@@ -1290,12 +1296,13 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             if (mCanSteal && glm::ivec3(levelEvent->mPos) == mLastEnemyLayerBlockPos) {
                 mCanSteal = false;
             }
-
+#ifdef __PRIVATE_BUILD__
             if (glm::ivec3(levelEvent->mPos) == mBlackListedOrePos) {
                 if (mAntiSteal.mValue || antiStealerEnabled) {
                     mBlackListedOrePos = { INT_MAX, INT_MAX, INT_MAX };
                 }
             }
+#endif
         }
     }
     else if (event.mPacket->getId() == PacketID::UpdateBlock) {
