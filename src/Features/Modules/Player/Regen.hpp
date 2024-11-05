@@ -15,9 +15,7 @@ public:
     };
     enum class UncoverMode {
         Normal,
-#ifdef __PRIVATE_BUILD__
-        Fast
-#endif
+        Fast //please for the love of god COMPILE RELEASE BEFORE YOU FUCKING PUSH
     };
     enum class StealPriority {
         Mine,

@@ -52,8 +52,8 @@ void SigManager::initialize()
     }
 
 #ifndef __DEBUG__
-    auto mc = static_cast<uintptr_t>(hat::process::get_process_module());
-    auto mcSize = hat::process::get_module_data(hat::process::get_process_module()).size();
+    auto mc = hat::process::get_process_module().address();
+    auto mcSize = hat::process::get_process_module().get_module_data().size();
 
     // Terminate if we failed to find a signature
     for (const auto& sig : mSigs) {
