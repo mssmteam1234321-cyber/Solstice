@@ -33,6 +33,12 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
     gFeatureManager->mDispatcher->trigger(holda);
     if (holda->isCancelled()) return nullptr;
 
+    if (packet->getId() == PacketID::PlayerAuthInput)
+    {
+        auto authPacket = reinterpret_cast<PlayerAuthInputPacket*>(packet);
+        authPacket->mInteractRots = authPacket->mRot;
+    }
+
     return original(_this, packet);
 }
 

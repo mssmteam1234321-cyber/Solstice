@@ -356,8 +356,8 @@ public:
         inputString += "mMove: " + std::to_string(mMove.x) + ", " + std::to_string(mMove.y) + "\n";
         inputString += "mInteractRots: " + std::to_string(mInteractRots.x) + ", " + std::to_string(mInteractRots.y) + "\n";
         inputString += "mCameraOrientation: " + std::to_string(mCameraOrientation.x) + ", " + std::to_string(mCameraOrientation.y) + "\n";
-        inputString += "mInputData: (hidden)";
-        /*for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
+        inputString += "mInputData: ";
+        for (int i = 0; i < static_cast<int>(InputData::Input_Num); i++) {
             // Continue if this input data isn't valid
             if (i == 2 || i == 27 || i == 31 || i == 0x22 || i == 0x23 || i == 0x24) {
                 continue;
@@ -368,21 +368,18 @@ public:
             else if (hasInputData(static_cast<AuthInputAction>(1ULL << i))) {
                 inputString += ", " + std::string(magic_enum::enum_name(static_cast<InputData>(i)).data());
             }
-        }*/
+        }
         inputString += "\n";
-        /*inputString += "mInputMode: " + std::string(magic_enum::enum_name(mInputMode).data()) + "\n";
+        inputString += "mInputMode: " + std::string(magic_enum::enum_name(mInputMode).data()) + "\n";
         inputString += "mPlayMode: " + std::string(magic_enum::enum_name(mPlayMode).data()) + "\n";
-        inputString += "mNewInteractionModel: " + std::string(magic_enum::enum_name(mNewInteractionModel).data()) + "\n";*/
-        inputString += "mInputMode: " + std::to_string(static_cast<int>(mInputMode)) + "\n";
-        inputString += "mPlayMode: " + std::to_string(static_cast<int>(mPlayMode)) + "\n";
-        inputString += "mNewInteractionModel: " + std::to_string(static_cast<int>(mNewInteractionModel)) + "\n";
+        inputString += "mNewInteractionModel: " + std::string(magic_enum::enum_name(mNewInteractionModel).data()) + "\n";
         inputString += "mClientTick: " + std::to_string(mClientTick) + "\n";
         inputString += "mPlayerBlockActions: (hidden)";
-        /*for (auto& action : mPlayerBlockActions.mActions) {
+        for (auto& action : mPlayerBlockActions.mActions) {
             inputString += "\n\tmAction: " + std::string(magic_enum::enum_name(action.mAction).data());
             inputString += "\n\tmPos: " + std::to_string(action.mPos.x) + ", " + std::to_string(action.mPos.y) + ", " + std::to_string(action.mPos.z);
             inputString += "\n\tmFace: " + std::to_string(action.mFace);
-        }*/
+        }
 
 
 
