@@ -84,6 +84,28 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
+    if (mMode.mValue == Mode::TestingIdk)
+    {
+        // get the item value for the current item
+        auto item = player->getSupplies()->getContainer()->getItem(player->getSupplies()->mSelectedSlot);
+        if (item && item->mItem)
+        {
+            if (item->mItem)
+            {
+                int enchantVal = item->getEnchantValue(0);
+                spdlog::info("Enchant Value: {}", enchantVal);
+
+                auto enchants = item->gatherEnchants();
+                for (auto& [id, lvl] : enchants)
+                {
+                    spdlog::info("Enchant: {} Level: {}", std::string(magic_enum::enum_name(static_cast<Enchant>(id))), lvl);
+                }
+
+            }
+        }
+        return;
+    }
+
     /*
     auto mpp = MinecraftPackets::createPacket<MovePlayerPacket>();
     mpp->mPlayerID = player->getRuntimeID();

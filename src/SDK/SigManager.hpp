@@ -51,7 +51,7 @@ public:
     DEFINE_SIG(ContainerScreenController_tick, "E8 ? ? ? ? 48 8B ? ? ? ? ? 48 8D ? ? ? ? ? 41 B8 ? ? ? ? 8B F8", SigType::RefSig, 1);
     DEFINE_SIG(ContainerScreenController_handleAutoPlace, "E8 ? ? ? ? 66 ? ? ? ? ? ? ? 0F 8C", SigType::RefSig, 1);
     DEFINE_SIG(ComplexInventoryTransaction_vtable, "48 8D 05 ?? ?? ?? ?? 48 89 07 C7 47 08 03 00 00 00 48 8D 5F 10", SigType::RefSig, 3);
-    DEFINE_SIG(EnchantUtils_getEnchantLevel, "E8 ? ? ? ? 8B D8 4D 8B ? 49 8B", SigType::RefSig, 0);
+    DEFINE_SIG(EnchantUtils_getEnchantLevel, "E8 ? ? ? ? 8B D8 4D 8B ? 49 8B", SigType::RefSig, 1);
     DEFINE_SIG(GameMode_getDestroyRate, "48 89 ? ? ? 57 48 83 EC ? 48 8B ? 0F 29 ? ? ? 48 8B ? ? E8", SigType::Sig, 0);
     DEFINE_SIG(GameMode_baseUseItem, "E8 ? ? ? ? 84 C0 74 ? 48 8B ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 48 85", SigType::RefSig, 1);
     DEFINE_SIG(GuiData_displayClientMessage, "40 ? 53 56 57 41 ? 41 ? 48 8D ? ? ? ? ? ? 48 81 EC ? ? ? ? 48 8B ? ? ? ? ? 48 33 ? 48 89 ? ? ? ? ? 45 0F ? ? 49 8B", SigType::Sig, 0);

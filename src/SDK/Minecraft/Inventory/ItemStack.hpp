@@ -8,12 +8,15 @@
 #include <SDK/SigManager.hpp>
 #include <Utils/MemUtils.hpp>
 
+#include "CompoundTag.hpp"
+
+
 class ItemStackBase {
 public:
     uintptr_t** mVfTable;
     //WeakPtr<class Item> mItem;
     class Item** mItem;
-    void* mCompoundTag;
+    CompoundTag* mCompoundTag;
     class Block* mBlock;
     short mAuxValue;
     int8_t mCount;
@@ -84,10 +87,31 @@ public:
         return str;
     }
 
+    std::map<int, int> gatherEnchants()
+    {
+        if (!mCompoundTag) return {};
+
+        std::map<int, int> enchants;
+        for (auto& [first, second] : mCompoundTag->data) {
+            if (second.type != Tag::Type::List || first != "ench") continue;
+
+            for (const auto list = second.asListTag(); const auto& entry : list->val) {
+                if (entry->getId() != Tag::Type::Compound) continue;
+
+                const auto comp = reinterpret_cast<CompoundTag*>(entry);
+                int id = comp->get("id")->asShortTag()->val;
+                const int lvl = comp->get("lvl")->asShortTag()->val;
+                enchants[id] = lvl;
+            }
+        }
+
+        return enchants;
+    }
+
     int getEnchantValue(int id)
     {
-        static auto func = SigManager::EnchantUtils_getEnchantLevel;
-        return MemUtils::callFastcall<int, int, ItemStack*>(func, id, this);
+        auto enchants = gatherEnchants();
+        return enchants.contains(id) ? enchants[id] : 0;
     }
 
     int getEnchantValue(Enchant enchant)
