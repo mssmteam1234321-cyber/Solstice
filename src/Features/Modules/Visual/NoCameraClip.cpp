@@ -32,4 +32,5 @@ void NoCameraClip::onLookInputEvent(LookInputEvent& event)
     event.mFirstPersonCamera->mFov.z = 2499.0f;
     event.mThirdPersonCamera->mFov.z = 2499.0f;
     event.mThirdPersonFrontCamera->mFov.z = 2499.0f;
+    spdlog::info("NoCameraClip enabled");
 }
