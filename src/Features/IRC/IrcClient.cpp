@@ -326,6 +326,8 @@ bool IrcClient::connectToServer()
         logm("Failed to connect to server");
         return false;
     }
+
+    return success;
 }
 
 void IrcClient::onConnected()

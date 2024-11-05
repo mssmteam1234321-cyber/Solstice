@@ -592,7 +592,7 @@ if (mMode.mValue == Mode::Concepts)
         if (player->getLevel()->getPlayerMovementSettings())
         {
             auto settings = player->getLevel()->getPlayerMovementSettings();
-            std::string authority = std::string(magic_enum::enum_name(settings->AuthorityMode));
+            std::string authority = std::string(magic_enum::enum_name(settings->AuthorityMode)) + " (" + std::to_string(static_cast<int>(settings->AuthorityMode)) + ")";
             int rewindHistorySize = static_cast<int>(settings->mRewindHistorySize);
             bool serverAuthBlockBreaking = settings->ServerAuthBlockBreaking;
             ImGui::Text("Authority Movement: %s", authority.c_str());

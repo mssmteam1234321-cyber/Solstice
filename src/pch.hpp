@@ -34,7 +34,6 @@ enum struct EventPriorities {
 #include <glm/glm.hpp>
 #include "spdlog/logger.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/glm.hpp>
 #include <array>
 #include <libhat.hpp>
 

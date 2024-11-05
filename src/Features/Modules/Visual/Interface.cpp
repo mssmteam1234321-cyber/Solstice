@@ -40,6 +40,8 @@ float pLerpedHeadYaw;
 float pLerpedPitch;
 float pLerpedBodyYaw;
 
+bool usingPaip = false;
+
 void Interface::onEnable()
 {
 
@@ -60,6 +62,14 @@ void Interface::onModuleStateChange(ModuleStateChangeEvent& event)
 
 void Interface::onRenderEvent(RenderEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    static bool lastPlayerState = false;
+
+    if (player && !lastPlayerState)
+    {
+        usingPaip = false;
+    }
+
     static constexpr float LERP_SPEED = 20.f;
     float deltaTime = ImGui::GetIO().DeltaTime;
 
@@ -161,13 +171,15 @@ void Interface::onBaseTickEvent(BaseTickEvent& event)
 
 void Interface::onPacketOutEvent(PacketOutEvent& event)
 {
+    if (event.mPacket->getId() == PacketID::PlayerAuthInput) usingPaip = true;
+
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
     auto level = player->getLevel();
     if (!level) return;
     auto moveSettings = level->getPlayerMovementSettings();
     if (!moveSettings) return;
-    bool isServerAuthoritative = moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritative || moveSettings->AuthorityMode == ServerAuthMovementMode::ServerAuthoritativeWithRewind;
+    bool isServerAuthoritative = usingPaip;
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput && isServerAuthoritative)
     {

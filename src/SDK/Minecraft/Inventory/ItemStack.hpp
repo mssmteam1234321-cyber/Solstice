@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <regex>
 #include <SDK/OffsetProvider.hpp>
 #include <SDK/SigManager.hpp>
 #include <Utils/MemUtils.hpp>
@@ -130,7 +131,7 @@ public:
     }
 
     std::string getEnchantName(Enchant enchant) const {
-        switch (enchant) {
+        /*switch (enchant) {
             case Enchant::PROTECTION: return "Protection";
             case Enchant::FIRE_PROTECTION: return "Fire Protection";
             case Enchant::FEATHER_FALLING: return "Feather Falling";
@@ -170,7 +171,12 @@ public:
             case Enchant::SOUL_SPEED: return "Soul Speed";
             case Enchant::SWIFT_SNEAK: return "Swift Sneak";
             default: return "Unknown";
-        }
+        }*/
+        std::string name = std::string(magic_enum::enum_name(enchant));
+        // Format each word to be capitalized (e.g. "SHARPNESS" -> "Sharpness") or (e.g. "FIRE_ASPECT" -> "Fire Aspect") using regex
+        std::regex reg("([a-z])([A-Z])");
+        name = std::regex_replace(name, reg, "$1 $2");
+        return StringUtils::replaceAll(name, "_", " ");
     }
 };
 
