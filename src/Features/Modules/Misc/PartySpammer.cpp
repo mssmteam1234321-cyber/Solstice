@@ -8,6 +8,7 @@
 #include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -149,7 +150,7 @@ void PartySpammer::onBaseTickEvent(BaseTickEvent& event)
         int inviteCount = 0;
         for (auto& entry : *playerList | std::views::values)
         {
-            if (entry.mName.length() <= 17 && entry.mName != player->getRawName())
+            if (entry.mName.length() <= 17 && entry.mName != player->getRawName() && !gFriendManager->isFriend(entry.mName))
             {
                 names = names + " \"" + entry.mName + "\"";
                 inviteCount++;
