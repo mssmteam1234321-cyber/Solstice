@@ -42,6 +42,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AutoVote.hpp"
 #include "Misc/Anticheat.hpp"
+#include "Misc/Desync.hpp"
 #include "Misc/VoiceChat.hpp"
 
 #include "Movement/AirJump.hpp"
@@ -253,6 +254,7 @@ void ModuleManager::init()
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode
+    mModules.emplace_back(std::make_shared<Desync>());
     mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way

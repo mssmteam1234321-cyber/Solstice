@@ -374,5 +374,25 @@ public:
 
         return inputString;
     }
+
+    // = op (for copying)
+    PlayerAuthInputPacket& operator=(const PlayerAuthInputPacket& other) {
+        mRot = other.mRot;
+        mPos = other.mPos;
+        mYHeadRot = other.mYHeadRot;
+        mPosDelta = other.mPosDelta;
+        mAnalogMoveVector = other.mAnalogMoveVector;
+        mVehicleRotation = other.mVehicleRotation;
+        mMove = other.mMove;
+        mGazeDir = other.mGazeDir;
+        mInputData = other.mInputData;
+        mInputMode = other.mInputMode;
+        mPlayMode = other.mPlayMode;
+        mNewInteractionModel = other.mNewInteractionModel;
+        mClientTick = other.mClientTick;
+        mPlayerBlockActions = other.mPlayerBlockActions;
+        mPredictedVehicle = other.mPredictedVehicle;
+        return *this;
+    }
 };
 

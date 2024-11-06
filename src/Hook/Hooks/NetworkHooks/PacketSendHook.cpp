@@ -7,6 +7,9 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include "PacketSendHook.hpp"
 #include <Features/FeatureManager.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/World/Level.hpp>
+
 #include "Features/Events/ChatEvent.hpp"
 #include "Features/Events/PacketOutEvent.hpp"
 
@@ -33,10 +36,35 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
     gFeatureManager->mDispatcher->trigger(holda);
     if (holda->isCancelled()) return nullptr;
 
+    if (packet->getId() == PacketID::PlayerAuthInput) {
+        auto input = reinterpret_cast<PlayerAuthInputPacket*>(packet);
+        sendPacket(input);
+        return nullptr;
+    }
+
     return original(_this, packet);
 }
 
+void PacketSendHook::sendInputPacket(std::shared_ptr<PlayerAuthInputPacket> packet) {
+    sendPacket(packet.get());
+}
 
+void PacketSendHook::sendPacket(PlayerAuthInputPacket* packet) {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+
+    auto sender = ClientInstance::get()->getPacketSender();
+
+    if (mCurrentTick == 0 && packet->mClientTick > mCurrentTick) mCurrentTick = packet->mClientTick;
+    mCurrentTick++;
+
+    packet->mClientTick = mCurrentTick;
+    if (auto player = ClientInstance::get()->getLocalPlayer()) {
+        player->getLevel()->getLevelData()->mTick = mCurrentTick;
+    }
+
+    sender->sendToServer(packet);
+}
 
 void PacketSendHook::init() {
     mDetour = std::make_unique<Detour>("LoopbackPacketSender::send", reinterpret_cast<void*>(ClientInstance::get()->getPacketSender()->vtable[1]), &PacketSendHook::onPacketSend);
