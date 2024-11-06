@@ -124,7 +124,6 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
-#include "Visual/Freelook.hpp"
 #include "Visual/Glint.hpp"
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
@@ -194,12 +193,13 @@ void ModuleManager::init()
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
+    mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
     mModules.emplace_back(std::make_shared<EditionFaker>());
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
-    mModules.emplace_back(std::make_shared<AntiCheatDetector>()); useless, new ac already everywhere
+    mModules.emplace_back(std::make_shared<AntiCheatDetector>());
     mModules.emplace_back(std::make_shared<Friends>());
     mModules.emplace_back(std::make_shared<NoPacket>());
     mModules.emplace_back(std::make_shared<NoFilter>());
@@ -251,16 +251,12 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Glint>());
     mModules.emplace_back(std::make_shared<NoDebuff>());
     mModules.emplace_back(std::make_shared<JumpCircles>());
-    mModules.emplace_back(std::make_shared<Freelook>());
-
 
 #ifdef __PRIVATE_BUILD__
-    // TODO: Fix these modules so they can be enabled in release mode
-    //mModules.emplace_back(std::make_shared<HiveFly>()); // doesnt bypass
-    //mModules.emplace_back(std::make_shared<DebugFly>()); // doesnt bypass
-    mModules.emplace_back(std::make_shared<Desync>());
-    mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
-    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
+    // mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
+    // mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
+    mModules.emplace_back(std::make_shared<Desync>()); // needs troubleshooting
+    mModules.emplace_back(std::make_shared<SkinBlinker>());
     mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
 
     // TODO: Finish these modules
@@ -274,7 +270,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
-    mModules.emplace_back(std::make_shared<PacketLogger>()); // why would someone use it lol
+    mModules.emplace_back(std::make_shared<Freelook>());
 #endif
 
     // Determine if we should add UpdateForm
