@@ -24,6 +24,12 @@ public:
     }
 };
 
+class LevelData
+{
+public:
+    CLASS_FIELD(uint64_t, mTick, OffsetProvider::LevelData_mTick);
+};
+
 
 class Level {
 public:
@@ -34,4 +40,5 @@ public:
     class HitResult* getHitResult();
     class SyncedPlayerMovementSettings* getPlayerMovementSettings();
     std::vector<Actor*> getRuntimeActorList();
+    LevelData* getLevelData();
 };

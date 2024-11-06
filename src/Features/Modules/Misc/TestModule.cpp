@@ -590,6 +590,12 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("PlayerInventory", player->getSupplies());
         displayCopyableAddress("GameMode", player->getGameMode());
         displayCopyableAddress("Level", player->getLevel());
+        if (player->getLevel()->getLevelData())
+        {
+            auto levelData = player->getLevel()->getLevelData();
+            displayCopyableAddress("LevelData", levelData);
+            ImGui::Text("LevelData mTick: %d", levelData->mTick);
+        }
         if (player->getLevel()) displayCopyableAddress("SyncedPlayerMovementSettings", player->getLevel()->getPlayerMovementSettings());
         if (player->getLevel()->getPlayerMovementSettings())
         {
