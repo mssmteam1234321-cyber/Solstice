@@ -33,3 +33,9 @@ std::vector<Actor*> Level::getRuntimeActorList()
     MemUtils::callFastcall<void>(func, this, &actors);
     return actors;
 }
+
+LevelData* Level::getLevelData()
+{
+    static auto vIndex = OffsetProvider::Level_getLevelData;
+    return MemUtils::callVirtualFunc<LevelData*>(vIndex, this);
+}
