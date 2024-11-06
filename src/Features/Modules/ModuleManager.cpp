@@ -199,7 +199,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<KickSounds>());
     mModules.emplace_back(std::make_shared<AutoQueue>());
     mModules.emplace_back(std::make_shared<AntiBot>());
-    //mModules.emplace_back(std::make_shared<AntiCheatDetector>()); useless, new ac already everywhere
+    mModules.emplace_back(std::make_shared<AntiCheatDetector>()); useless, new ac already everywhere
     mModules.emplace_back(std::make_shared<Friends>());
     mModules.emplace_back(std::make_shared<NoPacket>());
     mModules.emplace_back(std::make_shared<NoFilter>());
@@ -268,7 +268,9 @@ void ModuleManager::init()
 
     // Development only
 #ifdef __DEBUG__
-    //mModules.emplace_back(std::make_shared<ItemPhysics>());
+    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
+
+    mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
