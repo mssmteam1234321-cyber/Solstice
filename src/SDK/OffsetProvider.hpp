@@ -17,7 +17,7 @@ static void name##_initializer() { \
     static bool initialized = false; \
     if (initialized) return; \
     initialized = true; \
-    auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
+    auto result = scanSig(hat::compile_signature<str>(), xorstr_(#name), index_offset); \
     if (!result.has_result()) return; \
     if ((offset_type) == OffsetType::Index) name = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset) / 8; \
     else (name) = *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(result.get()) + index_offset); \
@@ -35,7 +35,7 @@ static void name##_initializer() { \
     static bool initialized = false; \
     if (initialized) return; \
     initialized = true; \
-    auto result = scanSig(hat::compile_signature<str>(), #name, index_offset); \
+    auto result = scanSig(hat::compile_signature<str>(), xorstr_(#name), index_offset); \
     if (!result.has_result()) return; \
     if ((offset_type) == OffsetType::Index) (name) = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + (index_offset)) / 8; \
     else (name) = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(result.get()) + (index_offset)); \

@@ -396,12 +396,15 @@ public:
         mAnalogMoveVector = other.mAnalogMoveVector;
         mVehicleRotation = other.mVehicleRotation;
         mMove = other.mMove;
-        mGazeDir = other.mGazeDir;
+        mInteractRots = other.mInteractRots;
+        mCameraOrientation = other.mCameraOrientation;
         mInputData = other.mInputData;
         mInputMode = other.mInputMode;
         mPlayMode = other.mPlayMode;
         mNewInteractionModel = other.mNewInteractionModel;
         mClientTick = other.mClientTick;
+        /*mItemUseTransaction = std::make_unique<PackedItemUseLegacyInventoryTransaction>(*other.mItemUseTransaction);
+        mItemStackRequest = std::make_unique<ItemStackRequestData>(*other.mItemStackRequest);*/
         mPlayerBlockActions = other.mPlayerBlockActions;
         mPredictedVehicle = other.mPredictedVehicle;
         return *this;

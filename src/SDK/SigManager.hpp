@@ -19,7 +19,7 @@ public: \
 static inline uintptr_t name; \
 private: \
 static void name##_initializer() { \
-    auto result = scanSig(hat::compile_signature<str>(), #name, offset); \
+    auto result = scanSig(hat::compile_signature<str>(), xorstr_(#name), offset); \
     if (!result.has_result()) { \
         name = 0; \
         return; \
