@@ -254,11 +254,10 @@ void ModuleManager::init()
 
 #ifdef __PRIVATE_BUILD__
     // TODO: Fix these modules so they can be enabled in release mode
-    mModules.emplace_back(std::make_shared<Desync>());
+    mModules.emplace_back(std::make_shared<Desync>()); // needs troubleshooting
+    mModules.emplace_back(std::make_shared<SkinBlinker>());
     mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
     mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
-    mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
-    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
     mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
 
     // TODO: Finish these modules
@@ -266,6 +265,8 @@ void ModuleManager::init()
 
     // Development only
 #ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
+
     mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
