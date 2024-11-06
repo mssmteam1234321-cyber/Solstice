@@ -646,7 +646,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 #endif
 
 
-    if (ImGui::Button("Clear chunk storage"))
+    /*if (ImGui::Button("Clear chunk storage"))
     {
         auto blockSource = ClientInstance::get()->getBlockSource();
         auto chunkSource = blockSource->mChunkSource;
@@ -658,7 +658,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
             }
         }
-    }
+    }*/
 
 
 }

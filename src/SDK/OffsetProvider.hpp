@@ -102,7 +102,7 @@ public:
     DEFINE_INDEX_FIELD(Level_getPlayerList, "48 8B 80 ? ? ? ? FF 15 ? ? ? ? 8B 48 ? 39 8E ? ? ? ? 0F 84", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Level_getPlayerMovementSettings, "48 8B 80 ? ? ? ? FF 15 ? ? ? ? 49 8B 7E ? 80 78", 3, OffsetType::Index);
     DEFINE_INDEX_FIELD(Level_getLevelData, "48 8B ? ? ? ? ? FF 15 ? ? ? ? 0F 10 ? ? ? ? ? 0F 11 ? ? 8B 88", 3, OffsetType::Index); // Also works on .40
-    DEFINE_INDEX_FIELD(LevelData_mTick, "48 8B ? ? ? ? ? 48 8B ? ? ? ? ? ? E8 ? ? ? ? 8B 50", 3, OffsetType::FieldOffset);
+    DEFINE_INDEX_FIELD(LevelData_mTick, "48 8B ? ? ? ? ? 4C 8B ? ? ? ? ? E8 ? ? ? ? 44 8B", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD(Actor_mDestroying, "44 38 ? ? ? ? ? 74 ? 48 8B ? ? ? ? ? 48 8B ? 48 8B ? ? ? ? ? FF 15 ? ? ? ? 44 39", 3, OffsetType::FieldOffset);
     DEFINE_INDEX_FIELD_TYPED(uint8_t, UIProfanityContext_mEnabled, "80 79 ? ? 74 ? 80 79 ? ? 74 ? 45 ? ? 75 ? 4C 8D", 2, OffsetType::FieldOffset);
     //DEFINE_INDEX_FIELD(Bone_mPartModel, "8B 81 ? ? ? ? 89 82 ? ? ? ? F3 0F ? ? ? ? ? ? 0F 57", 2, OffsetType::FieldOffset); // this isn't even correct lmao
@@ -134,6 +134,9 @@ public:
     DEFINE_FIELD(ClientInstance_mFovY, 0x73C);
     DEFINE_FIELD(Block_mRuntimeId, 0xC0);
     DEFINE_FIELD(Block_mLegacy, 0x30);
+    DEFINE_FIELD(ClientInstance_getScreenName, 266); // i will make sig for it later (maybe)
+    DEFINE_FIELD(ClientInstance_mGuiData, 0x590); // i will make sig for it later (maybe)
+
 
     static void initialize();
     static void deinitialize();

@@ -29,9 +29,14 @@ void RobloxCamera::onBaseTickInitEvent(BaseTickInitEvent& event)
 {
     if (!TRY_CALL([&](BaseTickInitEvent& event) {
         auto actor = event.mActor;
-        actor->getFlag<RenderCameraComponent>();
+        TRY_CALL(actor->getFlag<RenderCameraComponent>);
+        TRY_CALL(actor->getFlag<OnGroundFlagComponent>);
+        TRY_CALL(actor->getFlag<WasOnGroundFlagComponent>);
+        TRY_CALL(actor->getFlag<RenderCameraComponent>);
+        TRY_CALL(actor->getFlag<GameCameraComponent>);
+        TRY_CALL(actor->getFlag<OnFireComponent>);
+        TRY_CALL(actor->getFlag<MoveRequestComponent>);
         actor->getFlag<CameraRenderPlayerModelComponent>();
-        //actor->getFlag<CameraRenderFirstPersonObjectsComponent>();
         spdlog::info("[RobloxCamera] Initialized required components :3");
         mHasComponents = true;
     }, event))
