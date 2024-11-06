@@ -8,7 +8,9 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <SDK/Minecraft/Actor/GameMode.hpp>
 #include <SDK/Minecraft/Network/PacketID.hpp>
+#include <SDK/Minecraft/World/BlockLegacy.hpp>
 
 void ChestAura::onEnable() {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &ChestAura::onBaseTickEvent>(this);

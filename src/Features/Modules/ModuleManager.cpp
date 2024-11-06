@@ -42,6 +42,7 @@
 #include "Misc/ToggleSounds.hpp"
 #include "Misc/AutoVote.hpp"
 #include "Misc/Anticheat.hpp"
+#include "Misc/Desync.hpp"
 #include "Misc/VoiceChat.hpp"
 
 #include "Movement/AirJump.hpp"
@@ -257,6 +258,7 @@ void ModuleManager::init()
     // TODO: Fix these modules so they can be enabled in release mode
     //mModules.emplace_back(std::make_shared<HiveFly>()); // doesnt bypass
     //mModules.emplace_back(std::make_shared<DebugFly>()); // doesnt bypass
+    mModules.emplace_back(std::make_shared<Desync>());
     mModules.emplace_back(std::make_shared<SkinBlinker>()); // Gotta figure out the packets since it won't work this way
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
     mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
