@@ -117,86 +117,155 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
 #endif
 
 #ifdef __PRIVATE_BUILD__
-    if (mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::MoveFix) {
-        if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
+    if (mMode.mValue == Mode::Flareon) {
+        if (mDisablerType.mValue == DisablerType::MoveFix) {
+            if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
 
-        // I hate math so much
+            // I hate math so much
 
-        auto pkt = event.getPacket<PlayerAuthInputPacket>();
-        glm::vec2 moveVec = pkt->mMove;
-        glm::vec2 xzVel = { pkt->mPosDelta.x, pkt->mPosDelta.z };
-        float yaw = pkt->mRot.y;
-        yaw = -yaw;
+            auto pkt = event.getPacket<PlayerAuthInputPacket>();
+            glm::vec2 moveVec = pkt->mMove;
+            glm::vec2 xzVel = { pkt->mPosDelta.x, pkt->mPosDelta.z };
+            float yaw = pkt->mRot.y;
+            yaw = -yaw;
 
-        if (moveVec.x == 0 && moveVec.y == 0 && xzVel.x == 0 && xzVel.y == 0) return;
+            if (moveVec.x == 0 && moveVec.y == 0 && xzVel.x == 0 && xzVel.y == 0) return;
 
-        float moveVecYaw = atan2(moveVec.x, moveVec.y);
-        moveVecYaw = glm::degrees(moveVecYaw);
+            float moveVecYaw = atan2(moveVec.x, moveVec.y);
+            moveVecYaw = glm::degrees(moveVecYaw);
 
-        float movementYaw = atan2(xzVel.x, xzVel.y);
-        float movementYawDegrees = movementYaw * (180.0f / M_PI);
+            float movementYaw = atan2(xzVel.x, xzVel.y);
+            float movementYawDegrees = movementYaw * (180.0f / M_PI);
 
-        float yawDiff = movementYawDegrees - yaw;
+            float yawDiff = movementYawDegrees - yaw;
 
-        float newMoveVecX = sin(glm::radians(yawDiff));
-        float newMoveVecY = cos(glm::radians(yawDiff));
-        glm::vec2 newMoveVec = { newMoveVecX, newMoveVecY };
+            float newMoveVecX = sin(glm::radians(yawDiff));
+            float newMoveVecY = cos(glm::radians(yawDiff));
+            glm::vec2 newMoveVec = { newMoveVecX, newMoveVecY };
 
-        if (abs(newMoveVec.x) < 0.001) newMoveVec.x = 0;
-        if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
-        if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
+            if (abs(newMoveVec.x) < 0.001) newMoveVec.x = 0;
+            if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
+            if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
 
-        // Remove all old flags
-        pkt->mInputData &= ~AuthInputAction::UP;
-        pkt->mInputData &= ~AuthInputAction::DOWN;
-        pkt->mInputData &= ~AuthInputAction::LEFT;
-        pkt->mInputData &= ~AuthInputAction::RIGHT;
-        pkt->mInputData &= ~AuthInputAction::UP_RIGHT;
-        pkt->mInputData &= ~AuthInputAction::UP_LEFT;
+            // Remove all old flags
+            pkt->mInputData &= ~AuthInputAction::UP;
+            pkt->mInputData &= ~AuthInputAction::DOWN;
+            pkt->mInputData &= ~AuthInputAction::LEFT;
+            pkt->mInputData &= ~AuthInputAction::RIGHT;
+            pkt->mInputData &= ~AuthInputAction::UP_RIGHT;
+            pkt->mInputData &= ~AuthInputAction::UP_LEFT;
 
-        pkt->mMove = newMoveVec;
-        pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
-        pkt->mInputMode = InputMode::MotionController;
+            pkt->mMove = newMoveVec;
+            pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
+            pkt->mInputMode = InputMode::MotionController;
 
-        // Get the move direction
-        bool forward = newMoveVec.y > 0;
-        bool backward = newMoveVec.y < 0;
-        bool left = newMoveVec.x < 0;
-        bool right = newMoveVec.x > 0;
+            // Get the move direction
+            bool forward = newMoveVec.y > 0;
+            bool backward = newMoveVec.y < 0;
+            bool left = newMoveVec.x < 0;
+            bool right = newMoveVec.x > 0;
 
-        static bool isSprinting = false;
-        bool startedThisTick = false;
-        // if the flags contain isSprinting, set the flag
-        if (pkt->hasInputData(AuthInputAction::START_SPRINTING)) {
-            isSprinting = true;
-            startedThisTick = true;
-        } else if (pkt->hasInputData(AuthInputAction::STOP_SPRINTING)) {
-            isSprinting = false;
-        }
-
-        spdlog::info("Forward: {}, Backward: {}, Left: {}, Right: {}", forward ? "true" : "false", backward ? "true" : "false", left ? "true" : "false", right ? "true" : "false");
-
-        if (!forward)
-        {
-            // Remove all sprint flags
-            pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
-            if (isSprinting && !startedThisTick) {
-                pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
-                spdlog::info("Stopping sprint");
+            static bool isSprinting = false;
+            bool startedThisTick = false;
+            // if the flags contain isSprinting, set the flag
+            if (pkt->hasInputData(AuthInputAction::START_SPRINTING)) {
+                isSprinting = true;
+                startedThisTick = true;
+            }
+            else if (pkt->hasInputData(AuthInputAction::STOP_SPRINTING)) {
+                isSprinting = false;
             }
 
-            spdlog::info("Not moving forward");
+            spdlog::info("Forward: {}, Backward: {}, Left: {}, Right: {}", forward ? "true" : "false", backward ? "true" : "false", left ? "true" : "false", right ? "true" : "false");
 
-            pkt->mInputData &= ~AuthInputAction::SPRINTING;
-            pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+            if (!forward)
+            {
+                // Remove all sprint flags
+                pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
+                if (isSprinting && !startedThisTick) {
+                    pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
+                    spdlog::info("Stopping sprint");
+                }
 
-            spdlog::info("Removed sprinting and sneaking flags");
+                spdlog::info("Not moving forward");
 
-            // Stop the player from sprinting
-            player->getMoveInputComponent()->setmIsSprinting(false);
+                pkt->mInputData &= ~AuthInputAction::SPRINTING;
+                pkt->mInputData &= ~AuthInputAction::START_SNEAKING;
+
+                spdlog::info("Removed sprinting and sneaking flags");
+
+                // Stop the player from sprinting
+                player->getMoveInputComponent()->setmIsSprinting(false);
+            }
+            //ChatUtils::displayClientMessage("Move: " + to_string(pkt->mMove.x) + " | " + to_string(pkt->mMove.y));
+            return;
         }
+        else if (mDisablerType.mValue == DisablerType::MoveFixV2) {
+            if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
 
-        return;
+            // I hate math so much
+
+            auto pkt = event.getPacket<PlayerAuthInputPacket>();
+            glm::vec2 moveVec = pkt->mMove;
+            glm::vec2 xzVel = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, 1);
+            float yaw = pkt->mRot.y;
+            yaw = -yaw;
+
+            if (moveVec.x == 0 && moveVec.y == 0 && xzVel.x == 0 && xzVel.y == 0) return;
+
+            float moveVecYaw = atan2(moveVec.x, moveVec.y);
+            moveVecYaw = glm::degrees(moveVecYaw);
+
+            float movementYaw = atan2(xzVel.x, xzVel.y);
+            float movementYawDegrees = movementYaw * (180.0f / M_PI);
+
+            float yawDiff = (roundf(movementYawDegrees / 45.f) * 45) - (roundf(yaw / 45.f) * 45);
+
+            float newMoveVecX = sin(glm::radians(yawDiff));
+            float newMoveVecY = cos(glm::radians(yawDiff));
+            glm::vec2 newMoveVec = { newMoveVecX, newMoveVecY };
+
+            if (abs(newMoveVec.x) < 0.001) newMoveVec.x = 0;
+            if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
+            if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
+
+            // Remove all old flags
+            pkt->mInputData &= ~AuthInputAction::UP;
+            pkt->mInputData &= ~AuthInputAction::DOWN;
+            pkt->mInputData &= ~AuthInputAction::LEFT;
+            pkt->mInputData &= ~AuthInputAction::RIGHT;
+
+            bool forward = newMoveVec.y > 0;
+            bool backward = newMoveVec.y < 0;
+            bool left = newMoveVec.x > 0;
+            bool right = newMoveVec.x < 0;
+            if (!forward && (backward || left || right)) {
+                static bool sprint = false;
+                if (sprint) {
+                    pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
+                    pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
+                }
+                else {
+                    pkt->mInputData |= AuthInputAction::STOP_SPRINTING;
+                    pkt->mInputData &= ~AuthInputAction::SPRINT_DOWN;
+                    pkt->mInputData &= ~AuthInputAction::SPRINTING;
+                    pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
+                }
+                sprint = !sprint;
+            }
+            if (forward) pkt->mInputData |= AuthInputAction::UP;
+            if (backward) pkt->mInputData |= AuthInputAction::DOWN;
+            if (left) pkt->mInputData |= AuthInputAction::LEFT;
+            if (right) pkt->mInputData |= AuthInputAction::RIGHT;
+
+            pkt->mMove = newMoveVec;
+            pkt->mVehicleRotation = newMoveVec; // ???? wtf mojang
+
+            spdlog::info("Forward: {}, Backward: {}, Left: {}, Right: {}", forward ? "true" : "false", backward ? "true" : "false", left ? "true" : "false", right ? "true" : "false");
+
+            //ChatUtils::displayClientMessage("Move: " + to_string(pkt->mMove.x) + " | " + to_string(pkt->mMove.y));
+            return;
+        }
     }
 #endif
     if (mMode.mValue == Mode::Sentinel) {
