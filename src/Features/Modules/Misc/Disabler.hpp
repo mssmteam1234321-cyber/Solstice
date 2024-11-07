@@ -17,7 +17,8 @@ public:
         PingSpoof,
         PingHolder,
 #ifdef __PRIVATE_BUILD__
-        MoveFix
+        MoveFix,
+        MoveFixV2
 #endif
     };
 
@@ -28,7 +29,7 @@ public:
         "Custom");
     EnumSettingT<DisablerType> mDisablerType = EnumSettingT<DisablerType>("Disabler Type", "The type of disabler to use.", DisablerType::PingSpoof, "Ping Spoof", "Ping Holder"
 #ifdef __PRIVATE_BUILD__
-        ,"Move Fix"
+        ,"Move Fix", "Move Fix V2"
 #endif
         );
     BoolSetting mRandomizeDelay = BoolSetting("Randomize Delay", "Whether or not to randomize the delay", true);

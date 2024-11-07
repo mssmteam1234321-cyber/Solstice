@@ -92,6 +92,7 @@
 #include "Player/ClickTp.hpp"
 #include "Player/ChestAura.hpp"
 #include "Player/NoRotate.hpp"
+#include "Player/RegenRecode.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -173,6 +174,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
     mModules.emplace_back(std::make_shared<Regen>());
+/*#ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<RegenRecode>());
+#endif*/
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<Nuker>());
     mModules.emplace_back(std::make_shared<OreMiner>());
