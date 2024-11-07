@@ -174,9 +174,9 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ChestStealer>());
     mModules.emplace_back(std::make_shared<InvManager>());
     mModules.emplace_back(std::make_shared<Regen>());
-#ifdef __DEBUG__
+/*#ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<RegenRecode>());
-#endif
+#endif*/
     mModules.emplace_back(std::make_shared<Scaffold>());
     mModules.emplace_back(std::make_shared<Nuker>());
     mModules.emplace_back(std::make_shared<OreMiner>());
