@@ -54,6 +54,11 @@ class UpdatePlayerFromCameraComponent
     PAD(0x4);
 };
 
+struct CameraAvoidanceComponent
+{
+    PAD(0x4);
+};
+
 struct CameraBobComponent
 {
     PAD(0x4);

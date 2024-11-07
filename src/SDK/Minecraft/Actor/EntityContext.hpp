@@ -228,6 +228,15 @@ struct EntityContext {
         return assure(mRegistry, entt::type_hash<component_t>::value());
     }
 
+    template<typename component_t>
+    auto* assure2(entt::basic_registry<EntityId>* registry)
+    {
+        using assure_t = entt::basic_storage<component_t, EntityId>* (__fastcall *)(entt::basic_registry<EntityId>*, uint32_t);
+        static auto assureFunc = reinterpret_cast<assure_t>(resolveAssure<component_t>());
+
+        return assureFunc(registry, entt::type_hash<component_t>::value());
+    }
+
     template<typename... type_t>
     [[nodiscard]] auto try_get() {
         if constexpr(sizeof...(type_t) == 1u) {

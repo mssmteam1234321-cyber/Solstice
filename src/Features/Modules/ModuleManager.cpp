@@ -125,6 +125,7 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
+#include "Visual/Freelook.hpp"
 #include "Visual/Glint.hpp"
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
@@ -270,7 +271,7 @@ void ModuleManager::init()
 #ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
 
-    mModules.emplace_back(std::make_shared<ItemPhysics>());
+    //mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
