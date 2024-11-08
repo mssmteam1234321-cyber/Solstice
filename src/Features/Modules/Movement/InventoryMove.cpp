@@ -89,6 +89,7 @@ void InventoryMove::onRenderEvent(RenderEvent& event)
 {
     if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput) return;
     auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
     auto input = player->getMoveInputComponent();
     auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
