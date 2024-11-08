@@ -202,9 +202,7 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
         }
         else if (mDisablerType.mValue == DisablerType::MoveFixV2) {
             if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;
-
-            // I hate math so much
-
+            
             auto pkt = event.getPacket<PlayerAuthInputPacket>();
             glm::vec2 moveVec = pkt->mMove;
             glm::vec2 xzVel = MathUtils::getMotion(player->getActorRotationComponent()->mYaw, 1);
@@ -229,6 +227,17 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
             if (abs(newMoveVec.y) < 0.001) newMoveVec.y = 0;
             if (moveVec.x == 0 && moveVec.y == 0) newMoveVec = { 0, 0 };
 
+            static bool isSprinting = false;
+            bool startedThisTick = false;
+            // if the flags contain isSprinting, set the flag
+            if (pkt->hasInputData(AuthInputAction::START_SPRINTING)) {
+                isSprinting = true;
+                startedThisTick = true;
+            }
+            else if (pkt->hasInputData(AuthInputAction::STOP_SPRINTING)) {
+                isSprinting = false;
+            }
+
             // Remove all old flags
             pkt->mInputData &= ~AuthInputAction::UP;
             pkt->mInputData &= ~AuthInputAction::DOWN;
@@ -239,8 +248,9 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
             bool backward = newMoveVec.y < 0;
             bool left = newMoveVec.x > 0;
             bool right = newMoveVec.x < 0;
-            if (!forward && (backward || left || right)) {
+            if (!forward && (backward || left || right) && isSprinting) {
                 static bool sprint = false;
+                if (!player->isOnGround() && !player->wasOnGround()) sprint = false;
                 if (sprint) {
                     pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
                     pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
@@ -252,6 +262,10 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
                     pkt->mInputData &= ~AuthInputAction::START_SPRINTING;
                 }
                 sprint = !sprint;
+            }
+            else if (forward && isSprinting) {
+                pkt->mInputData |= AuthInputAction::SPRINT_DOWN | AuthInputAction::SPRINTING | AuthInputAction::START_SPRINTING;
+                pkt->mInputData &= ~AuthInputAction::STOP_SPRINTING;
             }
             if (forward) pkt->mInputData |= AuthInputAction::UP;
             if (backward) pkt->mInputData |= AuthInputAction::DOWN;
