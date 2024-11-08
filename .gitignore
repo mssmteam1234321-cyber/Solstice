@@ -13,6 +13,7 @@ CMakeUserPresets.json
 /.vs/
 /cmake-build-debug/
 /cmake-build-release/
+/cmake-build-private/
 /cmake-build-release-private/
 /out/
 CMakeSettings.json
