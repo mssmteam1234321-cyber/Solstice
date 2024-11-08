@@ -62,9 +62,11 @@ void ReverseStep::onBaseTickEvent(BaseTickEvent& event) {
     if(mVoidCheck.mValue && isVoid()) return;
     if(mDontUseIfSpeed.mValue && speed->mEnabled) return;
     if(mDontUseIfLongJump.mValue && longJump->mEnabled) return;
-    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround() || mJumped) return; // basicly u can be offground only after jumping bc 50 speed enough to fall instantly when max fall distance is 0-30 blocks
+    if(Keyboard::isUsingMoveKeys(true) && player->getMoveInputComponent()->mIsJumping || !player->wasOnGround() || mJumped)return;
 
-    player->getStateVectorComponent()->mVelocity.y -= 50;
+
+    if (!player->isOnGround())
+        player->getStateVectorComponent()->mVelocity.y -= 50;
 }
 
 void ReverseStep::onPacketOutEvent(PacketOutEvent& event)
