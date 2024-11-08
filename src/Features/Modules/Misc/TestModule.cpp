@@ -553,6 +553,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         ImGui::Text("Left: %s", isLeft ? "true" : "false");
         ImGui::Text("Right: %s", isRight ? "true" : "false");
 
+        ImGui::Text("FallDistance: %f", player->getFallDistance());
+
         int item = player->getSupplies()->mSelectedSlot;
         ImGui::Text("SelectedSlot: %d", item);
         ItemStack* stack = player->getSupplies()->getContainer()->getItem(item);
@@ -620,6 +622,10 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());;
         displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
         ImGui::EndGroup();
+    } else
+    {
+        ImGui::Text("LocalPlayer is null");
+        gDaBlock = nullptr;
     }
 
     displayCopyableAddress("Options", ci->getOptions());

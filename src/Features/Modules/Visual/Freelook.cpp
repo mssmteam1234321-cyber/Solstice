@@ -26,7 +26,7 @@ void Freelook::onEnable()
     // gather all of the Entity IDS that have the UpdatePlayerFromCameraComponent
     std::set<EntityId> cameras;
 
-    for (std::tuple<EntityId, UpdatePlayerFromCameraComponent&> entt : storage->each())
+    for (std::tuple<EntityId> entt : storage->each())
     {
         // Get the entity id
         EntityId id = std::get<0>(entt);

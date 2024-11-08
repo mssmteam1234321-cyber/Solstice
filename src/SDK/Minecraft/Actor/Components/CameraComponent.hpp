@@ -51,7 +51,6 @@ public:
 
 class UpdatePlayerFromCameraComponent
 {
-    PAD(0x4);
 };
 
 struct CameraAvoidanceComponent
