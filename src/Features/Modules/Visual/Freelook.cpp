@@ -6,6 +6,8 @@
 
 #include <SDK/Minecraft/Actor/Components/CameraComponent.hpp>
 
+// TODO: Figure out why emplace
+
 void Freelook::onEnable()
 {
     auto player = ClientInstance::get()->getLocalPlayer();
