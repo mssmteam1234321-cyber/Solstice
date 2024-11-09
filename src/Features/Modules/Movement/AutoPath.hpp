@@ -19,8 +19,10 @@ public:
     static std::vector<BlockPos> sideAdj;
     static std::vector<BlockPos> directAdj;
     static std::vector<BlockPos> diagAdd;
-    static float heuristicEstimation(const glm::ivec3& node, const glm::ivec3& target);
-    static bool isCompletelyObstructed(const glm::ivec3& pos);
+    static float heuristicEstimation(const BlockPos& node, const BlockPos& target);
+    static bool isCompletelyObstructed(const BlockPos& pos);
+    static std::vector<std::pair<BlockPos, float>> getAirAdjacentNodes(const BlockPos& node, const BlockPos& start, BlockPos& goal);
+    static std::vector<glm::vec3> findFlightPath(BlockPos start, BlockPos goal, BlockSource* src, float howClose, bool optimizePath);
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
