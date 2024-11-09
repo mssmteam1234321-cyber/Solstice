@@ -8,7 +8,6 @@
 
 class Reach : public ModuleBase<Reach> {
 public:
-
     NumberSetting mCombatReach = NumberSetting("Combat Reach Range", "The attack range.", 3.0f, 3.f, 7.0f, 0.01f);
     NumberSetting mBlockReach = NumberSetting("Block Reach Range", "The placing/destroying range.", 5.7f, 5.7f, 12.0f, 0.01f);
 

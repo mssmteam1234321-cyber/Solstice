@@ -11,6 +11,7 @@
 #include "Combat/Reach.hpp"
 #include "Combat/TriggerBot.hpp"
 #include "Combat/Criticals.hpp"
+#include "Combat/InfiniteAura.hpp"
 
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
@@ -144,6 +145,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoClicker>());
     mModules.emplace_back(std::make_shared<Reach>());
     mModules.emplace_back(std::make_shared<Criticals>());
+    mModules.emplace_back(std::make_shared<InfiniteAura>());
+
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
