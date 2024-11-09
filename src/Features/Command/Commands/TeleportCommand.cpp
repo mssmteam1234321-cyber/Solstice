@@ -126,6 +126,5 @@ std::string TeleportCommand::getDescription() const
 
 std::string TeleportCommand::getUsage() const
 {
-
     return "Usage: teleport <player> OR teleport <x> <y> <z> (Also supports ~ and ^ operators)";
 }

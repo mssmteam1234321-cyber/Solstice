@@ -49,6 +49,7 @@ public:
     uint64_t mLastAttack = 0;
     glm::vec3 mLastPos;
     std::vector<glm::vec3> mPacketPositions;
+    uint64_t mLastPathTime = 0;
     std::mutex mMutex;
 
     void onEnable() override;
