@@ -67,6 +67,7 @@
 #include "Movement/TargetStrafe.hpp"
 #include "Movement/Velocity.hpp"
 #include "Movement/AirSpeed.hpp"
+#include "Movement/AutoPath.hpp"
 #include "Movement/ReverseStep.hpp"
 #include "Movement/Jetpack.hpp"
 #include "Movement/DamageBoost.hpp"
@@ -272,6 +273,8 @@ void ModuleManager::init()
 
     // Development only
 #ifdef __DEBUG__
+    mModules.emplace_back(std::make_shared<AutoPath>());
+
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
 
     //mModules.emplace_back(std::make_shared<ItemPhysics>());

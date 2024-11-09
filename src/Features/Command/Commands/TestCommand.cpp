@@ -40,6 +40,17 @@ void TestCommand::execute(const std::vector<std::string>& args)
         return;
     }
 
+    if (arg == "bruh")
+    {
+        BlockPos a = { 1, 2, 3 };
+        BlockPos b = { 4, 5, 6 };
+        glm::ivec3 c = b - a;
+        glm::ivec3 expected = { 3, 3, 3 };
+        ChatUtils::displayClientMessage("Subtraction result: " + std::to_string(c.x) + ", " + std::to_string(c.y) + ", " + std::to_string(c.z));
+        ChatUtils::displayClientMessage("Expected result: " + std::to_string(expected.x) + ", " + std::to_string(expected.y) + ", " + std::to_string(expected.z));
+        return;
+    }
+
     if (arg == "fallback")
     {
         D3DHook::forceFallback = true;

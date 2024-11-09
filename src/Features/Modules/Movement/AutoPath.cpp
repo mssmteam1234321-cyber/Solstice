@@ -64,7 +64,8 @@ static glm::vec3* getPlayerHitboxPathPosOffsets() {
 }
 
 __forceinline float AutoPath::heuristicEstimation(const BlockPos& node, const BlockPos& target) {
-    const auto diff = node - target;
+    glm::ivec3 diff = node - target;
+    spdlog::debug("Diff: {}/{}/{} node: {}/{}/{}, target: {}/{}/{}", diff.x, diff.y, diff.z, node.x, node.y, node.z, target.x, target.y, target.z);
     const int x = abs(diff.x);
     const int z = abs(diff.z);
     float straight;
@@ -80,6 +81,7 @@ __forceinline float AutoPath::heuristicEstimation(const BlockPos& node, const Bl
     }
 
     diagonal *= SQRT_2;
+    spdlog::debug("Heuristic for node {}/{}/{} to target {}/{}/{} is {}", node.x, node.y, node.z, target.x, target.y, target.z, straight + diagonal + static_cast<float>(abs(target.y - node.y)));
     return straight + diagonal + static_cast<float>(abs(target.y - node.y));
 }
 
@@ -147,17 +149,15 @@ std::vector<std::pair<BlockPos, float>> AutoPath::getAirAdjacentNodes(const Bloc
 
 std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, BlockSource* src, float howClose, bool optimizePath) {
     cachedSrc = src;
-
     std::map<BlockPos, BlockPos> cameFrom;
     std::map<BlockPos, ScoreList> scores;
 
     auto cmp = [&scores](const BlockPos& a, const BlockPos& b) {
         return scores[a].fScore < scores[b].fScore;
     };
+    std::multiset<BlockPos, decltype(cmp)> openSet(cmp);
 
-    std::multiset<BlockPos, decltype(cmp)> openSet(cmp);  // this should be a priority queue or other minheap at some point
     float startH = heuristicEstimation(start, goal);
-
     scores[start] = ScoreList(0.f, startH);
     openSet.insert(start);
 
@@ -167,20 +167,18 @@ std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, B
 
     while (!openSet.empty()) {
         BlockPos current = *openSet.begin();
-
         openSet.erase(openSet.begin());
 
         if (heuristicEstimation(current, goal) <= howClose || NOW - startTime > 90 /*90 ms padding*/) {
-            std::vector path = { closestPoint };
+            std::vector<glm::vec3> path = { closestPoint };
             BlockPos currentReconstructionNode = closestPoint;
 
-            // unoptimised
-            while (cameFrom.contains(currentReconstructionNode)) {
+            while (cameFrom.find(currentReconstructionNode) != cameFrom.end()) {
                 currentReconstructionNode = cameFrom[currentReconstructionNode];
                 path.push_back(glm::vec3(currentReconstructionNode));
             }
 
-            std::ranges::reverse(path.begin(), path.end());
+            std::reverse(path.begin(), path.end());
 
             if (!path.empty()) {
                 if (heuristicEstimation(current, goal) <= howClose)
@@ -188,22 +186,19 @@ std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, B
                 else
                     ChatUtils::displayClientMessage("§6Found partial path!");
 
-
                 if (optimizePath && path.size() >= 2) {
-                    // ass post processing
+                    // Optimize the path
                     int startIdx = 0;
                     int endIdx = path.size() - 1;
 
                     while (startIdx < path.size() - 1) {
                         while (endIdx - startIdx > 1) {
-                            // Check line of sight from start to end
                             bool hasLineOfSight = true;
                             glm::vec3* list = getPlayerHitboxPathPosOffsets();
 
                             for (int li = 0; li < 8; li++) {
-                                // Check line of sight for each point
-                                glm::vec3 startCheck = path.at(startIdx) + (list[li]);
-                                glm::vec3 endCheck = path.at(endIdx) + (list[li]);
+                                glm::vec3 startCheck = path.at(startIdx) + list[li];
+                                glm::vec3 endCheck = path.at(endIdx) + list[li];
                                 HitResult rt = src->checkRayTrace(startCheck, endCheck);
 
                                 if (rt.mType == HitType::BLOCK) {
@@ -213,32 +208,25 @@ std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, B
                             }
 
                             if (hasLineOfSight) {
-                                startIdx++;
-                                path.erase(path.begin() + startIdx, path.begin() + endIdx);
+                                path.erase(path.begin() + startIdx + 1, path.begin() + endIdx);
                                 endIdx = path.size() - 1;
-                            }
-                            else
+                            } else {
                                 endIdx--;
+                            }
                         }
-
                         startIdx++;
                         endIdx = path.size() - 1;
                     }
                 }
             }
-
             return path;
         }
 
         for (auto& [pos, f] : getAirAdjacentNodes(current, start, goal)) {
             const float tentative_gScore = scores[current].gScore + f;
-
-            if (tentative_gScore < scores[pos].gScore) {
-                // better path found
+            if (scores.find(pos) == scores.end() || tentative_gScore < scores[pos].gScore) {
                 cameFrom[pos] = current;
-
                 float h = heuristicEstimation(pos, goal);
-
                 scores[pos] = ScoreList(tentative_gScore, tentative_gScore + h);
                 openSet.insert(pos);
 
@@ -254,21 +242,103 @@ std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, B
     return {};
 }
 
+
 void AutoPath::onEnable()
 {
     if (ClientInstance::get()->getLocalPlayer() == nullptr)
         setEnabled(false);
 
-    posList.clear();
-    ticks = 0;
+    mPosList.clear();
+    mTicks = 0;
+
+    gFeatureManager->mDispatcher->listen<BaseTickEvent, &AutoPath::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<RenderEvent, &AutoPath::onRenderEvent>(this);
 }
 
 void AutoPath::onDisable()
 {
-
+    gFeatureManager->mDispatcher->deafen<BaseTickEvent, &AutoPath::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<RenderEvent, &AutoPath::onRenderEvent>(this);
+    mPosList.clear();
+    mTicks = 0;
 }
 
 void AutoPath::onBaseTickEvent(BaseTickEvent& event)
 {
-    //todo: implement
+    /*for (const auto target : targetList) {
+        const auto targetPos = *target->getPos();
+        const auto path = findFlightPath(pos, targetPos, region, howClose, true);
+        this->posList = path;
+        break;
+    }*/
+    std::lock_guard<std::mutex> lock(mMutex);
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player == nullptr)
+        return;
+
+    auto actors = ActorUtils::getActorList(false, true);
+    std::erase(actors, player);
+
+    std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+    {
+        return glm::distance(*a->getPos(), *player->getPos()) < glm::distance(*b->getPos(), *player->getPos());
+    });
+
+    if (actors.empty()) return;
+
+    auto target = actors.at(0);
+    if (target == nullptr) return;
+
+    ChatUtils::displayClientMessage("targetting {}", target->mEntityIdentifier);
+
+    const auto targetPos = *target->getPos();
+    const auto path = findFlightPath(*player->getPos(), targetPos, ClientInstance::get()->getBlockSource(), mHowClose.mValue, true);
+    this->mPosList = path;
+    spdlog::info("Added {} nodes to path", path.size());
+
+}
+
+void AutoPath::onRenderEvent(RenderEvent& event)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+
+    if (mPosList.empty())
+        return;
+
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (player == nullptr)
+        return;
+
+    auto pos = *player->getPos();
+    auto region = ClientInstance::get()->getBlockSource();
+
+    auto drawList = ImGui::GetBackgroundDrawList();
+
+    std::vector<ImVec2> points;
+
+    for (auto pos : mPosList)
+    {
+        ImVec2 point;
+        if (!RenderUtils::worldToScreen(pos, point)) continue;
+        points.emplace_back(point);
+    }
+
+    // Connect each point to form a line
+    if (!points.empty())
+        for (int i = 0; i < points.size() - 1; i++)
+        {
+            drawList->AddLine(points[i], points[i + 1], IM_COL32(0, 255, 0, 255), 2.0f);
+        }
+
+    for (auto pos : mPosList)
+    {
+        auto drawList = ImGui::GetBackgroundDrawList();
+
+        AABB aabb = AABB(pos, glm::vec3(0.2f, 0.2f, 0.2f));
+        auto points = MathUtils::getImBoxPoints(aabb);
+
+        drawList->AddConvexPolyFilled(points.data(), points.size(), IM_COL32(255, 0, 0, 100));
+        drawList->AddPolyline(points.data(), points.size(), IM_COL32(255, 0, 0, 255), 0, 2.f);
+    }
 }
