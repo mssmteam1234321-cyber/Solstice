@@ -17,7 +17,7 @@ public:
     static std::unique_ptr<Detour> mDrawImageDetour;
 
 
-    static void onSetupAndRender(void* screenView, void* mcuirc);
+    static void* onSetupAndRender(void* screenView, void* mcuirc);
     static void* onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv, mce::Color* color, void* unk);
     static void initVt(void* ctx);
     void init() override;
