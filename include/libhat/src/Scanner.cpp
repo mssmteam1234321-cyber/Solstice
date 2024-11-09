@@ -3,14 +3,17 @@
 #include <libhat/Defines.hpp>
 #include <libhat/System.hpp>
 
+#ifdef LIBHAT_HINT_X86_64
 #include "arch/x86/Frequency.hpp"
+#endif
 
 namespace hat::detail {
 
     void scan_context::apply_hints(const scanner_context& scanner) {
-        const bool x86_64 = static_cast<bool>(this->hints & scan_hint::x86_64);
         const bool pair0 = static_cast<bool>(this->hints & scan_hint::pair0);
 
+#ifdef LIBHAT_HINT_X86_64
+        const bool x86_64 = static_cast<bool>(this->hints & scan_hint::x86_64);
         if (x86_64 && !pair0 && scanner.vectorSize && this->alignment == hat::scan_alignment::X1) {
             static constexpr auto getScore = [](const std::byte a, const std::byte b) {
                 constexpr auto& pairs = hat::detail::x86_64::pairs_x1;
@@ -36,9 +39,10 @@ namespace hat::detail {
                 this->pairIndex = bestPair->first;
             }
         }
+#endif
 
         // If no "optimal" pair was found, find the first byte pair in the signature
-        if (!this->pairIndex.has_value()) {
+        if (!this->pairIndex.has_value() && this->alignment == hat::scan_alignment::X1) {
             for (auto it = this->signature.begin(); it != std::prev(this->signature.end()); it++) {
                 const auto i = static_cast<size_t>(it - this->signature.begin());
                 auto& a = *it;
@@ -56,10 +60,10 @@ namespace hat::detail {
     }
 
     void scan_context::auto_resolve_scanner() {
-#if defined(LIBHAT_X86)
+#if defined(LIBHAT_X86) || defined(LIBHAT_X86_64)
         const auto& ext = get_system().extensions;
         if (ext.bmi) {
-#if !defined(LIBHAT_DISABLE_AVX512)
+#if defined(LIBHAT_X86_64) && !defined(LIBHAT_DISABLE_AVX512)
             if (ext.avx512f && ext.avx512bw) {
                 this->scanner = resolve_scanner<scan_mode::AVX512>(*this);
                 return;
@@ -96,7 +100,7 @@ namespace hat {
 
     consteval auto count_matches() {
         constexpr std::array a{std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4}, std::byte{1}};
-        constexpr auto s = hat::compile_signature<"01">();
+        constexpr hat::fixed_signature<1> s{std::byte{1}};
 
         std::vector<const_scan_result> results{};
         hat::find_all_pattern(a.cbegin(), a.cend(), std::back_inserter(results), s);
@@ -106,7 +110,7 @@ namespace hat {
 
     static_assert([] {
         constexpr std::array a{std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4}, std::byte{1}};
-        constexpr auto s = hat::compile_signature<"01">();
+        constexpr hat::fixed_signature<1> s{std::byte{1}};
 
         std::vector<const_scan_result> results{};
         hat::find_all_pattern(a.cbegin(), a.cend(), std::back_inserter(results), s);
@@ -116,7 +120,7 @@ namespace hat {
 
     static_assert([] {
         constexpr std::array a{std::byte{1}, std::byte{2}, std::byte{3}, std::byte{4}, std::byte{1}};
-        constexpr auto s = hat::compile_signature<"01">();
+        constexpr hat::fixed_signature<1> s{std::byte{1}};
 
         std::array<const_scan_result, 2> results{};
         const auto [scan_end, results_end] = hat::find_all_pattern(a.cbegin(), a.cend(), results.begin(), results.end(), s);

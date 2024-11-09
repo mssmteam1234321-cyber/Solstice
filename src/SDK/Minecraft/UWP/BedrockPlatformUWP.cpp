@@ -8,5 +8,5 @@
 
 MinecraftGame* BedrockPlatformUWP::getMinecraftGame()
 {
-    return *hat::member_at<MinecraftGame**>(this, OffsetProvider::BedrockPlatformUWP_mcGame);
+    return hat::member_at<MinecraftGame*>(this, OffsetProvider::BedrockPlatformUWP_mcGame);
 }

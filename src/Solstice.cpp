@@ -17,7 +17,6 @@
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/MinecraftGame.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <spdlog/spdlog.h>
 
 #include <Features/Auth/Authorization.hpp>
 
@@ -44,6 +43,7 @@ std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std:
 #else
 std::string title = "[" + std::string(SOLSTICE_BUILD_VERSION_SHORT) + "-" + std::string(SOLSTICE_BUILD_BRANCH) + "]";
 #endif
+
 
 void setTitle(std::string title)
 {
@@ -75,44 +75,13 @@ void Solstice::init(HMODULE hModule)
     // Create a file logger sink
     std::string logFile = FileUtils::getSolsticeDir() + xorstr_("solstice.log");
 
-    /*if (!FileUtils::fileExists(logFile))
-    {*/
-        // Don't use the file sink if the log file doesn't exist
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-        console_sink->set_level(spdlog::level::trace);
-        console->set_level(spdlog::level::trace);
-        console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-        spdlog::set_default_logger(std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink}));
-    /*} else
-    {
-        // if the log file is over 10MB, delete it
-        if (FileUtils::fileExists(logFile) && FileUtils::getFileSize(logFile) > 10 * 1024 * 1024)
-        {
-            FileUtils::deleteFile(logFile);
-        }
-
-        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile, true);
-
-        // Create a console logger sink
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-
-        // Create a logger that logs to both the file and the console
-        auto logger = std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink, file_sink});
-
-        // Set patterns for each sink
-        console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-        console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
-        file_sink->set_pattern("[%H:%M:%S.%e] [%l] %v");
-
-        // Set log level for both sinks
-        console_sink->set_level(spdlog::level::trace);
-        file_sink->set_level(spdlog::level::debug);
-
-        // Set the global default logger
-        spdlog::set_default_logger(logger);
-    }
-    */
+    // Don't use the file sink if the log file doesn't exist
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    console_sink->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+    console_sink->set_level(spdlog::level::trace);
+    console->set_level(spdlog::level::trace);
+    console->set_pattern("[" + CC(255, 135, 0) + "%H:%M:%S.%e" + ANSI_COLOR_RESET + "] [%n] [%^%l%$] %v");
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>(CC(21, 207, 148) + "solstice" + ANSI_COLOR_RESET, spdlog::sinks_init_list{console_sink}));
 
     console->info("Welcome to " + CC(0, 255, 0) + "Solstice" + ANSI_COLOR_RESET + "!"
 #ifdef __DEBUG__
@@ -155,7 +124,6 @@ void Solstice::init(HMODULE hModule)
         }
     }
 #endif
-
 
 #ifdef __PRIVATE_BUILD__
     Auth auth;
@@ -207,6 +175,7 @@ void Solstice::init(HMODULE hModule)
             OffsetProvider::deinitialize();
             Logger::deinitialize();
 
+            setTitle("");
             FreeLibraryAndExitThread(hModule, 0);
         }
 #else
@@ -227,6 +196,15 @@ void Solstice::init(HMODULE hModule)
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
     console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
+
+    // press enter to continue if failed sigs
+    if (failedSigs > 0)
+    {
+        console->info("Press ENTER to continue...");
+        std::string input;
+        std::getline(std::cin, input);
+    }
+
 
     gFeatureManager = std::make_shared<FeatureManager>();
     gFeatureManager->init();
@@ -291,7 +269,7 @@ void Solstice::init(HMODULE hModule)
             HookManager::init(true); // Initialize the base tick hook
 
             auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
-            if (!ircModule->mEnabled) ircModule->toggle();
+            if (ircModule && !ircModule->mEnabled) ircModule->toggle();
 
             if (!Prefs->mDefaultConfigName.empty())
             {

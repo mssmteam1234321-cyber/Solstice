@@ -4,17 +4,17 @@ Audio::Audio() {
     BasePath = "";
     hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (FAILED(hr))
-        cout << hr;
+        std::cout << hr;
     pXAudio2 = nullptr;
     if (FAILED(hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR)))
-        cout << hr;
+        std::cout << hr;
 
     pMasterVoice = nullptr;
     if (FAILED(hr = pXAudio2->CreateMasteringVoice(&pMasterVoice)))
-        cout << hr;
+        std::cout << hr;
 }
 
-int Audio::Play(string path, float volume, bool ShouldLoop) {
+int Audio::Play(std::string path, float volume, bool ShouldLoop) {
     path = BasePath + "\\" + path;
     WAVEFORMATEXTENSIBLE wfx = {0};
     XAUDIO2_BUFFER buffer = {0};
@@ -60,13 +60,13 @@ int Audio::Play(string path, float volume, bool ShouldLoop) {
     buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
     if (ShouldLoop) buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
     IXAudio2SourceVoice *pSourceVoice;
-    if (FAILED(hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX *) &wfx))) cout << hr;
+    if (FAILED(hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX *) &wfx))) std::cout << hr;
     //if (FAILED(hr = pSourceVoice->SetSourceSampleRate(20000))) cout << hr;
-    if (FAILED(hr = pSourceVoice->SubmitSourceBuffer(&buffer))) cout << hr;
+    if (FAILED(hr = pSourceVoice->SubmitSourceBuffer(&buffer))) std::cout << hr;
     //if (FAILED(hr = pSourceVoice->SetFrequencyRatio(1.2))) cout << hr;
     pSourceVoice->SetVolume(volume);
     if (FAILED(hr = pSourceVoice->Start(0)))
-        cout << hr;
+        std::cout << hr;
 
     return 0;
 }

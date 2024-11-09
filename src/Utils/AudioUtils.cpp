@@ -66,7 +66,7 @@ std::vector<std::string> AudioUtils::listMicrophones()
             PropVariantInit(&varName);
             hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
             if (SUCCEEDED(hr)) {
-                microphones.push_back(std::wstring_convert<codecvt_utf8<wchar_t>>().to_bytes(varName.pwszVal));
+                microphones.push_back(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(varName.pwszVal));
                 PropVariantClear(&varName);
             }
             pProps->Release();

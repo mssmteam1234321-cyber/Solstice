@@ -1,5 +1,6 @@
+
 #pragma once
-//
+/*//
 // Created by jcazm on 7/27/2024.
 //
 #include <Features/Modules/Module.hpp>
@@ -34,3 +35,4 @@ public:
     void onRenderEvent(class RenderEvent& event);
     void onItemRendererEvent(class ItemRendererEvent& event);
 };
+*/

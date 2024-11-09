@@ -11,6 +11,7 @@
 #include "Combat/Reach.hpp"
 #include "Combat/TriggerBot.hpp"
 #include "Combat/Criticals.hpp"
+#include "Combat/InfiniteAura.hpp"
 
 #include "Misc/AntiBot.hpp"
 #include "Misc/AntiCheatDetector.hpp"
@@ -125,6 +126,7 @@
 #include "Visual/SessionInfo.hpp"
 #include "Visual/Tracers.hpp"
 #include "Visual/ChinaHat.hpp"
+#include "Visual/Freelook.hpp"
 #include "Visual/Glint.hpp"
 #include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
@@ -143,6 +145,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoClicker>());
     mModules.emplace_back(std::make_shared<Reach>());
     mModules.emplace_back(std::make_shared<Criticals>());
+    mModules.emplace_back(std::make_shared<InfiniteAura>());
+
 
     // Movement
     mModules.emplace_back(std::make_shared<Fly>());
@@ -257,11 +261,10 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<JumpCircles>());
 
 #ifdef __PRIVATE_BUILD__
-    // TODO: Fix these modules so they can be enabled in release mode
+    // mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
+    // mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<Desync>()); // needs troubleshooting
     mModules.emplace_back(std::make_shared<SkinBlinker>());
-    mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
-    mModules.emplace_back(std::make_shared<DebugFly>()); // Real Sigma fly for Flareon V1 and the latest one
     mModules.emplace_back(std::make_shared<Anticheat>()); // Private for now cuz its not really good
 
     // TODO: Finish these modules
@@ -271,10 +274,11 @@ void ModuleManager::init()
 #ifdef __DEBUG__
     mModules.emplace_back(std::make_shared<AutoKick>()); // LMAO
 
-    mModules.emplace_back(std::make_shared<ItemPhysics>());
+    //mModules.emplace_back(std::make_shared<ItemPhysics>());
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
+    mModules.emplace_back(std::make_shared<Freelook>());
 #endif
 
     // Determine if we should add UpdateForm

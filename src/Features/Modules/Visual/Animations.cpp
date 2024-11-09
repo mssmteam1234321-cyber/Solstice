@@ -17,6 +17,7 @@ std::vector<unsigned char> gNoSwitchAnimation = {
     0x0F, 0x57, 0xC0, // xorps xmm0, xmm0
     0x90, 0x90, 0x90, 0x90, 0x90 // nop
 };
+
 DEFINE_PATCH_FUNC(patchNoSwitchAnimation, SigManager::ItemInHandRenderer_render_bytepatch, gNoSwitchAnimation);
 DEFINE_NOP_PATCH_FUNC(patchFluxSwing, SigManager::FluxSwing, 0x5);
 DEFINE_NOP_PATCH_FUNC(patchDefaultSwing, SigManager::ItemInHandRenderer_renderItem_bytepatch, 0x8);
@@ -26,7 +27,7 @@ void Animations::onEnable()
 {
     gFeatureManager->mDispatcher->listen<SwingDurationEvent, &Animations::onSwingDurationEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Animations::onBaseTickEvent>(this);
-    gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Animations::onBoneRenderEvent>(this);
+    //gFeatureManager->mDispatcher->listen<BoneRenderEvent, &Animations::onBoneRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BobHurtEvent, &Animations::onBobHurtEvent>(this);
 
     if (!mSwingAngle)
@@ -50,7 +51,7 @@ void Animations::onDisable()
     patchNoSwitchAnimation(false);
     patchFluxSwing(false);
 
-    if (mSwingAngle) *mSwingAngle = -80.f;
+    if (mSwingAngle) *mSwingAngle = glm::radians(-80.f);
 
     patchDefaultSwing(false);
     patchDefaultSwing2(false);
@@ -70,14 +71,14 @@ void Animations::onBaseTickEvent(BaseTickEvent& event)
     {
         if (mShouldBlock)
         {
-            *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
+            *mSwingAngle = glm::radians(mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f);
         } else
         {
-            *mSwingAngle = -80.f;
+            *mSwingAngle = glm::radians(-80.f);
         }
     } else if (mSwingAngle)
     {
-        *mSwingAngle = mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f;
+        *mSwingAngle = glm::radians(mCustomSwingAngle.mValue ? mSwingAngleSetting.as<float>() : -80.f);
     }
 
 

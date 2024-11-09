@@ -155,9 +155,9 @@ void DebugFly::onBaseTickEvent(class BaseTickEvent &event)
     else currentGlide = mGlide.mValue / 1000;
 
     if (mDebug.mValue) {
-        ChatUtils::displayClientMessage("Current Speed:" + to_string(currentSpeed * 10));
-        ChatUtils::displayClientMessage("Current Timer;" + to_string(latestTimerValue));
-        ChatUtils::displayClientMessage("Current Glide;" + to_string(-currentGlide));
+        ChatUtils::displayClientMessage("Current Speed:" + std::to_string(currentSpeed * 10));
+        ChatUtils::displayClientMessage("Current Timer;" + std::to_string(latestTimerValue));
+        ChatUtils::displayClientMessage("Current Glide;" + std::to_string(-currentGlide));
     }
 
     ClientInstance::get()->getMinecraftSim()->setSimTimer(latestTimerValue);

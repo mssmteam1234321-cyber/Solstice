@@ -48,3 +48,27 @@ public:
     glm::mat4 mProjection{};
     int8_t padding[4]{0};
 };
+
+class UpdatePlayerFromCameraComponent
+{
+};
+
+struct CameraAvoidanceComponent
+{
+    PAD(0x4);
+};
+
+struct CameraBobComponent
+{
+    PAD(0x4);
+};
+
+struct ShadowOffsetComponent
+{
+    float mOffset = 0.0f;
+};
+
+struct SubBBsComponent
+{
+    std::vector<AABB> mSubBBs;
+};

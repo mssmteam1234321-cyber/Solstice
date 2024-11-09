@@ -7,7 +7,7 @@
 
 class VoiceChat : public ModuleBase<VoiceChat> {
 public:
-    VoiceChat() : ModuleBase("VoiceChat", "Voice chat for the game", ModuleCategory::Misc, 0, true) {
+    VoiceChat() : ModuleBase("VoiceChat", "Voice chat for the game", ModuleCategory::Misc, 0, false) {
         mNames = {
             {Lowercase, "voicechat"},
             {LowercaseSpaced, "voice chat"},

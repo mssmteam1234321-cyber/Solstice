@@ -36,6 +36,12 @@ void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
     gFeatureManager->mDispatcher->trigger(holda);
     if (holda->isCancelled()) return nullptr;
 
+    if (packet->getId() == PacketID::PlayerAuthInput)
+    {
+        auto authPacket = reinterpret_cast<PlayerAuthInputPacket*>(packet);
+        authPacket->mInteractRots = authPacket->mRot;
+    }
+
     if (packet->getId() == PacketID::PlayerAuthInput) {
         auto input = reinterpret_cast<PlayerAuthInputPacket*>(packet);
         sendPacket(input);
@@ -67,5 +73,5 @@ void PacketSendHook::sendPacket(PlayerAuthInputPacket* packet) {
 }
 
 void PacketSendHook::init() {
-    mDetour = std::make_unique<Detour>("LoopbackPacketSender::send", reinterpret_cast<void*>(ClientInstance::get()->getPacketSender()->vtable[1]), &PacketSendHook::onPacketSend);
+    mDetour = std::make_unique<Detour>("LoopbackPacketSender::send", reinterpret_cast<void*>(ClientInstance::get()->getPacketSender()->vtable[2]), &PacketSendHook::onPacketSend);
 }

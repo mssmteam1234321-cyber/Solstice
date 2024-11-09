@@ -10,13 +10,36 @@
 // Created by vastrakai on 6/25/2024.
 //
 
+
+template<typename Func, typename... Args>
+bool TryCallWrapper(Func func, Args&&... args) {
+    __try
+    {
+        func(std::forward<Args>(args)...);
+        return true;
+    } __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        return false;
+    }
+}
+
+// Refactored TRY_CALL using lambdas and spdlog
+#define TRY_CALL(func, ...) \
+[&]() { \
+bool result = TryCallWrapper([&]() { func(__VA_ARGS__); }); \
+if (!result) { \
+spdlog::error("Exception thrown in {} at line {} in {}", __FUNCTION__, __LINE__, __FILE__); \
+} \
+return result; \
+}()
+
 // lol
 namespace serenity::utils::ptr {
 
     using ptr_t = union ptr_data_t {
         uintptr_t address;
         void *v_ptr;
-        hat::process::module_t hat_module;
+        uintptr_t hat_module;
 
         template <typename pointing_t>
         pointing_t as() {

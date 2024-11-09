@@ -5,6 +5,7 @@
 #include "NoFall.hpp"
 
 #include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 
 void NoFall::onEnable()
@@ -33,5 +34,11 @@ void NoFall::onPacketOutEvent(PacketOutEvent& event)
             paip->mInputData &= ~AuthInputAction::STOP_GLIDING;
             paip->mPosDelta = { 0, 0, 0 };
         }
+    }
+
+    if (event.mPacket->getId() == PacketID::MovePlayer)
+    {
+        auto mp = event.getPacket<MovePlayerPacket>();
+        if (mMode.mValue == Mode::OnGround) mp->mOnGround = true;
     }
 }

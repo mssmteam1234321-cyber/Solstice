@@ -1,7 +1,8 @@
 #pragma once
 #include <Features/Modules/Module.hpp>
 
-class Regen : public ModuleBase<Regen> {
+class Regen : public ModuleBase<Regen>
+{
 public:
     enum class Mode {
         Hive,
@@ -14,7 +15,7 @@ public:
     };
     enum class UncoverMode {
         Normal,
-        Fast
+        Fast //please for the love of god COMPILE RELEASE BEFORE YOU FUCKING PUSH
     };
     enum class StealPriority {
         Mine,
@@ -43,7 +44,7 @@ public:
     EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The regen mode", Mode::Hive, "Hive");
     EnumSettingT<CalcMode> mCalcMode = EnumSettingT<CalcMode>("Calc Mode", "The calculation mode destroy speed", CalcMode::Minecraft, "Minecraft"
 #ifdef __PRIVATE_BUILD__
-                                                              ,"Fast"
+     ,"Fast"
 #endif
                                                               );
     NumberSetting mRange = NumberSetting("Range", "The max range for destroying blocks", 5, 0, 10, 0.01);
@@ -52,8 +53,16 @@ public:
     BoolSetting mSwing = BoolSetting("Swing", "Swings when destroying blocks", false);
     BoolSetting mHotbarOnly = BoolSetting("Hotbar Only", "Only switch to tools in the hotbar", false);
     BoolSetting mUncover = BoolSetting("Uncover", "Uncover redstone if nothing around you is already exposed", false);
-    EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The uncover mode", UncoverMode::Normal, "Normal", "Fast");
+    EnumSettingT<UncoverMode> mUncoverMode = EnumSettingT<UncoverMode>("Uncover Mode", "The uncover mode", UncoverMode::Normal, "Normal"
+#ifdef __PRIVATE_BUILD__
+    ,"Fast"
+#endif
+    );
+#ifdef __PRIVATE_BUILD__
     NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 8, 1);
+#else
+    NumberSetting mUncoverRange = NumberSetting("Uncover Range", "The max range for uncovering blocks", 3, 1, 3, 1);
+#endif
     BoolSetting mQueueRedstone = BoolSetting("Queue Redstone", "Queue redstone blocks to break when max absorption is reached", false);
     BoolSetting mSteal = BoolSetting("Steal", "Steal the enemy's ore", false);
     NumberSetting mStealerTimeout = NumberSetting("Stealer Timeout", "The max duration for stealer", 1500, 500, 5000, 250);
@@ -128,17 +137,18 @@ public:
             &mUncoverMode,
             &mUncoverRange,
             &mQueueRedstone,
+#ifdef __PRIVATE_BUILD__
             &mSteal,
             &mStealerTimeout,
             &mStealPriority,
             &mAlwaysSteal,
-#ifdef __PRIVATE_BUILD__
             &mDelayedSteal,
             &mOpponentDestroySpeed,
 #endif
 #ifdef __DEBUG__
             &mReplace,
 #endif
+#ifdef __PRIVATE_BUILD__
             &mAntiSteal,
             &mConfuse,
             &mConfuseMode,
@@ -150,11 +160,14 @@ public:
             &mMulti,
             &mAntiCover,
             &mCompensation,
+#endif
             &mInfiniteDurability,
             &mOreSelectionMode,
+#ifdef __PRIVATE_BUILD__
             &mDynamicDestroySpeed,
             &mOnGroundOnly,
             &mNuke,
+#endif
             &mAlwaysMine,
             &mDebug,
 #ifdef __PRIVATE_BUILD__
@@ -164,18 +177,19 @@ public:
 #ifdef __DEBUG__
             &mRaperNotify,
 #endif
+#ifdef __PRIVATE_BUILD__
             &mConfuseNotify,
             &mBlockNotify,
-            &mFastOreNotify,
             &mSyncSpeedNotify,
             &mNukeNotify,
-            &mStealNotify
+            &mStealNotify,
+#endif
+            &mFastOreNotify
         );
 
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
 #endif
-
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
         addSettings(&mExposed, &mUnexposed);
@@ -206,6 +220,7 @@ public:
         VISIBILITY_CONDITION(mUncoverMode, mUncover.mValue);
         VISIBILITY_CONDITION(mUncoverRange, mUncover.mValue && mUncoverMode.mValue == UncoverMode::Normal);
 
+#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mStealerTimeout, mSteal.mValue);
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
         VISIBILITY_CONDITION(mAlwaysSteal, mSteal.mValue);
@@ -222,16 +237,16 @@ public:
 
         VISIBILITY_CONDITION(mOnGroundOnly, mDynamicDestroySpeed.mValue);
         VISIBILITY_CONDITION(mNuke, mDynamicDestroySpeed.mValue && mOnGroundOnly.mValue);
-
+#endif
         // Debug
+        VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
+
+#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mConfuseNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mBlockNotify, mDebug.mValue);
-        VISIBILITY_CONDITION(mFastOreNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mSyncSpeedNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mNukeNotify, mDebug.mValue);
-
-#ifdef __PRIVATE_BUILD__
         VISIBILITY_CONDITION(mDynamicUncoverNotify, mDebug.mValue);
         VISIBILITY_CONDITION(mStealerDetectorNotify, mDebug.mValue);
 #endif
@@ -352,5 +367,4 @@ public:
     std::string getSettingDisplay() override {
         return mMode.mValues[mMode.as<int>()];
     }
-
 };

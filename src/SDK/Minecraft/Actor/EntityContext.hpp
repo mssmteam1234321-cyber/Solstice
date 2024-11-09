@@ -13,7 +13,6 @@
 
 #include "EntityId.hpp"
 #include "Components/FlagComponent.hpp"
-#include "spdlog/spdlog.h"
 
 class EntityRegistry
 {
@@ -119,7 +118,7 @@ public:
                 //Get the offset
                 relCallOffset = *reinterpret_cast<uint32_t*>(result + 1);
                 assureAddr = result + 5 + relCallOffset;
-                std::span<std::byte> text = hat::process::get_section_data(hat::process::get_process_module(), ".text");
+                std::span<std::byte> text = hat::process::get_process_module().get_section_data(".text");
 
                 // Check if the assure address is divisible by 16
                 if (assureAddr % 16 != 0)
@@ -155,7 +154,7 @@ public:
     static void* getForComponent()
     {
         hat::signature_view assureSig = getAssureSignature<component_t>();
-        auto modData = hat::process::get_module_data(hat::process::get_process_module());
+        std::span<std::byte> modData = hat::process::get_process_module().get_section_data(".text");
 
         std::string name = "";
 #ifdef __DEBUG__
@@ -227,6 +226,15 @@ struct EntityContext {
         }
 
         return assure(mRegistry, entt::type_hash<component_t>::value());
+    }
+
+    template<typename component_t>
+    auto* assure2(entt::basic_registry<EntityId>* registry)
+    {
+        using assure_t = entt::basic_storage<component_t, EntityId>* (__fastcall *)(entt::basic_registry<EntityId>*, uint32_t);
+        static auto assureFunc = reinterpret_cast<assure_t>(resolveAssure<component_t>());
+
+        return assureFunc(registry, entt::type_hash<component_t>::value());
     }
 
     template<typename... type_t>

@@ -1,11 +1,10 @@
 #include <libhat/Defines.hpp>
 
-#if defined(LIBHAT_X86) && !defined(LIBHAT_DISABLE_AVX512)
+#if defined(LIBHAT_X86_64) && !defined(LIBHAT_DISABLE_AVX512)
 
 #include <libhat/Scanner.hpp>
 
 #include <immintrin.h>
-#include <tuple>
 
 namespace hat::detail {
 
@@ -43,12 +42,7 @@ namespace hat::detail {
             load_signature_512(signature, signatureBytes, signatureMask);
         }
 
-        begin = next_boundary_align<alignment>(begin);
-        if (begin >= end) LIBHAT_UNLIKELY {
-            return {};
-        }
-
-        auto [pre, vec, post] = segment_scan<__m512i>(begin, end, signature.size(), cmpIndex);
+        auto [pre, vec, post] = segment_scan<__m512i, veccmp>(begin, end, signature.size(), cmpIndex);
 
         if (!pre.empty()) {
             const auto result = find_pattern_single<alignment>(pre.data(), pre.data() + pre.size(), context);

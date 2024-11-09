@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <execution>
+#include <memory>
 #include <utility>
 
 #include "Concepts.hpp"
@@ -25,7 +27,16 @@ namespace hat {
         /// Reads an integer of the specified type located at an offset from the signature result
         template<std::integral Int>
         [[nodiscard]] constexpr Int read(size_t offset) const {
-            return *reinterpret_cast<const Int*>(this->result + offset);
+            if LIBHAT_IF_CONSTEVAL {
+                constexpr size_t sz = sizeof(Int);
+                return std::bit_cast<Int>([=, this]<size_t... Index>(std::index_sequence<Index...>) {
+                    return std::array<std::byte, sz>{(this->result + offset)[Index]...};
+                }(std::make_index_sequence<sz>{}));
+            } else {
+                Int value;
+                std::memcpy(&value, this->result + offset, sizeof(Int));
+                return value;
+            }
         }
 
         /// Reads an integer of the specified type which represents an index into an array with the given element type
@@ -34,9 +45,31 @@ namespace hat {
             return static_cast<size_t>(read<Int>(offset)) / sizeof(ArrayType);
         }
 
-        /// Resolve the relative address located at an offset from the signature result
-        [[nodiscard]] constexpr T rel(size_t offset) const {
-            return this->has_result() ? this->result + this->read<rel_t>(offset) + offset + sizeof(rel_t) : nullptr;
+        /// Resolve the relative address located at an offset from the signature result. The behavior is undefined if
+        /// there is no result. The "offset" parameter is the number of bytes after the result's match that the relative
+        /// address is located. For example:
+        ///
+        ///        | result matches here
+        ///        |        | relative address located at +3 (offset)
+        ///        v        v
+        ///   0x0: 48 8D 05 BE 53 23 01    lea  rax, [rip+0x12353be]
+        ///   0x7: <next instruction>
+        ///
+        /// The "remaining" parameter is the number of bytes after the relative address that the next instruction
+        /// begins. In the majority of cases, this parameter can be left as 0. However, consider the following example:
+        ///
+        ///        | result matches here
+        ///        |     | relative address located at +2 (offset)
+        ///        |     |           | end of relative address
+        ///        v     v           v
+        ///   0x0: 83 3D BE 53 23 01 00    cmp    DWORD PTR [rip+0x12353be],0x0
+        ///   0x7: <next instruction>
+        ///
+        /// The "0x0" operand comes after the relative address. The absolute address referred to by the RIP relative
+        /// address in this case is 0x12353BE + 0x7 = 0x12353C5. Simply using rel(2) would yield an incorrect result of
+        /// 0x12353C4. In this case, rel(2, 1) would yield the expected 0x12353C5.
+        [[nodiscard]] constexpr T rel(size_t offset, size_t remaining = 0) const {
+            return this->result + this->read<rel_t>(offset) + offset + sizeof(rel_t) + remaining;
         }
 
         [[nodiscard]] constexpr bool has_result() const {
@@ -51,7 +84,7 @@ namespace hat {
             return this->result;
         }
 
-        [[nodiscard]] constexpr bool operator==(const scan_result_base&) const noexcept = default;
+        [[nodiscard]] constexpr auto operator<=>(const scan_result_base&) const noexcept = default;
     private:
         T result;
     };
@@ -59,7 +92,7 @@ namespace hat {
     using scan_result = scan_result_base<std::byte*>;
     using const_scan_result = scan_result_base<const std::byte*>;
 
-    enum class scan_alignment {
+    enum class scan_alignment : uint8_t {
         X1 = 1,
         X16 = 16
     };
@@ -90,6 +123,14 @@ namespace hat {
             size_t vectorSize{};
         };
 
+        enum class scan_mode {
+            Auto,   // Picks a mode at runtime
+            Single, // std::find + std::equal
+            SSE,    // x86/x64 SSE 4.1
+            AVX2,   // x86/x64 AVX2
+            AVX512, // x64 AVX512
+        };
+
         class scan_context {
         public:
             signature_view signature{};
@@ -105,20 +146,18 @@ namespace hat {
             void auto_resolve_scanner();
             void apply_hints(const scanner_context&);
 
+            template<scan_mode mode = scan_mode::Auto>
             static constexpr scan_context create(signature_view signature, scan_alignment alignment, scan_hint hints);
         private:
             scan_context() = default;
         };
 
-        enum class scan_mode {
-            Single, // std::find + std::equal
-            SSE,    // x86 SSE 4.1
-            AVX2,   // x86 AVX2
-            AVX512, // x86 AVX512
-        };
+        LIBHAT_FORCEINLINE constexpr auto to_stride(const scan_alignment alignment) {
+            return static_cast<std::underlying_type_t<scan_alignment>>(alignment);
+        }
 
         template<scan_alignment alignment>
-        inline constexpr auto alignment_stride = static_cast<std::underlying_type_t<scan_alignment>>(alignment);
+        inline constexpr auto alignment_stride = to_stride(alignment);
 
         template<std::integral type, scan_alignment alignment>
         LIBHAT_FORCEINLINE consteval auto create_alignment_mask() {
@@ -158,7 +197,7 @@ namespace hat {
             return std::assume_aligned<alignment>(ptr);
         }
 
-        template<typename Vector>
+        template<typename Vector, bool veccmp>
         LIBHAT_FORCEINLINE auto segment_scan(
             const std::byte* begin,
             const std::byte* end,
@@ -172,16 +211,23 @@ namespace hat {
                 return {};
             };
 
-            // If the scan can't be vectorized, just do the single byte scanner "pre" part
-            if (static_cast<size_t>(end - begin) < sizeof(Vector)) {
+            const auto preBegin = begin;
+            const auto vecBegin = reinterpret_cast<const Vector*>(align_pointer_as<Vector>(preBegin + cmpOffset));
+            if (reinterpret_cast<const std::byte*>(vecBegin) > end) LIBHAT_UNLIKELY {
                 return {validateRange(begin, end), {}, {}};
             }
 
-            const auto preBegin = begin;
-            const auto vecBegin = reinterpret_cast<const Vector*>(align_pointer_as<Vector>(preBegin + cmpOffset));
-            const auto vecEnd = vecBegin + (static_cast<size_t>(end - reinterpret_cast<const std::byte*>(vecBegin)) - signatureSize) / sizeof(Vector);
+            const size_t vecAvailable = end - reinterpret_cast<const std::byte*>(vecBegin);
+            const size_t requiredAfter = veccmp ? sizeof(Vector) : signatureSize;
+            const auto vecEnd = vecBegin + (vecAvailable >= requiredAfter ? (vecAvailable - requiredAfter) / sizeof(Vector) : 0);
+
+            // If the scan can't be vectorized, just do the single byte scanner "pre" part
+            if (vecBegin == vecEnd) LIBHAT_UNLIKELY {
+                return {validateRange(begin, end), {}, {}};
+            }
+
             const auto preEnd = reinterpret_cast<const std::byte*>(vecBegin) - cmpOffset + signatureSize;
-            const auto postBegin = reinterpret_cast<const std::byte*>(vecEnd);
+            const auto postBegin = reinterpret_cast<const std::byte*>(vecEnd) - cmpOffset;
             const auto postEnd = end;
 
             return {
@@ -208,7 +254,11 @@ namespace hat {
                 if LIBHAT_IF_CONSTEVAL {
                     i = std::find(i, scanEnd, firstByte);
                 } else {
-                    i = std::find(std::execution::unseq, i, scanEnd, firstByte);
+                    #if __cpp_lib_execution >= 201902L
+                        i = std::find(std::execution::unseq, i, scanEnd, firstByte);
+                    #else
+                        i = std::find(i, scanEnd, firstByte);
+                    #endif
                 }
                 if (i == scanEnd) LIBHAT_UNLIKELY {
                     break;
@@ -230,14 +280,14 @@ namespace hat {
             const auto firstByte = *signature[0];
 
             const auto scanBegin = next_boundary_align<scan_alignment::X16>(begin);
-            const auto scanEnd = prev_boundary_align<scan_alignment::X16>(end - signature.size() + 1);
+            const auto scanEnd = next_boundary_align<scan_alignment::X16>(end - signature.size() + 1);
+
             if (scanBegin >= scanEnd) {
                 return nullptr;
             }
 
             for (auto i = scanBegin; i != scanEnd; i += 16) {
                 if (*i == firstByte) {
-                    // Compare everything after the first byte
                     auto match = std::equal(signature.begin() + 1, signature.end(), i + 1, [](auto opt, auto byte) {
                         return !opt.has_value() || *opt == byte;
                     });
@@ -246,6 +296,7 @@ namespace hat {
                     }
                 }
             }
+
             return nullptr;
         }
 
@@ -274,6 +325,7 @@ namespace hat {
         using result_type_for = std::conditional_t<std::is_const_v<std::remove_reference_t<std::iter_reference_t<T>>>,
             const_scan_result, scan_result>;
 
+        template<scan_mode mode>
         constexpr scan_context scan_context::create(const signature_view signature, const scan_alignment alignment, const scan_hint hints) {
             scan_context ctx{};
             ctx.signature = signature;
@@ -282,36 +334,25 @@ namespace hat {
             if LIBHAT_IF_CONSTEVAL {
                 ctx.scanner = resolve_scanner<scan_mode::Single>(ctx);
             } else {
-                ctx.auto_resolve_scanner();
+                if constexpr (mode == scan_mode::Auto) {
+                    ctx.auto_resolve_scanner();
+                } else {
+                    ctx.scanner = resolve_scanner<mode>(ctx);
+                }
             }
             return ctx;
         }
     }
 
-    /// Perform a signature scan on the entirety of the process module or a specified module
-    template<scan_alignment alignment = scan_alignment::X1>
-    [[deprecated]] scan_result find_pattern(
-        signature_view      signature,
-        process::module_t   mod = process::get_process_module()
-    );
-
-    /// Perform a signature scan on a specific section of the process module or a specified module
-    template<scan_alignment alignment = scan_alignment::X1>
-    scan_result find_pattern(
-        signature_view      signature,
-        std::string_view    section,
-        process::module_t   mod = process::get_process_module(),
-        scan_hint           hints = scan_hint::none
-    );
-
     /// Root implementation of find_pattern
-    template<scan_alignment alignment = scan_alignment::X1, detail::byte_input_iterator Iter>
-    constexpr auto find_pattern(
+    template<detail::byte_input_iterator Iter>
+    [[nodiscard]] constexpr auto find_pattern(
         const Iter            beginIt,
         const Iter            endIt,
         const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
         const scan_hint       hints = scan_hint::none
-    ) -> detail::result_type_for<Iter> {
+    ) noexcept -> detail::result_type_for<Iter> {
         const auto [offset, trunc] = detail::truncate(signature);
         const auto begin = std::to_address(beginIt) + offset;
         const auto end = std::to_address(endIt);
@@ -327,19 +368,43 @@ namespace hat {
             : nullptr;
     }
 
+    /// Range overload of find_pattern
+    template<detail::byte_input_range Range>
+    [[nodiscard]] constexpr auto find_pattern(
+        Range&& range,
+        const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
+        const scan_hint       hints = scan_hint::none
+    ) noexcept -> detail::result_type_for<std::ranges::iterator_t<Range>> {
+        return find_pattern(std::ranges::begin(range), std::ranges::end(range), signature, alignment, hints);
+    }
+
+    /// Perform a signature scan on a specific section of the process module or a specified module
+    [[nodiscard]] inline scan_result find_pattern(
+        const signature_view   signature,
+        const std::string_view section,
+        const process::module  mod = process::get_process_module(),
+        const scan_alignment   alignment = scan_alignment::X1,
+        const scan_hint        hints = scan_hint::none
+    ) noexcept {
+        const auto data = mod.get_section_data(section);
+        return find_pattern(data.begin(), data.end(), signature, alignment, hints);
+    }
+
     /// Finds all of the matches for the given signature in the input range, and writes the results into the output
     /// range. If there is no space in the output range, the function will exit early. The first element of the returned
     /// pair is an end iterator into the input range at the point in which the pattern search stopped. The second
     /// element of the pair is an end iterator into the output range in which the matched results stop.
-    template<scan_alignment alignment = scan_alignment::X1, detail::byte_input_iterator In, std::output_iterator<detail::result_type_for<In>> Out>
-    constexpr auto find_all_pattern(
+    template<detail::byte_input_iterator In, std::output_iterator<detail::result_type_for<In>> Out>
+    [[nodiscard]] constexpr auto find_all_pattern(
         const In              beginIn,
         const In              endIn,
         const Out             beginOut,
         const Out             endOut,
         const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
         const scan_hint       hints = scan_hint::none
-    ) -> std::pair<In, Out> {
+    ) noexcept -> std::pair<In, Out> {
         const auto [offset, trunc] = detail::truncate(signature);
         const auto begin = std::to_address(beginIn) + offset;
         const auto end = std::to_address(endIn);
@@ -357,27 +422,47 @@ namespace hat {
             }
             const auto addr = const_cast<typename detail::result_type_for<In>::underlying_type>(result.get() - offset);
             *out++ = addr;
-            i = addr + detail::alignment_stride<alignment>;
+            i = addr + detail::to_stride(alignment);
         }
 
         return std::make_pair(std::next(beginIn, i - begin), out);
     }
 
-    /// Root implementation of find_all_pattern
-    template<scan_alignment alignment = scan_alignment::X1, detail::byte_input_iterator In, std::output_iterator<detail::result_type_for<In>> Out>
+    template<detail::byte_input_range In, std::ranges::output_range<detail::result_type_for<std::ranges::iterator_t<In>>> Out>
+    [[nodiscard]] constexpr auto find_all_pattern(
+        In&&                  rangeIn,
+        Out&&                 rangeOut,
+        const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
+        const scan_hint       hints = scan_hint::none
+    ) noexcept -> std::pair<std::ranges::iterator_t<In>, std::ranges::iterator_t<Out>> {
+        return find_all_pattern(
+            std::ranges::begin(rangeIn), std::ranges::end(rangeIn),
+            std::ranges::begin(rangeOut), std::ranges::end(rangeOut),
+            signature,
+            alignment,
+            hints
+        );
+    }
+
+    /// Finds all of the matches for the given signature in the input range, and writes the results into the output
+    /// iterator. The entire input range will be searched and all results written to the output range. The number of
+    /// matches found is returned.
+    template<detail::byte_input_iterator In, std::output_iterator<detail::result_type_for<In>> Out>
     constexpr size_t find_all_pattern(
         const In              beginIn,
         const In              endIn,
-        const Out             outIn,
+        const Out             beginOut,
         const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
         const scan_hint       hints = scan_hint::none
-    ) {
+    ) noexcept {
         const auto [offset, trunc] = detail::truncate(signature);
         const auto begin = std::to_address(beginIn) + offset;
         const auto end = std::to_address(endIn);
 
         auto i = begin;
-        auto out = outIn;
+        auto out = beginOut;
         size_t matches{};
 
         const auto context = detail::scan_context::create(trunc, alignment, hints);
@@ -389,23 +474,46 @@ namespace hat {
             }
             const auto addr = const_cast<typename detail::result_type_for<In>::underlying_type>(result.get() - offset);
             *out++ = addr;
-            i = addr + detail::alignment_stride<alignment>;
+            i = addr + detail::to_stride(alignment);
             matches++;
         }
 
         return matches;
     }
 
+    template<detail::byte_input_range In, std::output_iterator<detail::result_type_for<std::ranges::iterator_t<In>>> Out>
+    constexpr size_t find_all_pattern(
+        In&&                  rangeIn,
+        const Out             beginOut,
+        const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
+        const scan_hint       hints = scan_hint::none
+    ) noexcept {
+        return find_all_pattern(std::ranges::begin(rangeIn), std::ranges::end(rangeIn), beginOut, signature, alignment, hints);
+    }
+
     /// Wrapper around the root find_all_pattern implementation that returns a std::vector of the results
-    template<scan_alignment alignment = scan_alignment::X1, detail::byte_input_iterator In>
-    constexpr auto find_all_pattern(
+    template<detail::byte_input_iterator In>
+    [[nodiscard]] constexpr auto find_all_pattern(
         const In             beginIt,
         const In             endIt,
-        const signature_view signature
-    ) -> std::vector<detail::result_type_for<In>> {
+        const signature_view signature,
+        const scan_alignment alignment = scan_alignment::X1,
+        const scan_hint      hints = scan_hint::none
+    ) noexcept -> std::vector<detail::result_type_for<In>> {
         std::vector<detail::result_type_for<In>> results{};
-        find_all_pattern<alignment>(beginIt, endIt, std::back_inserter(results), signature);
+        find_all_pattern(beginIt, endIt, std::back_inserter(results), signature, alignment, hints);
         return results;
+    }
+
+    template<detail::byte_input_range In>
+    constexpr auto find_all_pattern(
+        In&&                  rangeIn,
+        const signature_view  signature,
+        const scan_alignment  alignment = scan_alignment::X1,
+        const scan_hint       hints = scan_hint::none
+    ) noexcept -> std::vector<detail::result_type_for<std::ranges::iterator_t<In>>> {
+        return find_all_pattern(std::ranges::begin(rangeIn), std::ranges::end(rangeIn), signature, alignment, hints);
     }
 }
 
@@ -420,8 +528,6 @@ namespace hat::experimental {
     template<compiler_type compiler>
     scan_result find_vtable(
         const std::string&  className,
-        process::module_t   mod = process::get_process_module()
+        process::module     mod = process::get_process_module()
     );
 }
-
-#include "Scanner.inl"

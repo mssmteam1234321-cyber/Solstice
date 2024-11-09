@@ -53,12 +53,13 @@ public:
 };
 
 class ChunkSource {
-    char                                                    pad_0008[24];   // this+0x0008
+public:
+    PAD(0x18);
     class Level*                                                  level;          // this+0x0020
     class Dimension*                                              dimension;      // this+0x0028
-    char                                                    pad_0030[48];   // this+0x0030
-    std::unordered_map<ChunkPos, std::weak_ptr<class LevelChunk>> chunkStorage;   // this+0x0060
-public:
+    PAD(0x40);
+    std::unordered_map<ChunkPos, std::weak_ptr<class LevelChunk>> chunkStorage;   // this+0x0070
+
     enum LoadMode : int32_t {
         None = 0,
         Deferred = 1

@@ -14,8 +14,8 @@ void Auth::init()
     {
         nlohmann::json authData;
 
-        authData["password"] = "";
-        authData["username"] = "";
+        authData[xorstr_("password")] = "";
+        authData[xorstr_("username")] = "";
 
         std::ofstream file(authFile);
         file << authData.dump(4);
@@ -29,8 +29,8 @@ void Auth::init()
         file >> authData;
         file.close();
 
-        mPassword = authData.value("password", "");
-        mUsername = authData.value("username", "");
+        mPassword = authData.value(xorstr_("password"), "");
+        mUsername = authData.value(xorstr_("username"), "");
     }
 
     mHWID = HWUtils::getCpuInfo().toString();
@@ -40,12 +40,14 @@ void Auth::init()
         exit();
     }
 
-    mHash = cryptor.encrypt(mUsername + ":" + mPassword + ":" + mHWID);
+    mHash = cryptor.encrypt(mUsername + ':' + mPassword + ':' + mHWID);
 }
 
 void Auth::exit()
 {
+#ifndef __DEBUG__
     __fastfail(0);
+#endif
 }
 
 bool Auth::isPrivateUser()
@@ -55,8 +57,27 @@ bool Auth::isPrivateUser()
 
     if(event.mStatusCode == 200)
     {
-        nlohmann::json json = nlohmann::json::parse(event.mResponse);
-        return json[xorstr_("isPrivateUser")].get<bool>();
+        try
+        {
+            nlohmann::json json = nlohmann::json::parse(event.mResponse);
+            bool success = false;
+
+            try
+            {
+                success = json[xorstr_("isPrivateUser")].get<bool>();
+            }
+            catch(...)
+            {
+                return false;
+            }
+
+            return success;
+        } catch (nlohmann::json::exception& e) {
+#ifdef __DEBUG__
+            Solstice::console->error(e.what());
+#endif
+            return false;
+        }
     }
 
     return false;

@@ -1,6 +1,7 @@
 #include <libhat/c/libhat.h>
 
 #include <libhat/Scanner.hpp>
+#include <cstring>
 
 static signature_t* allocate_signature(const hat::signature_view signature) {
     const auto bytes = std::as_bytes(signature);
@@ -60,18 +61,18 @@ LIBHAT_API const void* libhat_find_pattern(
         signature->count
     };
 
-    const auto find_pattern = [=]<hat::scan_alignment A>() {
+    const auto find_pattern = [=](const hat::scan_alignment alignment) {
         const auto begin = static_cast<const std::byte*>(buffer);
         const auto end = static_cast<const std::byte*>(buffer) + size;
-        const auto result = hat::find_pattern<A>(begin, end, view);
+        const auto result = hat::find_pattern(begin, end, view, alignment);
         return result.has_result() ? result.get() : nullptr;
     };
 
     switch (align) {
         case scan_alignment_x1:
-            return find_pattern.operator()<hat::scan_alignment::X1>();
+            return find_pattern(hat::scan_alignment::X1);
         case scan_alignment_x16:
-            return find_pattern.operator()<hat::scan_alignment::X16>();
+            return find_pattern(hat::scan_alignment::X16);
     }
     exit(EXIT_FAILURE);
 }
@@ -108,10 +109,12 @@ LIBHAT_API const void* libhat_find_pattern_mod(
 LIBHAT_API const void* libhat_get_module(const char* name) {
     if (name) {
         if (const auto mod = hat::process::get_module(name); mod.has_value()) {
-            return reinterpret_cast<const void*>(mod.value());
+            return reinterpret_cast<const void*>(mod.value().address());
+        } else {
+            return nullptr;
         }
     }
-    return reinterpret_cast<const void*>(hat::process::get_process_module());
+    return reinterpret_cast<const void*>(hat::process::get_process_module().address());
 }
 
 LIBHAT_API void libhat_free(void* mem) {

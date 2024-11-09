@@ -61,10 +61,25 @@ public:
     basic_snapshot(const registry_type &source) noexcept
         : reg{&source} {}
 
+    /*! @brief Default copy constructor, deleted on purpose. */
+    basic_snapshot(const basic_snapshot &) = delete;
+
     /*! @brief Default move constructor. */
     basic_snapshot(basic_snapshot &&) noexcept = default;
 
-    /*! @brief Default move assignment operator. @return This snapshot. */
+    /*! @brief Default destructor. */
+    ~basic_snapshot() = default;
+
+    /**
+     * @brief Default copy assignment operator, deleted on purpose.
+     * @return This snapshot.
+     */
+    basic_snapshot &operator=(const basic_snapshot &) = delete;
+
+    /**
+     * @brief Default move assignment operator.
+     * @return This snapshot.
+     */
     basic_snapshot &operator=(basic_snapshot &&) noexcept = default;
 
     /**
@@ -78,17 +93,17 @@ public:
     template<typename Type, typename Archive>
     const basic_snapshot &get(Archive &archive, const id_type id = type_hash<Type>::value()) const {
         if(const auto *storage = reg->template storage<Type>(id); storage) {
+            const typename registry_type::common_type &base = *storage;
+
             archive(static_cast<typename traits_type::entity_type>(storage->size()));
 
             if constexpr(std::is_same_v<Type, entity_type>) {
                 archive(static_cast<typename traits_type::entity_type>(storage->free_list()));
 
-                for(auto first = storage->data(), last = first + storage->size(); first != last; ++first) {
+                for(auto first = base.rbegin(), last = base.rend(); first != last; ++first) {
                     archive(*first);
                 }
-            } else if constexpr(component_traits<Type>::in_place_delete) {
-                const typename registry_type::common_type &base = *storage;
-
+            } else if constexpr(registry_type::template storage_for_type<Type>::storage_policy == deletion_policy::in_place) {
                 for(auto it = base.rbegin(), last = base.rend(); it != last; ++it) {
                     if(const auto entt = *it; entt == tombstone) {
                         archive(static_cast<entity_type>(null));
@@ -178,10 +193,25 @@ public:
         ENTT_ASSERT(reg->template storage<entity_type>().free_list() == 0u, "Registry must be empty");
     }
 
+    /*! @brief Default copy constructor, deleted on purpose. */
+    basic_snapshot_loader(const basic_snapshot_loader &) = delete;
+
     /*! @brief Default move constructor. */
     basic_snapshot_loader(basic_snapshot_loader &&) noexcept = default;
 
-    /*! @brief Default move assignment operator. @return This loader. */
+    /*! @brief Default destructor. */
+    ~basic_snapshot_loader() = default;
+
+    /**
+     * @brief Default copy assignment operator, deleted on purpose.
+     * @return This loader.
+     */
+    basic_snapshot_loader &operator=(const basic_snapshot_loader &) = delete;
+
+    /**
+     * @brief Default move assignment operator.
+     * @return This loader.
+     */
     basic_snapshot_loader &operator=(basic_snapshot_loader &&) noexcept = default;
 
     /**
@@ -343,11 +373,26 @@ public:
         : remloc{source.get_allocator()},
           reg{&source} {}
 
-    /*! @brief Default move constructor. */
-    basic_continuous_loader(basic_continuous_loader &&) = default;
+    /*! @brief Default copy constructor, deleted on purpose. */
+    basic_continuous_loader(const basic_continuous_loader &) = delete;
 
-    /*! @brief Default move assignment operator. @return This loader. */
-    basic_continuous_loader &operator=(basic_continuous_loader &&) = default;
+    /*! @brief Default move constructor. */
+    basic_continuous_loader(basic_continuous_loader &&) noexcept = default;
+
+    /*! @brief Default destructor. */
+    ~basic_continuous_loader() = default;
+
+    /**
+     * @brief Default copy assignment operator, deleted on purpose.
+     * @return This loader.
+     */
+    basic_continuous_loader &operator=(const basic_continuous_loader &) = delete;
+
+    /**
+     * @brief Default move assignment operator.
+     * @return This loader.
+     */
+    basic_continuous_loader &operator=(basic_continuous_loader &&) noexcept = default;
 
     /**
      * @brief Restores all elements of a type with associated identifiers.

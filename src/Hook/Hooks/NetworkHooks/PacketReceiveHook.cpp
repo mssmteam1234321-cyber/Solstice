@@ -21,6 +21,11 @@ void* PacketReceiveHook::onPacketSend(void* _this, void* networkIdentifier, void
 
     NetworkIdentifier = networkIdentifier;
 
+    auto actualEventCallback = ClientInstance::get()->getMinecraftSim()->getGameSession()->getEventCallback();
+    if (actualEventCallback != netEventCallback) {
+        return ofunc(_this, networkIdentifier, netEventCallback, packet);
+    }
+
     auto holder = nes::make_holder<PacketInEvent>(packet, networkIdentifier, netEventCallback);
     gFeatureManager->mDispatcher->trigger(holder);
     if (holder->isCancelled()) return nullptr;

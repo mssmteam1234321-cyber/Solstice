@@ -170,153 +170,164 @@ void IrcClient::sendSkin()
 
 bool IrcClient::connectToServer()
 {
-    mLastPing = NOW;
-    // If we are connecting, return false
-    if (mConnectionState == ConnectionState::Connecting)
+    bool success = false;
+    if (!TRY_CALL([&]()
     {
-        logm("Cannot connect to server, already connecting");
-        return false;
-    }
-
-    /*if (!OAuthUtils::hasValidToken()) {
-        logm("Cannot connect to server, invalid token");
-        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate you with Discord!");
-        ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cPlease authenticate using the Solstice Injector to use IRC.");
-        return false;
-    }*/
-
-    std::string host = mServer;
-    std::string port = std::to_string(mPort);
-    addrinfo* result = nullptr;
-    addrinfo hints;
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    if (getaddrinfo(host.c_str(), port.c_str(), &hints, &result) != 0) {
-        return false;
-    }
-
-    host = std::string(inet_ntoa(reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr));
-
-    try
-    {
-        // use da winrt socket api
-        Sockets::MessageWebSocket socket;
-        mSocket = socket;
-        mSocket.MessageReceived([=, this](const Sockets::MessageWebSocket& sender, const Sockets::MessageWebSocketMessageReceivedEventArgs& args)
+        mLastPing = NOW;
+        // If we are connecting, return false
+        if (mConnectionState == ConnectionState::Connecting)
         {
-            try
-            {
-                Streams::DataReader dr = args.GetDataReader();
-                    std::wstring wmessage{ dr.ReadString(dr.UnconsumedBufferLength()) };
-                    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-                    std::string message = converter.to_bytes(wmessage);
-                if (std::ranges::all_of(message, [](char c) { return c == '\0'; }) || message == "\0" || message.empty())
-                {
-                    logm("Error: Received empty message");
-                    disconnect(xorstr_("Received empty message"));
-                    return;
-                }
-                message = StringUtils::decode(message);
-                message = StringUtils::trim(message);
-                // continue if this isnt valid json
-                if (message.empty() || message[0] != '{' || message[message.size() - 1] != '}')
-                {
-                    return;
-                }
+            logm("Cannot connect to server, already connecting");
+            success = false;
+            return false;
+        }
 
-                auto op = parseOpAuto(message);
+        /*if (!OAuthUtils::hasValidToken()) {
+            logm("Cannot connect to server, invalid token");
+            ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cFailed to authenticate you with Discord!");
+            ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cPlease authenticate using the Solstice Injector to use IRC.");
+            return false;
+        }*/
 
-                //displayMsg("§7[§dirc§7] " + std::string(magic_enum::enum_name(op.opCode).data()) + " " + op.data);
+        std::string host = mServer;
+        std::string port = std::to_string(mPort);
+        addrinfo* result = nullptr;
+        addrinfo hints;
+        ZeroMemory(&hints, sizeof(hints));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
+        if (getaddrinfo(host.c_str(), port.c_str(), &hints, &result) != 0) {
+            success = false;
+            return false;
+        }
 
-                if (op.opCode == OpCode::KeyOut)
-                {
-                    mServerKey = op.data;
-                    mServerKey = mServerKey.substr(0, 16);
-                    genClientKey();
-                    auto op = ChatOp(OpCode::KeyIn, mClientKey, true);
-                    sendOpAuto(op);
-                    mEncrypted = true; // from now on, we will encrypt messages
-                    return;
-                }
+        host = std::string(inet_ntoa(reinterpret_cast<sockaddr_in*>(result->ai_addr)->sin_addr));
 
-                if (op.opCode == OpCode::Ping)
-                {
-                    uint64_t utcNow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                    auto op = ChatOp(OpCode::Ping, std::to_string(utcNow), true);
-                    sendOpAuto(op);
-                    mLastPing = NOW;
-                    return;
-                }
-
-                if (op.opCode == OpCode::Work)
-                {
-                    mReceivedPOF = true;
-                    int result = WorkingVM::SolveProofTask(op.data);
-                    auto op = ChatOp(OpCode::CompleteWork, std::to_string(result), true);
-                    sendOpAuto(op);
-                    return;
-                }
-
-                if (op.opCode == OpCode::AuthFinish)
-                {
-                    logm("Authentication complete");
-                    onConnected();
-                    return;
-                }
-
-                onReceiveOp(op);
-
-            }
-            catch (winrt::hresult_error const& ex)
-            {
-                logm("Error: {}", winrt::to_string(ex.message()) + " [Code: " + std::to_string(ex.code()) + "], [FUNC: " + std::string(__FUNCTION__) + "]");
-
-                disconnect(xorstr_("Error: ") + winrt::to_string(ex.message()));
-            } catch (const std::exception& ex)
-            {
-                logm("StdError: {}", ex.what());
-            } catch (...)
-            {
-                logm("Unknown error");
-            }
-        });
-        mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
-            logm("Disconnected from server");
-            //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
-            disconnect(xorstr_("Connection closed"));
-        });
-        Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
-        mWriter = writer;
-        mConnectionState = ConnectionState::Connecting;
-
-        mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
+        try
         {
-            mConnectionState = ConnectionState::Connected;
-            logm("Connected to server");
-        });
-    } catch (winrt::hresult_error const& ex)
+            // use da winrt socket api
+            Sockets::MessageWebSocket socket;
+            mSocket = socket;
+            mSocket.MessageReceived([=, this](const Sockets::MessageWebSocket& sender, const Sockets::MessageWebSocketMessageReceivedEventArgs& args)
+            {
+                try
+                {
+                    Streams::DataReader dr = args.GetDataReader();
+                        std::wstring wmessage{ dr.ReadString(dr.UnconsumedBufferLength()) };
+                        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                        std::string message = converter.to_bytes(wmessage);
+                    if (std::ranges::all_of(message, [](char c) { return c == '\0'; }) || message == "\0" || message.empty())
+                    {
+                        logm("Error: Received empty message");
+                        disconnect(xorstr_("Received empty message"));
+                        return;
+                    }
+                    message = StringUtils::decode(message);
+                    message = StringUtils::trim(message);
+                    // continue if this isnt valid json
+                    if (message.empty() || message[0] != '{' || message[message.size() - 1] != '}')
+                    {
+                        return;
+                    }
+
+                    auto op = parseOpAuto(message);
+
+                    //displayMsg("§7[§dirc§7] " + std::string(magic_enum::enum_name(op.opCode).data()) + " " + op.data);
+
+                    if (op.opCode == OpCode::KeyOut)
+                    {
+                        mServerKey = op.data;
+                        mServerKey = mServerKey.substr(0, 16);
+                        genClientKey();
+                        auto op = ChatOp(OpCode::KeyIn, mClientKey, true);
+                        sendOpAuto(op);
+                        mEncrypted = true; // from now on, we will encrypt messages
+                        return;
+                    }
+
+                    if (op.opCode == OpCode::Ping)
+                    {
+                        uint64_t utcNow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                        auto op = ChatOp(OpCode::Ping, std::to_string(utcNow), true);
+                        sendOpAuto(op);
+                        mLastPing = NOW;
+                        return;
+                    }
+
+                    if (op.opCode == OpCode::Work)
+                    {
+                        mReceivedPOF = true;
+                        int result = WorkingVM::SolveProofTask(op.data);
+                        auto op = ChatOp(OpCode::CompleteWork, std::to_string(result), true);
+                        sendOpAuto(op);
+                        return;
+                    }
+
+                    if (op.opCode == OpCode::AuthFinish)
+                    {
+                        logm("Authentication complete");
+                        onConnected();
+                        return;
+                    }
+
+                    onReceiveOp(op);
+
+                }
+                catch (winrt::hresult_error const& ex)
+                {
+                    logm("Error: {}", winrt::to_string(ex.message()) + " [Code: " + std::to_string(ex.code()) + "], [FUNC: " + std::string(__FUNCTION__) + "]");
+
+                    disconnect(xorstr_("Error: ") + winrt::to_string(ex.message()));
+                } catch (const std::exception& ex)
+                {
+                    logm("StdError: {}", ex.what());
+                } catch (...)
+                {
+                    logm("Unknown error");
+                }
+            });
+            mSocket.Closed([&](Sockets::IWebSocket sender, Sockets::WebSocketClosedEventArgs args) {
+                logm("Disconnected from server");
+                //ChatUtils::displayClientMessageRaw("§7[§dirc§7] §cConnection closed.");
+                disconnect(xorstr_("Connection closed"));
+            });
+            Streams::DataWriter writer = Streams::DataWriter(mSocket.OutputStream());
+            mWriter = writer;
+            mConnectionState = ConnectionState::Connecting;
+
+            mSocket.ConnectAsync(winrt::Windows::Foundation::Uri(winrt::to_hstring("ws://" + host + ":" + port))).Completed([=](auto&&, auto&&)
+            {
+                mConnectionState = ConnectionState::Connected;
+                logm("Connected to server");
+            });
+        } catch (winrt::hresult_error const& ex)
+        {
+            logm("Error: {} [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
+            success = false;
+            return false;
+        } catch (const std::exception& ex)
+        {
+            logm("Error: {}", ex.what());
+            success = false;
+            return false;
+        } catch (...)
+        {
+            logm("Unknown error");
+            success = false;
+            return false;
+        }
+
+        logm("Connected to server");
+        success = true;
+         return true;
+    }))
     {
-        logm("Error: {} [Code: {}] [FUNC: {}]", winrt::to_string(ex.message()), ex.code(), __FUNCTION__);
-        return false;
-    } catch (const std::exception& ex)
-    {
-        logm("Error: {}", ex.what());
-        return false;
-    } catch (...)
-    {
-        logm("Unknown error");
+        logm("Failed to connect to server");
         return false;
     }
 
-    logm("Connected to server");
-
-    // Start receiving messages in a separate thread
-    //mReceiveThread = std::thread(&IrcClient::receiveMessages, this);
-
-
-    return true;
+    return success;
 }
 
 void IrcClient::onConnected()

@@ -22,7 +22,7 @@ public:
         std::map<int64_t, float> bpsHistory;
         int64_t lastFlagTime = 0;
         std::map<Checks, int> flagCounts;
-        pmr::set<Checks> flaggedChecks;
+        std::pmr::set<Checks> flaggedChecks;
 
         PlayerInfo() : lastPosition(0.0f), lastFlagTime(0) {
             for (Checks check : { Checks::SPEED_A, Checks::SPEED_B, Checks::IMMOBILE, Checks::ROTATION }) {

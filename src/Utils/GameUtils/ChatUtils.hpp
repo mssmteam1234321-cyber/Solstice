@@ -3,8 +3,6 @@
 //
 // Created by vastrakai on 6/25/2024.
 //
-#include <spdlog/spdlog.h>
-
 
 class ChatUtils {
 public:
