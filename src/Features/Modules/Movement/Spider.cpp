@@ -4,6 +4,7 @@
 
 #include "Spider.hpp"
 #include <Features/Events/BaseTickEvent.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 
 void Spider::onEnable()

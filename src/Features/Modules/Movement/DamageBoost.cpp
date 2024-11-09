@@ -6,6 +6,7 @@
 
 #include <Features/Events/PacketInEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <SDK/Minecraft/Network/Packets/SetActorMotionPacket.hpp>
 
