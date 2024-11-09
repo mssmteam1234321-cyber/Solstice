@@ -14,7 +14,7 @@
 std::unique_ptr<Detour> SetupAndRenderHook::mSetupAndRenderDetour;
 std::unique_ptr<Detour> SetupAndRenderHook::mDrawImageDetour;
 
-void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
+void* SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
 {
     auto original = mSetupAndRenderDetour->getOriginal<decltype(&onSetupAndRender)>();
 
@@ -41,7 +41,7 @@ void SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
 
     if (D3DHook::FrameTransforms) D3DHook::FrameTransforms->push({ ci->getViewMatrix(), origin, playerPos, ci->getFov() });
 
-    original(screenView, mcuirc);
+    return original(screenView, mcuirc);
 }
 
 void* SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv,
