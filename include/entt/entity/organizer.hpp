@@ -108,7 +108,7 @@ class basic_organizer final {
         const char *name{};
         const void *payload{};
         callback_type *callback{};
-        dependency_type *dependency{};
+        dependency_type *dependency;
         prepare_type *prepare{};
         const type_info *info{};
     };
@@ -130,16 +130,14 @@ class basic_organizer final {
     }
 
     template<typename... Type>
-    [[nodiscard]] static std::size_t fill_dependencies(type_list<Type...>, [[maybe_unused]] const type_info **buffer, [[maybe_unused]] const std::size_t count) {
+    static std::size_t fill_dependencies(type_list<Type...>, [[maybe_unused]] const type_info **buffer, [[maybe_unused]] const std::size_t count) {
         if constexpr(sizeof...(Type) == 0u) {
             return {};
         } else {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
-            const type_info *info[]{&type_id<Type>()...};
+            const type_info *info[sizeof...(Type)]{&type_id<Type>()...};
             const auto length = count < sizeof...(Type) ? count : sizeof...(Type);
 
             for(std::size_t pos{}; pos < length; ++pos) {
-                // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
                 buffer[pos] = info[pos];
             }
 
@@ -169,14 +167,14 @@ public:
     struct vertex {
         /**
          * @brief Constructs a vertex of the task graph.
+         * @param vtype True if the vertex is a top-level one, false otherwise.
          * @param data The data associated with the vertex.
-         * @param from List of in-edges of the vertex.
-         * @param to List of out-edges of the vertex.
+         * @param edges The indices of the children in the adjacency list.
          */
-        vertex(vertex_data data, std::vector<std::size_t> from, std::vector<std::size_t> to)
-            : node{std::move(data)},
-              in{std::move(from)},
-              out{std::move(to)} {}
+        vertex(const bool vtype, vertex_data data, std::vector<std::size_t> edges)
+            : is_top_level{vtype},
+              node{std::move(data)},
+              reachable{std::move(edges)} {}
 
         /**
          * @brief Fills a buffer with the type info objects for the writable
@@ -185,7 +183,7 @@ public:
          * @param length The length of the user-supplied buffer.
          * @return The number of type info objects written to the buffer.
          */
-        [[nodiscard]] size_type ro_dependency(const type_info **buffer, const std::size_t length) const noexcept {
+        size_type ro_dependency(const type_info **buffer, const std::size_t length) const noexcept {
             return node.dependency(false, buffer, length);
         }
 
@@ -196,7 +194,7 @@ public:
          * @param length The length of the user-supplied buffer.
          * @return The number of type info objects written to the buffer.
          */
-        [[nodiscard]] size_type rw_dependency(const type_info **buffer, const std::size_t length) const noexcept {
+        size_type rw_dependency(const type_info **buffer, const std::size_t length) const noexcept {
             return node.dependency(true, buffer, length);
         }
 
@@ -204,7 +202,7 @@ public:
          * @brief Returns the number of read-only resources of a vertex.
          * @return The number of read-only resources of the vertex.
          */
-        [[nodiscard]] size_type ro_count() const noexcept {
+        size_type ro_count() const noexcept {
             return node.ro_count;
         }
 
@@ -212,7 +210,7 @@ public:
          * @brief Returns the number of writable resources of a vertex.
          * @return The number of writable resources of the vertex.
          */
-        [[nodiscard]] size_type rw_count() const noexcept {
+        size_type rw_count() const noexcept {
             return node.rw_count;
         }
 
@@ -220,15 +218,15 @@ public:
          * @brief Checks if a vertex is also a top-level one.
          * @return True if the vertex is a top-level one, false otherwise.
          */
-        [[nodiscard]] bool top_level() const noexcept {
-            return in.empty();
+        bool top_level() const noexcept {
+            return is_top_level;
         }
 
         /**
          * @brief Returns a type info object associated with a vertex.
          * @return A properly initialized type info object.
          */
-        [[nodiscard]] const type_info &info() const noexcept {
+        const type_info &info() const noexcept {
             return *node.info;
         }
 
@@ -236,7 +234,7 @@ public:
          * @brief Returns a user defined name associated with a vertex, if any.
          * @return The user defined name associated with the vertex, if any.
          */
-        [[nodiscard]] const char *name() const noexcept {
+        const char *name() const noexcept {
             return node.name;
         }
 
@@ -244,7 +242,7 @@ public:
          * @brief Returns the function associated with a vertex.
          * @return The function associated with the vertex.
          */
-        [[nodiscard]] function_type *callback() const noexcept {
+        function_type *callback() const noexcept {
             return node.callback;
         }
 
@@ -252,32 +250,16 @@ public:
          * @brief Returns the payload associated with a vertex, if any.
          * @return The payload associated with the vertex, if any.
          */
-        [[nodiscard]] const void *data() const noexcept {
+        const void *data() const noexcept {
             return node.payload;
-        }
-
-        /**
-         * @brief Returns the list of in-edges of a vertex.
-         * @return The list of in-edges of a vertex.
-         */
-        [[nodiscard]] const std::vector<std::size_t> &in_edges() const noexcept {
-            return in;
-        }
-
-        /**
-         * @brief Returns the list of out-edges of a vertex.
-         * @return The list of out-edges of a vertex.
-         */
-        [[nodiscard]] const std::vector<std::size_t> &out_edges() const noexcept {
-            return out;
         }
 
         /**
          * @brief Returns the list of nodes reachable from a given vertex.
          * @return The list of nodes reachable from the vertex.
          */
-        [[deprecated("use ::out_edges")]] [[nodiscard]] const std::vector<std::size_t> &children() const noexcept {
-            return out_edges();
+        const std::vector<std::size_t> &children() const noexcept {
+            return reachable;
         }
 
         /**
@@ -290,9 +272,9 @@ public:
         }
 
     private:
+        bool is_top_level;
         vertex_data node;
-        std::vector<std::size_t> in;
-        std::vector<std::size_t> out;
+        std::vector<std::size_t> reachable;
     };
 
     /**
@@ -387,24 +369,20 @@ public:
      * @brief Generates a task graph for the current content.
      * @return The adjacency list of the task graph.
      */
-    [[nodiscard]] std::vector<vertex> graph() {
+    std::vector<vertex> graph() {
         std::vector<vertex> adjacency_list{};
         adjacency_list.reserve(vertices.size());
         auto adjacency_matrix = builder.graph();
 
         for(auto curr: adjacency_matrix.vertices()) {
-            std::vector<std::size_t> in{};
-            std::vector<std::size_t> out{};
-
-            for(auto &&edge: adjacency_matrix.in_edges(curr)) {
-                in.push_back(edge.first);
-            }
+            const auto iterable = adjacency_matrix.in_edges(curr);
+            std::vector<std::size_t> reachable{};
 
             for(auto &&edge: adjacency_matrix.out_edges(curr)) {
-                out.push_back(edge.second);
+                reachable.push_back(edge.second);
             }
 
-            adjacency_list.emplace_back(vertices[curr], std::move(in), std::move(out));
+            adjacency_list.emplace_back(iterable.cbegin() == iterable.cend(), vertices[curr], std::move(reachable));
         }
 
         return adjacency_list;

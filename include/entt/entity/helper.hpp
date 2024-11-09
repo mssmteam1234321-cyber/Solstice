@@ -6,6 +6,7 @@
 #include <utility>
 #include "../core/fwd.hpp"
 #include "../core/type_traits.hpp"
+#include "../signal/delegate.hpp"
 #include "component.hpp"
 #include "fwd.hpp"
 #include "group.hpp"
@@ -21,7 +22,7 @@ namespace entt {
 template<typename Registry>
 class as_view {
     template<typename... Get, typename... Exclude>
-    [[nodiscard]] auto dispatch(get_t<Get...>, exclude_t<Exclude...>) const {
+    auto dispatch(get_t<Get...>, exclude_t<Exclude...>) const {
         return reg.template view<constness_as_t<typename Get::element_type, Get>...>(exclude_t<constness_as_t<typename Exclude::element_type, Exclude>...>{});
     }
 
@@ -60,7 +61,7 @@ private:
 template<typename Registry>
 class as_group {
     template<typename... Owned, typename... Get, typename... Exclude>
-    [[nodiscard]] auto dispatch(owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>) const {
+    auto dispatch(owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>) const {
         if constexpr(std::is_const_v<registry_type>) {
             return reg.template group_if_exists<typename Owned::element_type...>(get_t<typename Get::element_type...>{}, exclude_t<typename Exclude::element_type...>{});
         } else {
@@ -107,7 +108,9 @@ private:
 template<auto Member, typename Registry = std::decay_t<nth_argument_t<0u, decltype(Member)>>>
 void invoke(Registry &reg, const typename Registry::entity_type entt) {
     static_assert(std::is_member_function_pointer_v<decltype(Member)>, "Invalid pointer to non-static member function");
-    (reg.template get<member_class_t<decltype(Member)>>(entt).*Member)(reg, entt);
+    delegate<void(Registry &, const typename Registry::entity_type)> func;
+    func.template connect<Member>(reg.template get<member_class_t<decltype(Member)>>(entt));
+    func(reg, entt);
 }
 
 /**

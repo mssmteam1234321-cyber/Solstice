@@ -13,6 +13,7 @@
 #include "../core/iterator.hpp"
 #include "../core/type_info.hpp"
 #include "../core/type_traits.hpp"
+#include "component.hpp"
 #include "entity.hpp"
 #include "fwd.hpp"
 
@@ -27,8 +28,8 @@ class extended_group_iterator;
 template<typename It, typename... Owned, typename... Get>
 class extended_group_iterator<It, owned_t<Owned...>, get_t<Get...>> {
     template<typename Type>
-    [[nodiscard]] auto index_to_element([[maybe_unused]] Type &cpool) const {
-        if constexpr(std::is_void_v<typename Type::value_type>) {
+    auto index_to_element([[maybe_unused]] Type &cpool) const {
+        if constexpr(component_traits<typename Type::value_type>::page_size == 0u) {
             return std::make_tuple();
         } else {
             return std::forward_as_tuple(cpool.rbegin()[it.index()]);
@@ -48,9 +49,9 @@ public:
         : it{},
           pools{} {}
 
-    extended_group_iterator(iterator_type from, std::tuple<Owned *..., Get *...> cpools)
+    extended_group_iterator(iterator_type from, const std::tuple<Owned *..., Get *...> &cpools)
         : it{from},
-          pools{std::move(cpools)} {}
+          pools{cpools} {}
 
     extended_group_iterator &operator++() noexcept {
         return ++it, *this;
@@ -94,8 +95,8 @@ template<typename... Lhs, typename... Rhs>
 struct group_descriptor {
     using size_type = std::size_t;
     virtual ~group_descriptor() = default;
-    [[nodiscard]] virtual bool owned(const id_type) const noexcept {
-        return false;
+    virtual size_type owned(const id_type *, const size_type) const noexcept {
+        return 0u;
     }
 };
 
@@ -104,8 +105,8 @@ class group_handler final: public group_descriptor {
     using entity_type = typename Type::entity_type;
 
     void swap_elements(const std::size_t pos, const entity_type entt) {
-        for(size_type next{}; next < Owned; ++next) {
-            pools[next]->swap_elements((*pools[next])[pos], entt);
+        for(std::size_t next{}; next < Owned; ++next) {
+            pools[next]->swap_elements(pools[next]->data()[pos], entt);
         }
     }
 
@@ -131,7 +132,7 @@ class group_handler final: public group_descriptor {
 
     void common_setup() {
         // we cannot iterate backwards because we want to leave behind valid entities in case of owned types
-        for(auto first = pools[0u]->rbegin(), last = first + pools[0u]->size(); first != last; ++first) {
+        for(auto *first = pools[0u]->data(), *last = first + pools[0u]->size(); first != last; ++first) {
             push_on_construct(*first);
         }
     }
@@ -143,20 +144,23 @@ public:
     template<typename... OGType, typename... EType>
     group_handler(std::tuple<OGType &...> ogpool, std::tuple<EType &...> epool)
         : pools{std::apply([](auto &&...cpool) { return std::array<common_type *, (Owned + Get)>{&cpool...}; }, ogpool)},
-          filter{std::apply([](auto &&...cpool) { return std::array<common_type *, Exclude>{&cpool...}; }, epool)} {
+          filter{std::apply([](auto &&...cpool) { return std::array<common_type *, Exclude>{&cpool...}; }, epool)},
+          len{} {
         std::apply([this](auto &...cpool) { ((cpool.on_construct().template connect<&group_handler::push_on_construct>(*this), cpool.on_destroy().template connect<&group_handler::remove_if>(*this)), ...); }, ogpool);
         std::apply([this](auto &...cpool) { ((cpool.on_construct().template connect<&group_handler::remove_if>(*this), cpool.on_destroy().template connect<&group_handler::push_on_destroy>(*this)), ...); }, epool);
         common_setup();
     }
 
-    [[nodiscard]] bool owned(const id_type hash) const noexcept override {
-        for(size_type pos{}; pos < Owned; ++pos) {
-            if(pools[pos]->type().hash() == hash) {
-                return true;
+    size_type owned(const id_type *elem, const size_type length) const noexcept final {
+        size_type cnt = 0u;
+
+        for(auto pos = 0u; pos < length; ++pos) {
+            for(auto next = 0u; next < Owned; ++next) {
+                cnt += (elem[pos] == pools[next]->type().hash());
             }
         }
 
-        return false;
+        return cnt;
     }
 
     [[nodiscard]] size_type length() const noexcept {
@@ -175,7 +179,7 @@ public:
 private:
     std::array<common_type *, (Owned + Get)> pools;
     std::array<common_type *, Exclude> filter;
-    std::size_t len{};
+    std::size_t len;
 };
 
 template<typename Type, std::size_t Get, std::size_t Exclude>
@@ -211,21 +215,21 @@ class group_handler<Type, 0u, Get, Exclude> final: public group_descriptor {
 public:
     using common_type = Type;
 
-    template<typename Allocator, typename... GType, typename... EType>
-    group_handler(const Allocator &allocator, std::tuple<GType &...> gpool, std::tuple<EType &...> epool)
+    template<typename Alloc, typename... GType, typename... EType>
+    group_handler(const Alloc &alloc, std::tuple<GType &...> gpool, std::tuple<EType &...> epool)
         : pools{std::apply([](auto &&...cpool) { return std::array<common_type *, Get>{&cpool...}; }, gpool)},
           filter{std::apply([](auto &&...cpool) { return std::array<common_type *, Exclude>{&cpool...}; }, epool)},
-          elem{allocator} {
+          elem{alloc} {
         std::apply([this](auto &...cpool) { ((cpool.on_construct().template connect<&group_handler::push_on_construct>(*this), cpool.on_destroy().template connect<&group_handler::remove_if>(*this)), ...); }, gpool);
         std::apply([this](auto &...cpool) { ((cpool.on_construct().template connect<&group_handler::remove_if>(*this), cpool.on_destroy().template connect<&group_handler::push_on_destroy>(*this)), ...); }, epool);
         common_setup();
     }
 
-    [[nodiscard]] common_type &handle() noexcept {
+    common_type &handle() noexcept {
         return elem;
     }
 
-    [[nodiscard]] const common_type &handle() const noexcept {
+    const common_type &handle() const noexcept {
         return elem;
     }
 
@@ -287,7 +291,7 @@ class basic_group<owned_t<>, get_t<Get...>, exclude_t<Exclude...>> {
     static constexpr std::size_t index_of = type_list_index_v<std::remove_const_t<Type>, type_list<typename Get::element_type..., typename Exclude::element_type...>>;
 
     template<std::size_t... Index>
-    [[nodiscard]] auto pools_for(std::index_sequence<Index...>) const noexcept {
+    auto pools_for(std::index_sequence<Index...>) const noexcept {
         using return_type = std::tuple<Get *...>;
         return descriptor ? return_type{static_cast<Get *>(descriptor->template storage<Index>())...} : return_type{};
     }
@@ -692,7 +696,8 @@ private:
  */
 template<typename... Owned, typename... Get, typename... Exclude>
 class basic_group<owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>> {
-    static_assert(((Owned::storage_policy != deletion_policy::in_place) && ...), "Groups do not support in-place delete");
+    // nasty workaround for an issue with the toolset v141 that doesn't accept a fold expression here
+    static_assert(!std::disjunction_v<std::bool_constant<component_traits<typename Owned::value_type>::in_place_delete>...>, "Groups do not support in-place delete");
 
     using base_type = std::common_type_t<typename Owned::base_type..., typename Get::base_type..., typename Exclude::base_type...>;
     using underlying_type = typename base_type::entity_type;
@@ -701,7 +706,7 @@ class basic_group<owned_t<Owned...>, get_t<Get...>, exclude_t<Exclude...>> {
     static constexpr std::size_t index_of = type_list_index_v<std::remove_const_t<Type>, type_list<typename Owned::element_type..., typename Get::element_type..., typename Exclude::element_type...>>;
 
     template<std::size_t... Index, std::size_t... Other>
-    [[nodiscard]] auto pools_for(std::index_sequence<Index...>, std::index_sequence<Other...>) const noexcept {
+    auto pools_for(std::index_sequence<Index...>, std::index_sequence<Other...>) const noexcept {
         using return_type = std::tuple<Owned *..., Get *...>;
         return descriptor ? return_type{static_cast<Owned *>(descriptor->template storage<Index>())..., static_cast<Get *>(descriptor->template storage<sizeof...(Owned) + Other>())...} : return_type{};
     }
