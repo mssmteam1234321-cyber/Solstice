@@ -53,7 +53,7 @@ std::string OAuthUtils::getToken()
 
 std::string OAuthUtils::getLatestCommitHash()
 {
-    HttpRequest request(HttpMethod::GET, sEndpoint + "getLatestHash", "", "", [](HttpResponseEvent event) {}, nullptr);
+    HttpRequest request(HttpMethod::GET, sEndpoint + "getLatestCommitHash", "", "", [](HttpResponseEvent event) {}, nullptr);
 
     HttpResponseEvent event = request.send();
 
