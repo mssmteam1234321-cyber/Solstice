@@ -38,18 +38,8 @@ public:
 
     /*! @brief Default constructor, deleted on purpose. */
     locator() = delete;
-
-    /*! @brief Default copy constructor, deleted on purpose. */
-    locator(const locator &) = delete;
-
     /*! @brief Default destructor, deleted on purpose. */
     ~locator() = delete;
-
-    /**
-     * @brief Default copy assignment operator, deleted on purpose.
-     * @return This locator.
-     */
-    locator &operator=(const locator &) = delete;
 
     /**
      * @brief Checks whether a service locator contains a value.
@@ -149,7 +139,6 @@ public:
 
 private:
     // std::shared_ptr because of its type erased allocator which is useful here
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     inline static std::shared_ptr<Service> service{};
 };
 

@@ -10,7 +10,7 @@
 
 class PacketUtils {
 public:
-    static void spoofSlot(int slot);
+    static void spoofSlot(int slot, bool bypassHook = true);
     static std::shared_ptr<MobEquipmentPacket> createMobEquipmentPacket(int slot);
 
     template <typename T>

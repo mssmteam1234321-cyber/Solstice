@@ -16,6 +16,7 @@ public:
         };
     }
 
+    static void patchSlowdown(bool patch);
     void onEnable() override;
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);

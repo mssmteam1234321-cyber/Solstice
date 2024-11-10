@@ -20,8 +20,8 @@ template<typename Delta>
 struct basic_process_handler {
     virtual ~basic_process_handler() = default;
 
-    virtual bool update(Delta, void *) = 0;
-    virtual void abort(bool) = 0;
+    virtual bool update(const Delta, void *) = 0;
+    virtual void abort(const bool) = 0;
 
     // std::shared_ptr because of its type erased allocator which is useful here
     std::shared_ptr<basic_process_handler> next;
@@ -109,9 +109,6 @@ public:
     explicit basic_scheduler(const allocator_type &allocator)
         : handlers{allocator, allocator} {}
 
-    /*! @brief Default copy constructor, deleted on purpose. */
-    basic_scheduler(const basic_scheduler &) = delete;
-
     /**
      * @brief Move constructor.
      * @param other The instance to move from.
@@ -124,28 +121,19 @@ public:
      * @param other The instance to move from.
      * @param allocator The allocator to use.
      */
-    basic_scheduler(basic_scheduler &&other, const allocator_type &allocator)
+    basic_scheduler(basic_scheduler &&other, const allocator_type &allocator) noexcept
         : handlers{container_type{std::move(other.handlers.first()), allocator}, allocator} {
         ENTT_ASSERT(alloc_traits::is_always_equal::value || get_allocator() == other.get_allocator(), "Copying a scheduler is not allowed");
     }
 
-    /*! @brief Default destructor. */
-    ~basic_scheduler() = default;
-
-    /**
-     * @brief Default copy assignment operator, deleted on purpose.
-     * @return This process scheduler.
-     */
-    basic_scheduler &operator=(const basic_scheduler &) = delete;
-
     /**
      * @brief Move assignment operator.
      * @param other The instance to move from.
-     * @return This process scheduler.
+     * @return This scheduler.
      */
     basic_scheduler &operator=(basic_scheduler &&other) noexcept {
         ENTT_ASSERT(alloc_traits::is_always_equal::value || get_allocator() == other.get_allocator(), "Copying a scheduler is not allowed");
-        swap(other);
+        handlers = std::move(other.handlers);
         return *this;
     }
 
@@ -153,7 +141,7 @@ public:
      * @brief Exchanges the contents with those of a given scheduler.
      * @param other Scheduler to exchange the content with.
      */
-    void swap(basic_scheduler &other) noexcept {
+    void swap(basic_scheduler &other) {
         using std::swap;
         swap(handlers, other.handlers);
     }

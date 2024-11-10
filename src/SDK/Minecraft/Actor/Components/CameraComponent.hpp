@@ -34,6 +34,12 @@ public:
     glm::vec2 mRotRads{};
     float mDelta = 0.0f;
     glm::vec2 mWrap{};
+
+    void operator=(const CameraDirectLookComponent& other) {
+        mRotRads = other.mRotRads;
+        mDelta = other.mDelta;
+        mWrap = other.mWrap;
+    }
 };
 
 class DebugCameraComponent
@@ -51,6 +57,7 @@ public:
 
 class UpdatePlayerFromCameraComponent
 {
+    int mUpdateMode = 0;
 };
 
 struct CameraAvoidanceComponent

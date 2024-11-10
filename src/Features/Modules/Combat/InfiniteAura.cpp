@@ -67,6 +67,7 @@ std::vector<std::shared_ptr<MovePlayerPacket>> InfiniteAura::pathToPos(glm::vec3
 
     auto positions = packetsToSend | std::views::transform([](auto packet) -> glm::vec3 { return packet->mPos - PLAYER_HEIGHT_VEC; });
     mPacketPositions = std::vector(positions.begin(), positions.end());
+    mLastPathTime = NOW;
 
     return packetsToSend;
 }
@@ -201,6 +202,21 @@ void InfiniteAura::onPacketInEvent(PacketInEvent& event)
 
 void InfiniteAura::onRenderEvent(RenderEvent& event)
 {
+    float alphaMultiplier = 1.0f;
+    uint64_t fadeTime = 500;
+    uint64_t currentTime = NOW;
+
+    if (mLastPathTime + fadeTime < currentTime)
+    {
+        mPacketPositions.clear();
+    }
+
+    if (mLastPathTime + fadeTime > currentTime)
+    {
+        alphaMultiplier = 1.0f - static_cast<float>(currentTime - mLastPathTime) / fadeTime;
+        alphaMultiplier = std::clamp(alphaMultiplier, 0.0f, 1.0f);
+    }
+
     if (mRenderMode.mValue == RenderMode::Lines)
     {
         auto ci = ClientInstance::get();
@@ -224,7 +240,7 @@ void InfiniteAura::onRenderEvent(RenderEvent& event)
         if (!points.empty())
             for (int i = 0; i < points.size() - 1; i++)
             {
-                drawList->AddLine(points[i], points[i + 1], IM_COL32(255, 0, 0, 255), 2.0f);
+                drawList->AddLine(points[i], points[i + 1], IM_COL32(255, 0, 0, 255 * alphaMultiplier), 2.0f);
             }
     } else
     {
@@ -240,8 +256,8 @@ void InfiniteAura::onRenderEvent(RenderEvent& event)
             AABB aabb = AABB(pos, glm::vec3(0.5f, 0.5f, 0.5f));
             auto points = MathUtils::getImBoxPoints(aabb);
 
-            drawList->AddConvexPolyFilled(points.data(), points.size(), IM_COL32(255, 0, 0, 100));
-            drawList->AddPolyline(points.data(), points.size(), IM_COL32(255, 0, 0, 255), true, 2.f);
+            drawList->AddConvexPolyFilled(points.data(), points.size(), IM_COL32(255, 0, 0, 100 * alphaMultiplier));
+            drawList->AddPolyline(points.data(), points.size(), IM_COL32(255, 0, 0, 255 * alphaMultiplier), true, 2.f);
         }
     }
 }

@@ -28,13 +28,17 @@
 #include "Commands/VclipCommand.hpp"
 #include "Commands/SnipeCommand.hpp"
 #include "Commands/NameProtectCommand.hpp"
+#include "Commands/TeleportCommand.hpp"
 #include "Features/Events/ChatEvent.hpp"
 #include "spdlog/spdlog.h"
 
 void CommandManager::init()
 {
-    ADD_COMMAND(HelpCommand);
+#ifdef __DEBUG__
     ADD_COMMAND(TestCommand);
+#endif
+
+    ADD_COMMAND(HelpCommand);
     ADD_COMMAND(ToggleCommand);
     ADD_COMMAND(BindCommand);
     ADD_COMMAND(UnbindCommand);
@@ -52,6 +56,8 @@ void CommandManager::init()
     ADD_COMMAND(VclipCommand);
     ADD_COMMAND(SnipeCommand);
     ADD_COMMAND(NameProtectCommand);
+    ADD_COMMAND(TeleportCommand);
+
 
     // Look for any commands that have duplicate names
     for (size_t i = 0; i < mCommands.size(); i++)

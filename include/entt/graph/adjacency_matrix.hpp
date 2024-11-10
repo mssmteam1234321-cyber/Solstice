@@ -28,9 +28,13 @@ public:
     using iterator_category = std::input_iterator_tag;
     using iterator_concept = std::forward_iterator_tag;
 
-    constexpr edge_iterator() noexcept = default;
+    constexpr edge_iterator() noexcept
+        : it{},
+          vert{},
+          pos{},
+          last{},
+          offset{} {}
 
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     constexpr edge_iterator(It base, const size_type vertices, const size_type from, const size_type to, const size_type step) noexcept
         : it{std::move(base)},
           vert{vertices},
@@ -62,10 +66,10 @@ public:
     friend constexpr bool operator==(const edge_iterator<Type> &, const edge_iterator<Type> &) noexcept;
 
 private:
-    It it{};
-    size_type vert{};
-    size_type pos{};
-    size_type last{};
+    It it;
+    size_type vert;
+    size_type pos;
+    size_type last;
     size_type offset{};
 };
 
@@ -116,8 +120,7 @@ public:
 
     /*! @brief Default constructor. */
     adjacency_matrix() noexcept(noexcept(allocator_type{}))
-        : adjacency_matrix{0u} {
-    }
+        : adjacency_matrix{0u} {}
 
     /**
      * @brief Constructs an empty container with a given allocator.
@@ -136,8 +139,12 @@ public:
         : matrix{vertices * vertices, allocator},
           vert{vertices} {}
 
-    /*! @brief Default copy constructor. */
-    adjacency_matrix(const adjacency_matrix &) = default;
+    /**
+     * @brief Copy constructor.
+     * @param other The instance to copy from.
+     */
+    adjacency_matrix(const adjacency_matrix &other)
+        : adjacency_matrix{other, other.get_allocator()} {}
 
     /**
      * @brief Allocator-extended copy constructor.
@@ -148,8 +155,12 @@ public:
         : matrix{other.matrix, allocator},
           vert{other.vert} {}
 
-    /*! @brief Default move constructor. */
-    adjacency_matrix(adjacency_matrix &&) noexcept = default;
+    /**
+     * @brief Move constructor.
+     * @param other The instance to move from.
+     */
+    adjacency_matrix(adjacency_matrix &&other) noexcept
+        : adjacency_matrix{std::move(other), other.get_allocator()} {}
 
     /**
      * @brief Allocator-extended move constructor.
@@ -158,22 +169,29 @@ public:
      */
     adjacency_matrix(adjacency_matrix &&other, const allocator_type &allocator)
         : matrix{std::move(other.matrix), allocator},
-          vert{other.vert} {}
-
-    /*! @brief Default destructor. */
-    ~adjacency_matrix() = default;
+          vert{std::exchange(other.vert, 0u)} {}
 
     /**
      * @brief Default copy assignment operator.
+     * @param other The instance to copy from.
      * @return This container.
      */
-    adjacency_matrix &operator=(const adjacency_matrix &) = default;
+    adjacency_matrix &operator=(const adjacency_matrix &other) {
+        matrix = other.matrix;
+        vert = other.vert;
+        return *this;
+    }
 
     /**
      * @brief Default move assignment operator.
+     * @param other The instance to move from.
      * @return This container.
      */
-    adjacency_matrix &operator=(adjacency_matrix &&) noexcept = default;
+    adjacency_matrix &operator=(adjacency_matrix &&other) noexcept {
+        matrix = std::move(other.matrix);
+        vert = std::exchange(other.vert, 0u);
+        return *this;
+    }
 
     /**
      * @brief Returns the associated allocator.
@@ -193,7 +211,7 @@ public:
      * @brief Exchanges the contents with those of a given adjacency matrix.
      * @param other Adjacency matrix to exchange the content with.
      */
-    void swap(adjacency_matrix &other) noexcept {
+    void swap(adjacency_matrix &other) {
         using std::swap;
         swap(matrix, other.matrix);
         swap(vert, other.vert);
