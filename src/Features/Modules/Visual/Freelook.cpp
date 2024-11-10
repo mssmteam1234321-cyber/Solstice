@@ -52,8 +52,6 @@ void Freelook::onEnable()
 
             spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
         }
-
-
     }
 
     patchUpdates(true);

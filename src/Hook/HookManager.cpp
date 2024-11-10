@@ -8,7 +8,6 @@
 
 #include "Hooks/ActorHooks/ActorModelHook.hpp"
 #include "Hooks/ActorHooks/AnimationHooks.hpp"
-#include "Hooks/ActorHooks/IsSlowedByItemUseHook.hpp"
 #include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
 #include "Hooks/MiscHooks/FireBlockChangedHook.hpp"
 #include "Hooks/MiscHooks/KeyHook.hpp"
@@ -45,7 +44,6 @@ void HookManager::init(bool initLp)
         ADD_HOOK(KeyHook);
         ADD_HOOK(SetupAndRenderHook);
         ADD_HOOK(D3DHook);
-        ADD_HOOK(IsSlowedByItemUseHook);
         ADD_HOOK(ContainerScreenControllerHook);
         ADD_HOOK(MouseHook);
         ADD_HOOK(ConnectionRequestHook);

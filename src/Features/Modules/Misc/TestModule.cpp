@@ -627,6 +627,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         if (ImGui::Button("Remove NameableComponent")) player->setFlag<NameableComponent>(false);
         if (ImGui::Button("Add NameableComponent")) player->setFlag<NameableComponent>(true);
 
+
+
         ImGui::EndGroup();
     }
 
