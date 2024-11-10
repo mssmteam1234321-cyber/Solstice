@@ -8,39 +8,25 @@
 
 void Auth::init()
 {
-    CustomCryptor cryptor(65537, 2753, 3233);
-
-    if (!FileUtils::fileExists(authFile))
-    {
-        nlohmann::json authData;
-
-        authData[xorstr_("password")] = "";
-        authData[xorstr_("username")] = "";
-
-        std::ofstream file(authFile);
-        file << authData.dump(4);
-        file.close();
-        exit();
-    }
-    else
-    {
-        std::ifstream file(authFile);
-        nlohmann::json authData;
-        file >> authData;
-        file.close();
-
-        mPassword = authData.value(xorstr_("password"), "");
-        mUsername = authData.value(xorstr_("username"), "");
-    }
-
-    mHWID = HWUtils::getCpuInfo().toString();
-    if(mHWID.empty()) exit();
-
     if (!InternetCheckConnectionA(xorstr_("https://dllserver.solstice.works"), FLAG_ICC_FORCE_CONNECTION, 0)) {
         exit();
     }
 
-    mHash = cryptor.encrypt(mUsername + ':' + mPassword + ':' + mHWID);
+    if(FileUtils::fileExists(uniqueIdFile))
+    {
+        std::ifstream file(uniqueIdFile);
+        file >> UniqueID;
+        file.close();
+
+        if(UniqueID.empty())
+        {
+            exit();
+        }
+    }
+    else
+    {
+        exit();
+    }
 }
 
 void Auth::exit()
@@ -52,7 +38,7 @@ void Auth::exit()
 
 bool Auth::isPrivateUser()
 {
-    HttpRequest request(HttpMethod::GET, url + mHash, "", "", [](HttpResponseEvent event) {}, nullptr);
+    HttpRequest request(HttpMethod::GET, url + UniqueID, "", "", [](HttpResponseEvent event) {}, nullptr);
     HttpResponseEvent event = request.send();
 
     if(event.mStatusCode == 200)
