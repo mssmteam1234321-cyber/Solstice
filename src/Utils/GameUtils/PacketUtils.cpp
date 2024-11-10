@@ -13,7 +13,7 @@
 #include <SDK/Minecraft/Network/Packets/MobEquipmentPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/TextPacket.hpp>
 
-void PacketUtils::spoofSlot(int slot)
+void PacketUtils::spoofSlot(int slot, bool bypassHook)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     auto mep = MinecraftPackets::createPacket<MobEquipmentPacket>();
@@ -28,7 +28,8 @@ void PacketUtils::spoofSlot(int slot)
     mep->mContainerIdByte = static_cast<unsigned char>(MobEquipmentPacket::ContainerID::Inventory);
     mep->mSelectedSlotByte = static_cast<unsigned char>(slot);
     mep->mSlotByte = static_cast<unsigned char>(slot);
-    ClientInstance::get()->getPacketSender()->sendToServer(mep.get());
+    if(bypassHook) ClientInstance::get()->getPacketSender()->sendToServer(mep.get());
+    else ClientInstance::get()->getPacketSender()->send(mep.get());
 }
 
 std::shared_ptr<MobEquipmentPacket> PacketUtils::createMobEquipmentPacket(int slot)

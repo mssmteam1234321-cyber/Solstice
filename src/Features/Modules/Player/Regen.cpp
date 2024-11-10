@@ -138,7 +138,7 @@ void Regen::queueBlock(glm::ivec3 blockPos)
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
     float destroySpeed = ItemUtils::getDestroySpeed(bestToolSlot, block);
     if (mCurrentDestroySpeed <= destroySpeed) mShouldRotate = true;
-    PacketUtils::spoofSlot(bestToolSlot);
+    PacketUtils::spoofSlot(bestToolSlot, false);
     mShouldSpoofSlot = false;
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
     mToolSlot = bestToolSlot;
@@ -370,7 +370,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     mPreviousSlot = supplies->mSelectedSlot;
 
                     supplies->mSelectedSlot = hardestBlockSlot;
-                    PacketUtils::spoofSlot(hardestBlockSlot);
+                    PacketUtils::spoofSlot(hardestBlockSlot, false);
                     if (mSwing.mValue) player->swing();
                     BlockUtils::placeBlock(placePos, 1);
                     if (mDebug.mValue && mRaperNotify.mValue) ChatUtils::displayClientMessage("§etrying to flag enemy");
@@ -426,7 +426,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         if (blockSlot == -1) continue;
 
                         supplies->mSelectedSlot = blockSlot;
-                        PacketUtils::spoofSlot(blockSlot);
+                        PacketUtils::spoofSlot(blockSlot, false);
                         if (mSwing.mValue) player->swing();
                         for (auto &placePos: placePositions) {
                             BlockUtils::placeBlock(placePos, 1);
@@ -454,7 +454,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         if (blockSlot == -1) continue;
 
                         supplies->mSelectedSlot = blockSlot;
-                        PacketUtils::spoofSlot(blockSlot);
+                        PacketUtils::spoofSlot(blockSlot, false);
                         if (mSwing.mValue) player->swing();
                         BlockUtils::placeBlock(placePos, 1);
                         if (mDebug.mValue && mBlockNotify.mValue) ChatUtils::displayClientMessage("§acovered enemy's ore");
@@ -488,19 +488,10 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         }
 
         if (mShouldSetbackSlot) {
-            PacketUtils::spoofSlot(mPreviousSlot);
+            PacketUtils::spoofSlot(mPreviousSlot, false);
             mShouldSetbackSlot = false;
         }
         //mCanSteal = false;
-        return;
-    }
-
-    // Return without reset breaking progress
-    if (mLastBlockPlace + 100 > NOW) {
-        if (mIsMiningBlock) {
-            PacketUtils::spoofSlot(mLastPlacedBlockSlot);
-            mShouldSpoofSlot = true;
-        }
         return;
     }
 
@@ -574,7 +565,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         mToolSlot = bestToolSlot;
         if (mShouldSpoofSlot) {
-            PacketUtils::spoofSlot(bestToolSlot);
+            PacketUtils::spoofSlot(bestToolSlot, false);
             mShouldSpoofSlot = false;
             return;
         }
@@ -802,7 +793,6 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                             else fakeUnexposedBlocks.push_back(fakeBlocks[i].mPosition);
                         } else continue;
                     }
-
                     if (mExposed.mValue) {
                         for (int i = 0; i < fakeExposedBlocks.size(); i++) {
                             if (fakeExposedBlocks[i] == pos) continue;
@@ -815,6 +805,18 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                         for (int i = 0; i < fakeUnexposedBlocks.size(); i++) {
                             BlockUtils::startDestroyBlock(fakeUnexposedBlocks[i], 0);
                             mFakePositions.push_back(fakeUnexposedBlocks[i]);
+                        }
+                    }
+                    if (mCovering.mValue) {
+                        for (int i = 0; i < fakeUnexposedBlocks.size(); i++) {
+                            for (glm::ivec3 offset : mOffsetList) {
+                                glm::ivec3 currentPos = fakeUnexposedBlocks[i] + offset;
+                                if (ClientInstance::get()->getBlockSource()->getBlock(currentPos)->mLegacy->mSolid) {
+                                    BlockUtils::startDestroyBlock(currentPos, 0);
+                                    mFakePositions.push_back(currentPos);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -858,7 +860,7 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
         }
 
         if (mShouldSetbackSlot) {
-            PacketUtils::spoofSlot(mPreviousSlot);
+            PacketUtils::spoofSlot(mPreviousSlot, false);
             mShouldSetbackSlot = false;
         }
 
@@ -1231,7 +1233,8 @@ void Regen::onPacketOutEvent(PacketOutEvent& event)
     else if (event.mPacket->getId() == PacketID::MobEquipment)
     {
         auto mp = event.getPacket<MobEquipmentPacket>();
-        if (mp->mSlot != mToolSlot) mShouldSpoofSlot = true;
+        if (mp->mSlot == mToolSlot) mShouldSpoofSlot = false;
+        else mShouldSpoofSlot = true;
     }
 }
 
@@ -1265,7 +1268,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             // Steal
             for (auto& offset : mOffsetList) {
                 glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
-                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1 && blockPos != mTargettingBlockPos) {
+                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1) {
                     mEnemyTargettingBlockPos = blockPos;
                     mLastEnemyLayerBlockPos = levelEvent->mPos;
                     mCanSteal = true;

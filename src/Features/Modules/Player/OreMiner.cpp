@@ -87,7 +87,7 @@ void OreMiner::queueBlock(glm::ivec3 blockPos) {
     mBreakingProgress = 0.f;
     int bestToolSlot = ItemUtils::getBestBreakingTool(block, mHotbarOnly.mValue);
     if (mShouldSpoofSlot) {
-        PacketUtils::spoofSlot(bestToolSlot);
+        PacketUtils::spoofSlot(bestToolSlot, false);
         mShouldSpoofSlot = false;
     }
     BlockUtils::startDestroyBlock(blockPos, mCurrentBlockFace);
@@ -203,7 +203,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         int exposedFace = BlockUtils::getExposedFace(mCurrentBlockPos);
         int bestToolSlot = ItemUtils::getBestBreakingTool(currentBlock, mHotbarOnly.mValue);
         if (mShouldSpoofSlot) {
-            PacketUtils::spoofSlot(bestToolSlot);
+            PacketUtils::spoofSlot(bestToolSlot, false);
             mShouldSpoofSlot = false;
             return;
         }
@@ -322,7 +322,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
         }
 
         if (mShouldSetbackSlot) {
-            PacketUtils::spoofSlot(mPreviousSlot);
+            PacketUtils::spoofSlot(mPreviousSlot, false);
             mShouldSetbackSlot = false;
         }
     }
@@ -395,6 +395,7 @@ void OreMiner::onPacketOutEvent(PacketOutEvent& event)
     }
     else if (event.mPacket->getId() == PacketID::MobEquipment) {
         auto mpkt = event.getPacket<MobEquipmentPacket>();
-        if (mpkt->mSlot != mToolSlot) mShouldSpoofSlot = true;
+        if (mpkt->mSlot == mToolSlot) mShouldSpoofSlot = false;
+        else mShouldSpoofSlot = true;
     }
 }
