@@ -509,7 +509,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             if (mFireSwordSpoof.mValue && shouldUseFire)
             {
                 auto pkt = PacketUtils::createMobEquipmentPacket(bestWeapon);
-                ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
+                ClientInstance::get()->getPacketSender()->send(pkt.get());
                 spoofed = true;
             }
 #endif
@@ -520,7 +520,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             if (spoofed)
             {
                 auto pkt = PacketUtils::createMobEquipmentPacket(oldPktSlot);
-                ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
+                ClientInstance::get()->getPacketSender()->send(pkt.get());
             }
         }
 

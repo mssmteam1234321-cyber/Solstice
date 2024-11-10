@@ -108,6 +108,7 @@ public:
     BoolSetting mOreFaker = BoolSetting("Ore Faker", "Fakes targetting ore", false);
     BoolSetting mExposed = BoolSetting("Exposed", "Include exposed ore", false);
     BoolSetting mUnexposed = BoolSetting("Unexposed", "Include unexposed ore", false);
+    BoolSetting mCovering = BoolSetting("Trigger Stealer", "Include covering block", false);
     BoolSetting mRenderFakeOre = BoolSetting("Render Fake Ore", "Renders the ore you are currenty faking", false);
     BoolSetting mReplace = BoolSetting("Raper", "kicks other hackers while hvh", false);
     BoolSetting mChecker = BoolSetting("Checker", "Checks if the block replacement was successful", false);
@@ -192,10 +193,11 @@ public:
 #endif
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
-        addSettings(&mExposed, &mUnexposed);
+        addSettings(&mExposed, &mUnexposed, &mCovering);
         addSetting(&mRenderFakeOre);
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
+        VISIBILITY_CONDITION(mCovering, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
         addSetting(&mNoUncoverWhileStealing);
         addSettings(&mDynamicUncover, &mDisableDuration);
