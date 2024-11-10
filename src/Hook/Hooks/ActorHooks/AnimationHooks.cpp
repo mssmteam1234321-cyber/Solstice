@@ -15,7 +15,7 @@ std::unique_ptr<Detour> AnimationHooks::mBobHurtDetour;
 
 int AnimationHooks::getCurrentSwingDuration(Actor* actor)
 {
-    auto original = mSwingDetour->getOriginal<decltype(&getCurrentSwingDuration)>();
+    auto original = mSwingDetour->getOriginal<&getCurrentSwingDuration>();
     int result = original(actor);
 
     auto holder = nes::make_holder<SwingDurationEvent>(result);
@@ -27,7 +27,7 @@ int AnimationHooks::getCurrentSwingDuration(Actor* actor)
 
 void* AnimationHooks::doBobHurt(void* _this, glm::mat4* matrix)
 {
-    auto original = mBobHurtDetour->getOriginal<decltype(&doBobHurt)>();
+    auto original = mBobHurtDetour->getOriginal<&doBobHurt>();
     // Log the address of the matrix
     auto result = original(_this, matrix);
 

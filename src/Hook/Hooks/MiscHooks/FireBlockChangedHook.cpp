@@ -11,7 +11,7 @@ void FireBlockChangedHook::fireBlockChangedCallback(BlockSource* self, BlockPos&
     Block* newBlock, Block* oldBlock, int param_5, int eventTarget, ActorBlockSyncMessage* param_7,
     Actor* who)
 {
-    auto original = mDetour->getOriginal<decltype(&fireBlockChangedCallback)>();
+    auto original = mDetour->getOriginal<&fireBlockChangedCallback>();
     original(self, blockPos, param_2, newBlock, oldBlock, param_5, eventTarget, param_7, who);
 
     auto holder = nes::make_holder<BlockChangedEvent>(blockPos, newBlock, oldBlock, eventTarget, who);

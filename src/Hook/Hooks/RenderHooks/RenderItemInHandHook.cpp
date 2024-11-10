@@ -11,7 +11,7 @@ void* RenderItemInHandHook::RenderItemInHandDescriptionCtor(RenderItemInHandDesc
     void* material, void* glintTexture, void* worldMatrix, bool isDrawingUI, void* globalConstantBuffers,
     unsigned short viewId, void* renderMetadata)
 {
-    auto original = mDetour->getOriginal<decltype(&RenderItemInHandDescriptionCtor)>();
+    auto original = mDetour->getOriginal<&RenderItemInHandDescriptionCtor>();
     auto result = original(_this, renderObject, itemFlags, material, glintTexture, worldMatrix, isDrawingUI, globalConstantBuffers, viewId, renderMetadata);
 
     nes::event_holder<RenderItemInHandDescriptionEvent> holder = nes::make_holder<RenderItemInHandDescriptionEvent>(_this, renderObject, itemFlags, material, glintTexture, worldMatrix, isDrawingUI, globalConstantBuffers);

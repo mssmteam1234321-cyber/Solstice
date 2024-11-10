@@ -9,7 +9,7 @@ std::unique_ptr<Detour> PreGameHook::mDetour = nullptr;
 
 bool PreGameHook::onPreGame(void* _this)
 {
-    auto original = mDetour->getOriginal<decltype(&onPreGame)>();
+    auto original = mDetour->getOriginal<&onPreGame>();
 
     auto holder = nes::make_holder<PreGameCheckEvent>(false);
     gFeatureManager->mDispatcher->trigger(holder);

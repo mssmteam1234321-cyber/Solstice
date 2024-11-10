@@ -16,7 +16,7 @@ std::unique_ptr<Detour> ActorModelHook::mDetour;
 //void ActorAnimationControllerPlayer::applyToPose(RenderParams&, std::unordered_map<SkeletalHierarchyIndex,std::vector<BoneOrientation>>&, float)
 void ActorModelHook::onActorModel(uintptr_t a1, uintptr_t a2, uintptr_t a3, float a4, int a5)
 {
-    auto original = mDetour->getOriginal<decltype(&ActorModelHook::onActorModel)>();
+    auto original = mDetour->getOriginal<&ActorModelHook::onActorModel>();
     original(a1, a2, a3, a4, a5);
 
     auto ent = *reinterpret_cast<Actor**>(a2 + 0x38); // 0x38 is the pointer to actor :D

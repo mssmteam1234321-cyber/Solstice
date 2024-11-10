@@ -13,7 +13,7 @@ std::unique_ptr<Detour> ActorRenderDispatcherHook::mDetour;
 void ActorRenderDispatcherHook::render(ActorRenderDispatcher* _this, BaseActorRenderContext* entityRenderContext,
     Actor* entity, glm::vec3* cameraTargetPos, glm::vec3* pos, glm::vec2* rot, bool ignoreLighting)
 {
-    auto oFunc = mDetour->getOriginal<decltype(&render)>();
+    auto oFunc = mDetour->getOriginal<&render>();
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
     if (!localPlayer) return;
 

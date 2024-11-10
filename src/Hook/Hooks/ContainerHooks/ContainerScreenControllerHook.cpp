@@ -13,7 +13,7 @@ std::unique_ptr<Detour> ContainerScreenControllerHook::mDetour;
 
 uint32_t ContainerScreenControllerHook::onContainerTick(class ContainerScreenController *csc)
 {
-    auto original = mDetour->getOriginal<decltype(&ContainerScreenControllerHook::onContainerTick)>();
+    auto original = mDetour->getOriginal<&ContainerScreenControllerHook::onContainerTick>();
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return original(csc); // just in case

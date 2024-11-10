@@ -10,7 +10,7 @@
 std::unique_ptr<Detour> ItemRendererHook::mDetour;
 
 void ItemRendererHook::render(ItemRenderer *_this, BaseActorRenderContext *renderContext, ActorRenderData *actorRenderData) {
-    auto original = mDetour->getOriginal<decltype(render)*>();
+    auto original = mDetour->getOriginal<&ItemRendererHook::render>();
 
     auto holder = nes::make_holder<ItemRendererEvent>(_this, renderContext, actorRenderData);
     gFeatureManager->mDispatcher->trigger(holder);

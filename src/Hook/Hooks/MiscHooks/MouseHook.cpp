@@ -15,7 +15,7 @@ void* thisMouse = nullptr;
 void MouseHook::onMouse(void* _this, char actionButtonId, int buttonData, short x, short y, short dx, short dy,
     uint8_t forceMotionlessPointer)
 {
-    auto oFunc = mDetour->getOriginal<decltype(&onMouse)>();
+    auto oFunc = mDetour->getOriginal<&onMouse>();
 
     thisMouse = _this;
 

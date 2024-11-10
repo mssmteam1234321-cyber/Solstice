@@ -7,7 +7,8 @@
 
 class AnimationHooks : public Hook {
 public:
-    AnimationHooks() : Hook() {
+    AnimationHooks() : Hook()
+    {
         mName = "AnimationHooks";
     }
 

@@ -57,4 +57,5 @@ public:
     void onDisable() override;
     void onBaseTickEvent(BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
+    void onNametagRenderEvent(class NametagRenderEvent& event);
 };

@@ -17,7 +17,7 @@ std::unordered_map<PacketID, std::unique_ptr<Detour>> PacketReceiveHook::mDetour
 
 void* PacketReceiveHook::onPacketSend(void* _this, void* networkIdentifier, void* netEventCallback, std::shared_ptr<Packet> packet)
 {
-    auto ofunc = PacketReceiveHook::mDetours[packet->getId()]->getOriginal<decltype(&onPacketSend)>();
+    auto ofunc = PacketReceiveHook::mDetours[packet->getId()]->getOriginal<&onPacketSend>();
 
     NetworkIdentifier = networkIdentifier;
 

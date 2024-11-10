@@ -18,7 +18,7 @@ std::unique_ptr<Detour> PacketSendHook::mDetour = nullptr;
 
 void* PacketSendHook::onPacketSend(void* _this, Packet *packet) {
     // Call the original function
-    auto original = mDetour->getOriginal<decltype(&onPacketSend)>();
+    auto original = mDetour->getOriginal<&onPacketSend>();
 
     if (packet->getId() == PacketID::Text)
     {

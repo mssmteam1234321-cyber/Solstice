@@ -124,7 +124,7 @@ ImGuiKey ImGui_ImplWin32_VirtualKeyToImGuiKey(WPARAM wParam)
 
 void KeyHook::onKey(uint32_t key, bool isDown)
 {
-    auto oFunc = mDetour->getOriginal<decltype(&onKey)>();
+    auto oFunc = mDetour->getOriginal<&onKey>();
 
     if (key == VK_END && isDown && ClientInstance::get()->getScreenName() != "chat_screen" && !ImGui::GetIO().WantCaptureKeyboard && !ImGui::GetIO().WantTextInput)
     {
