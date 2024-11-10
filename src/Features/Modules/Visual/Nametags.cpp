@@ -4,7 +4,6 @@
 
 #include "Nametags.hpp"
 
-#include <Features/Events/CanShowNameTagEvent.hpp>
 #include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
@@ -16,27 +15,22 @@
 
 void Nametags::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &Nametags::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
 }
 void Nametags::onDisable()
 {
-    gFeatureManager->mDispatcher->deafen<CanShowNameTagEvent, &Nametags::onCanShowNameTag>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Nametags::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
-}
 
-void Nametags::onCanShowNameTag(CanShowNameTagEvent& event)
-{
-    auto actor = event.mActor;
-    if (!actor->isPlayer()) return;
-    if (actor == ClientInstance::get()->getLocalPlayer() && !mRenderLocal.mValue) return;
-    if (gFriendManager->isFriend(actor) && !mShowFriends.mValue) return;
-    if (ActorUtils::isBot(actor)) return;
-    event.setResult(false); // hides the original nametag
-}
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
 
+    for (auto actor : ActorUtils::getActorList(false, true))
+    {
+        actor->setFlag<NameableComponent>(true);
+    }
+}
 std::mutex bpsMutex;
 std::unordered_map<Actor*, float> bpsMap;
 std::unordered_map<Actor*, std::map<int64_t, float>> bpsHistory;
@@ -214,5 +208,6 @@ void Nametags::onRenderEvent(RenderEvent& event)
         drawList->AddText(ImGui::GetFont(), fontSize, pos, themeColor, name.c_str());
 
         FontHelper::popPrefFont();
+        //actor->setFlag<NameableComponent>(false);// Hides the vanilla nametag
     }
 }

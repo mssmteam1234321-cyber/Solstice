@@ -13,6 +13,11 @@ struct GameCameraComponent {};
 struct OnFireComponent {};
 struct MoveRequestComponent {};
 struct DebugCameraIsActiveComponent {};
+struct AllowInsideBlockRenderComponent {};
+class NameableComponent
+{
+    PAD(0x8);
+};
 
 struct InteractPreventDefaultFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct InteractPreventDefaultFlagComponent>(void) noexcept
 struct OnGroundFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct OnGroundFlagComponent>(void) noexcept

@@ -88,6 +88,45 @@ public:
         }
     }
 
+   template<typename flag_t>
+   bool getFlag(EntityId id) {
+        if (!isValid())
+        {
+            spdlog::error("Failed to get flag: actor is not valid");
+            return false;
+        }
+
+        auto storage = mContext.assure<flag_t>();
+        return storage->contains(id);
+    }
+
+    template<typename flag_t>
+    void setFlag(bool value, EntityId id)
+    {
+        try
+        {
+            if (!isValid())
+            {
+                spdlog::error("Failed to set flag: actor is not valid");
+                return;
+            }
+            auto storage = mContext.assure<flag_t>();
+            bool has = storage->contains(id);
+            if (value && !has) {
+                storage->emplace(id);
+            }
+            else if (!value && has) {
+                storage->remove(id);
+            }
+        } catch (std::exception& e) {
+            spdlog::error("Failed to set flag: {}", e.what());
+        } catch (...) {
+            spdlog::error("Failed to set flag: unknown error");
+        }
+    }
+
+
+
     void swing();
     bool isDestroying();
     bool isSwinging();

@@ -21,6 +21,10 @@ public:
     glm::vec2 mLookingAngles = glm::vec2(0.0f, 0.0f);
     std::set<EntityId> mCameras;
     bool mHadComponent = false;
+    std::vector<CameraDirectLookComponent*> mCameraDirectLookComponents;
+    std::unordered_map<CameraDirectLookComponent*, CameraDirectLookComponent> mOriginalRots;
+
+    static void patchUpdates(bool);
 
     void onEnable() override;
     void onDisable() override;

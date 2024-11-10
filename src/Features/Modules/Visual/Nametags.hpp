@@ -55,7 +55,6 @@ public:
 
     void onEnable() override;
     void onDisable() override;
-    void onCanShowNameTag(class CanShowNameTagEvent& event);
     void onBaseTickEvent(BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
 };

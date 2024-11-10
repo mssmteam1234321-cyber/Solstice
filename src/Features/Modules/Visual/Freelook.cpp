@@ -5,8 +5,17 @@
 #include "Freelook.hpp"
 
 #include <SDK/Minecraft/Actor/Components/CameraComponent.hpp>
+#include <SDK/Minecraft/Actor/Components/ItemUseSlowdownModifierComponent.hpp>
 
-// TODO: Figure out why emplace
+std::vector<unsigned char> gFrlBytes = { 0xC3, 0x90, 0x90 };
+DEFINE_PATCH_FUNC(Freelook::patchUpdates, SigManager::Unknown_updatePlayerFromCamera, gFrlBytes);
+
+class CameraOrbitComponent
+{
+    glm::vec2 mRotRads{};
+    float mDelta = 0.0f;
+    glm::vec2 mWrap{};
+};
 
 void Freelook::onEnable()
 {
@@ -23,37 +32,62 @@ void Freelook::onEnable()
     mLastCameraState = ClientInstance::get()->getOptions()->mThirdPerson->value;
     ClientInstance::get()->getOptions()->mThirdPerson->value = 1;
 
-    entt::basic_storage<UpdatePlayerFromCameraComponent, EntityId>* storage = player->mContext.assure<
-        UpdatePlayerFromCameraComponent>();
-    // gather all of the Entity IDS that have the UpdatePlayerFromCameraComponent
-    std::set<EntityId> cameras;
+    auto storage = player->mContext.assure<CameraDirectLookComponent>();
 
-    for (std::tuple<EntityId, UpdatePlayerFromCameraComponent&> entt : storage->each())
+    for (std::tuple<EntityId, CameraDirectLookComponent&> entt : storage->each())
     {
-        // Get the entity id
         EntityId id = std::get<0>(entt);
-        cameras.insert(id);
+
+        spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
+        mCameraDirectLookComponents.push_back(&std::get<1>(entt));
+        mOriginalRots[&std::get<1>(entt)] = std::get<1>(entt);
     }
-    storage->clear();
+
+    {
+        auto s = player->mContext.assure<ItemUseSlowdownModifierComponent>();
+
+        for (std::tuple<EntityId, ItemUseSlowdownModifierComponent&> entt : s->each())
+        {
+            EntityId id = std::get<0>(entt);
+
+            spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
+        }
+
+
+    }
+
+    patchUpdates(true);
 }
 
 void Freelook::onDisable()
 {
+    patchUpdates(false);
+
     auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
+    if (!player)
+    {
+        mCameraDirectLookComponents.clear();
+        mOriginalRots.clear();
+        return;
+    }
+
+    auto storage = player->mContext.assure<CameraDirectLookComponent>();
+
+    for (std::tuple<EntityId, CameraDirectLookComponent&> entt : storage->each())
+    {
+        // Get the entity id
+        EntityId id = std::get<0>(entt);
+        // Log the entity id and their component
+        spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
+        auto comp = &std::get<1>(entt);
+        *comp = mOriginalRots[comp];
+    }
+
+    mCameraDirectLookComponents.clear();
+    mOriginalRots.clear();
 
     auto options = ClientInstance::get()->getOptions();
     options->mThirdPerson->value = mLastCameraState;
 
-    auto rotc = player->getActorRotationComponent();
-    rotc->mPitch = mLookingAngles.x;
-    rotc->mYaw = mLookingAngles.y;
 
-    const auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
-    for (EntityId id : mCameras)
-    {
-        // replace the UpdatePlayerFromCameraComponent on the camera...
-        storage->emplace(id);
-    }
-    mCameras.clear();
 }

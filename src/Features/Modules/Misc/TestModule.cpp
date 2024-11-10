@@ -15,6 +15,7 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/SyncedPlayerMovementSettings.hpp>
+#include <SDK/Minecraft/Actor/Components/ItemUseSlowdownModifierComponent.hpp>
 #include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
@@ -380,7 +381,6 @@ enum class Tab
 };
 
 
-
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     /*AABB& blockAABB = lastBlockAABB;
@@ -618,7 +618,15 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
         displayCopyableAddress("ShadowOffsetComponent", player->mContext.getComponent<ShadowOffsetComponent>());;
         displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());;
+        displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());;
         displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
+        //ItemUseSlowdownModifierComponent
+        displayCopyableAddress("ItemUseSlowdownModifierComponent", player->mContext.getComponent<ItemUseSlowdownModifierComponent>());
+
+
+        if (ImGui::Button("Remove NameableComponent")) player->setFlag<NameableComponent>(false);
+        if (ImGui::Button("Add NameableComponent")) player->setFlag<NameableComponent>(true);
+
         ImGui::EndGroup();
     }
 

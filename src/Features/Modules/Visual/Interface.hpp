@@ -78,7 +78,7 @@ public:
             &mSaturation,
             &mSlotEasing,
             &mSlotEasingSpeed
-#ifdef __DEBUG_
+#ifdef __DEBUG__
             ,&mForcePackSwitching
 #endif
         );

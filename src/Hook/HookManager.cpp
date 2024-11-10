@@ -8,7 +8,6 @@
 
 #include "Hooks/ActorHooks/ActorModelHook.hpp"
 #include "Hooks/ActorHooks/AnimationHooks.hpp"
-#include "Hooks/ActorHooks/CanShowNameHook.hpp"
 #include "Hooks/ActorHooks/IsSlowedByItemUseHook.hpp"
 #include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
 #include "Hooks/MiscHooks/FireBlockChangedHook.hpp"
@@ -59,7 +58,6 @@ void HookManager::init(bool initLp)
         ADD_HOOK(ActorModelHook);
         ADD_HOOK(ItemRendererHook);
         ADD_HOOK(FireBlockChangedHook);
-        ADD_HOOK(CanShowNameHook);
         ADD_HOOK(RenderItemInHandHook);
         ADD_HOOK(PreGameHook);
 
