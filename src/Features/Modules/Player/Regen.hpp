@@ -27,9 +27,7 @@ public:
     };
     enum class AntiConfuseMode {
         RedstoneCheck,
-#ifdef __PRIVATE_BUILD__
         ExposedCheck
-#endif
     };
     enum class OreSelectionMode {
         Normal,
@@ -195,13 +193,21 @@ public:
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mReplace, mSteal.mValue);
 #endif
+
 #ifdef __PRIVATE_BUILD__
         addSetting(&mOreFaker);
-        addSettings(&mExposed, &mUnexposed, &mCovering);
+        addSettings(&mExposed, &mUnexposed);
+#endif
+
+#ifdef __DEBUG__
+        addSetting(&mCovering);
+        VISIBILITY_CONDITION(mCovering, mOreFaker.mValue);
+#endif
+        
+#ifdef __PRIVATE_BUILD__
         addSetting(&mRenderFakeOre);
         VISIBILITY_CONDITION(mExposed, mOreFaker.mValue);
         VISIBILITY_CONDITION(mUnexposed, mOreFaker.mValue);
-        VISIBILITY_CONDITION(mCovering, mOreFaker.mValue);
         VISIBILITY_CONDITION(mRenderFakeOre, mOreFaker.mValue);
         addSetting(&mNoUncoverWhileStealing);
         addSettings(&mDynamicUncover, &mDisableDuration);
