@@ -20,9 +20,9 @@ public:
     void enable(bool silent = false) const;
     void restore() const; // provided just in case, you should NOT use this
 
-    template <typename T>
-    inline auto* getOriginal() {
-        return reinterpret_cast<T>(mOriginalFunc);
+    template <auto T>
+    auto getOriginal() {
+        return reinterpret_cast<decltype(T)>(mOriginalFunc);
     }
 
 };

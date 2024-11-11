@@ -15,7 +15,7 @@ void* ConnectionRequestHook::createRequestDetourFunc(ConnectionRequest* result, 
     bool thirdPartyNameOnly, std::string* platformOnlineID, std::string* platformOfflineID, std::string* capeId,
     bool CompatibleWithClientSideChunkGen)
 {
-    auto oFunc = mDetour->getOriginal<decltype(&createRequestDetourFunc)>();
+    auto oFunc = mDetour->getOriginal<&createRequestDetourFunc>();
 
     auto holder = nes::make_holder<ConnectionRequestEvent>(result, privKeyManager, cert, selfSignedId, serverAddress, clientRandomId,
         skinId, skinData, capeData, skin, deviceId, inputMode, uiProfile, guiScale, languageCode, isEditorMode, IsEduMode,

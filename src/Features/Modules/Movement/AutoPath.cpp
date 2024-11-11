@@ -7,17 +7,19 @@
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
+
+
 BlockSource* AutoPath::cachedSrc = nullptr;
 const float AutoPath::SQRT_2 = sqrtf(2.f);
 
-std::vector<BlockPos> AutoPath::sideAdj = {
+std::vector<Vec3i> AutoPath::sideAdj = {
     {1, 0, 0},
     {0, 0, 1},
     {-1, 0, 0},
     {0, 0, -1}
 };
 
-std::vector<BlockPos> AutoPath::directAdj = {
+std::vector<Vec3i> AutoPath::directAdj = {
     {1, 0, 0},
     {0, 0, 1},
     {-1, 0, 0},
@@ -26,7 +28,7 @@ std::vector<BlockPos> AutoPath::directAdj = {
     {0, -1, 0}
 };
 
-std::vector<BlockPos> AutoPath::diagAdd = {
+std::vector<Vec3i> AutoPath::diagAdd = {
     {1, 0, 1},
     {-1, 0, 1},
     {-1, 0, -1},
@@ -48,8 +50,8 @@ struct ScoreList {
     }
 };
 
-static glm::vec3* getPlayerHitboxPathPosOffsets() {
-    static glm::vec3 res[8] = {
+static Vec3* getPlayerHitboxPathPosOffsets() {
+    static Vec3 res[8] = {
         {0.17f, -0.99f, 0.17f},
         {0.83f, -0.99f, 0.17f},
         {0.83f, -0.99f, 0.83f},
@@ -63,9 +65,8 @@ static glm::vec3* getPlayerHitboxPathPosOffsets() {
     return res;
 }
 
-__forceinline float AutoPath::heuristicEstimation(const BlockPos& node, const BlockPos& target) {
-    glm::ivec3 diff = node - target;
-    spdlog::debug("Diff: {}/{}/{} node: {}/{}/{}, target: {}/{}/{}", diff.x, diff.y, diff.z, node.x, node.y, node.z, target.x, target.y, target.z);
+__forceinline float AutoPath::heuristicEstimation(const Vec3i& node, const Vec3i& target) {
+    const auto diff = node.sub(target);
     const int x = abs(diff.x);
     const int z = abs(diff.z);
     float straight;
@@ -81,12 +82,11 @@ __forceinline float AutoPath::heuristicEstimation(const BlockPos& node, const Bl
     }
 
     diagonal *= SQRT_2;
-    spdlog::debug("Heuristic for node {}/{}/{} to target {}/{}/{} is {}", node.x, node.y, node.z, target.x, target.y, target.z, straight + diagonal + static_cast<float>(abs(target.y - node.y)));
     return straight + diagonal + static_cast<float>(abs(target.y - node.y));
 }
 
-inline bool AutoPath::isCompletelyObstructed(const BlockPos& pos) {
-    const auto block = cachedSrc->getBlock(pos);
+inline bool AutoPath::isCompletelyObstructed(const Vec3i& pos) {
+    const auto block = cachedSrc->getBlock(pos.toGlm());
 
     if (block->toLegacy()->getmMaterial()->getmIsBlockingMotion() || block->toLegacy()->getmSolid()|| block->toLegacy()->getmMaterial()->getmIsBlockingPrecipitation() || block->toLegacy()->getBlockId() != 0)
         return true;
@@ -94,18 +94,18 @@ inline bool AutoPath::isCompletelyObstructed(const BlockPos& pos) {
     return false;
 }
 
-std::vector<std::pair<BlockPos, float>> AutoPath::getAirAdjacentNodes(const BlockPos& node, const BlockPos& start, BlockPos& goal) {
-    std::vector<std::pair<BlockPos, float>> res;
+std::vector<std::pair<Vec3i, float>> AutoPath::getAirAdjacentNodes(const Vec3i& node, const Vec3i& start, Vec3i& goal) {
+    std::vector<std::pair<Vec3i, float>> res;
     res.reserve(10);
 
     bool sideWorks[5];
 
     for (int i = 0; i < sideAdj.size(); i++) {
         bool works = false;
-        const auto curr = node + sideAdj.at(i);
+        const auto curr = node.add(sideAdj.at(i));
 
-        if (glm::distance(glm::vec3(curr), glm::vec3(start)) <= 100.f) {
-            if (!isCompletelyObstructed(curr) && !isCompletelyObstructed(curr - BlockPos(0, 1, 0))) {
+        if (curr.dist(start) <= 100) {
+            if (!isCompletelyObstructed(curr) && !isCompletelyObstructed(curr.sub(0, 1, 0))) {
                 res.emplace_back(curr, 1.f);
                 works = true;
             }
@@ -115,19 +115,19 @@ std::vector<std::pair<BlockPos, float>> AutoPath::getAirAdjacentNodes(const Bloc
     }
 
     // Top
-    BlockPos curr = node + BlockPos(0, 1, 0);
+    Vec3i curr = node.add(0, 1, 0);
 
-    if (glm::distance(glm::vec3(curr), glm::vec3(start)) <= 100.f) {
+    if (curr.dist(start) <= 100) {
         if (!isCompletelyObstructed(curr))
             res.emplace_back(curr, 1.f);
     }
 
     // Bottom
-    curr = node - BlockPos(0, 2, 0);
+    curr = node.sub(0, 2, 0);
 
-    if (glm::distance(glm::vec3(curr), glm::vec3(start)) <= 100.f) {
+    if (curr.dist(start) <= 100) {
         if (!isCompletelyObstructed(curr))
-            res.emplace_back(curr + BlockPos(0, 1, 0), 1.f);
+            res.emplace_back(curr.add(0, 1, 0), 1.f);
     }
 
     // Diagonal
@@ -135,10 +135,10 @@ std::vector<std::pair<BlockPos, float>> AutoPath::getAirAdjacentNodes(const Bloc
 
     for (int i = 0; i < 4; i++) {
         if (sideWorks[i] && sideWorks[i + 1]) {
-            curr = node + BlockPos(diagAdd.at(i));
+            curr = node.add(diagAdd.at(i));
 
-            if (glm::distance(glm::vec3(curr), glm::vec3(start)) <= 100.f) {
-                if (!isCompletelyObstructed(curr) && !isCompletelyObstructed(curr - BlockPos(0, 1, 0)))
+            if (curr.dist(start) <= 100) {
+                if (!isCompletelyObstructed(curr) && !isCompletelyObstructed(curr.sub(0, 1, 0)))
                     res.emplace_back(curr, SQRT_2);
             }
         }
@@ -147,60 +147,75 @@ std::vector<std::pair<BlockPos, float>> AutoPath::getAirAdjacentNodes(const Bloc
     return res;
 }
 
-std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, BlockSource* src, float howClose, bool optimizePath) {
+std::vector<Vec3> AutoPath::findFlightPath(Vec3i start, Vec3i goal, BlockSource* src, float howClose, bool optimizePath, int64_t timeout, bool debugMsgs) {
     cachedSrc = src;
-    std::map<BlockPos, BlockPos> cameFrom;
-    std::map<BlockPos, ScoreList> scores;
 
-    auto cmp = [&scores](const BlockPos& a, const BlockPos& b) {
+    std::map<Vec3i, Vec3i> cameFrom;
+    std::map<Vec3i, ScoreList> scores;
+
+    auto cmp = [&scores](const Vec3i& a, const Vec3i& b) {
         return scores[a].fScore < scores[b].fScore;
     };
-    std::multiset<BlockPos, decltype(cmp)> openSet(cmp);
 
+    std::multiset<Vec3i, decltype(cmp)> openSet(cmp);  // this should be a priority queue or other minheap at some point
     float startH = heuristicEstimation(start, goal);
+
     scores[start] = ScoreList(0.f, startH);
     openSet.insert(start);
 
-    glm::vec3 closestPoint = glm::vec3(start);
+    Vec3 closestPoint = start.toVec3t();
     float bestHeuristic = startH;
-    auto startTime = NOW;
+    int64_t startTime = NOW;
 
     while (!openSet.empty()) {
-        BlockPos current = *openSet.begin();
+        Vec3i current = *openSet.begin();
+
         openSet.erase(openSet.begin());
 
         if (heuristicEstimation(current, goal) <= howClose || NOW - startTime > 90 /*90 ms padding*/) {
-            std::vector<glm::vec3> path = { closestPoint };
-            BlockPos currentReconstructionNode = closestPoint;
+            std::vector path = { closestPoint };
+            Vec3i currentReconstructionNode = closestPoint;
 
-            while (cameFrom.find(currentReconstructionNode) != cameFrom.end()) {
+            // unoptimised
+            while (cameFrom.contains(currentReconstructionNode)) {
                 currentReconstructionNode = cameFrom[currentReconstructionNode];
-                path.push_back(glm::vec3(currentReconstructionNode));
+                path.push_back(currentReconstructionNode.toVec3t());
             }
 
-            std::reverse(path.begin(), path.end());
+            std::ranges::reverse(path.begin(), path.end());
 
             if (!path.empty()) {
                 if (heuristicEstimation(current, goal) <= howClose)
-                    ChatUtils::displayClientMessage("§aFound path!");
+                {
+                    if (debugMsgs)
+                        ChatUtils::displayClientMessage("§aFound path!");
+                }
                 else
+                {
                     ChatUtils::displayClientMessage("§6Found partial path!");
+                }
 
                 if (optimizePath && path.size() >= 2) {
-                    // Optimize the path
                     int startIdx = 0;
                     int endIdx = path.size() - 1;
 
                     while (startIdx < path.size() - 1) {
                         while (endIdx - startIdx > 1) {
+                            // Check line of sight from start to end
                             bool hasLineOfSight = true;
-                            glm::vec3* list = getPlayerHitboxPathPosOffsets();
+                            Vec3* list = getPlayerHitboxPathPosOffsets();
 
                             for (int li = 0; li < 8; li++) {
-                                glm::vec3 startCheck = path.at(startIdx) + list[li];
-                                glm::vec3 endCheck = path.at(endIdx) + list[li];
-                                HitResult rt = src->checkRayTrace(startCheck, endCheck);
+                                // Check line of sight for each point
+                                Vec3 startCheck = path.at(startIdx).add(list[li]);
+                                Vec3 endCheck = path.at(endIdx).add(list[li]);
+                                HitResult rt = src->checkRayTrace(startCheck.toGlm(), endCheck.toGlm());
 
+                                if (rt.mType == HitType::BLOCK) {
+                                    hasLineOfSight = false;
+                                    break;
+                                }
+                                rt = src->checkRayTrace(startCheck.sub(0, 1, 0).toGlm(), endCheck.sub(0, 1, 0).toGlm());
                                 if (rt.mType == HitType::BLOCK) {
                                     hasLineOfSight = false;
                                     break;
@@ -208,40 +223,70 @@ std::vector<glm::vec3> AutoPath::findFlightPath(BlockPos start, BlockPos goal, B
                             }
 
                             if (hasLineOfSight) {
-                                path.erase(path.begin() + startIdx + 1, path.begin() + endIdx);
+                                startIdx++;
+                                path.erase(path.begin() + startIdx, path.begin() + endIdx);
                                 endIdx = path.size() - 1;
-                            } else {
-                                endIdx--;
                             }
+                            else
+                                endIdx--;
                         }
+
                         startIdx++;
                         endIdx = path.size() - 1;
                     }
                 }
             }
+
+
+
+            // post-process and center x and z nodes
+            for (auto& pos : path) {
+                pos.x = floorf(pos.x) + 0.5f;
+                pos.z = floorf(pos.z) + 0.5f;
+            }
+
             return path;
         }
 
         for (auto& [pos, f] : getAirAdjacentNodes(current, start, goal)) {
             const float tentative_gScore = scores[current].gScore + f;
-            if (scores.find(pos) == scores.end() || tentative_gScore < scores[pos].gScore) {
+
+            if (tentative_gScore < scores[pos].gScore) {
+                // better path found
                 cameFrom[pos] = current;
+
                 float h = heuristicEstimation(pos, goal);
+
                 scores[pos] = ScoreList(tentative_gScore, tentative_gScore + h);
                 openSet.insert(pos);
 
                 if (h < bestHeuristic) {
                     bestHeuristic = h;
-                    closestPoint = glm::vec3(pos);
+                    closestPoint = pos.toVec3t();
                 }
             }
         }
+
+        if (NOW - startTime > timeout) {
+            ChatUtils::displayClientMessage("§cPathfinding timed out!");
+            break;
+        }
     }
 
-    ChatUtils::displayClientMessage("§cNo path found!");
+
+
+    //Game.getGuiData()->displayClientMessageF("{}{}", RED, "No path found!");
     return {};
 }
 
+std::vector<glm::vec3> AutoPath::findFlightPathGlm(glm::vec3 start, glm::vec3 goal, BlockSource* src, float howClose,
+    bool optimizePath, int64_t timeout, bool debugMsgs)
+{
+    auto res = findFlightPath(Vec3i(start), Vec3i(goal), src, howClose, optimizePath, timeout, debugMsgs);
+    std::vector<glm::vec3> resGlm;
+    for (const auto& pos : res) resGlm.push_back(pos.toGlm());
+    return resGlm;
+}
 
 void AutoPath::onEnable()
 {
@@ -290,11 +335,14 @@ void AutoPath::onBaseTickEvent(BaseTickEvent& event)
     auto target = actors.at(0);
     if (target == nullptr) return;
 
-    ChatUtils::displayClientMessage("targetting {}", target->mEntityIdentifier);
-
+    Vec3i targetng = Vec3i(target->getPos()->x, target->getPos()->y, target->getPos()->z);
+    Vec3i srcng = Vec3i(player->getPos()->x, player->getPos()->y, player->getPos()->z);
     const auto targetPos = *target->getPos();
-    const auto path = findFlightPath(*player->getPos(), targetPos, ClientInstance::get()->getBlockSource(), mHowClose.mValue, true);
-    this->mPosList = path;
+    const auto path = findFlightPath(srcng, targetng, ClientInstance::get()->getBlockSource(), mHowClose.mValue, true, mPathTimeout.mValue * 1000, mDebug.mValue);
+    // Convert Vec3i to glm::vec3
+    std::vector<glm::vec3> pathGlm;
+    for (const auto pos : path) pathGlm.push_back(glm::vec3(pos.x, pos.y, pos.z));
+    this->mPosList = pathGlm;
     spdlog::info("Added {} nodes to path", path.size());
 
 }

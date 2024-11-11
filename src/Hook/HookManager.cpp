@@ -8,6 +8,7 @@
 
 #include "Hooks/ActorHooks/ActorModelHook.hpp"
 #include "Hooks/ActorHooks/AnimationHooks.hpp"
+#include "Hooks/ActorHooks/NametagRenderHook.hpp"
 #include "Hooks/ContainerHooks/ContainerScreenControllerHook.hpp"
 #include "Hooks/MiscHooks/FireBlockChangedHook.hpp"
 #include "Hooks/MiscHooks/KeyHook.hpp"
@@ -23,6 +24,8 @@
 #include "Hooks/RenderHooks/LookInputHook.hpp"
 #include "Hooks/RenderHooks/RenderItemInHandHook.hpp"
 #include "Hooks/RenderHooks/SetupAndRenderHook.hpp"
+#include "Hooks/ActorHooks/NametagRenderHook.hpp"
+
 
 #define ADD_HOOK(hook) hooks.emplace_back(std::make_shared<hook>())
 
@@ -58,6 +61,7 @@ void HookManager::init(bool initLp)
         ADD_HOOK(FireBlockChangedHook);
         ADD_HOOK(RenderItemInHandHook);
         ADD_HOOK(PreGameHook);
+        ADD_HOOK(NametagRenderHook);
 
 
 

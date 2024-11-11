@@ -159,7 +159,7 @@ void Interface::onActorRenderEvent(ActorRenderEvent& event)
     bodyRotations->yBodyRot = pLerpedBodyYaw;
     bodyRotations->yOldBodyRot = pLerpedBodyYaw;
 
-    auto original = event.mDetour->getOriginal<decltype(&ActorRenderDispatcherHook::render)>();
+    auto original = event.mDetour->getOriginal<&ActorRenderDispatcherHook::render>();
     original(event._this, event.mEntityRenderContext, event.mEntity, event.mCameraTargetPos, event.mPos, event.mRot, event.mIgnoreLighting);
     event.cancel();
 

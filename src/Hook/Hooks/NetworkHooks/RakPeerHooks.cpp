@@ -30,7 +30,7 @@ void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
         uintptr_t getAveragePingAddr = MemUtils::getAddressByIndex(reinterpret_cast<uintptr_t>(peer), 44);
         init(getAveragePingAddr);
     }
-    auto original = RunUpdateCycleDetour->getOriginal<decltype(&runUpdateCycle)>();
+    auto original = RunUpdateCycleDetour->getOriginal<&runUpdateCycle>();
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return original(_this, a2);
 
@@ -46,7 +46,7 @@ void RakPeerHooks::runUpdateCycle(void* _this, void* a2)
 
 __int64 RakPeerHooks::getLastPing(void* _this, void* a2)
 {
-    auto original = GetLastPingDetour->getOriginal<decltype(&getLastPing)>();
+    auto original = GetLastPingDetour->getOriginal<&getLastPing>();
     auto val = original(_this, a2);
 
     static __int64 lastPing = 0;
@@ -63,7 +63,7 @@ __int64 RakPeerHooks::getLastPing(void* _this, void* a2)
 
 uint64_t RakPeerHooks::sendImmediate(uint64_t a1, char* send, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6, uint64_t a7, uint64_t a8, uint64_t a9, uint64_t a10)
 {
-    auto original = SendImmediateDetour->getOriginal<decltype(&sendImmediate)>();
+    auto original = SendImmediateDetour->getOriginal<&sendImmediate>();
 
     auto holder = nes::make_holder<SendImmediateEvent>(a1, send, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     gFeatureManager->mDispatcher->trigger(holder);

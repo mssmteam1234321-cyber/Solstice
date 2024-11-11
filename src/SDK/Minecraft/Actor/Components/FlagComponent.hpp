@@ -23,7 +23,6 @@ struct InteractPreventDefaultFlagComponent {}; // string: auto __cdecl entt::int
 struct OnGroundFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct OnGroundFlagComponent>(void) noexcept
 struct HasTeleportedFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct HasTeleportedFlagComponent>(void) noexcept
 struct AntiCheatRewindFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct AntiCheatRewindFlagComponent>(void) noexcept
-struct ActorDataFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct ActorDataFlagComponent>(void) noexcept
 struct PermissionFlyFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct PermissionFlyFlagComponent>(void) noexcept
 struct MobFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct MobFlagComponent>(void) noexcept
 struct ExitFromPassengerFlagComponent {}; // string: auto __cdecl entt::internal::stripped_type_name<struct ExitFromPassengerFlagComponent>(void) noexcept

@@ -26,6 +26,8 @@
 #include "Components/FlagComponent.hpp"
 #include "Components/MaxAutoStepComponent.hpp"
 #include "Components/MobHurtTimeComponent.hpp"
+#include "Components/ActorDataFlagComponent.hpp"
+
 
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 #include <SDK/Minecraft/World/Chunk/ChunkSource.hpp>
@@ -43,12 +45,13 @@ public:
     CLASS_FIELD(std::string, mEntityIdentifier, OffsetProvider::Actor_mEntityIdentifier);
 
     bool getStatusFlag(ActorFlags flag) {
-        return MemUtils::callFastcall<bool>(SigManager::Actor_getStatusFlag, this, flag);
+        auto data = getActorDataFlagComponent();
+        return data->getStatusFlag(flag);
     }
 
     void setStatusFlag(ActorFlags flag, bool value) {
-        // TODO: implement this
-        //MemUtils::callFastcall<void>(SigManager::Actor_setStatusFlag, this, flag, value);
+        auto data = getActorDataFlagComponent();
+        data->setStatusFlag(flag, value);
     }
 
     template<typename flag_t>
@@ -146,6 +149,7 @@ public:
     glm::vec3* getPos();
     glm::vec3* getPosPrev();
     class GameMode* getGameMode();
+    ActorDataFlagComponent* getActorDataFlagComponent();
     ActorWalkAnimationComponent* getWalkAnimationComponent();
     DebugCameraComponent* getDebugCameraComponent();
     CameraPresetComponent* getCameraPresetComponent();

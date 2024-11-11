@@ -59,6 +59,7 @@ COMPONENT_GET_FUNC(getCameraDirectLookComponent, CameraDirectLookComponent)
 COMPONENT_GET_FUNC(getMaxAutoStepComponent, MaxAutoStepComponent)
 COMPONENT_GET_FUNC(getAttributesComponent, AttributesComponent)
 COMPONENT_GET_FUNC(getCameraComponent, CameraComponent)
+COMPONENT_GET_FUNC(getActorDataFlagComponent, ActorDataFlagComponent)
 
 void Actor::swing()
 {

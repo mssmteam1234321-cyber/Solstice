@@ -217,7 +217,7 @@ void Freecam::onActorRenderEvent(ActorRenderEvent& event)
         // TODO: Prevent the raycast from updating while in detached mode
     }
 
-    auto original = event.mDetour->getOriginal<decltype(&ActorRenderDispatcherHook::render)>();
+    auto original = event.mDetour->getOriginal<&ActorRenderDispatcherHook::render>();
     auto newPos = *event.mPos - *event.mCameraTargetPos - *event.mPos + mOldPos;
     if (mMode.mValue == Mode::Detached) newPos = *event.mPos - *event.mCameraTargetPos - *event.mPos + player->getRenderPositionComponent()->mPosition;
     original(event._this, event.mEntityRenderContext, event.mEntity, event.mCameraTargetPos, &newPos, event.mRot, event.mIgnoreLighting);

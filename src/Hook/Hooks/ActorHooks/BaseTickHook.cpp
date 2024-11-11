@@ -17,7 +17,7 @@ std::unique_ptr<Detour> BaseTickHook::mDetour = nullptr;
 
 void BaseTickHook::onBaseTick(Actor* actor)
 {
-    auto oFunc = mDetour->getOriginal<decltype(&onBaseTick)>();
+    auto oFunc = mDetour->getOriginal<&onBaseTick>();
     if (actor != ClientInstance::get()->getLocalPlayer()) return oFunc(actor);
 
     mQueueMutex.lock();

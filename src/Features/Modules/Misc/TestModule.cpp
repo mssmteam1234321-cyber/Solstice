@@ -622,6 +622,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
         displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
         //ItemUseSlowdownModifierComponent
         displayCopyableAddress("ItemUseSlowdownModifierComponent", player->mContext.getComponent<ItemUseSlowdownModifierComponent>());
+        player->setStatusFlag(ActorFlags::CanShowName, false);
+        player->setStatusFlag(ActorFlags::AlwaysShowName, false);
 
 
         if (ImGui::Button("Remove NameableComponent")) player->setFlag<NameableComponent>(false);

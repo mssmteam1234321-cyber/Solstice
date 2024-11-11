@@ -29,11 +29,12 @@ public:
     NumberSetting mAPS = NumberSetting("APS", "The attack per second of the aura.", 20.f, 1.f, 20.f, 0.01f);
     NumberSetting mBlocksPerPacket = NumberSetting("Blocks Per Packet", "The amount of blocks to send per packet.", 0.5f, 0.1f, 3.f, 0.01f);
     BoolSetting mSilentAccept = BoolSetting("Silent Accept", "Silently accepts teleport requests.", false);
+    BoolSetting mRayTrace = BoolSetting("Ray Trace", "Ray traces to the target.", true);
 
 
     InfiniteAura() : ModuleBase("InfiniteAura", "Infinite aura.", ModuleCategory::Combat, 0, false)
     {
-        addSettings(&mType, &mMode, &mRenderMode, &mRange, &mAPS, &mBlocksPerPacket, &mSilentAccept);
+        addSettings(&mType, &mMode, &mRenderMode, &mRange, &mAPS, &mBlocksPerPacket, &mSilentAccept, &mRayTrace);
 
         mNames = {
             {Lowercase, "infiniteaura"},
@@ -54,6 +55,7 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    std::shared_ptr<class MovePlayerPacket> createPacketForPos(glm::vec3 pos);
     std::vector<std::shared_ptr<class MovePlayerPacket>> pathToPos(glm::vec3 from, glm::vec3 to);
     void onBaseTickEvent(class BaseTickEvent& event);
     void onPacketOutEvent(PacketOutEvent& event);

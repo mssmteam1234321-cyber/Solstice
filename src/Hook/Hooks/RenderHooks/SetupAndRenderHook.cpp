@@ -16,7 +16,7 @@ std::unique_ptr<Detour> SetupAndRenderHook::mDrawImageDetour;
 
 void* SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
 {
-    auto original = mSetupAndRenderDetour->getOriginal<decltype(&onSetupAndRender)>();
+    auto original = mSetupAndRenderDetour->getOriginal<&SetupAndRenderHook::onSetupAndRender>();
 
     static bool once = false;
     if (!once)
@@ -47,7 +47,7 @@ void* SetupAndRenderHook::onSetupAndRender(void* screenView, void* mcuirc)
 void* SetupAndRenderHook::onDrawImage(void* context, mce::TexturePtr* texture, glm::vec2* pos, glm::vec2* size, glm::vec2* uv,
     mce::Color* color, void* unk)
 {
-    auto original = mDrawImageDetour->getOriginal<decltype(&onDrawImage)>();
+    auto original = mDrawImageDetour->getOriginal<&SetupAndRenderHook::onDrawImage>();
 
     nes::event_holder<DrawImageEvent> holder = nes::make_holder<DrawImageEvent>(context, texture, pos, size, uv, color);
     gFeatureManager->mDispatcher->trigger(holder);

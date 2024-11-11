@@ -4,6 +4,7 @@
 
 #include "Nametags.hpp"
 
+#include <Features/Events/NametagRenderEvent.hpp>
 #include <Features/IRC/IrcClient.hpp>
 #include <Features/Modules/Misc/Friends.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
@@ -17,19 +18,16 @@ void Nametags::onEnable()
 {
     gFeatureManager->mDispatcher->listen<RenderEvent, &Nametags::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->listen<NametagRenderEvent, &Nametags::onNametagRenderEvent>(this);
 }
 void Nametags::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<RenderEvent, &Nametags::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Nametags::onBaseTickEvent>(this);
+    gFeatureManager->mDispatcher->deafen<NametagRenderEvent, &Nametags::onNametagRenderEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-
-    for (auto actor : ActorUtils::getActorList(false, true))
-    {
-        actor->setFlag<NameableComponent>(true);
-    }
 }
 std::mutex bpsMutex;
 std::unordered_map<Actor*, float> bpsMap;
@@ -208,6 +206,33 @@ void Nametags::onRenderEvent(RenderEvent& event)
         drawList->AddText(ImGui::GetFont(), fontSize, pos, themeColor, name.c_str());
 
         FontHelper::popPrefFont();
-        //actor->setFlag<NameableComponent>(false);// Hides the vanilla nametag
     }
+}
+
+void Nametags::onNametagRenderEvent(NametagRenderEvent& event)
+{
+    auto actor = event.mActor;
+    auto localPlayer = ClientInstance::get()->getLocalPlayer();
+    auto ci = ClientInstance::get();
+
+    if (!actor->isPlayer()) return;
+    if (actor == localPlayer && ci->getOptions()->mThirdPerson->value == 0 && !localPlayer->getFlag<RenderCameraComponent>()) return;
+    if (actor == localPlayer && !mRenderLocal.mValue) return;
+    auto shape = actor->getAABBShapeComponent();
+    if (!shape) return;
+    auto posComp = actor->getRenderPositionComponent();
+    if (!posComp) return;
+
+    glm::vec3 renderPos = posComp->mPosition;
+    if (actor == localPlayer) renderPos = RenderUtils::transform.mPlayerPos;
+    renderPos.y += 0.5f;
+
+    glm::vec3 origin = RenderUtils::transform.mOrigin;
+    glm::vec2 screen = glm::vec2(0, 0);
+
+    if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, renderPos, screen, ci->getFov(), ci->getGuiData()->mResolution)) return;
+    if (std::isnan(screen.x) || std::isnan(screen.y)) return;
+    if (screen.x < 0 || screen.y < 0 || screen.x > ci->getGuiData()->mResolution.x * 2 || screen.y > ci->getGuiData()->mResolution.y * 2) return;
+
+    event.cancel();
 }
