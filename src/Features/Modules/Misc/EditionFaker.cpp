@@ -100,19 +100,20 @@ void EditionFaker::eject() {
 void EditionFaker::spoofEdition() {
 
 
-    int32_t DefaultInputMode = mInputMethod.as<int>();
+    int32_t InputMode = mInputMethod.as<int>();
+    int32_t Os = mOs.as<int>();
 
     { // default & current input mode spoof
-        MemUtils::writeBytes(func2+1, &DefaultInputMode, sizeof(uint32_t));
-        MemUtils::writeBytes(func3+1, &DefaultInputMode, sizeof(uint32_t));
+        MemUtils::writeBytes(func2+1, &InputMode, sizeof(uint32_t));
+        MemUtils::writeBytes(func3+1, &InputMode, sizeof(uint32_t));
     }
 
     { // os
-        MemUtils::writeBytes(func+1, &DefaultInputMode, sizeof(uint32_t)); // changing directly, u can get this addr by using debugger in CE while joining world
+        MemUtils::writeBytes(func+1, &Os, sizeof(uint32_t)); // changing directly, u can get this addr by using debugger in CE while joining world
     }
 
     {  // input mode bypass
-        MemUtils::writeBytes((uintptr_t)mDetour1+2, &DefaultInputMode, sizeof(int32_t)); // spoofing only this cuz "bypass fix" should always be on 1 (mouse)
+        MemUtils::writeBytes((uintptr_t)mDetour1+2, &InputMode, sizeof(int32_t)); // spoofing only this cuz "bypass fix" should always be on 1 (mouse)
     }
 }
 
