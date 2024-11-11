@@ -120,6 +120,7 @@ public:
     BoolSetting mDisableUncover = BoolSetting("Disable Uncover", "Disables uncover for some seconds", false);
     NumberSetting mDisableSeconds = NumberSetting("Disable Duration 2", "amount of seconds uncover will be disabled for", 5, 1, 15, 1);
     BoolSetting mEnableAntiSteal = BoolSetting("Enable AntiSteal", "Enables anti-steal, disables if enemy didn't steal / didn't try to steal ur ore for past 5 seconds", false);
+    BoolSetting mAvoidEnemyOre = BoolSetting("Avoid Enemy Ore", "Avoid ore that enemy is targetting", false);
 
     Regen() : ModuleBase("Regen", "Automatically breaks redstone", ModuleCategory::Player, 0, false) {
         addSettings(
@@ -214,6 +215,7 @@ public:
 
         VISIBILITY_CONDITION(mDelayedSteal, mSteal.mValue);
         VISIBILITY_CONDITION(mOpponentDestroySpeed, mSteal.mValue && mDelayedSteal.mValue);
+        addSettings(&mAvoidEnemyOre);
 #endif
 
         VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);
@@ -337,6 +339,7 @@ public:
     //std::vector<glm::ivec3> mLastUpdatedBlockPositions;
     std::vector<glm::ivec3> mLastBrokenOrePos;
     std::vector<glm::ivec3> mLastBrokenCoveringBlockPos;
+    std::vector<glm::ivec3> mOreBlackList;
 
     std::vector<glm::ivec3> mOffsetList = {
         glm::ivec3(0, -1, 0),

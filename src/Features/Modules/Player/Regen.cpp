@@ -92,9 +92,12 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
         return false;
     }
 
-    // Anti Steal
 #ifdef __PRIVATE_BUILD__
+    // Anti Steal
     if ((mAntiSteal.mValue || antiStealerEnabled) && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
+
+    // Black List Check
+    if (mAvoidEnemyOre.mValue && std::find(mOreBlackList.begin(), mOreBlackList.end(), blockPos) != mOreBlackList.end()) return false;
 #endif
 
     return true;
@@ -716,8 +719,8 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
             } else continue;
         }
 
-        if (mCanSteal && mSteal.mValue && stealEnabled && isValidBlock(mEnemyTargettingBlockPos, true, false) && !isStealDelayed) {
-            if (!mAntiConfuse.mValue || exposedBlockList.empty()) {
+        if (mCanSteal && mSteal.mValue && stealEnabled && !isStealDelayed && isValidBlock(mEnemyTargettingBlockPos, true, false)) {
+            if (!(mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::RedstoneCheck) || exposedBlockList.empty()) {
                 queueBlock(mEnemyTargettingBlockPos);
                 mTargettingBlockPos = mEnemyTargettingBlockPos;
                 mIsStealing = true;
@@ -1251,12 +1254,6 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 return;
             }
 #ifdef __PRIVATE_BUILD__
-            int exposedFace = BlockUtils::getExposedFace(levelEvent->mPos);
-            if (exposedFace == -1 && (mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::ExposedCheck)) {
-                return;
-            }
-#endif
-#ifdef __PRIVATE_BUILD__
             if (mReplace.mValue && mIsMiningBlock && !mIsUncovering && !mIsStealing && mCurrentBlockPos == glm::ivec3(levelEvent->mPos)) {
                 mStartDestroyCount++;
                 if (2 <= mStartDestroyCount) {
@@ -1265,14 +1262,39 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
 #endif
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
+
+#ifdef __PRIVATE_BUILD__
+            if (mAvoidEnemyOre.mValue) {
+                int blockId = blockAtPos->mLegacy->getBlockId();
+                if (blockId == 73 || blockId == 74) {
+                    mOreBlackList.push_back(glm::ivec3(levelEvent->mPos));
+                }
+                else {
+                    std::vector<BlockInfo> blockList = BlockUtils::getBlockList(glm::ivec3(levelEvent->mPos), 2);
+                    for (int i = 0; i < blockList.size(); i++) {
+                        int blockId2 = blockList[i].mBlock->mLegacy->getBlockId();
+                        if (blockId2 == 73 || blockId2 == 74) {
+                            glm::ivec3 delta = blockList[i].mPosition - glm::ivec3(levelEvent->mPos);
+                            int dist = abs(delta.x) + abs(delta.y) + abs(delta.z);
+                            if (0 < dist && dist <= 2 && BlockUtils::getExposedFace(blockList[i].mPosition) == -1)
+                                mOreBlackList.push_back(blockList[i].mPosition);
+                        }
+                    }
+                }
+            }
+#endif
+
             // Steal
-            for (auto& offset : mOffsetList) {
-                glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
-                if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1) {
-                    mEnemyTargettingBlockPos = blockPos;
-                    mLastEnemyLayerBlockPos = levelEvent->mPos;
-                    mCanSteal = true;
-                    mLastStealerUpdate = NOW;
+            int exposedFace = BlockUtils::getExposedFace(levelEvent->mPos);
+            if (exposedFace != -1 || !(mAntiConfuse.mValue && mAntiConfuseMode.mValue == AntiConfuseMode::ExposedCheck)) {
+                for (auto& offset : mOffsetList) {
+                    glm::ivec3 blockPos = glm::ivec3(levelEvent->mPos) + offset;
+                    if (isValidBlock(blockPos, true, false) && BlockUtils::getExposedFace(blockPos) == -1) {
+                        mEnemyTargettingBlockPos = blockPos;
+                        mLastEnemyLayerBlockPos = levelEvent->mPos;
+                        mCanSteal = true;
+                        mLastStealerUpdate = NOW;
+                    }
                 }
             }
 
@@ -1296,6 +1318,26 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
+#ifdef __PRIVATE_BUILD__
+            if (mAvoidEnemyOre.mValue) {
+                auto it1 = std::find(mOreBlackList.begin(), mOreBlackList.end(), glm::ivec3(levelEvent->mPos));
+                if (it1 != mOreBlackList.end())
+                    mOreBlackList.erase(it1);
+                std::vector<BlockInfo> blockList = BlockUtils::getBlockList(glm::ivec3(levelEvent->mPos), 2);
+                for (int i = 0; i < blockList.size(); i++) {
+                    int blockId2 = blockList[i].mBlock->mLegacy->getBlockId();
+                    if (blockId2 == 73 || blockId2 == 74) {
+                        glm::ivec3 delta = blockList[i].mPosition - glm::ivec3(levelEvent->mPos);
+                        int dist = abs(delta.x) + abs(delta.y) + abs(delta.z);
+                        if (0 < dist && dist <= 2) {
+                            auto it2 = std::find(mOreBlackList.begin(), mOreBlackList.end(), blockList[i].mPosition);
+                            if (it2 != mOreBlackList.end())
+                                mOreBlackList.erase(it2);
+                        }
+                    }
+                }
+            }
+#endif
             if (mCanSteal && glm::ivec3(levelEvent->mPos) == mLastEnemyLayerBlockPos) {
                 mCanSteal = false;
             }
@@ -1327,6 +1369,9 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
                 }
             }
         }
+    }
+    else if (event.mPacket->getId() == PacketID::ChangeDimension) {
+        mOreBlackList.clear();
     }
 }
 
