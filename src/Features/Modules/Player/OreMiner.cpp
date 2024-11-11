@@ -121,7 +121,7 @@ OreMiner::PathFindResult OreMiner::getBestPathToBlock(glm::ivec3 blockPos) {
         }
         return { closestBlockPos, foundPath };
     }
-#ifdef __PRIVATE_BUILD
+#ifdef __PRIVATE_BUILD__
     else if (mUncoverMode.mValue == UncoverMode::UnderGround) {
         for (int i = 0; i < mOffsetList.size(); i++) {
             glm::ivec3 currentPos = blockPos + mOffsetList[i];

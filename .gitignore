@@ -14,6 +14,7 @@ CMakeUserPresets.json
 /cmake-build-debug/
 /cmake-build-release/
 /cmake-build-private/
+/cmake-build-private-debug/
 /cmake-build-release-private/
 /out/
 CMakeSettings.json

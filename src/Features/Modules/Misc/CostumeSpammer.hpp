@@ -7,11 +7,18 @@
 class CostumeSpammer : public ModuleBase<CostumeSpammer>
 {
 public:
+    enum class Mode
+    {
+        Form,
+        Command
+    };
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use.", Mode::Form, "Form", "Command");
     NumberSetting mDelay = NumberSetting("Delay", "The delay between each costume change.", 1.f, 0.01f, 10.f, 0.01f);
+    BoolSetting mHideChatMessages = BoolSetting("Hide Chat Messages", "Hides chat messages.", true);
 
     CostumeSpammer() : ModuleBase("CostumeSpammer", "Spams costumes.", ModuleCategory::Misc, 0, false)
     {
-        addSettings(&mDelay);
+        addSettings(&mMode, &mDelay, &mHideChatMessages);
 
         mNames = {
             {Lowercase, "costumespammer"},
@@ -25,7 +32,10 @@ public:
     std::map<int, std::string> mFormJsons;
     std::map<int, std::string> mFormTitles;
     bool mInteractable = false;
-    uint64_t mLastInteract = 0;
+    int64_t mLastInteract = 0;
+    int64_t mLastCommand = 0;
+    std::map<int64_t, std::string> mCommandQueue;
+
 
     void onEnable() override;
     void onDisable() override;

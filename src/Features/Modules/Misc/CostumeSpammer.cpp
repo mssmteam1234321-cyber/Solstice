@@ -4,6 +4,8 @@
 
 #include "CostumeSpammer.hpp"
 
+#include <SDK/Minecraft/Network/Packets/CommandRequestPacket.hpp>
+
 void CostumeSpammer::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &CostumeSpammer::onBaseTickEvent>(this);
@@ -84,15 +86,30 @@ void CostumeSpammer::onBaseTickEvent(BaseTickEvent& event)
         }
     }
 
-    if (partyItem == -1) return;
-
-    auto item = player->getSupplies()->getContainer()->getItem(partyItem);
-    if (!item->mItem) return;
-
-    if (NOW - mLastInteract > mDelay.mValue)
+    if (partyItem != -1)
     {
-        player->getSupplies()->getContainer()->startUsingItem(partyItem);
-        player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+        auto item = player->getSupplies()->getContainer()->getItem(partyItem);
+        if (!item->mItem) return;
+
+        if (NOW - mLastInteract > mDelay.mValue * 1000 && mMode.mValue == Mode::Form)
+        {
+            player->getSupplies()->getContainer()->startUsingItem(partyItem);
+            player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+            player->getSupplies()->getContainer()->startUsingItem(partyItem);
+            player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+            player->getSupplies()->getContainer()->startUsingItem(partyItem);
+            player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+            player->getSupplies()->getContainer()->startUsingItem(partyItem);
+            player->getSupplies()->getContainer()->releaseUsingItem(partyItem);
+            mLastInteract = NOW;
+            // (also make sure the last command was executed more than 500ms ago)
+        }
+    }
+
+    if (NOW - mLastInteract > mDelay.mValue * 1000 && mMode.mValue == Mode::Command && NOW - mLastCommand > 500)
+    {
+        CommandUtils::executeCommand("/costume");
+        mLastCommand = NOW;
         mLastInteract = NOW;
     }
 
@@ -106,7 +123,8 @@ void CostumeSpammer::onBaseTickEvent(BaseTickEvent& event)
         if (title.contains("Global Locker") && contentStr.contains("Your global locker contains unlocks that are not game specific"))
         {
             submitForm(2, id);
-        } if (title.contains("Select")) {
+        }
+        if (title.contains("Select")) {
             // Get the amount of available buttons to click, excluding the first(search button) and last (reset button)
             int buttonAmount = json["buttons"].size() - 2;
             int randomButton = MathUtils::random(1, buttonAmount);
@@ -121,28 +139,37 @@ void CostumeSpammer::onPacketInEvent(PacketInEvent& event)
     if (!player) return;
 
     if (event.mPacket->getId() == PacketID::ModalFormRequest) {
-        int partyItem = -1;
-        for (int i = 0; i < 9; i++) {
-            auto item = player->getSupplies()->getContainer()->getItem(i);
-            if (!item->mItem) continue;
-            if (StringUtils::containsIgnoreCase(ColorUtils::removeColorCodes(item->getCustomName()), "Global Locker [Use]")) {
-                partyItem = i;
-                break;
-            }
-        }
-
-        if (partyItem == -1) return;
-
         auto packet = event.getPacket<ModalFormRequestPacket>();
         nlohmann::json json = nlohmann::json::parse(packet->mJSON);
         std::string jsonStr = json.dump(4);
-        mOpenFormIds.push_back(packet->mFormId);
-        mFormJsons[packet->mFormId] = packet->mJSON;
-        mFormTitles[packet->mFormId] = json.contains("title") ? json["title"] : "Unknown";
 
-        event.cancel();
+        if (!json.contains("title")) return;
+        // if the form doesn't contain the title "Global Locker" or "Select" then return
 
-        spdlog::info("Form ID {} with title {} was opened", packet->mFormId, mFormTitles[packet->mFormId]);
+        if (StringUtils::containsIgnoreCase(json["title"], "Global Locker") || StringUtils::containsIgnoreCase(json["title"], "Select"))
+        {
+            mOpenFormIds.push_back(packet->mFormId);
+            mFormJsons[packet->mFormId] = packet->mJSON;
+            mFormTitles[packet->mFormId] = json.contains("title") ? json["title"] : "Unknown";
+
+            event.cancel();
+
+            spdlog::info("Form ID {} with title {} was opened", packet->mFormId, mFormTitles[packet->mFormId]);
+        } else
+        {
+            spdlog::info("Form ID {} with title {} was opened", packet->mFormId, json["title"]);
+        }
+    }
+
+
+
+    if (event.mPacket->getId() == PacketID::Text) {
+        auto packet = event.getPacket<TextPacket>();
+        // Cancel if text contains "Woosh! You now appear as" or "Reset your skin to your Minecraft skin"
+        if (StringUtils::containsIgnoreCase(packet->mMessage, "Woosh! You now appear as") || StringUtils::containsIgnoreCase(packet->mMessage, "Reset your skin to your Minecraft skin"))
+        {
+            event.cancel();
+        }
     }
 }
 
@@ -157,4 +184,10 @@ void CostumeSpammer::onPacketOutEvent(PacketOutEvent& event)
         spdlog::info("Form ID {} was closed [{}] [{}]", packet->mFormId, packet->mFormCancelReason.value_or(ModalFormCancelReason::UserClosed) == ModalFormCancelReason::UserClosed ? "UserClosed" : "UserBusy",
             packet->mJSONResponse.has_value() ? packet->mJSONResponse.value().toString() : "No response");
     }
+
+    if (event.mPacket->getId() == PacketID::CommandRequest) {
+        mLastCommand = NOW;
+    }
+
+
 }

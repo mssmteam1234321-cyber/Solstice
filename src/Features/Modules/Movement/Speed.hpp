@@ -64,6 +64,9 @@ public:
     NumberSetting mSwiftnessSpeed = NumberSetting("Swiftness Speed", "The speed to apply when swiftness is active", 0.55, 0, 1, 0.01);
     NumberSetting mSwiftnessFriction = NumberSetting("Swiftness Friction", "The friction to apply when swiftness is active", 0.975, 0, 1, 0.01);
     NumberSetting mSwiftnessTimer = NumberSetting("Swiftness Timer", "Whether or not to boost timer speed when swiftness is active", 35, 0, 40, 0.1);
+#ifdef __PRIVATE_BUILD__
+    BoolSetting mSwiftnessJump = BoolSetting("Swiftness Jump", "Whether or not to jump when swiftness is active", false);
+#endif
 
     BoolSetting mDamageBoost = BoolSetting("Damage Boost", "Whether or not to boost speed when taking damage", false);
     NumberSetting mDamageBoostSpeed = NumberSetting("Damage Boost Speed", "The speed to boost when taking damage", 3, 1, 10, 0.01);
@@ -110,6 +113,9 @@ public:
             &mSwiftnessSpeed,
             &mSwiftnessFriction,
             &mSwiftnessTimer,
+#ifdef __PRIVATE_BUILD__
+            &mSwiftnessJump,
+#endif
             &mHoldSpace,
             &mDamageBoost,
             &mDamageBoostSpeed,

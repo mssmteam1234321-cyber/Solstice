@@ -122,6 +122,17 @@ bool Speed::tickSwiftness()
 
         // Set swiftness timer
         ClientInstance::get()->getMinecraftSim()->setSimTimer(mSwiftnessTimer.mValue);
+
+#ifdef __PRIVATE_BUILD__
+        if (mSwiftnessJump.mValue)
+        {
+            if (player->isOnGround() && Keyboard::isUsingMoveKeys())
+            {
+                player->jumpFromGround();
+            }
+        }
+#endif
+
         return true;
     }
 

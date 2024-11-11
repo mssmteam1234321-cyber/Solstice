@@ -126,12 +126,15 @@ void Solstice::init(HMODULE hModule)
 #endif
 
 #ifdef __PRIVATE_BUILD__
+#ifndef __PRIVATE_DEBUG__
+#pragma message("Note: This is a private build. Please do not share this build with anyone.")
     Auth auth;
     auth.init();
     if(!auth.isPrivateUser())
     {
         auth.exit();
     }
+#endif
 #endif
 
     console->info("initializing signatures...");
