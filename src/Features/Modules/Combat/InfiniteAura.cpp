@@ -4,6 +4,7 @@
 
 #include "InfiniteAura.hpp"
 
+#include <Features/Modules/Movement/AutoPath.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
@@ -30,42 +31,61 @@ void InfiniteAura::onDisable()
     mNeedsToPathBack = false;
 }
 
-std::vector<std::shared_ptr<MovePlayerPacket>> InfiniteAura::pathToPos(glm::vec3 from, glm::vec3 to)
+std::shared_ptr<MovePlayerPacket> InfiniteAura::createPacketForPos(glm::vec3 pos)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
+    auto packet = MinecraftPackets::createPacket<MovePlayerPacket>();
+    packet->mPos = pos;
+    packet->mPlayerID = player->getRuntimeID();
+    packet->mRot = { mRots.x, mRots.y };
+    packet->mYHeadRot = mRots.z;
+    packet->mResetPosition = PositionMode::Teleport;
+    packet->mOnGround = true;
+    packet->mRidingID = -1;
+    packet->mCause = TeleportationCause::Unknown;
+    packet->mSourceEntityType = ActorType::Player;
+    packet->mTick = 0;
+
+    return packet;
+}
+
+std::vector<std::shared_ptr<MovePlayerPacket>> InfiniteAura::pathToPos(glm::vec3 from, glm::vec3 to)
+{
+    auto ci = ClientInstance::get();
+    auto player = ci->getLocalPlayer();
     if (!player) return {};
 
 
     float blocksPerPacket = mBlocksPerPacket.mValue;
-    float distance = glm::distance(from, to);
-    int packets = distance / blocksPerPacket;
-
     glm::vec3 currentPos = from;
 
     std::vector<std::shared_ptr<MovePlayerPacket>> packetsToSend;
 
-    for (int i = 0; i < packets; i++)
+    auto path = AutoPath::findFlightPathGlm(from, to, ci->getBlockSource(), 1.f, true, 1000, false);
+
+    // For each point in the path, step to it in blocksPerPacket increments
+    for (size_t i = 0; i < path.size(); i++)
     {
-        glm::vec3 step = to - from;
-        step = glm::normalize(step) * blocksPerPacket;
-        currentPos += step;
+        auto nextPos = path[i];
+        auto diff = nextPos - currentPos;
+        auto diffLen = glm::length(diff);
+        auto diffNorm = glm::normalize(diff);
 
-        auto packet = MinecraftPackets::createPacket<MovePlayerPacket>();
-        packet->mPos = currentPos;
-        packet->mPlayerID = player->getRuntimeID();
-        packet->mRot = { mRots.x, mRots.y };
-        packet->mYHeadRot = mRots.z;
-        packet->mResetPosition = PositionMode::Teleport;
-        packet->mOnGround = true;
-        packet->mRidingID = -1;
-        packet->mCause = TeleportationCause::Unknown;
-        packet->mSourceEntityType = ActorType::Player;
-        packet->mTick = 0;
-
-        packetsToSend.push_back(packet);
+        while (diffLen > blocksPerPacket)
+        {
+            auto newPos = currentPos + diffNorm * blocksPerPacket;
+            packetsToSend.push_back(createPacketForPos(newPos));
+            currentPos = newPos;
+            diff = nextPos - currentPos;
+            diffLen = glm::length(diff);
+            diffNorm = glm::normalize(diff);
+        }
     }
 
-    auto positions = packetsToSend | std::views::transform([](auto packet) -> glm::vec3 { return packet->mPos - PLAYER_HEIGHT_VEC; });
+    // Add the final packet
+    packetsToSend.push_back(createPacketForPos(to));
+
+    auto positions = packetsToSend | std::views::transform([](auto packet) -> glm::vec3 { return packet->mPos; });
     mPacketPositions = std::vector(positions.begin(), positions.end());
     mLastPathTime = NOW;
 
@@ -110,7 +130,7 @@ void InfiniteAura::onBaseTickEvent(BaseTickEvent& event)
         }
 
         auto hitResult = bs->checkRayTrace(*player->getPos(), *actor->getPos() - PLAYER_HEIGHT_VEC, player);
-        if (hitResult.mType == HitType::BLOCK)
+        if (hitResult.mType == HitType::BLOCK && mRayTrace.mValue)
         {
             it = actors.erase(it);
         }
@@ -253,7 +273,7 @@ void InfiniteAura::onRenderEvent(RenderEvent& event)
         {
             auto drawList = ImGui::GetBackgroundDrawList();
 
-            AABB aabb = AABB(pos, glm::vec3(0.5f, 0.5f, 0.5f));
+            AABB aabb = AABB(pos, glm::vec3(0.2f, 0.2f, 0.2f));
             auto points = MathUtils::getImBoxPoints(aabb);
 
             drawList->AddConvexPolyFilled(points.data(), points.size(), IM_COL32(255, 0, 0, 100 * alphaMultiplier));

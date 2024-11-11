@@ -223,5 +223,16 @@ void Nametags::onNametagRenderEvent(NametagRenderEvent& event)
     auto posComp = actor->getRenderPositionComponent();
     if (!posComp) return;
 
+    glm::vec3 renderPos = posComp->mPosition;
+    if (actor == localPlayer) renderPos = RenderUtils::transform.mPlayerPos;
+    renderPos.y += 0.5f;
+
+    glm::vec3 origin = RenderUtils::transform.mOrigin;
+    glm::vec2 screen = glm::vec2(0, 0);
+
+    if (!RenderUtils::transform.mMatrix.OWorldToScreen(origin, renderPos, screen, ci->getFov(), ci->getGuiData()->mResolution)) return;
+    if (std::isnan(screen.x) || std::isnan(screen.y)) return;
+    if (screen.x < 0 || screen.y < 0 || screen.x > ci->getGuiData()->mResolution.x * 2 || screen.y > ci->getGuiData()->mResolution.y * 2) return;
+
     event.cancel();
 }
