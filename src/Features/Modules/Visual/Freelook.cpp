@@ -4,6 +4,9 @@
 
 #include "Freelook.hpp"
 
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/Components/CameraComponent.hpp>
 #include <SDK/Minecraft/Actor/Components/ItemUseSlowdownModifierComponent.hpp>
 
