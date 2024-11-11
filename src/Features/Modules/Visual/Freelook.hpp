@@ -3,6 +3,11 @@
 // Created by vastrakai on 11/2/2024.
 //
 
+#include <SDK/Minecraft/Actor/EntityId.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Options.hpp>
+#include <SDK/Minecraft/Actor/Components/CameraComponent.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 
 class Freelook : public ModuleBase<Freelook> {
 public:
