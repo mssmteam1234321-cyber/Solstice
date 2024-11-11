@@ -278,7 +278,7 @@ void OreMiner::onBaseTickEvent(BaseTickEvent& event)
                 mTargettingBlockPos = targettingPos;
                 return;
             }
-#ifdef __PRIVATE__BUILD__
+#ifdef __PRIVATE_BUILD__
             else if ((mUncoverMode.mValue == UncoverMode::PathFind || mUncoverMode.mValue == UncoverMode::UnderGround) && !unexposedBlockList.empty()) {
                 float closestDistance = INT_MAX;
                 for (int i = 0; i < unexposedBlockList.size(); i++) {
