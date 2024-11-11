@@ -162,6 +162,7 @@ public:
             &mMulti,
             &mAntiCover,
             &mCompensation,
+#endif
 #ifdef __DEBUG__
             &mAvoidEnemyOre,
 #endif
