@@ -96,6 +96,7 @@
 #include "Player/Scaffold.hpp"
 #include "Player/Teams.hpp"
 #include "Player/Timer.hpp"
+#include "Player/FastEat.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -199,6 +200,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ClickTp>());
     mModules.emplace_back(std::make_shared<ChestAura>());
     mModules.emplace_back(std::make_shared<NoRotate>());
+    mModules.emplace_back(std::make_shared<FastEat>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
