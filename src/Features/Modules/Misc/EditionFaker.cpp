@@ -14,95 +14,105 @@ static uintptr_t func;
 static uintptr_t func2;
 static uintptr_t func3;
 static uintptr_t func4;
+static uintptr_t func5;
 
 void EditionFaker::onInit() {
     func = SigManager::ConnectionRequest_create_DeviceOS;
     func2 = SigManager::ConnectionRequest_create_DefaultInputMode;
-    func3 = SigManager::GetInputModeBypass;
-    func4 = SigManager::MobileRotations;
+    func3 = SigManager::ConnectionRequest_create_CurrentInputMode;
+    func4 = SigManager::InputModeBypass;
+    func5 = SigManager::InputModeBypassFix;
 }
 
-void EditionFaker::inject() {
+void EditionFaker::inject()
+{
+    int32_t DefaultInputMode = mInputMethod.as<int>();
 
-    {
-        MemUtils::ReadBytes((void*)func, mOriginalData, sizeof(mOriginalData));
-        MemUtils::writeBytes(func, "\xEB", 1);
+    { // default & current input mode spoof
+        MemUtils::ReadBytes((void*)func2, mOriginalInputData1, sizeof(mOriginalInputData1));
+        MemUtils::ReadBytes((void*)func3, mOriginalInputData2, sizeof(mOriginalInputData2));
+
+        MemUtils::writeBytes(func2, "\xBF", 1);
+        MemUtils::writeBytes(func2+1, &DefaultInputMode, sizeof(uint32_t));
+        MemUtils::NopBytes(func2+5, 3);
+
+        MemUtils::writeBytes(func3, "\xBF", 1);
+        MemUtils::writeBytes(func3+1, &DefaultInputMode, sizeof(uint32_t));
+        MemUtils::NopBytes(func3+5, 3);
     }
 
-    {
-        MemUtils::ReadBytes((void*)func2, mOriginalDefaultInputMode, sizeof(mOriginalDefaultInputMode));
+    { // os
+        MemUtils::ReadBytes((void*)func, mOriginalData, sizeof(mOriginalData));
+        MemUtils::writeBytes(func+1, &DefaultInputMode, sizeof(uint32_t));
+    }
 
-        MemUtils::writeBytes(func2, "\xEB\x18", 2);
-        MemUtils::NopBytes(func2 + 2, 29 - 5);
-        MemUtils::writeBytes(func2 + 26, "\xB8", 1);
+    { // input mode bypass
+        MemUtils::ReadBytes((void*)func4, mOriginalData1, sizeof(mOriginalData1));
+        MemUtils::ReadBytes((void*)func5, mOriginalData2, sizeof(mOriginalData2));
 
-        MemUtils::ReadBytes((void*)func3, mOriginalData1, sizeof(mOriginalData1));
-        MemUtils::ReadBytes((void*)(func3+18), mOriginalData2, sizeof(mOriginalData2));
-        MemUtils::ReadBytes((void*)func4, mOriginalData3, sizeof(mOriginalData3));
+        mDetour1 = AllocateBuffer((void*)func4);
+        mDetour2 = AllocateBuffer((void*)func5);
 
-        mPatch1Ptr = AllocateBuffer((void*)func3);
-        mPatch2Ptr = AllocateBuffer((void*)(func3+18));
-        mPatch3Ptr = AllocateBuffer((void*)func4);
+        MemUtils::writeBytes((uintptr_t)mDetour1, mDetourBytes1, sizeof(mDetourBytes1));
+        MemUtils::writeBytes((uintptr_t)mDetour2, mDetourBytes2, sizeof(mDetourBytes2));
 
-        MemUtils::writeBytes((uintptr_t)mPatch1Ptr, mPatch1, sizeof(mPatch1));
-        MemUtils::writeBytes((uintptr_t)mPatch2Ptr, mPatch2, sizeof(mPatch2));
-        MemUtils::writeBytes((uintptr_t)mPatch3Ptr, mPatch3, sizeof(mPatch3));
+        auto toOriginalAddrRip1 = MemUtils::GetRelativeAddress((uintptr_t)mDetour1 + sizeof(mDetourBytes1) + 1, func4+5);
+        auto toOriginalAddrRip2 = MemUtils::GetRelativeAddress((uintptr_t)mDetour2 + sizeof(mDetourBytes2) + 1, func5+5);
 
-        auto toOriginalAddrRip = MemUtils::GetRelativeAddress((uintptr_t)mPatch1Ptr+sizeof(mPatch1)+1, func3+5);
-        auto toOriginalAddrRip2 = MemUtils::GetRelativeAddress((uintptr_t)mPatch2Ptr+sizeof(mPatch2)+1, func3+18+5);
-        auto toOriginalAddrRip3 = MemUtils::GetRelativeAddress((uintptr_t)mPatch3Ptr+sizeof(mPatch3)+1, func4+5);
+        MemUtils::writeBytes((uintptr_t)mDetour1 + sizeof(mDetourBytes1), "\xE9", 1);
+        MemUtils::writeBytes((uintptr_t)mDetour2 + sizeof(mDetourBytes2), "\xE9", 1);
 
-        MemUtils::writeBytes((uintptr_t)mPatch1Ptr + sizeof(mPatch1), "\xE9", 1);
-        MemUtils::writeBytes((uintptr_t)mPatch2Ptr + sizeof(mPatch2), "\xE9", 1);
-        MemUtils::writeBytes((uintptr_t)mPatch3Ptr + sizeof(mPatch3), "\xE9", 1);
+        MemUtils::writeBytes((uintptr_t)mDetour1 + sizeof(mDetourBytes1) + 1, &toOriginalAddrRip1, sizeof(int32_t));
+        MemUtils::writeBytes((uintptr_t)mDetour2 + sizeof(mDetourBytes2) + 1, &toOriginalAddrRip2, sizeof(int32_t));
 
-        MemUtils::writeBytes((uintptr_t)mPatch1Ptr + sizeof(mPatch1) + 1, &toOriginalAddrRip, sizeof(int32_t));
-        MemUtils::writeBytes((uintptr_t)mPatch2Ptr + sizeof(mPatch2) + 1, &toOriginalAddrRip2, sizeof(int32_t));
-        MemUtils::writeBytes((uintptr_t)mPatch3Ptr + sizeof(mPatch3) + 1, &toOriginalAddrRip3, sizeof(int32_t));
+        auto newRelRip1 = MemUtils::GetRelativeAddress(func4 + 1, (uintptr_t)mDetour1);
+        auto newRelRip2 = MemUtils::GetRelativeAddress(func5 + 1, (uintptr_t)mDetour2);
 
-        auto newRelRip1 = MemUtils::GetRelativeAddress(func3 + 1, (uintptr_t)mPatch1Ptr);
-        auto newRelRip2 = MemUtils::GetRelativeAddress(func3+18 + 1, (uintptr_t)mPatch2Ptr);
-        auto newRelRip3 = MemUtils::GetRelativeAddress(func4 + 1, (uintptr_t)mPatch3Ptr);
-
-        MemUtils::writeBytes(func3, "\xE9", 1);
-        MemUtils::writeBytes(func3 + 18, "\xE9", 1);
         MemUtils::writeBytes(func4, "\xE9", 1);
+        MemUtils::writeBytes(func5, "\xE9", 1);
 
-        MemUtils::writeBytes(func3+1, &newRelRip1, sizeof(int32_t));
-        MemUtils::writeBytes(func3+18+1, &newRelRip2, sizeof(int32_t));
-        MemUtils::writeBytes(func4+1, &newRelRip3, sizeof(int32_t));
+        MemUtils::writeBytes(func4+1, &newRelRip1, sizeof(int32_t));
+        MemUtils::writeBytes(func5+1, &newRelRip2, sizeof(int32_t));
     }
 }
 
 void EditionFaker::eject() {
     {
-        MemUtils::writeBytes(func, mOriginalData, sizeof(mOriginalData));
-    }
+        { // default & current input mode spoof
+            MemUtils::writeBytes(func2, mOriginalInputData1, sizeof(mOriginalInputData1));
+            MemUtils::writeBytes(func3, mOriginalInputData2, sizeof(mOriginalInputData2));
+        }
 
-    {
-        MemUtils::writeBytes(func2, mOriginalDefaultInputMode, sizeof(mOriginalDefaultInputMode));
-        MemUtils::writeBytes(func3, mOriginalData1, sizeof(mOriginalData1));
-        MemUtils::writeBytes(func3+18, mOriginalData2, sizeof(mOriginalData2));
-        MemUtils::writeBytes(func4, mOriginalData3, sizeof(mOriginalData3));
+        { // os
+            MemUtils::writeBytes(func+1, &mOriginalData, sizeof(uint32_t));
+        }
 
-        FreeBuffer(mPatch1Ptr);
-        FreeBuffer(mPatch2Ptr);
-        FreeBuffer(mPatch3Ptr);
+        {  // input mode bypass
+            MemUtils::writeBytes(func4, mOriginalData1, sizeof(mOriginalData1));
+            MemUtils::writeBytes(func5, mOriginalData2, sizeof(mOriginalData2));
+
+            FreeBuffer(mDetour1);
+            FreeBuffer(mDetour2);
+        }
     }
 }
 
 void EditionFaker::spoofEdition() {
 
-    {
-        int32_t DeviceOS = mOs.as<int>();
-        MemUtils::writeBytes(func + 27, &DeviceOS, sizeof(int32_t));
+
+    int32_t DefaultInputMode = mInputMethod.as<int>();
+
+    { // default & current input mode spoof
+        MemUtils::writeBytes(func2+1, &DefaultInputMode, sizeof(uint32_t));
+        MemUtils::writeBytes(func3+1, &DefaultInputMode, sizeof(uint32_t));
     }
 
-    {
-        int32_t DefaultInputMode = mInputMethod.as<int>();
-        MemUtils::writeBytes(func2 + 27, &DefaultInputMode, sizeof(int32_t));
-        MemUtils::writeBytes((uintptr_t)mPatch1Ptr+2, &DefaultInputMode, sizeof(int32_t));
-        MemUtils::writeBytes((uintptr_t)mPatch3Ptr+2, &DefaultInputMode, sizeof(int32_t));
+    { // os
+        MemUtils::writeBytes(func+1, &DefaultInputMode, sizeof(uint32_t)); // changing directly, u can get this addr by using debugger in CE while joining world
+    }
+
+    {  // input mode bypass
+        MemUtils::writeBytes((uintptr_t)mDetour1+2, &DefaultInputMode, sizeof(int32_t)); // spoofing only this cuz "bypass fix" should always be on 1 (mouse)
     }
 }
 

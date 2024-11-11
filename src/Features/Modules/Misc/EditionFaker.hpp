@@ -47,19 +47,26 @@ public:
         };
     }
 
-    static inline unsigned char mOriginalDefaultInputMode[31];
     static inline unsigned char mOriginalData[sizeof(int32_t)];
+
     static inline unsigned char mOriginalData1[5];
     static inline unsigned char mOriginalData2[5];
-    static inline unsigned char mOriginalData3[5];
 
-    static inline unsigned char mPatch1[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8B, 0xD7, 0x48, 0x8B, 0xCE };
-    static inline unsigned char mPatch2[] = { 0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x49, 0x8B, 0x06, 0x8B, 0xD7 };
-    static inline unsigned char mPatch3[] = { 0x48, 0xB8, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x48, 0x8B, 0x5C, 0x24, 0x30 };
+    static inline unsigned char mOriginalInputData1[8];
+    static inline unsigned char mOriginalInputData2[8];
 
-    static inline void* mPatch1Ptr = nullptr;
-    static inline void* mPatch2Ptr = nullptr;
-    static inline void* mPatch3Ptr = nullptr;
+    static inline unsigned char mDetourBytes1[] = {
+        0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // mov rdi, 1 (input)
+        0x8B, 0xD7, // mov edx, edi
+        0x48, 0x8B, 0xCE }; // mov rcx, rsi
+
+    static inline unsigned char mDetourBytes2[] = {
+        0x48, 0xBF, 0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // mov rdi, 1 (input)
+        0x49, 0x8B, 0x07, // mov rax, [r15]
+        0x8B, 0xD7 }; // mov edx, edi
+
+    static inline void* mDetour1 = nullptr;
+    static inline void* mDetour2 = nullptr;
 
     void injectOsSpoofer();
     void ejectOsSpoofer();
