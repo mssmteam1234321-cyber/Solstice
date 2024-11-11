@@ -162,6 +162,8 @@ public:
             &mMulti,
             &mAntiCover,
             &mCompensation,
+#ifdef __DEBUG__
+            &mAvoidEnemyOre,
 #endif
             &mInfiniteDurability,
             &mOreSelectionMode,
@@ -215,7 +217,6 @@ public:
 
         VISIBILITY_CONDITION(mDelayedSteal, mSteal.mValue);
         VISIBILITY_CONDITION(mOpponentDestroySpeed, mSteal.mValue && mDelayedSteal.mValue);
-        addSettings(&mAvoidEnemyOre);
 #endif
 
         VISIBILITY_CONDITION(mDestroySpeed, mCalcMode.mValue == CalcMode::Minecraft);

@@ -95,7 +95,8 @@ bool Regen::isValidBlock(glm::ivec3 blockPos, bool redstoneOnly, bool exposedOnl
 #ifdef __PRIVATE_BUILD__
     // Anti Steal
     if ((mAntiSteal.mValue || antiStealerEnabled) && blockPos == mBlackListedOrePos && exposedFace == -1) return false;
-
+#endif
+#ifdef __DEBUG__
     // Black List Check
     if (mAvoidEnemyOre.mValue && std::find(mOreBlackList.begin(), mOreBlackList.end(), blockPos) != mOreBlackList.end()) return false;
 #endif
@@ -1263,7 +1264,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
 #endif
             if (BlockUtils::isMiningPosition(glm::ivec3(levelEvent->mPos)) || mConfuse.mValue && mLastConfusedPos == glm::ivec3(levelEvent->mPos) && mLastConfuse + 1000 > NOW) return;
 
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             if (mAvoidEnemyOre.mValue) {
                 int blockId = blockAtPos->mLegacy->getBlockId();
                 if (blockId == 73 || blockId == 74) {
@@ -1318,7 +1319,7 @@ void Regen::onPacketInEvent(class PacketInEvent& event) {
             }
         }
         else if (levelEvent->mEventId == 3601) { // Stop destroying block
-#ifdef __PRIVATE_BUILD__
+#ifdef __DEBUG__
             if (mAvoidEnemyOre.mValue) {
                 auto it1 = std::find(mOreBlackList.begin(), mOreBlackList.end(), glm::ivec3(levelEvent->mPos));
                 if (it1 != mOreBlackList.end())
