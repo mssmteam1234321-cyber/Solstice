@@ -27,9 +27,7 @@ public:
     };
     enum class AntiConfuseMode {
         RedstoneCheck,
-#ifdef __PRIVATE_BUILD__
         ExposedCheck
-#endif
     };
     enum class OreSelectionMode {
         Normal,
