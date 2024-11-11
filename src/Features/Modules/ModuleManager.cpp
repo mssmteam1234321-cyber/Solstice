@@ -8,12 +8,13 @@
 
 #include "Combat/Aura.hpp"
 #include "Combat/AutoClicker.hpp"
-#include "Combat/Reach.hpp"
-#include "Combat/TriggerBot.hpp"
 #include "Combat/Criticals.hpp"
 #include "Combat/InfiniteAura.hpp"
+#include "Combat/Reach.hpp"
+#include "Combat/TriggerBot.hpp"
 
 #include "Misc/AntiBot.hpp"
+#include "Misc/Anticheat.hpp"
 #include "Misc/AntiCheatDetector.hpp"
 #include "Misc/AutoAccept.hpp"
 #include "Misc/AutoCosmetic.hpp"
@@ -23,6 +24,9 @@
 #include "Misc/AutoQueue.hpp"
 #include "Misc/AutoReport.hpp"
 #include "Misc/AutoSnipe.hpp"
+#include "Misc/AutoVote.hpp"
+#include "Misc/CostumeSpammer.hpp"
+#include "Misc/Desync.hpp"
 #include "Misc/DeviceSpoof.hpp"
 #include "Misc/Disabler.hpp"
 #include "Misc/EditionFaker.hpp"
@@ -41,23 +45,25 @@
 #include "Misc/StaffAlert.hpp"
 #include "Misc/TestModule.hpp"
 #include "Misc/ToggleSounds.hpp"
-#include "Misc/AutoVote.hpp"
-#include "Misc/Anticheat.hpp"
-#include "Misc/Desync.hpp"
 #include "Misc/VoiceChat.hpp"
 
 #include "Movement/AirJump.hpp"
+#include "Movement/AirSpeed.hpp"
 #include "Movement/AntiImmobile.hpp"
+#include "Movement/AutoPath.hpp"
+#include "Movement/DamageBoost.hpp"
 #include "Movement/DebugFly.hpp"
 #include "Movement/FastStop.hpp"
 #include "Movement/Fly.hpp"
 #include "Movement/HiveFly.hpp"
 #include "Movement/InventoryMove.hpp"
 #include "Movement/Jesus.hpp"
+#include "Movement/Jetpack.hpp"
 #include "Movement/LongJump.hpp"
 #include "Movement/NoJumpDelay.hpp"
 #include "Movement/NoSlowDown.hpp"
 #include "Movement/Phase.hpp"
+#include "Movement/ReverseStep.hpp"
 #include "Movement/SafeWalk.hpp"
 #include "Movement/ServerSneak.hpp"
 #include "Movement/Speed.hpp"
@@ -66,18 +72,15 @@
 #include "Movement/Step.hpp"
 #include "Movement/TargetStrafe.hpp"
 #include "Movement/Velocity.hpp"
-#include "Movement/AirSpeed.hpp"
-#include "Movement/AutoPath.hpp"
-#include "Movement/ReverseStep.hpp"
-#include "Movement/Jetpack.hpp"
-#include "Movement/DamageBoost.hpp"
 
 #include "Player/AntiVoid.hpp"
 #include "Player/AutoBoombox.hpp"
 #include "Player/AutoKick.hpp"
 #include "Player/AutoSpellBook.hpp"
 #include "Player/AutoTool.hpp"
+#include "Player/ChestAura.hpp"
 #include "Player/ChestStealer.hpp"
+#include "Player/ClickTp.hpp"
 #include "Player/Derp.hpp"
 #include "Player/Extinguisher.hpp"
 #include "Player/FastMine.hpp"
@@ -85,16 +88,15 @@
 #include "Player/InvManager.hpp"
 #include "Player/MidclickAction.hpp"
 #include "Player/NoFall.hpp"
+#include "Player/NoRotate.hpp"
 #include "Player/Nuker.hpp"
 #include "Player/OreMiner.hpp"
 #include "Player/Regen.hpp"
+#include "Player/RegenRecode.hpp"
 #include "Player/Scaffold.hpp"
 #include "Player/Teams.hpp"
 #include "Player/Timer.hpp"
-#include "Player/ClickTp.hpp"
-#include "Player/ChestAura.hpp"
-#include "Player/NoRotate.hpp"
-#include "Player/RegenRecode.hpp"
+#include "Player/FastEat.hpp"
 
 #include "spdlog/spdlog.h"
 
@@ -103,37 +105,37 @@
 #include "Visual/AutoScale.hpp"
 #include "Visual/BlockESP.hpp"
 #include "Visual/BoneEsp.hpp"
+#include "Visual/ChinaHat.hpp"
 #include "Visual/ClickGui.hpp"
 #include "Visual/CustomChat.hpp"
 #include "Visual/DestroyProgress.hpp"
 #include "Visual/ESP.hpp"
+#include "Visual/Freelook.hpp"
 #include "Visual/FullBright.hpp"
+#include "Visual/Glint.hpp"
 #include "Visual/HudEditor.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/ItemESP.hpp"
 #include "Visual/ItemPhysics.hpp"
+#include "Visual/JumpCircles.hpp"
 #include "Visual/Keystrokes.hpp"
 #include "Visual/LevelInfo.hpp"
 #include "Visual/MotionBlur.hpp"
+#include "Visual/NameProtect.hpp"
 #include "Visual/Nametags.hpp"
 #include "Visual/NoCameraClip.hpp"
+#include "Visual/NoDebuff.hpp"
+#include "Visual/NoFire.hpp"
 #include "Visual/NoHurtcam.hpp"
 #include "Visual/Notifications.hpp"
 #include "Visual/RobloxCamera.hpp"
+#include "Visual/SessionInfo.hpp"
 #include "Visual/TargetHUD.hpp"
+#include "Visual/Tracers.hpp"
 #include "Visual/UpdateForm.hpp"
 #include "Visual/ViewModel.hpp"
 #include "Visual/Watermark.hpp"
-#include "Visual/SessionInfo.hpp"
-#include "Visual/Tracers.hpp"
-#include "Visual/ChinaHat.hpp"
-#include "Visual/Freelook.hpp"
-#include "Visual/Glint.hpp"
-#include "Visual/NameProtect.hpp"
 #include "Visual/Zoom.hpp"
-#include "Visual/NoFire.hpp"
-#include "Visual/NoDebuff.hpp"
-#include "Visual/JumpCircles.hpp"
 
 void ModuleManager::init()
 {
@@ -198,6 +200,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ClickTp>());
     mModules.emplace_back(std::make_shared<ChestAura>());
     mModules.emplace_back(std::make_shared<NoRotate>());
+    mModules.emplace_back(std::make_shared<FastEat>());
 
     // Misc
     mModules.emplace_back(std::make_shared<TestModule>());
@@ -228,6 +231,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoDodge>());
     mModules.emplace_back(std::make_shared<AutoSnipe>());
     mModules.emplace_back(std::make_shared<AutoVote>());
+    mModules.emplace_back(std::make_shared<CostumeSpammer>());
+
 
     // Visual
     mModules.emplace_back(std::make_shared<Watermark>());
