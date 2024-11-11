@@ -4,6 +4,7 @@
 
 #include "AutoPath.hpp"
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/World/BlockLegacy.hpp>
 #include <SDK/Minecraft/World/HitResult.hpp>
 
