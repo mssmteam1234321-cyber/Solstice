@@ -813,14 +813,16 @@ void Regen::onBaseTickEvent(BaseTickEvent& event) {
                     }
                     if (mCovering.mValue) {
                         for (int i = 0; i < fakeUnexposedBlocks.size(); i++) {
+                            glm::ivec3 exposedBlockPos = fakeUnexposedBlocks[i] + mOffsetList[1];
                             for (glm::ivec3 offset : mOffsetList) {
                                 glm::ivec3 currentPos = fakeUnexposedBlocks[i] + offset;
-                                if (ClientInstance::get()->getBlockSource()->getBlock(currentPos)->mLegacy->mSolid) {
-                                    BlockUtils::startDestroyBlock(currentPos, 0);
-                                    mFakePositions.push_back(currentPos);
+                                if (ClientInstance::get()->getBlockSource()->getBlock(currentPos)->mLegacy->mSolid && BlockUtils::getExposedFace(currentPos) != -1) {
+                                    exposedBlockPos = currentPos;
                                     break;
                                 }
                             }
+                            BlockUtils::startDestroyBlock(exposedBlockPos, 0);
+                            mFakePositions.push_back(exposedBlockPos);
                         }
                     }
                 }
