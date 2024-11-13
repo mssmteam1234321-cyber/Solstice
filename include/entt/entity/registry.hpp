@@ -411,6 +411,26 @@ public:
         return const_iterable{pools.cbegin(), pools.cend()};
     }
 
+    template<typename Type>// Checks if a given type of component is contained with the provided entity id
+    [[nodiscard]] bool has(const entity_type entt, const id_type id = type_hash<Type>::value()) const {
+        return assure<Type>().contains(entt) && assure<Type>().contains(entt, id);
+    }
+
+    /**
+     * @brief Finds all of the components associated with a given entity.
+     * @param id A valid identifier.
+     * @return A pointer to the storage if it exists, a null pointer otherwise.
+     */
+    [[nodiscard]] std::unordered_map<entity_type, std::vector<id_type>> entities_with(const entity_type id) const {
+        std::unordered_map<entity_type, std::vector<id_type>> result;
+        for(auto &&curr: pools) {
+            if(curr.second->contains(id)) {
+                result[id].push_back(curr.first);
+            }
+        }
+        return result;
+    }
+
     /**
      * @brief Finds the storage associated with a given name, if any.
      * @param id Name used to map the storage within the registry.

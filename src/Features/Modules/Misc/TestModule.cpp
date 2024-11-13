@@ -30,6 +30,7 @@
 #include <SDK/Minecraft/World/Level.hpp>
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
+#include <SDK/Minecraft/Actor/Components/ComponentHashes.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/MiscUtils/BlockUtils.hpp>
@@ -380,7 +381,6 @@ enum class Tab
     Scripting
 };
 
-
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     /*AABB& blockAABB = lastBlockAABB;
@@ -515,145 +515,169 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
     ImGui::Begin("TestModule");
     ImGui::Text("TestModule");
-    ImGui::Text("ScreenName: %s", ClientInstance::get()->getScreenName().c_str());
-    auto blockSource = ClientInstance::get()->getBlockSource();
-    auto ci = ClientInstance::get();
-    if (player)
+
+    if (ClientInstance* ci = ClientInstance::get())
     {
-        // begin flag group
-        ImGui::BeginGroup();
-        ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent>());
-        ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlagComponent>());
-        ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraComponent>());
-        ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraComponent>());
-        ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModelComponent>());
-        ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent>());
-        ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent>());
-        ImGui::EndGroup();
+        ImGui::Text("ScreenName: %s", ci->getScreenName().c_str());
 
-        //ImGui::Text("ActorMovementTickNeededFlag: %d", player->getFlag<ActorMovementTickNeededFlag>());
-
-        ImGui::BeginGroup();
-        ImGui::Text("gameType: %d", player->getGameType());
-
-        auto& keyMouseSettings = *ci->getKeyboardSettings();
-
-        int forward = keyMouseSettings["key.forward"];
-        int back = keyMouseSettings["key.back"];
-        int left = keyMouseSettings["key.left"];
-        int right = keyMouseSettings["key.right"];
-
-        bool isForward = Keyboard::mPressedKeys[forward];
-        bool isBack = Keyboard::mPressedKeys[back];
-        bool isLeft = Keyboard::mPressedKeys[left];
-        bool isRight = Keyboard::mPressedKeys[right];
-
-        ImGui::Text("Forward: %s", isForward ? "true" : "false");
-        ImGui::Text("Back: %s", isBack ? "true" : "false");
-        ImGui::Text("Left: %s", isLeft ? "true" : "false");
-        ImGui::Text("Right: %s", isRight ? "true" : "false");
-
-        int item = player->getSupplies()->mSelectedSlot;
-        ImGui::Text("SelectedSlot: %d", item);
-        ItemStack* stack = player->getSupplies()->getContainer()->getItem(item);
-        if (stack && stack->mItem)
+        if (ImGui::CollapsingHeader("ClientInstance"))
         {
-            ImGui::Text("Item: %s", stack->getItem()->mName.c_str());
-            int itemVal = ItemUtils::getItemValue(stack);
-            ImGui::Text("Item Value: %d", itemVal);
-            ImGui::Text("Item Type: %s", magic_enum::enum_name(stack->getItem()->getItemType()).data());
-            ImGui::Text("Item Tier: %d", stack->getItem()->getItemTier());
-            ImGui::Text("Armor Slot: %d", stack->getItem()->getArmorSlot());
-            displayCopyableAddress("Item", stack->getItem());
+            displayCopyableAddress("ClientInstance", ci);
+            if (auto options = ci->getOptions())
+            {
+                displayCopyableAddress("Options", options);
+                displayCopyableAddress("GfxGamma", options->mGfxGamma);
+            }
+            displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
+            displayCopyableAddress("MinecraftGame", ci->getMinecraftGame());
+            displayCopyableAddress("MinecraftSimulation", ci->getMinecraftSim());
+            displayCopyableAddress("PacketSender", ci->getPacketSender());
         }
 
-        // gDaBlock
-        displayCopyableAddress("Block", gDaBlock);
-        if (gDaBlock)
+        if (auto blockSource = ci->getBlockSource(); blockSource && ImGui::CollapsingHeader("BlockSource"))
         {
-            displayCopyableAddress("BlockLegacy", gDaBlock->toLegacy());
-            ImGui::Text("BlockName: %s", gDaBlock->toLegacy()->mName.c_str());
-            auto leg = gDaBlock->toLegacy();
-            displayCopyableAddress("Material", leg->mMaterial);
-            auto mat = leg->mMaterial;
-            ImGui::Text("Material Type: %d", mat->mType);
-            ImGui::Text("Material Flammable: %s", mat->mIsFlammable ? "true" : "false");
-            ImGui::Text("Material Never Buildable: %s", mat->mIsNeverBuildable ? "true" : "false");
-            ImGui::Text("Material Liquid: %s", mat->mIsLiquid ? "true" : "false");
-            ImGui::Text("Material Blocking Motion: %s", mat->mIsBlockingMotion ? "true" : "false");
-            ImGui::Text("Material Super Hot: %s", mat->mIsSuperHot ? "true" : "false");
+            displayCopyableAddress("BlockSource", blockSource);
         }
-        displayCopyableAddress("MaxAutoStepComponent", player->getMaxAutoStepComponent());
-        displayCopyableAddress("ClientInstance", ci);
-        displayCopyableAddress("GfxGamma", ci->getOptions()->mGfxGamma);
-        displayCopyableAddress("LocalPlayer", player);
-        displayCopyableAddress("PlayerInventory", player->getSupplies());
-        displayCopyableAddress("GameMode", player->getGameMode());
-        displayCopyableAddress("Level", player->getLevel());
-        if (player->getLevel()->getLevelData())
+
+        if (player)
         {
-            auto levelData = player->getLevel()->getLevelData();
-            displayCopyableAddress("LevelData", levelData);
-            ImGui::Text("LevelData mTick: %d", levelData->mTick);
+            if (ImGui::CollapsingHeader("Player"))
+            {
+                ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent>());
+                ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlagComponent>());
+                ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraComponent>());
+                ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraComponent>());
+                ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModelComponent>());
+                ImGui::Text("isOnFire: %d", player->getFlag<OnFireComponent>());
+                ImGui::Text("moveRequestComponent: %d", player->getFlag<MoveRequestComponent>());
+                ImGui::Text("gameType: %d", player->getGameType());
+                displayCopyableAddress("LocalPlayer", player);
+
+                if (auto supplies = player->getSupplies())
+                {
+                    displayCopyableAddress("PlayerInventory", supplies);
+                    displayCopyableAddress("GameMode", player->getGameMode());
+                    displayCopyableAddress("Level", player->getLevel());
+                }
+
+                if (ImGui::CollapsingHeader("Player Components"))
+                {
+                    for (auto& [ent, typehashes] : player->mContext.mRegistry->entities_with(static_cast<EntityId>(player->mContext.mEntityId)))
+                    {
+                        std::string check = "EntityId: " + std::to_string(static_cast<uint32_t>(ent));
+                        for (auto typehash : typehashes)
+                        {
+                            std::string name = "Unknown";
+                            if (Component::hashes.contains(typehash))
+                            {
+                                name = Component::hashes[typehash];
+                            }
+                            ImGui::Text("Entity: %d TypeHash: %s, Name: %s", ent, fmt::format("0x{:X}", typehash).c_str(), name.c_str());
+                        }
+                    }
+                }
+
+                if (ImGui::Button("Remove NameableComponent")) player->setFlag<NameableComponent>(false);
+                if (ImGui::Button("Add NameableComponent")) player->setFlag<NameableComponent>(true);
+            }
+
+            if (ImGui::CollapsingHeader("Movement Settings"))
+            {
+                if (auto keyMouseSettings = ci->getKeyboardSettings())
+                {
+                    int forward = (*keyMouseSettings)["key.forward"];
+                    int back = (*keyMouseSettings)["key.back"];
+                    int left = (*keyMouseSettings)["key.left"];
+                    int right = (*keyMouseSettings)["key.right"];
+
+                    bool isForward = Keyboard::mPressedKeys[forward];
+                    bool isBack = Keyboard::mPressedKeys[back];
+                    bool isLeft = Keyboard::mPressedKeys[left];
+                    bool isRight = Keyboard::mPressedKeys[right];
+
+                    ImGui::Text("Forward: %s", isForward ? "true" : "false");
+                    ImGui::Text("Back: %s", isBack ? "true" : "false");
+                    ImGui::Text("Left: %s", isLeft ? "true" : "false");
+                    ImGui::Text("Right: %s", isRight ? "true" : "false");
+                }
+            }
+
+            if (auto supplies = player->getSupplies(); supplies && ImGui::CollapsingHeader("Inventory"))
+            {
+                int selectedSlot = supplies->mSelectedSlot;
+                ImGui::Text("SelectedSlot: %d", selectedSlot);
+                ItemStack* stack = supplies->getContainer()->getItem(selectedSlot);
+
+                if (stack && stack->mItem)
+                {
+                    ImGui::Text("Item: %s", stack->getItem()->mName.c_str());
+                    ImGui::Text("Item Value: %d", ItemUtils::getItemValue(stack));
+                    ImGui::Text("Item Type: %s", magic_enum::enum_name(stack->getItem()->getItemType()).data());
+                    ImGui::Text("Item Tier: %d", stack->getItem()->getItemTier());
+                    ImGui::Text("Armor Slot: %d", stack->getItem()->getArmorSlot());
+                    displayCopyableAddress("Item", stack->getItem());
+                }
+
+                displayCopyableAddress("Item1", supplies->getContainer()->getItem(0));
+                displayCopyableAddress("Item2", supplies->getContainer()->getItem(1));
+                ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(supplies->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(supplies->getContainer()->getItem(0)));
+            }
+
+            if (gDaBlock && ImGui::CollapsingHeader("Block"))
+            {
+                displayCopyableAddress("Block", gDaBlock);
+
+                if (auto leg = gDaBlock->toLegacy())
+                {
+                    displayCopyableAddress("BlockLegacy", leg);
+                    ImGui::Text("BlockName: %s", leg->mName.c_str());
+
+                    if (auto mat = leg->mMaterial)
+                    {
+                        displayCopyableAddress("Material", mat);
+                        ImGui::Text("Material Type: %d", mat->mType);
+                        ImGui::Text("Material Flammable: %s", mat->mIsFlammable ? "true" : "false");
+                        ImGui::Text("Material Never Buildable: %s", mat->mIsNeverBuildable ? "true" : "false");
+                        ImGui::Text("Material Liquid: %s", mat->mIsLiquid ? "true" : "false");
+                        ImGui::Text("Material Blocking Motion: %s", mat->mIsBlockingMotion ? "true" : "false");
+                        ImGui::Text("Material Super Hot: %s", mat->mIsSuperHot ? "true" : "false");
+                    }
+                }
+            }
+
+            if (ImGui::CollapsingHeader("Components"))
+            {
+                displayCopyableAddress("MaxAutoStepComponent", player->getMaxAutoStepComponent());
+                displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
+                displayCopyableAddress("MoveInputComponent", player->mContext.getComponent<MoveInputComponent>());
+                displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
+                displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());
+                displayCopyableAddress("ShadowOffsetComponent", player->mContext.getComponent<ShadowOffsetComponent>());
+                displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());
+                displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());
+                displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
+                displayCopyableAddress("ItemUseSlowdownModifierComponent", player->mContext.getComponent<ItemUseSlowdownModifierComponent>());
+            }
+
+            if (auto settings = player->getLevel() ? player->getLevel()->getPlayerMovementSettings() : nullptr; settings && ImGui::CollapsingHeader("Player Movement Settings"))
+            {
+                std::string authority = std::string(magic_enum::enum_name(settings->AuthorityMode)) + " (" + std::to_string(static_cast<int>(settings->AuthorityMode)) + ")";
+                ImGui::Text("Authority Movement: %s", authority.c_str());
+                ImGui::Text("Rewind History Size: %d", static_cast<int>(settings->mRewindHistorySize));
+                ImGui::Text("Server Auth Block Breaking: %s", settings->ServerAuthBlockBreaking ? "true" : "false");
+                displayCopyableAddress("SyncedPlayerMovementSettings", settings);
+            }
         }
-        if (player->getLevel()) displayCopyableAddress("SyncedPlayerMovementSettings", player->getLevel()->getPlayerMovementSettings());
-        if (player->getLevel()->getPlayerMovementSettings())
-        {
-            auto settings = player->getLevel()->getPlayerMovementSettings();
-            std::string authority = std::string(magic_enum::enum_name(settings->AuthorityMode)) + " (" + std::to_string(static_cast<int>(settings->AuthorityMode)) + ")";
-            int rewindHistorySize = static_cast<int>(settings->mRewindHistorySize);
-            bool serverAuthBlockBreaking = settings->ServerAuthBlockBreaking;
-            ImGui::Text("Authority Movement: %s", authority.c_str());
-            ImGui::Text("Rewind History Size: %d", rewindHistorySize);
-            ImGui::Text("Server Auth Block Breaking: %s", serverAuthBlockBreaking ? "true" : "false");
-        }
-        displayCopyableAddress("Item1", player->getSupplies()->getContainer()->getItem(0));
-        displayCopyableAddress("Item2", player->getSupplies()->getContainer()->getItem(1));
-        ImGui::Text("ItemAddress Diff: %d", reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(1)) - reinterpret_cast<uintptr_t>(player->getSupplies()->getContainer()->getItem(0)));
-        displayCopyableAddress("ContainerManagerModel", player->getContainerManagerModel());
-        displayCopyableAddress("ActorWalkAnimationComponent", player->getWalkAnimationComponent());
-        displayCopyableAddress("MoveInputComponent", player->mContext.getComponent<MoveInputComponent>());
-        displayCopyableAddress("RawMoveInputComponent", player->mContext.getComponent<RawMoveInputComponent>());
-
-        displayCopyableAddress("MobHurtTimeComponent", player->mContext.getComponent<MobHurtTimeComponent>());;
-        displayCopyableAddress("ShadowOffsetComponent", player->mContext.getComponent<ShadowOffsetComponent>());;
-        displayCopyableAddress("SubBBsComponent", player->mContext.getComponent<SubBBsComponent>());;
-        displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());;
-        displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
-        //ItemUseSlowdownModifierComponent
-        displayCopyableAddress("ItemUseSlowdownModifierComponent", player->mContext.getComponent<ItemUseSlowdownModifierComponent>());
-        player->setStatusFlag(ActorFlags::CanShowName, false);
-        player->setStatusFlag(ActorFlags::AlwaysShowName, false);
-
-
-        if (ImGui::Button("Remove NameableComponent")) player->setFlag<NameableComponent>(false);
-        if (ImGui::Button("Add NameableComponent")) player->setFlag<NameableComponent>(true);
-
-
-
-        ImGui::EndGroup();
     }
 
-    displayCopyableAddress("Options", ci->getOptions());
-    displayCopyableAddress("BlockSource", blockSource);
-    displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
-    displayCopyableAddress("MinecraftGame", ci->getMinecraftGame());
-    displayCopyableAddress("MinecraftSimulation", ci->getMinecraftSim());
-    displayCopyableAddress("PacketSender", ci->getPacketSender());
-
-
-    // Display a button that sets D3DHook::forceFallback to true
     if (ImGui::Button("Force Fallback"))
     {
         D3DHook::forceFallback = true;
     }
 
-
-
-
-
     FontHelper::popPrefFont();
     ImGui::End();
+
 
 #endif
 
@@ -671,6 +695,4 @@ void TestModule::onRenderEvent(RenderEvent& event)
             }
         }
     }*/
-
-
 }

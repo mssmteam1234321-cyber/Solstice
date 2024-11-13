@@ -85,14 +85,20 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
 {
     auto player = event.mActor;
 
+    // components
+    auto moveInput = player->getMoveInputComponent();
+    auto actorRot = player->getActorRotationComponent();
+    auto stateVec = player->getStateVectorComponent();
+
+
     auto currentY = player->getPos()->y - 2.62f;
     if (!mLockY.mValue) mStartY = currentY;
     if (player->getPos()->y - 2.62f < mStartY) mStartY = player->getPos()->y - 2.62f;
     // If space is held unlock Y
-    if (player->getMoveInputComponent()->mIsJumping && !Keyboard::isUsingMoveKeys()) mStartY = currentY;
-    float yaw = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset() + 90;
+    if (moveInput->mIsJumping && !Keyboard::isUsingMoveKeys()) mStartY = currentY;
+    float yaw = actorRot ->mYaw + MathUtils::getRotationKeyOffset() + 90;
 
-    glm::vec3 velocity = player->getStateVectorComponent()->mVelocity;
+    glm::vec3 velocity = stateVec ->mVelocity;
 
     bool isMoving = Keyboard::isUsingMoveKeys();
 
@@ -103,7 +109,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
         if (mIsTowering)
         {
             mIsTowering = false;
-            player->getStateVectorComponent()->mVelocity.y = -5.0f;
+            stateVec ->mVelocity.y = -5.0f;
         }
         return false;
     }
@@ -141,30 +147,30 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
             {
                 if (!mAllowMovement.mValue)
                 {
-                    player->getStateVectorComponent()->mVelocity.x = 0;
-                    player->getStateVectorComponent()->mVelocity.z = 0;
+                    stateVec ->mVelocity.x = 0;
+                    stateVec ->mVelocity.z = 0;
                 } else if (!player->isOnGround())
                 {
-                    glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
+                    glm::vec2 currentMotion = {stateVec ->mVelocity.x, stateVec ->mVelocity.z};
                     float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
                     float movementYaw = atan2(currentMotion.y, currentMotion.x);
                     float moveYawDeg = movementYaw * (180 / IM_PI) - 90.f;
-                    float playerYawDeg = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+                    float playerYawDeg = actorRot ->mYaw + MathUtils::getRotationKeyOffset();
                     float yawDiff = playerYawDeg - moveYawDeg;
                     float yawDiffRad = yawDiff * (IM_PI / 180);
                     float newMoveYaw = movementYaw + yawDiffRad;
-                    player->getStateVectorComponent()->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
-                    player->getStateVectorComponent()->mVelocity.z = sin(newMoveYaw) * movementSpeed;
+                    stateVec ->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
+                    stateVec ->mVelocity.z = sin(newMoveYaw) * movementSpeed;
                 }
                 mStartY = player->getPos()->y;
                 mIsTowering = true;
-                player->getStateVectorComponent()->mVelocity.y = mTowerSpeed.mValue / 10;
+                stateVec ->mVelocity.y = mTowerSpeed.mValue / 10;
                 maxExtend = 0.f;
             }
             else if (wasTowering)
             {
                 mIsTowering = false;
-                player->getStateVectorComponent()->mVelocity.y = -5.0f;
+                stateVec ->mVelocity.y = -5.0f;
             }
             break;
         }
@@ -174,20 +180,20 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
             {
                 if (!mAllowMovement.mValue)
                 {
-                    player->getStateVectorComponent()->mVelocity.x = 0;
-                    player->getStateVectorComponent()->mVelocity.z = 0;
+                    stateVec ->mVelocity.x = 0;
+                    stateVec ->mVelocity.z = 0;
                 } else if (!player->isOnGround())
                 {
-                    glm::vec2 currentMotion = {player->getStateVectorComponent()->mVelocity.x, player->getStateVectorComponent()->mVelocity.z};
+                    glm::vec2 currentMotion = {stateVec ->mVelocity.x, stateVec ->mVelocity.z};
                     float movementSpeed = sqrt(currentMotion.x * currentMotion.x + currentMotion.y * currentMotion.y);
                     float movementYaw = atan2(currentMotion.y, currentMotion.x);
                     float moveYawDeg = movementYaw * (180 / IM_PI) - 90.f;
-                    float playerYawDeg = player->getActorRotationComponent()->mYaw + MathUtils::getRotationKeyOffset();
+                    float playerYawDeg = actorRot ->mYaw + MathUtils::getRotationKeyOffset();
                     float yawDiff = playerYawDeg - moveYawDeg;
                     float yawDiffRad = yawDiff * (IM_PI / 180);
                     float newMoveYaw = movementYaw + yawDiffRad;
-                    player->getStateVectorComponent()->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
-                    player->getStateVectorComponent()->mVelocity.z = sin(newMoveYaw) * movementSpeed;
+                    stateVec ->mVelocity.x = cos(newMoveYaw) * movementSpeed;;
+                    stateVec ->mVelocity.z = sin(newMoveYaw) * movementSpeed;
                 }
                 mStartY = player->getPos()->y;
                 mIsTowering = true;
@@ -197,7 +203,7 @@ bool Scaffold::tickPlace(BaseTickEvent& event)
             else if (wasTowering)
             {
                 mIsTowering = false;
-                player->getStateVectorComponent()->mVelocity.y = -5.0f;
+                stateVec ->mVelocity.y = -5.0f;
             }
     }
     }
