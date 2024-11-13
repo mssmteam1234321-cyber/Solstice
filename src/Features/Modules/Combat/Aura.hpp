@@ -107,8 +107,8 @@ public:
             &mThrowDelay,
 #ifdef __PRIVATE_BUILD__
             &mAutoBow,
-            &mAttackThroughWalls,
 #endif
+            &mAttackThroughWalls,
             &mSwing,
             &mSwingDelay,
             &mSwingDelayValue,

@@ -416,9 +416,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
         if (actor == player) continue;
         float range = mDynamicRange.mValue && !isMoving ? mDynamicRangeValue.mValue : mRange.mValue;
         if (actor->distanceTo(player) > range) continue;
-#ifdef __PRIVATE_BUILD__
         if (!mAttackThroughWalls.mValue && !player->canSee(actor)) continue;
-#endif
 
         if (actor->isPlayer() && gFriendManager->mEnabled)
         {
