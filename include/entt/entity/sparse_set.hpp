@@ -184,6 +184,7 @@ class basic_sparse_set {
         return --(end() - index(entt));
     }
 
+
     [[nodiscard]] auto &assure_at_least(const Entity entt) {
         const auto pos = static_cast<size_type>(traits_type::to_entity(entt));
         const auto page = pos / traits_type::page_size;
@@ -374,6 +375,53 @@ protected:
     }
 
 public:
+    /**
+     * @brief Assigns an entity to a sparse set.
+     * @param entt A valid identifier.
+     * @param force_back Force back insertion.
+     * @return Iterator pointing to the emplaced element.
+     */
+     basic_iterator try_emplace2(const Entity entt, const bool force_back, const void * = nullptr) {
+        ENTT_ASSERT(entt != null && entt != tombstone, "Invalid element");
+        auto &elem = assure_at_least(entt);
+        auto pos = size();
+
+        switch(mode) {
+        case deletion_policy::in_place:
+            if(head != max_size && !force_back) {
+                pos = head;
+                ENTT_ASSERT(elem == null, "Slot not available");
+                elem = traits_type::combine(static_cast<typename traits_type::entity_type>(head), traits_type::to_integral(entt));
+                head = static_cast<size_type>(traits_type::to_entity(std::exchange(packed[pos], entt)));
+                break;
+            }
+            [[fallthrough]];
+        case deletion_policy::swap_and_pop:
+            // check if the entt already exists in packed array
+                if (pos < packed.size() && packed[pos] == entt) {
+                    break;
+                }
+            packed.push_back(entt);
+            ENTT_ASSERT(elem == null, "Slot not available");
+            elem = traits_type::combine(static_cast<typename traits_type::entity_type>(packed.size() - 1u), traits_type::to_integral(entt));
+            break;
+        case deletion_policy::swap_only:
+            if(elem == null) {
+                packed.push_back(entt);
+                elem = traits_type::combine(static_cast<typename traits_type::entity_type>(packed.size() - 1u), traits_type::to_integral(entt));
+            } else {
+                ENTT_ASSERT(!(static_cast<size_type>(traits_type::to_entity(elem)) < head), "Slot not available");
+                bump(entt);
+            }
+
+            pos = head++;
+            swap_at(static_cast<size_type>(traits_type::to_entity(elem)), pos);
+            break;
+        }
+
+        return --(end() - static_cast<typename iterator::difference_type>(pos));
+    }
+
     /*! @brief Allocator type. */
     using allocator_type = Allocator;
     /*! @brief Underlying entity identifier. */
@@ -687,6 +735,35 @@ public:
     }
 
     /**
+     * @brief Returns the element assigned to an entity, if any.
+     * @param entt A valid identifier.
+     * @return An opaque pointer to the element assigned to the entity, if any.
+     */
+    [[nodiscard]] const void *get_ptr(const entity_type entt) const noexcept
+    {
+        if (const auto elem = sparse_ptr(entt); elem) {
+            const auto pos = static_cast<size_type>(traits_type::to_entity(*elem));
+            return (pos < packed.size() && packed[pos] == entt) ? get_at(pos) : nullptr;
+        } else
+        {
+            return nullptr;
+        }
+    }
+
+    // emplacenv
+
+    void remove_elem(const entity_type entt) {
+        if (contains(entt))
+        {
+            const auto pos = index(entt);
+            const auto last = packed.size() - 1;
+            const auto last_entt = packed[last];
+            packed[pos] = last_entt;
+            packed.pop_back();
+        }
+    }
+
+    /**
      * @brief Returns the contained version for an identifier.
      * @param entt A valid identifier.
      * @return The version for the given identifier if present, the tombstone
@@ -756,6 +833,10 @@ public:
      */
     iterator push(const entity_type entt, const void *elem = nullptr) {
         return try_emplace(entt, false, elem);
+    }
+
+    void push_back(const entity_type entt) {
+        try_emplace2(entt, true);
     }
 
     /**

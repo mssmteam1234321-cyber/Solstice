@@ -711,6 +711,13 @@ public:
         return it->second;
     }
 
+    // function to get a void* from a id_type, if the mapped_type is a shared_ptr
+    [[nodiscard]] void* get_void_ptr(const key_type &key) {
+        auto it = find(key);
+        ENTT_ASSERT(it != end(), "Invalid key");
+        return it->second.get();
+    }
+
     /*! @copydoc at */
     [[nodiscard]] const mapped_type &at(const key_type &key) const {
         auto it = find(key);

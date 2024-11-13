@@ -431,6 +431,64 @@ public:
         return result;
     }
 
+    // returns an unordered map of all the components associated with a given entity
+    // key - Entity ID
+    // value - Map of Component Type Hash to Component Pointer
+    [[nodiscard]] std::unordered_map<entity_type, std::map<id_type, void*>> get_all_entity_components() const {
+        std::unordered_map<entity_type, std::map<id_type, void*>> result;
+
+        // gather list of available entities
+        std::vector<entity_type> entities;
+        for(auto &&curr: pools) {
+            auto &storage = *curr.second;
+            for(auto &&entity: storage) {
+                entities.push_back(entity);
+            }
+        }
+
+        // iterate through all entities and get their components
+        for(auto &&entity: entities) {
+            std::map<id_type, void*> components;
+            //using pool_container_type = dense_map<id_type, std::shared_ptr<base_type>, identity, std::equal_to<id_type>, typename alloc_traits::template rebind_alloc<std::pair<const id_type, std::shared_ptr<base_type>>>>;
+            for(auto &&[first, second] : pools) {
+                std::shared_ptr<basic_sparse_set<Entity, Allocator>> storage = second;
+
+                if(storage->contains(entity))
+                {
+                    const void* component = storage->get_ptr(entity);
+                    components[first] = const_cast<void*>(component);
+                }
+            }
+
+            result[entity] = components;
+        }
+
+        return result;
+    }
+
+
+    template<typename Type>
+    [[nodiscard]] bool has_flag(const entity_type entt, const id_type flag = type_hash<Type>::value()) const {
+        auto& sparseSet = pools.at(flag);
+        return sparseSet->contains(entt);
+    }
+
+    template<typename Type>
+    void set_flag(const entity_type entt, bool state, const id_type flag = type_hash<Type>::value()) {
+        std::shared_ptr<basic_sparse_set<Entity, Allocator>> sparseSet = pools.at(flag);
+        if (!sparseSet->contains(entt) && state) {
+            sparseSet->push_back(entt);
+        } else if (sparseSet->contains(entt) && !state) {
+            sparseSet->remove(entt);
+        }
+    }
+
+    template<typename Type>
+    void add_component(const entity_type entt, std::shared_ptr<Type> component, const id_type id = type_hash<Type>::value()) {
+        auto& storage = assure<Type>(id);
+        storage.insert(entt, component);
+    }
+
     /**
      * @brief Finds the storage associated with a given name, if any.
      * @param id Name used to map the storage within the registry.

@@ -57,7 +57,11 @@ public:
 
 class UpdatePlayerFromCameraComponent
 {
+public:
     int mUpdateMode = 0;
+
+    UpdatePlayerFromCameraComponent() = default;
+    UpdatePlayerFromCameraComponent(int mode) : mUpdateMode(mode) {}
 };
 
 struct CameraAvoidanceComponent

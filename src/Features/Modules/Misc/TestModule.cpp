@@ -560,19 +560,133 @@ void TestModule::onRenderEvent(RenderEvent& event)
                     displayCopyableAddress("Level", player->getLevel());
                 }
 
-                if (ImGui::CollapsingHeader("Player Components"))
+                if (ImGui::CollapsingHeader("All EntityId Components"))
                 {
-                    for (auto& [ent, typehashes] : player->mContext.mRegistry->entities_with(static_cast<EntityId>(player->mContext.mEntityId)))
+                    static bool showTypeHashes = false;
+                    ImGui::Checkbox("Show TypeHashes", &showTypeHashes);
+
+                    std::unordered_map<EntityId, std::map<std::uint32_t, void*>> unsortedMap = player->mContext.mRegistry->get_all_entity_components();
+                    std::unordered_map<EntityId, std::map<std::uint32_t, void*>> flagMap = {};
+
+                    // For each entity in unsortedMap, if they have a 0x0 address component in their map, add it to the flagMap and remove it from the unsortedMap
+                    for (auto& [ent, typehashes] : unsortedMap)
                     {
-                        std::string check = "EntityId: " + std::to_string(static_cast<uint32_t>(ent));
-                        for (auto typehash : typehashes)
+                        if (typehashes.empty()) continue;
+
+                        std::map<std::uint32_t, void*> flagComponents = {};
+                        for (auto& [typehash, address] : typehashes)
                         {
-                            std::string name = "Unknown";
-                            if (Component::hashes.contains(typehash))
+                            if (address == nullptr)
                             {
-                                name = Component::hashes[typehash];
+                                flagComponents[typehash] = nullptr;
                             }
-                            ImGui::Text("Entity: %d TypeHash: %s, Name: %s", ent, fmt::format("0x{:X}", typehash).c_str(), name.c_str());
+                        }
+
+                        if (!flagComponents.empty())
+                        {
+                            flagMap[ent] = flagComponents;
+                            for (auto& [typehash, address] : flagComponents)
+                            {
+                                typehashes.erase(typehash);
+                            }
+                        }
+                    }
+
+
+
+
+                    auto local = player->mContext.mEntityId;
+
+                    static std::map<EntityId, std::set<std::uint32_t>> entityComponentMap = {};
+                    static std::map<EntityId, std::set<std::uint32_t>> entityFlagMap = {};
+
+                    for (auto& [ent, typehashes] : flagMap)
+                    {
+                        if (typehashes.empty()) continue;
+
+                        std::string id = "Flags for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
+                        if (ImGui::CollapsingHeader(id.c_str()))
+                        {
+                            auto componentSet = std::set<std::uint32_t>();
+
+                            for (auto& [typehash, address] : typehashes)
+                            {
+                                componentSet.insert(typehash);
+                                std::string name = "Unknown";
+                                if (Component::hashes.contains(typehash))
+                                {
+                                    name = Component::hashes[typehash];
+                                }
+                                /*ImGui::Text("TypeHash: %s, Name: %s, State: TRUE",
+                                    fmt::format("0x{:X}", typehash).c_str(), name.c_str());*/
+                                if (showTypeHashes)
+                                    ImGui::Text("TypeHash: %s, Name: %s, State: TRUE", fmt::format("0x{:X}", typehash).c_str(), name.c_str());
+                                else
+                                    ImGui::Text("Name: %s, State: TRUE", name.c_str());
+                            }
+
+                            for (auto& typehash : entityFlagMap[ent])
+                            {
+                                std::string name = Component::hashes.contains(typehash) ? Component::hashes[typehash] : "Unknown";
+
+                                if (!componentSet.contains(typehash))
+                                {
+                                    if (showTypeHashes)
+                                        ImGui::Text("TypeHash: %s, Name: %s, State: FALSE", fmt::format("0x{:X}", typehash).c_str(), name.c_str());
+                                    else
+                                        ImGui::Text("Name: %s, State: FALSE", name.c_str());
+                                }
+                            }
+
+                            for (auto& [typehash, address] : typehashes)
+                            {
+                                entityFlagMap[ent].insert(typehash);
+                            }
+                        }
+                    }
+
+                    for (auto& [ent, typehashes] : unsortedMap)
+                    {
+                        if (typehashes.empty()) continue;
+
+                        std::string id = "Components for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
+                        if (ImGui::CollapsingHeader(id.c_str()))
+                        {
+                            auto componentSet = std::set<std::uint32_t>();
+
+                            for (auto& [typehash, address] : typehashes)
+                            {
+                                componentSet.insert(typehash);
+                                std::string name = "Unknown";
+                                if (Component::hashes.contains(typehash))
+                                {
+                                    name = Component::hashes[typehash];
+                                }
+                                if (showTypeHashes)
+                                    ImGui::Text("TypeHash: %s, Name: %s, Address: %s",
+                                       fmt::format("0x{:X}", typehash).c_str(), name.c_str(), fmt::format("0x{:X}", reinterpret_cast<uintptr_t>(address)).c_str());
+                                else
+                                    ImGui::Text("Name: %s, Address: %s", name.c_str(), fmt::format("0x{:X}", reinterpret_cast<uintptr_t>(address)).c_str());
+                            }
+
+                            for (auto& typehash : entityComponentMap[ent])
+                            {
+                                std::string name = Component::hashes.contains(typehash) ? Component::hashes[typehash] : "Unknown";
+
+                                if (!componentSet.contains(typehash))
+                                {
+                                    if (showTypeHashes)
+                                        ImGui::Text("TypeHash: %s, Name: %s, Address: %s",
+                                            fmt::format("0x{:X}", typehash).c_str(), name.c_str(), "NULL");
+                                    else
+                                       ImGui::Text("Name: %s, Address: %s", name.c_str(), "NULL");
+                                }
+                            }
+
+                            for (auto& [typehash, address] : typehashes)
+                            {
+                                entityComponentMap[ent].insert(typehash);
+                            }
                         }
                     }
                 }

@@ -62,8 +62,7 @@ public:
             return false;
         }
 
-        auto storage = mContext.assure<flag_t>();
-        return storage->contains(this->mContext.mEntityId);
+        return mContext.mRegistry->has_flag<flag_t>(mContext.mEntityId);
     }
 
     template<typename flag_t>
@@ -76,14 +75,8 @@ public:
                 spdlog::error("Failed to set flag: actor is not valid");
                 return;
             }
-            auto storage = mContext.assure<flag_t>();
-            bool has = storage->contains(this->mContext.mEntityId);
-            if (value && !has) {
-                storage->emplace(this->mContext.mEntityId);
-            }
-            else if (!value && has) {
-                storage->remove(this->mContext.mEntityId);
-            }
+
+            mContext.mRegistry->set_flag<flag_t>(mContext.mEntityId, value);
         } catch (std::exception& e) {
             spdlog::error("Failed to set flag: {}", e.what());
         } catch (...) {
@@ -99,8 +92,7 @@ public:
             return false;
         }
 
-        auto storage = mContext.assure<flag_t>();
-        return storage->contains(id);
+        return mContext.mRegistry->has_flag<flag_t>(id);
     }
 
     template<typename flag_t>
@@ -113,14 +105,15 @@ public:
                 spdlog::error("Failed to set flag: actor is not valid");
                 return;
             }
-            auto storage = mContext.assure<flag_t>();
+            /*auto storage = mContext.assure<flag_t>();
             bool has = storage->contains(id);
             if (value && !has) {
                 storage->emplace(id);
             }
             else if (!value && has) {
                 storage->remove(id);
-            }
+            }*/
+            mContext.mRegistry->set_flag<flag_t>(id, value);
         } catch (std::exception& e) {
             spdlog::error("Failed to set flag: {}", e.what());
         } catch (...) {

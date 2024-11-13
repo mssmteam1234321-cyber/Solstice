@@ -27,6 +27,7 @@ public:
     bool mHadComponent = false;
     std::vector<class CameraDirectLookComponent*> mCameraDirectLookComponents;
     std::unordered_map<CameraDirectLookComponent*, CameraDirectLookComponent> mOriginalRots;
+    std::unordered_map<EntityId, int> mCameras;
 
     static void patchUpdates(bool);
 

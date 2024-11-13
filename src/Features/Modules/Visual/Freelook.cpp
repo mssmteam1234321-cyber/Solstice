@@ -35,27 +35,17 @@ void Freelook::onEnable()
     mLastCameraState = ClientInstance::get()->getOptions()->mThirdPerson->value;
     ClientInstance::get()->getOptions()->mThirdPerson->value = 1;
 
-    auto storage = player->mContext.assure<CameraDirectLookComponent>();
+    auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
 
-    for (std::tuple<EntityId, CameraDirectLookComponent&> entt : storage->each())
+    for (std::tuple<EntityId, UpdatePlayerFromCameraComponent&> entt : storage->each())
     {
         EntityId id = std::get<0>(entt);
+        int mode = std::get<1>(entt).mUpdateMode;
 
-        spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
-        mCameraDirectLookComponents.push_back(&std::get<1>(entt));
-        mOriginalRots[&std::get<1>(entt)] = std::get<1>(entt);
+        mCameras[id] = mode;
     }
 
-    {
-        auto s = player->mContext.assure<ItemUseSlowdownModifierComponent>();
-
-        for (std::tuple<EntityId, ItemUseSlowdownModifierComponent&> entt : s->each())
-        {
-            EntityId id = std::get<0>(entt);
-
-            spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
-        }
-    }
+    storage->clear();
 
     patchUpdates(true);
 }
@@ -72,20 +62,12 @@ void Freelook::onDisable()
         return;
     }
 
-    auto storage = player->mContext.assure<CameraDirectLookComponent>();
+    auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
 
-    for (std::tuple<EntityId, CameraDirectLookComponent&> entt : storage->each())
+    for (auto& [id, mode] : mCameras)
     {
-        // Get the entity id
-        EntityId id = std::get<0>(entt);
-        // Log the entity id and their component
-        spdlog::info("Entity ID: {} - Component: {:X}", id, reinterpret_cast<uintptr_t>(&std::get<1>(entt)));
-        auto comp = &std::get<1>(entt);
-        *comp = mOriginalRots[comp];
+        storage->emplace(id, UpdatePlayerFromCameraComponent(mode));
     }
-
-    mCameraDirectLookComponents.clear();
-    mOriginalRots.clear();
 
     auto options = ClientInstance::get()->getOptions();
     options->mThirdPerson->value = mLastCameraState;
