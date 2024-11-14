@@ -7,7 +7,11 @@
 
 class InventoryMove : public ModuleBase<InventoryMove> {
 public:
+    BoolSetting mDisallowShift = BoolSetting("Disallow Sneaking", "Disallows sneaking while in inventory.", false);
+
     InventoryMove() : ModuleBase("InventoryMove", "Allows you to move while your inventory is open.", ModuleCategory::Movement, 0, false) {
+        addSettings(&mDisallowShift);
+
         mNames = {
             {Lowercase, "inventorymove"},
             {LowercaseSpaced, "inventory move"},

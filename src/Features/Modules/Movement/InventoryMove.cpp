@@ -81,7 +81,7 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
         input->mIsJumping = space;
         input->mIsJumping2 = space;
     }
-    input->mIsSneakDown = shift;
+    input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
     input->mMoveVector = MathUtils::getMovement();
 }
 
@@ -132,6 +132,6 @@ void InventoryMove::onRenderEvent(RenderEvent& event)
         input->mIsJumping = space;
         input->mIsJumping2 = space;
     }
-    input->mIsSneakDown = shift;
+    input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
     input->mMoveVector = MathUtils::getMovement();
 }

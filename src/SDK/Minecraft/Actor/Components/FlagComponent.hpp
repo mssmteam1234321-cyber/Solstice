@@ -6,7 +6,7 @@
 //#define DEFINE_FLAG(name) struct name {}; // this is stupid lmao
 
 struct TargetCameraSetInitialOrientationComponent {};
-struct CameraAlignWithTagetForwardComponent {};
+struct CameraAlignWithTargetForwardComponent {};
 struct ExtendPlayerRenderingComponent {};
 struct ActiveCameraComponent {};
 

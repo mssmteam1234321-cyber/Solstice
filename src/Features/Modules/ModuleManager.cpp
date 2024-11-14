@@ -265,6 +265,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<Glint>());
     mModules.emplace_back(std::make_shared<NoDebuff>());
     mModules.emplace_back(std::make_shared<JumpCircles>());
+    mModules.emplace_back(std::make_shared<Freelook>());
 
 #ifdef __PRIVATE_BUILD__
     // mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
@@ -286,7 +287,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
-    mModules.emplace_back(std::make_shared<Freelook>());
 #endif
 
     // Determine if we should add UpdateForm

@@ -8,6 +8,9 @@
 #include <SDK/Minecraft/Options.hpp>
 #include <SDK/Minecraft/Actor/Components/CameraComponent.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
+#include <Features/Events/LookInputEvent.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
 
 class Freelook : public ModuleBase<Freelook> {
 public:
@@ -20,18 +23,21 @@ public:
         };
 
         mEnableWhileHeld = true;
+
+        gFeatureManager->mDispatcher->listen<LookInputEvent, &Freelook::onLookInputEvent>(this);
     }
 
     int mLastCameraState = 0;
     glm::vec2 mLookingAngles = glm::vec2(0.0f, 0.0f);
     bool mHadComponent = false;
-    std::vector<class CameraDirectLookComponent*> mCameraDirectLookComponents;
-    std::unordered_map<CameraDirectLookComponent*, CameraDirectLookComponent> mOriginalRots;
+    std::map<CameraMode, glm::vec2> mOriginalRotRads;
     std::unordered_map<EntityId, int> mCameras;
-
-    static void patchUpdates(bool);
+    bool mResetRot = false;
+    glm::vec2 mHeadYaw;
 
     void onEnable() override;
     void onDisable() override;
-
+    void onBaseTickEvent(BaseTickEvent& event);
+    void onPacketOutEvent(PacketOutEvent& event);
+    void onLookInputEvent(LookInputEvent& event);
 };
