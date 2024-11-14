@@ -314,6 +314,38 @@ uintptr_t MemUtils::findReference(uintptr_t address) {
     return 0;
 }
 
+std::vector<uintptr_t> MemUtils::findReferences(uintptr_t address) {
+    std::vector<uintptr_t> results;
+    MODULEINFO moduleInfo;
+    GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &moduleInfo, sizeof(MODULEINFO));
+    uintptr_t start = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
+    uintptr_t end = start + moduleInfo.SizeOfImage;
+
+    for (uintptr_t addr = start; addr < end; addr++) {
+        uint8_t* bytePtr = reinterpret_cast<uint8_t*>(addr);
+
+        if (bytePtr[0] == 0xE8) {
+            int32_t offset = *reinterpret_cast<int32_t*>(addr + 1);
+            uintptr_t targetAddr = addr + offset + 5;
+
+            if (targetAddr == address) {
+                results.push_back(addr);
+            }
+        }
+
+        if (bytePtr[0] == 0x48 && bytePtr[1] == 0x8D) {
+            int32_t offset = *reinterpret_cast<int32_t*>(addr + 3);
+            uintptr_t targetAddr = addr + offset + 7;
+
+            if (targetAddr == address) {
+                results.push_back(addr);
+            }
+        }
+    }
+
+    return results;
+}
+
 uintptr_t MemUtils::getTopOfFunction(uintptr_t address)
 {
     if (address == 0)

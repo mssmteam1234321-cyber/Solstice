@@ -430,12 +430,6 @@ void Scaffold::onPacketOutEvent(PacketOutEvent& event)
 
             auto pos = *player->getPos();
 
-            static auto testMod = gFeatureManager->mModuleManager->getModule<TestModule>();
-            if (testMod->mEnabled && testMod->mMode.mValue == TestModule::Mode::OnGroundSpeedTest)
-            {
-                pos.y = testMod->mLastOnGroundY;
-            }
-
             glm::vec2 rotations = MathUtils::getRots(pos, target);
 
 

@@ -9,6 +9,7 @@ struct TargetCameraSetInitialOrientationComponent {};
 struct CameraAlignWithTargetForwardComponent {};
 struct ExtendPlayerRenderingComponent {};
 struct ActiveCameraComponent {};
+struct CurrentInputCameraComponent {};
 
 struct CameraRenderFirstPersonObjectsComponent {};
 struct CameraRenderPlayerModelComponent {};
@@ -17,7 +18,10 @@ struct RenderCameraComponent {};
 struct GameCameraComponent {};
 struct OnFireComponent {};
 struct MoveRequestComponent {};
-struct DebugCameraIsActiveComponent {};
+struct DebugCameraIsActiveComponent
+{
+    PAD(0x10);
+};
 struct AllowInsideBlockRenderComponent {};
 class NameableComponent
 {

@@ -584,13 +584,20 @@ public:
         entities.insert(std::move(first), std::move(last));
     }
 
-    [[nodiscard]] const auto *assure_h([[maybe_unused]] const id_type id) const
-    {
-        if(const auto it = pools.find(id); it != pools.cend()) {
-            return static_cast<const storage_for_type<void*> *>(it->second.get());
-        }
+    template<typename Type>
+    [[nodiscard]] auto* assure_t([[maybe_unused]] const id_type id = type_hash<Type>::value()) {
+        static_assert(std::is_same_v<Type, std::decay_t<Type>>, "Non-decayed types not allowed");
 
-        return static_cast<const storage_for_type<void*> *>(nullptr);
+        if constexpr(std::is_same_v<Type, entity_type>) {
+            return &entities;
+        } else {
+            if(const auto it = pools.find(id); it != pools.cend()) {
+                ENTT_ASSERT(it->second->type() == type_id<Type>(), "Unexpected type");
+                return static_cast<storage_for_type<Type> *>(it->second.get());
+            }
+
+            return static_cast<storage_for_type<Type> *>(nullptr);
+        }
     }
 
     /**

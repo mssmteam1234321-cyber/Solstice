@@ -49,6 +49,11 @@ public:
 };
 static_assert(sizeof(CameraComponent) == 0x120);
 
+class StationaryCameraComponent
+{
+    PAD(0x44);
+};
+
 class CameraDirectLookComponent {
 public:
     glm::vec2 mRotRads{};
@@ -75,14 +80,7 @@ public:
 class DebugCameraComponent
 {
 public:
-    HashedString mViewName{};
-    glm::quat mQuat{};
-    glm::vec3 mOrigin{};
-    glm::vec4 mFov{}; // mViewport? (Fov X, Fov Y, Near, Far)?
-    glm::mat4 mWorld{};
-    glm::mat4 mView{};
-    glm::mat4 mProjection{};
-    int8_t padding[4]{0};
+    PAD(0x128);
 };
 
 class UpdatePlayerFromCameraComponent
