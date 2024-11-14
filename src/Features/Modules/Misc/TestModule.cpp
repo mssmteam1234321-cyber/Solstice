@@ -141,7 +141,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-//#ifdef __DEBUG__
+#ifdef __DEBUG__
     if (mMode.mValue != Mode::DebugUi) return;
 
     FontHelper::pushPrefFont(false, false);
@@ -416,14 +416,14 @@ void TestModule::onRenderEvent(RenderEvent& event)
                 {
                     struct _SizeComponent
                     {
-                        uintptr_t sizeFunc;
+                        std::string sizeFunc;
                         std::string componentName;
                         unsigned int typeHash;
 
                         nlohmann::json toJson()
                         {
                             return {
-                                {"SizeFunc", fmt::format("{:X}", sizeFunc)},
+                                {"SizeFunc", sizeFunc},
                                 {"ComponentName", componentName},
                                 {"TypeHash", fmt::format("{:X}", typeHash)}
                             };
@@ -448,7 +448,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
                             // TODO: Figure out how to properly dump size from this function
 
                             spdlog::info("TypeHash: 0x{:X}, Name: {}, VTable: {:X} Func: {:X}", typeHash, componentName, reinterpret_cast<uintptr_t>(vtable), func);
-                            sizeComponents.emplace_back(_SizeComponent{ func, componentName, typeHash });
+                            std::string funcStr = MemUtils::getMbMemoryString(func);
+                            sizeComponents.emplace_back(_SizeComponent{ funcStr, componentName, typeHash });
                         }
                     }
 
@@ -487,4 +488,5 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
     FontHelper::popPrefFont();
     ImGui::End();
+#endif
 }

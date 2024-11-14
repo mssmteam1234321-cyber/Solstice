@@ -203,7 +203,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FastEat>());
 
     // Misc
-    mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
@@ -287,6 +286,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
+    mModules.emplace_back(std::make_shared<TestModule>());
+
 #endif
 
     // Determine if we should add UpdateForm
