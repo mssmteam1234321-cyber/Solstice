@@ -70,6 +70,7 @@ public:
     NumberSetting mOpponentDestroySpeed = NumberSetting("Opponent Speed", "Specify opponent's destroy speed", 1, 0.01, 1, 0.01);
     BoolSetting mAntiSteal = BoolSetting("Anti Steal", "Stop mining if enemy tried to steal ore", false);
     BoolSetting mConfuse = BoolSetting("Confuse", "Confuse stealer", false);
+    BoolSetting mConfuse2 = BoolSetting("Confuse 2", "Confuse stealer", false);
     EnumSettingT<ConfuseMode> mConfuseMode = EnumSettingT<ConfuseMode>("Confuse Mode", "The mode for confuser", ConfuseMode::Always, "Always", "Auto");
     NumberSetting mConfuseDuration = NumberSetting("Confuse Duration", "The time for confuse", 3000, 1000, 10000, 500);
     BoolSetting mAntiConfuse = BoolSetting("Anti Confuse", "Ignore confused blocks due to false stealing", false);
@@ -151,6 +152,7 @@ public:
 #ifdef __PRIVATE_BUILD__
             &mAntiSteal,
             &mConfuse,
+            &mConfuse2,
             &mConfuseMode,
             &mConfuseDuration,
             &mAntiConfuse,
@@ -237,8 +239,8 @@ public:
         VISIBILITY_CONDITION(mStealPriority, mSteal.mValue);
         VISIBILITY_CONDITION(mAlwaysSteal, mSteal.mValue);
 
-        VISIBILITY_CONDITION(mConfuseMode, mConfuse.mValue);
-        VISIBILITY_CONDITION(mConfuseDuration, mConfuse.mValue && mConfuseMode.mValue == ConfuseMode::Auto);
+        VISIBILITY_CONDITION(mConfuseMode, mConfuse.mValue || mConfuse2.mValue);
+        VISIBILITY_CONDITION(mConfuseDuration, (mConfuse.mValue || mConfuse2.mValue) && mConfuseMode.mValue == ConfuseMode::Auto);
 
         VISIBILITY_CONDITION(mAntiConfuseMode, mAntiConfuse.mValue);
 
