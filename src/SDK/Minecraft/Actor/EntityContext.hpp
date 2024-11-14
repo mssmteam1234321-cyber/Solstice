@@ -93,11 +93,26 @@ public:
         return hat::parse_signature(ss.str()).value();
     }
 
+    static hat::signature_view getAssureSignatureWithHash(uint32_t hash) {
+        const auto* bytes = reinterpret_cast<uint8_t*>(&hash);
+
+        std::stringstream ss;
+        ss << "ba"; // mov edx, 0xhash
+
+        //Add the hash bytes
+        for (int i = 0; i < 4; i++) {
+            ss << " " << std::setw(2) << std::setfill('0') << std::hex << (0xFF & bytes[i]);
+        }
+
+        return hat::parse_signature(ss.str()).value();
+    }
+
+
+
     template<typename component_t>
     static void* getForComponentSub(void* rv)
     {
         uintptr_t result = reinterpret_cast<uintptr_t>(rv);
-        auto assureSig = getAssureSignature<component_t>();
         std::string componentName = typeid(component_t).name();
         result += 5; // Add 5 to skip the mov edx, 0xhash instruction
 
@@ -149,6 +164,60 @@ public:
         return reinterpret_cast<void*>(assureAddr);
     }
 
+    static void* getForComponentSub2(void* rv)
+    {
+        uintptr_t result = reinterpret_cast<uintptr_t>(rv);
+        result += 5; // Add 5 to skip the mov edx, 0xhash instruction
+
+        // Search for the next call instruction
+        uint32_t relCallOffset = 0;
+        uint64_t assureAddr = 0;
+        while (true) {
+            uint8_t byte = *reinterpret_cast<uint8_t*>(result);
+            if (byte != 0xE8 && byte != 0xCC)
+            {
+                result += 1;
+                continue;
+            }
+
+            // If the bytes is 0xE8 then it is a call, so we need to get the offset
+            if (byte == 0xE8)
+            {
+                //Get the offset
+                relCallOffset = *reinterpret_cast<uint32_t*>(result + 1);
+                assureAddr = result + 5 + relCallOffset;
+                std::span<std::byte> text = hat::process::get_process_module().get_section_data(".text");
+
+                // Check if the assure address is divisible by 16
+                if (assureAddr % 16 != 0)
+                {
+                    result += 1;
+                    continue;
+                }
+
+                // check if the address is in the .text section
+                if (assureAddr >= reinterpret_cast<uintptr_t>(text.data()) && assureAddr < reinterpret_cast<uintptr_t>(text.data()) + text.size())
+                {
+                    break;
+                }
+
+                result += 1;
+            }
+
+            if (byte == 0xCC)
+            {
+                // fail
+                return nullptr;
+            }
+        }
+
+        // Log the resolved address
+        spdlog::info("Resolved address for component: {} at {}", "unknown", MemUtils::getMbMemoryString(assureAddr));
+        return reinterpret_cast<void*>(assureAddr);
+    }
+
+
+
 
     template<typename component_t>
     static void* getForComponent()
@@ -187,6 +256,37 @@ public:
         }
         return result;
     }
+
+    static void* getForComponentWithHash(uint32_t hash)
+    {
+        hat::signature_view assureSig = getAssureSignatureWithHash(hash);
+        std::span<std::byte> modData = hat::process::get_process_module().get_section_data(".text");
+
+        auto results = hat::find_all_pattern(modData.begin(), modData.end(), assureSig);
+        if (results.empty()) {
+            spdlog::error("Failed to find assure function for component with hash: {}", hash);
+            return nullptr;
+        }
+
+        spdlog::info("Found {} assure functions for component with hash: {}", results.size(), hash);
+
+        void* result = nullptr;
+        for (auto& res : results)
+        {
+            void* prresult = res.get();
+            result = getForComponentSub2(prresult);
+            if (result != nullptr) break;
+        }
+
+        if (result == nullptr)
+        {
+            spdlog::error("Failed to resolve component with hash: {}", hash);
+            return nullptr;
+        } else {
+            spdlog::info("Resolved assure function for component with hash: {} at {}", hash, MemUtils::getMbMemoryString(reinterpret_cast<uintptr_t>(result)));
+        }
+        return result;
+    }
 };
 
 struct EntityContext {
@@ -215,6 +315,18 @@ struct EntityContext {
         return reinterpret_cast<void*>(result);
     }
 
+    void* resolveWithHash(uint32_t hash) {
+        auto result = OldAssureFinder::getForComponentWithHash(hash);
+
+        if (result == 0) {
+            spdlog::critical("Failed to resolve component with hash: {}", hash);
+            MessageBoxA(nullptr, ("Failed to resolve component with hash: " + std::to_string(hash) + ".").c_str(), "Error", MB_OK | MB_ICONERROR);
+            return nullptr;
+        }
+
+        return reinterpret_cast<void*>(result);
+    }
+
     template<typename component_t>
     entt::basic_storage<component_t, EntityId>* assure()
     {
@@ -226,6 +338,18 @@ struct EntityContext {
         }
 
         return assure(mRegistry, entt::type_hash<component_t>::value());
+    }
+
+    entt::basic_storage<void*, EntityId>* assureWithHash(uint32_t hash)
+    {
+        using assure_t = entt::basic_storage<void*, EntityId>* (__fastcall *)(entt::basic_registry<EntityId>*, uint32_t);
+        static auto assure = reinterpret_cast<assure_t>(resolveWithHash(hash));
+        if (assure == nullptr) {
+            assure = reinterpret_cast<assure_t>(resolveWithHash(hash));
+            return nullptr;
+        }
+
+        return assure(mRegistry, hash);
     }
 
     template<typename component_t>

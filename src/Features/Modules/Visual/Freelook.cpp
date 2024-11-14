@@ -13,13 +13,6 @@
 std::vector<unsigned char> gFrlBytes = { 0xC3, 0x90, 0x90 };
 DEFINE_PATCH_FUNC(Freelook::patchUpdates, SigManager::Unknown_updatePlayerFromCamera, gFrlBytes);
 
-class CameraOrbitComponent
-{
-    glm::vec2 mRotRads{};
-    float mDelta = 0.0f;
-    glm::vec2 mWrap{};
-};
-
 void Freelook::onEnable()
 {
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -28,6 +21,8 @@ void Freelook::onEnable()
         setEnabled(false);
         return;
     }
+
+    return;
 
     auto rotc = player->getActorRotationComponent();
 
@@ -45,6 +40,8 @@ void Freelook::onEnable()
         mCameras[id] = mode;
     }
 
+
+
     storage->clear();
 
     patchUpdates(true);
@@ -61,6 +58,15 @@ void Freelook::onDisable()
         mOriginalRots.clear();
         return;
     }
+
+    for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+    {
+        CameraOrbitComponent* camera = player->mContext.mRegistry->try_get<CameraOrbitComponent>(id);
+
+    }
+
+
+    return;
 
     auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
 

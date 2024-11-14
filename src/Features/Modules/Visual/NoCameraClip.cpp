@@ -9,27 +9,30 @@
 
 void NoCameraClip::onEnable()
 {
-    gFeatureManager->mDispatcher->listen<LookInputEvent, &NoCameraClip::onLookInputEvent>(this);
-}
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
 
+    for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+    {
+        auto type = cameraComponent.getMode();
+        if (type != CameraMode::ThirdPerson && type != CameraMode::ThirdPersonFront) continue;
+
+        auto storage = player->mContext.assure<CameraAvoidanceComponent>();
+        storage->remove(id);
+    }
+}
 
 void NoCameraClip::onDisable()
 {
-    gFeatureManager->mDispatcher->deafen<LookInputEvent, &NoCameraClip::onLookInputEvent>(this);
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-    if (!mFirstPersonCamera || !mThirdPersonCamera || !mThirdPersonFrontCamera) return;
-    mFirstPersonCamera->mFov.z = 0.025f;
-    mThirdPersonCamera->mFov.z = 0.025f;
-    mThirdPersonFrontCamera->mFov.z = 0.025f;
-}
 
-void NoCameraClip::onLookInputEvent(LookInputEvent& event)
-{
-    mFirstPersonCamera = event.mFirstPersonCamera;
-    mThirdPersonCamera = event.mThirdPersonCamera;
-    mThirdPersonFrontCamera = event.mThirdPersonFrontCamera;
-    event.mFirstPersonCamera->mFov.z = 2499.0f;
-    event.mThirdPersonCamera->mFov.z = 2499.0f;
-    event.mThirdPersonFrontCamera->mFov.z = 2499.0f;
+    for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+    {
+        auto type = cameraComponent.getMode();
+        if (type != CameraMode::ThirdPerson && type != CameraMode::ThirdPersonFront) continue;
+
+        auto storage = player->mContext.assure<CameraAvoidanceComponent>();
+        storage->emplace(id, CameraAvoidanceComponent());
+    }
 }

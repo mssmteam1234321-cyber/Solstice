@@ -18,12 +18,6 @@ public:
         };
     }
 
-
-    CameraComponent* mFirstPersonCamera = nullptr;
-    CameraComponent* mThirdPersonCamera = nullptr;
-    CameraComponent* mThirdPersonFrontCamera = nullptr;
-
     void onEnable() override;
     void onDisable() override;
-    void onLookInputEvent(class LookInputEvent& event);
 };

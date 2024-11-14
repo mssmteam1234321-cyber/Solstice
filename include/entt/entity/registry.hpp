@@ -584,6 +584,15 @@ public:
         entities.insert(std::move(first), std::move(last));
     }
 
+    [[nodiscard]] const auto *assure_h([[maybe_unused]] const id_type id) const
+    {
+        if(const auto it = pools.find(id); it != pools.cend()) {
+            return static_cast<const storage_for_type<void*> *>(it->second.get());
+        }
+
+        return static_cast<const storage_for_type<void*> *>(nullptr);
+    }
+
     /**
      * @brief Destroys an entity and releases its identifier.
      *

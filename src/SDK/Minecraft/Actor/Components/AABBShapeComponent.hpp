@@ -17,3 +17,5 @@ struct AABBShapeComponent {
         return AABB(mMin, mMax, true);
     }
 };
+
+static_assert(sizeof(AABBShapeComponent) == 0x20);

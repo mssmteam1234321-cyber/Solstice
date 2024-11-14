@@ -7,6 +7,15 @@
 
 // Credit: disabledmallis on discord
 
+enum class CameraMode : int {
+    FirstPerson = 0,
+    ThirdPerson = 1,
+    ThirdPersonFront = 2,
+    DeathCamera = 3,
+    Free = 4,
+    FollowOrbit = 5,
+};
+
 class CameraComponent {
 public:
     HashedString mViewName{};
@@ -26,6 +35,17 @@ public:
         mView = other->mView;
         mProjection = other->mProjection;
     }
+
+    [[nodiscard]] CameraMode getMode() const {
+        if (mViewName.text == "minecraft:first_person") return CameraMode::FirstPerson;
+        if (mViewName.text == "minecraft:third_person") return CameraMode::ThirdPerson;
+        if (mViewName.text == "minecraft:third_person_front") return CameraMode::ThirdPersonFront;
+        if (mViewName.text == "minecraft:death_camera") return CameraMode::DeathCamera;
+        if (mViewName.text == "minecraft:free") return CameraMode::Free;
+        if (mViewName.text == "minecraft:follow_orbit") return CameraMode::FollowOrbit;
+
+        return CameraMode::FirstPerson;
+    }
 };
 static_assert(sizeof(CameraComponent) == 0x120);
 
@@ -40,6 +60,16 @@ public:
         mDelta = other.mDelta;
         mWrap = other.mWrap;
     }
+};
+
+
+class CameraOrbitComponent
+{
+public:
+    PAD(0x44); // Padding to match size
+
+    CLASS_FIELD(float, mRadius, 0x28);
+    CLASS_FIELD(glm::vec2, mRotRads, 0x2C);
 };
 
 class DebugCameraComponent
@@ -66,7 +96,7 @@ public:
 
 struct CameraAvoidanceComponent
 {
-    PAD(0x4);
+    PAD(0x8);
 };
 
 struct CameraBobComponent

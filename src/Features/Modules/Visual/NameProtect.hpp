@@ -13,9 +13,11 @@ public:
                 {Normal, "NameProtect"},
                 {NormalSpaced, "Name Protect"}
         };
+
+        // god fucking dammit alteik
+        mNewName = Solstice::Prefs->mStreamerName;
     }
-    static inline std::shared_ptr<Preferences> Prefs = PreferenceManager::load();
-    std::string mNewName = Prefs->mStreamerName;
+    std::string mNewName = "";
 
     std::string mOldLocalName = "";
     std::string mOldNameTag = "";

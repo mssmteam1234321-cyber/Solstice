@@ -5,6 +5,11 @@
 #pragma once
 //#define DEFINE_FLAG(name) struct name {}; // this is stupid lmao
 
+struct TargetCameraSetInitialOrientationComponent {};
+struct CameraAlignWithTagetForwardComponent {};
+struct ExtendPlayerRenderingComponent {};
+struct ActiveCameraComponent {};
+
 struct CameraRenderFirstPersonObjectsComponent {};
 struct CameraRenderPlayerModelComponent {};
 struct RedirectCameraInputComponent {};
