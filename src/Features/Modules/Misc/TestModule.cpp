@@ -32,6 +32,7 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 #include <SDK/Minecraft/Actor/Components/ComponentHashes.hpp>
+#include <Utils/FileUtils.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
 #include <Utils/MiscUtils/BlockUtils.hpp>
@@ -61,6 +62,7 @@ void TestModule::onEnable()
 
         spdlog::info("CameraComponent: {:X}, DebugCameraComponent: {:X}", reinterpret_cast<uintptr_t>(&cameraComponent), reinterpret_cast<uintptr_t>(camera));
     }
+
 }
 
 void TestModule::onDisable()
@@ -139,7 +141,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
-#ifdef __DEBUG__
+//#ifdef __DEBUG__
     if (mMode.mValue != Mode::DebugUi) return;
 
     FontHelper::pushPrefFont(false, false);
@@ -235,47 +237,6 @@ void TestModule::onRenderEvent(RenderEvent& event)
                             }
                         }
                     }
-
-                    static std::map<std::uint32_t, int> componentSizes;
-                    static bool dumpedSizes = false;
-
-                    if (!dumpedSizes)
-                    {
-                        // Can be used for dumping component sizes by looking at pseudocode
-                        /*for (auto& [typeHash, componentName] : Component::hashes)
-                        {
-                            entt::basic_storage<void*, EntityId>* storage = player->mContext.assureWithHash(typeHash);
-                            if (!storage) continue;
-                            int index = 1;
-
-                            void** vtable = *reinterpret_cast<void***>(storage);
-                            uintptr_t func = reinterpret_cast<uintptr_t>(vtable[index]);
-
-                            uintptr_t funcEnd = func;
-                            // Find the end of the function by looking for a CC or C3 opcode
-                            while (*reinterpret_cast<uint8_t*>(funcEnd) != 0xCC && *reinterpret_cast<uint8_t*>(funcEnd) != 0xC3)
-                            {
-                                funcEnd++;
-                                // if we have exceeded 1K bytes, break
-                                if (funcEnd - func > 1024)
-                                {
-                                    funcEnd = 0;
-                                    break;
-                                }
-                            }
-
-                            if (funcEnd == 0)
-                            {
-                                spdlog::error("Failed to find end of function for component: {}", componentName);
-                                continue;
-                            }
-
-                            spdlog::info("TypeHash: 0x{:X}, Name: {}, VTable: {:X} Func: {:X}", typeHash, componentName, reinterpret_cast<uintptr_t>(vtable), func);
-                        }*/
-
-                        dumpedSizes = true;
-                    }
-
 
                     auto local = player->mContext.mEntityId;
 
@@ -450,7 +411,63 @@ void TestModule::onRenderEvent(RenderEvent& event)
                 displayCopyableAddress("NameableComponent", player->mContext.getComponent<NameableComponent>());
                 displayCopyableAddress("ActorStateVectorComponent", player->getStateVectorComponent());
                 displayCopyableAddress("ItemUseSlowdownModifierComponent", player->mContext.getComponent<ItemUseSlowdownModifierComponent>());
+
+                if (ImGui::Button("Dump Component Size Funcs"))
+                {
+                    struct _SizeComponent
+                    {
+                        uintptr_t sizeFunc;
+                        std::string componentName;
+                        unsigned int typeHash;
+
+                        nlohmann::json toJson()
+                        {
+                            return {
+                                {"SizeFunc", fmt::format("{:X}", sizeFunc)},
+                                {"ComponentName", componentName},
+                                {"TypeHash", fmt::format("{:X}", typeHash)}
+                            };
+                        }
+                    };
+                    static std::vector<_SizeComponent> sizeComponents = {};
+                    if (sizeComponents.empty())
+                    {
+                        for (auto& [typeHash, componentName] : Component::hashes)
+                        {
+                            entt::basic_storage<void*, EntityId>* storage = player->mContext.assureWithHash(typeHash);
+                            if (!storage)
+                            {
+                                spdlog::warn("Failed to assure component: {}", componentName);
+                                continue;
+                            }
+                            int index = 1;
+
+                            void** vtable = *reinterpret_cast<void***>(storage);
+                            uintptr_t func = reinterpret_cast<uintptr_t>(vtable[index]);
+
+                            // TODO: Figure out how to properly dump size from this function
+
+                            spdlog::info("TypeHash: 0x{:X}, Name: {}, VTable: {:X} Func: {:X}", typeHash, componentName, reinterpret_cast<uintptr_t>(vtable), func);
+                            sizeComponents.emplace_back(_SizeComponent{ func, componentName, typeHash });
+                        }
+                    }
+
+                    nlohmann::json j;
+                    for (auto& sizeComponent : sizeComponents)
+                    {
+                        j.push_back(sizeComponent.toJson());
+                    }
+
+                    std::string path = FileUtils::getSolsticeDir() + "\\component_sizes.json";
+                    std::ofstream file(path);
+                    file << j.dump(4);
+                    file.close();
+                    // Copy path to clipboard
+                    ImGui::SetClipboardText(path.c_str());
+                    NotifyUtils::notify("Copied file path to clipboard!", 7.5f, Notification::Type::Info);
+                }
             }
+
 
             if (auto settings = player->getLevel() ? player->getLevel()->getPlayerMovementSettings() : nullptr; settings && ImGui::CollapsingHeader("Player Movement Settings"))
             {
