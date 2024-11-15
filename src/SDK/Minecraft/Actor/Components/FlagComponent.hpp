@@ -15,6 +15,7 @@ struct CameraBobComponent {};
 struct CameraThirdPersonComponent {};
 struct PlayerStateAffectsRenderingComponent {};
 
+struct SetMovingFlagRequestComponent {};
 struct CameraRenderFirstPersonObjectsComponent {};
 struct CameraRenderPlayerModelComponent {};
 struct RedirectCameraInputComponent {};

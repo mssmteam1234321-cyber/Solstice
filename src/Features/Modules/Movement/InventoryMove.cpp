@@ -39,6 +39,12 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
 {
     if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput) return;
     auto player = event.mActor;
+    bool isUsingFreecam = player->getFlag<RenderCameraComponent>();
+    if (isUsingFreecam)
+    {
+        patchFunc(false);
+        return;
+    }
     auto input = player->getMoveInputComponent();
     auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
@@ -52,7 +58,7 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
 
     std::string screenName = ClientInstance::get()->getScreenName();
 
-    bool isInChatScreen = screenName == "chat_screen";
+    bool isInChatScreen = screenName == "chat_screen" || isUsingFreecam;
     if (!isInChatScreen) patchFunc(true);
     else patchFunc(false);
 
@@ -90,6 +96,12 @@ void InventoryMove::onRenderEvent(RenderEvent& event)
     if (ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().WantTextInput) return;
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
+    bool isUsingFreecam = player->getFlag<RenderCameraComponent>();
+    if (isUsingFreecam)
+    {
+        patchFunc(false);
+        return;
+    }
     auto input = player->getMoveInputComponent();
     auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
 
@@ -103,7 +115,7 @@ void InventoryMove::onRenderEvent(RenderEvent& event)
 
     std::string screenName = ClientInstance::get()->getScreenName();
 
-    bool isInChatScreen = screenName == "chat_screen";
+    bool isInChatScreen = screenName == "chat_screen";;
     if (!isInChatScreen) patchFunc(true);
     else patchFunc(false);
 

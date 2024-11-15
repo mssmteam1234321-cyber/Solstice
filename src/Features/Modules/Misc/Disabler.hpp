@@ -8,6 +8,7 @@ public:
     enum class Mode {
         Flareon,
         Sentinel,
+        Lifeboat,
 #ifdef __PRIVATE_BUILD__ // we're not allowed to release SentinelNew, do NOT include this in the final build
         SentinelNew,
 #endif
@@ -22,7 +23,7 @@ public:
 #endif
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::Flareon, "Flareon", "Sentinel",
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to use for the disabler.", Mode::Flareon, "Flareon", "Sentinel", "Lifeboat",
 #ifdef __PRIVATE_BUILD__
         "SentinelNew",
 #endif
@@ -65,7 +66,6 @@ public:
         VISIBILITY_CONDITION(mOnGroundSpoof, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mInputSpoof, mMode.mValue == Mode::Custom);
         VISIBILITY_CONDITION(mClickPosFix, mMode.mValue == Mode::Custom);
-
 
         mNames = {
             {Lowercase, "disabler"},

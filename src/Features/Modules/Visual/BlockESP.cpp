@@ -125,6 +125,17 @@ void BlockESP::moveToNext()
     //spdlog::debug("Moving to next subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, numSubchunks, mCurrentChunkPos.x, mCurrentChunkPos.y);
 }
 
+void BlockESP::tryProcessSub(bool& processed, ChunkPos currentChunkPos, int subChunkIndex)
+{
+    TRY_CALL([&]()
+    {
+        if (processSub(currentChunkPos, subChunkIndex))
+        {
+            processed = true;
+        }
+    });
+}
+
 bool BlockESP::processSub(ChunkPos processChunk, int index)
 {
     if (!ClientInstance::get()->getLevelRenderer()) {
@@ -180,6 +191,7 @@ bool BlockESP::processSub(ChunkPos processChunk, int index)
             }
         }
     }
+
 
     return true;
 }
@@ -293,7 +305,10 @@ void BlockESP::onBlockChangedEvent(BlockChangedEvent& event)
 
     ChunkPos chunkPos = ChunkPos(event.mBlockPos);
     int subChunk = (event.mBlockPos.y - ClientInstance::get()->getBlockSource()->getBuildDepth()) >> 4;
-    if (!processSub(chunkPos, subChunk)) {
+    bool result = false;
+    tryProcessSub(result, chunkPos, subChunk);
+
+    if (!result) {
         spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (ClientInstance::get()->getBlockSource()->getBuildHeight() - ClientInstance::get()->getBlockSource()->getBuildDepth()) / 16, chunkPos.x, chunkPos.y);
     }
 
@@ -345,7 +360,9 @@ void BlockESP::onBaseTickEvent(BaseTickEvent& event)
 
     for (int i = 0; i < mChunkUpdatesPerTick.mValue; i++)
     {
-        if (!processSub(mCurrentChunkPos, mSubChunkIndex))
+        bool processed = false;
+        tryProcessSub(processed, mCurrentChunkPos, mSubChunkIndex);
+        if (!processed)
         {
             spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", mSubChunkIndex, (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16, mCurrentChunkPos.x, mCurrentChunkPos.y);
         }
@@ -353,8 +370,12 @@ void BlockESP::onBaseTickEvent(BaseTickEvent& event)
     }
 
     BlockPos playerPos = *player->getPos();
+
     int subChunk = (playerPos.y - ClientInstance::get()->getBlockSource()->getBuildDepth()) >> 4;
-    if (!processSub(ChunkPos(playerPos), subChunk))
+    bool result = false;
+    tryProcessSub(result, ChunkPos(playerPos), subChunk);
+
+    if (!result)
     {
         spdlog::critical("Failed to process subchunk [scIndex: {}/{}, chunkPos: ({}, {})]", subChunk, (blockSource->getBuildHeight() - blockSource->getBuildDepth()) / 16, playerPos.x, playerPos.z);
     }

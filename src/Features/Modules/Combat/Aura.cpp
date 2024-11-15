@@ -278,6 +278,14 @@ void Aura::onRenderEvent(RenderEvent& event)
 
         auto actor = Aura::sTarget;
 
+        // try to call isPlayer in the try_call
+        if (!TRY_CALL([&]() { bool isPlayer = actor->isPlayer(); }))
+        {
+            Aura::sTarget = nullptr;
+            Aura::sHasTarget = false;
+            return;
+        }
+
         if (!actor || !actor->isPlayer()) return;
 
         auto playerPos = player->getRenderPositionComponent()->mPosition;
