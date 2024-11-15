@@ -34,6 +34,8 @@ public:
             {Normal, "Freecam"},
             {NormalSpaced, "Freecam"}
         };
+
+        gFeatureManager->mDispatcher->listen<LookInputEvent, &Freecam::onLookInputEvent>(this);
     }
 
     ActorRotationComponent mLastRot;
@@ -49,6 +51,12 @@ public:
     glm::vec3 mOrigin;
     glm::vec3 mOldOrigin;
     glm::vec2 mRotRads;
+
+    std::map<CameraMode, glm::vec2> mOriginalRotRads;
+    std::unordered_map<EntityId, int> mCameras;
+    bool mResetRot = false;
+    glm::vec2 mHeadYaw;
+    int mLastCameraState = 0;
 
 
     glm::vec3 getLerpedOrigin()

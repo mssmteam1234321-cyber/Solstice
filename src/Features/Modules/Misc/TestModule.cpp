@@ -44,23 +44,30 @@ void TestModule::onEnable()
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+
+    if (mMode.mValue == Mode::DebugCameraTest)
     {
-        auto* camera = player->mContext.mRegistry->try_get<DebugCameraComponent>(id);
-        if (!camera)
+        for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
         {
-            player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, false);
-            continue;
+            player->mContext.mRegistry->set_flag<PlayerStateAffectsRenderingComponent>(id, false);
+
+            auto* camera = player->mContext.mRegistry->try_get<DebugCameraComponent>(id);
+            if (!camera)
+            {
+                continue;
+            }
+
+            /*player->mContext.mRegistry->set_flag<RenderCameraComponent>(id, true);
+            player->mContext.mRegistry->set_flag<CameraAlignWithTargetForwardComponent>(id, true);
+
+            spdlog::info("CameraComponent: {:X}, DebugCameraComponent: {:X}", reinterpret_cast<uintptr_t>(&cameraComponent), reinterpret_cast<uintptr_t>(camera));
+            spdlog::info("Identified DebugCamera as id {}", id);*/
         }
-
-        player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, true);
-        player->mContext.mRegistry->set_flag<RenderCameraComponent>(id, true);
-
-        spdlog::info("CameraComponent: {:X}, DebugCameraComponent: {:X}", reinterpret_cast<uintptr_t>(&cameraComponent), reinterpret_cast<uintptr_t>(camera));
     }
 
 }
@@ -71,22 +78,26 @@ void TestModule::onDisable()
     gFeatureManager->mDispatcher->deafen<RenderEvent, &TestModule::onRenderEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &TestModule::onPacketInEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->deafen<LookInputEvent, &TestModule::onLookInputEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
-    for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+    if (mMode.mValue == Mode::DebugCameraTest)
     {
-        auto* camera = player->mContext.mRegistry->try_get<DebugCameraComponent>(id);
-        if (!camera)
+        for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
         {
-            if (player->mContext.mRegistry->has_flag<ActiveCameraComponent>(id))
-                player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, true);
-            continue;
-        }
+            auto* camera = player->mContext.mRegistry->try_get<DebugCameraComponent>(id);
+            if (!camera)
+            {
+                // if (player->mContext.mRegistry->has_flag<ActiveCameraComponent>(id))
+                //     player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, true);
+                continue;
+            }
 
-        player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, false);
-        player->mContext.mRegistry->set_flag<RenderCameraComponent>(id, false);
+            /*player->mContext.mRegistry->set_flag<CurrentInputCameraComponent>(id, false);
+            player->mContext.mRegistry->set_flag<RenderCameraComponent>(id, false);*/
+        }
     }
 }
 
@@ -99,7 +110,14 @@ AABB lastBlockAABB = AABB();
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
+    if (mMode.mValue == Mode::DebugCameraTest)
+    {
+        player->setFlag<MobIsJumpingFlagComponent>(false);
+    }
 
+    gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(*player->getPos());
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
@@ -127,7 +145,37 @@ void displayCopyableAddress(const std::string& name, void* address)
 
 void TestModule::onLookInputEvent(LookInputEvent& event)
 {
+    auto player = ClientInstance::get()->getLocalPlayer();
+    if (!player) return;
 
+    if (mMode.mValue == Mode::DebugCameraTest)
+    {
+        for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+        {
+            player->mContext.mRegistry->set_flag<PlayerStateAffectsRenderingComponent>(id, false);
+            player->mContext.mRegistry->set_flag<AllowInsideBlockRenderComponent>(id, false);
+        };
+
+        /*CameraComponent* cameraDebug = nullptr;
+        DebugCameraComponent* debugCameraComponent = nullptr;
+
+        for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
+        {
+            auto* camera = player->mContext.mRegistry->try_get<DebugCameraComponent>(id);
+            if (!camera)
+            {
+                continue;
+            }
+
+            cameraDebug = &cameraComponent;
+            debugCameraComponent = camera;
+        }
+
+        if (!cameraDebug || !debugCameraComponent) return;
+
+        CameraComponen`t* firstPersonCamera = event.mFirstPersonCamera;
+        CameraDirectLookComponent* firstPersonLook = event.mCameraDirectLookComponent;*/
+    }
 }
 
 enum class Tab
@@ -140,9 +188,13 @@ enum class Tab
 void TestModule::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
-    if (!player) return;
+    if (!player)
+    {
+        gDaBlock = nullptr;
+        return;
+    }
 #ifdef __DEBUG__
-    if (mMode.mValue != Mode::DebugUi) return;
+    if (!mShowDebugUi.mValue) return;
 
     FontHelper::pushPrefFont(false, false);
 
@@ -197,6 +249,30 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
                 if (ImGui::CollapsingHeader("All EntityId Components"))
                 {
+                    // Filter text box
+                    static char filter[128] = "";
+                    ImGui::InputText("Filter", filter, IM_ARRAYSIZE(filter));
+
+                    bool doFilter = strlen(filter) > 0;
+                    bool filterByAddress = false;
+                    void* filterAddress = nullptr;
+                    // parse the filter text
+                    if (doFilter)
+                    {
+                        if (filter[0] == '0' && filter[1] == 'x')
+                        {
+                            try
+                            {
+                                filterByAddress = true;
+                                filterAddress = reinterpret_cast<void*>(std::stoull(filter, nullptr, 16));
+                            } catch (std::exception& e)
+                            {
+                                filterByAddress = false;
+                                memset(filter, 0, IM_ARRAYSIZE(filter));
+                            }
+                        }
+                    }
+
                     static bool showTypeHashes = false;
                     ImGui::Checkbox("Show TypeHashes", &showTypeHashes);
 
@@ -247,8 +323,9 @@ void TestModule::onRenderEvent(RenderEvent& event)
                     {
                         if (typehashes.empty()) continue;
 
-                        std::string id = "Flags for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
-                        if (ImGui::CollapsingHeader(id.c_str()))
+                        std::string id = "-- Flags for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
+                        if (doFilter) ImGui::Text(id.c_str());
+                        if (!doFilter && ImGui::CollapsingHeader(id.c_str()) || doFilter)
                         {
                             auto componentSet = std::set<std::uint32_t>();
 
@@ -260,6 +337,8 @@ void TestModule::onRenderEvent(RenderEvent& event)
                                 {
                                     name = Component::hashes[typehash];
                                 }
+                                if (doFilter && !filterByAddress && !StringUtils::containsIgnoreCase(name, filter)) continue;
+                                if (filterByAddress && address != filterAddress) continue;
                                 /*ImGui::Text("TypeHash: %s, Name: %s, State: TRUE",
                                     fmt::format("0x{:X}", typehash).c_str(), name.c_str());*/
                                 if (showTypeHashes)
@@ -271,7 +350,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
                             for (auto& typehash : entityFlagMap[ent])
                             {
                                 std::string name = Component::hashes.contains(typehash) ? Component::hashes[typehash] : "Unknown";
-
+                                if (doFilter && !StringUtils::containsIgnoreCase(name, filter)) continue;
                                 if (!componentSet.contains(typehash))
                                 {
                                     if (showTypeHashes)
@@ -292,8 +371,9 @@ void TestModule::onRenderEvent(RenderEvent& event)
                     {
                         if (typehashes.empty()) continue;
 
-                        std::string id = "Components for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
-                        if (ImGui::CollapsingHeader(id.c_str()))
+                        std::string id = "-- Components for EntityId: " + std::to_string(static_cast<uint32_t>(ent)) + (ent == local ? " (LocalPlayer)" : "");
+                        if (doFilter) ImGui::Text(id.c_str());
+                        if (!doFilter && ImGui::CollapsingHeader(id.c_str()) || doFilter)
                         {
                             auto componentSet = std::set<std::uint32_t>();
 
@@ -305,17 +385,26 @@ void TestModule::onRenderEvent(RenderEvent& event)
                                 {
                                     name = Component::hashes[typehash];
                                 }
+                                if (doFilter && !filterByAddress && !StringUtils::containsIgnoreCase(name, filter)) continue;
+                                if (filterByAddress && address != filterAddress) continue;
                                 if (showTypeHashes)
                                     ImGui::Text("TypeHash: %s, Name: %s, Address: %s",
                                        fmt::format("0x{:X}", typehash).c_str(), name.c_str(), fmt::format("0x{:X}", reinterpret_cast<uintptr_t>(address)).c_str());
                                 else
                                     ImGui::Text("Name: %s, Address: %s", name.c_str(), fmt::format("0x{:X}", reinterpret_cast<uintptr_t>(address)).c_str());
+                                ImGui::SameLine();
+                                std::string buttonText = "Copy##" + std::to_string(typehash) + std::to_string(reinterpret_cast<uintptr_t>(address));
+                                if (ImGui::Button(buttonText.c_str()))
+                                {
+                                    ImGui::SetClipboardText(fmt::format("0x{:X}", reinterpret_cast<uintptr_t>(address)).c_str());
+                                }
                             }
 
                             for (auto& typehash : entityComponentMap[ent])
                             {
                                 std::string name = Component::hashes.contains(typehash) ? Component::hashes[typehash] : "Unknown";
-
+                                if (doFilter && !filterByAddress && !StringUtils::containsIgnoreCase(name, filter)) continue;
+                                if (filterByAddress) continue;
                                 if (!componentSet.contains(typehash))
                                 {
                                     if (showTypeHashes)
