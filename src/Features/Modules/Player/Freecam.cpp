@@ -83,6 +83,9 @@ void Freecam::onEnable()
             {
                 mOriginalRotRads[cameraComponent.getMode()] = gaming->mRotRads;
             }
+
+            // Remove the CameraRenderFirstPersonObjectsComponent flag
+            player->mContext.mRegistry->set_flag<CameraRenderFirstPersonObjectsComponent>(id, false);
         } else if (cameraComponent.getMode() == CameraMode::ThirdPerson || cameraComponent.getMode() == CameraMode::ThirdPersonFront)
         {
             auto* gaming = player->mContext.mRegistry->try_get<CameraOrbitComponent>(id);
@@ -189,8 +192,6 @@ void Freecam::onBaseTickEvent(BaseTickEvent& event)
     auto player = event.mActor;
     if (!player) return;
 
-    player->getSupplies()->mInHandSlot = -1;
-
     player->setFlag<RenderCameraComponent>(true);
     player->setFlag<CameraRenderPlayerModelComponent>(true);
     //player->setFlag<CameraRenderFirstPersonObjects>(false);
@@ -286,6 +287,8 @@ void Freecam::onLookInputEvent(LookInputEvent& event)
                 {
                     gaming->mRotRads = mOriginalRotRads[cameraComponent.getMode()];
                 }
+
+                player->mContext.mRegistry->set_flag<CameraRenderFirstPersonObjectsComponent>(id, true);
             } else if (cameraComponent.getMode() == CameraMode::ThirdPerson || cameraComponent.getMode() == CameraMode::ThirdPersonFront)
             {
                 auto* gaming = player->mContext.mRegistry->try_get<CameraOrbitComponent>(id);
