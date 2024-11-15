@@ -271,9 +271,6 @@ void Solstice::init(HMODULE hModule)
             isLpValid = true;
             HookManager::init(true); // Initialize the base tick hook
 
-            auto ircModule = gFeatureManager->mModuleManager->getModule<IRC>();
-            if (ircModule && !ircModule->mEnabled) ircModule->toggle();
-
             if (!Prefs->mDefaultConfigName.empty())
             {
                 if (ConfigManager::configExists(Prefs->mDefaultConfigName))
