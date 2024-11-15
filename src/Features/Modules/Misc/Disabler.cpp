@@ -89,6 +89,37 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
 
+    if (mMode.mValue == Mode::Lifeboat && event.mPacket->getId() == PacketID::PlayerAuthInput && (player->getFlag<SetMovingFlagRequestComponent>() || !player->isOnGround()))
+    {
+        auto packet = event.getPacket<PlayerAuthInputPacket>();
+
+        packet->mInputData &= ~AuthInputAction::JUMPING;
+        packet->mInputData &= ~AuthInputAction::WANT_UP;
+        packet->mInputData &= ~AuthInputAction::JUMP_DOWN;
+        packet->mInputData &= ~AuthInputAction::START_JUMPING;
+
+        packet->mInputData |= AuthInputAction::JUMPING | AuthInputAction::WANT_UP | AuthInputAction::JUMP_DOWN;
+
+        float targetY = packet->mPos.y - 1.f;
+
+        static int jumpTicks = 0;
+        static int maxTicks = 11;
+
+        if (jumpTicks < maxTicks)
+        {
+            packet->mInputData |= AuthInputAction::START_JUMPING;
+            jumpTicks++;
+        }
+        else
+        {
+            packet->mInputData &= ~AuthInputAction::START_JUMPING;
+            jumpTicks = 0;
+        }
+
+        float tickPerc = (float)jumpTicks / (float)maxTicks;
+        float newY = MathUtils::lerp(packet->mPos.y, targetY, tickPerc);
+        packet->mPos.y = newY;
+    }
 
 #ifdef __PRIVATE_BUILD__
     // don't release this im not allowed to

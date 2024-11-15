@@ -78,6 +78,7 @@ public:
     std::unordered_map<BlockPos, FoundBlock> mFoundBlocks = {};
 
     void moveToNext();
+    void tryProcessSub(bool& processed, ChunkPos currentChunkPos, int subChunkIndex);
     bool processSub(ChunkPos processChunk, int subChunk);
     void reset();
 

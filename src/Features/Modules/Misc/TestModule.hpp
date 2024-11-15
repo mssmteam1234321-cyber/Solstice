@@ -9,16 +9,18 @@
 class TestModule : public ModuleBase<TestModule> {
 public:
     enum class Mode {
-        DebugUi,
+        DebugCameraTest,
+        None,
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::DebugUi, "Debug UI");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::None, "Debug Camera Test", "None");
+    BoolSetting mShowDebugUi = BoolSetting("Show Debug UI", "Whether to show the debug UI", false);
 
     TestModule() : ModuleBase("TestModule", "A module for testin purposes", ModuleCategory::Misc, 0, false) {
         addSettings(
-            &mMode
+            &mMode,
+            &mShowDebugUi
         );
-
 
         mNames = {
             {Lowercase, "testmodule"},
@@ -26,8 +28,6 @@ public:
             {Normal, "TestModule"},
             {NormalSpaced, "Test Module"}
         };
-
-
     }
 
     void onEnable() override;

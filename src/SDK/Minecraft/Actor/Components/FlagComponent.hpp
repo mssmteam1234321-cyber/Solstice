@@ -10,7 +10,12 @@ struct CameraAlignWithTargetForwardComponent {};
 struct ExtendPlayerRenderingComponent {};
 struct ActiveCameraComponent {};
 struct CurrentInputCameraComponent {};
+struct CameraFirstPersonComponent {};
+struct CameraBobComponent {};
+struct CameraThirdPersonComponent {};
+struct PlayerStateAffectsRenderingComponent {};
 
+struct SetMovingFlagRequestComponent {};
 struct CameraRenderFirstPersonObjectsComponent {};
 struct CameraRenderPlayerModelComponent {};
 struct RedirectCameraInputComponent {};

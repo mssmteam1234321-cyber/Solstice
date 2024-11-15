@@ -215,6 +215,7 @@ void Nametags::onNametagRenderEvent(NametagRenderEvent& event)
     auto localPlayer = ClientInstance::get()->getLocalPlayer();
     auto ci = ClientInstance::get();
 
+    if (ActorUtils::isBot(actor)) return;
     if (!actor->isPlayer()) return;
     if (actor == localPlayer && ci->getOptions()->mThirdPerson->value == 0 && !localPlayer->getFlag<RenderCameraComponent>()) return;
     if (actor == localPlayer && !mRenderLocal.mValue) return;

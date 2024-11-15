@@ -10,10 +10,11 @@ public:
     enum class Mode {
         Sentinel,
         BDS,
-        OnGround
+        OnGround,
+        Lifeboat
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the nofall", Mode::Sentinel, "Sentinel", "BDS", "OnGround");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode of the nofall", Mode::Sentinel, "Sentinel", "BDS", "OnGround", "Lifeboat");
 
     NoFall() : ModuleBase("NoFall", "Prevents fall damage", ModuleCategory::Player, 0, false)
     {

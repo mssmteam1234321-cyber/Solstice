@@ -125,8 +125,8 @@
 #include "Visual/Nametags.hpp"
 #include "Visual/NoCameraClip.hpp"
 #include "Visual/NoDebuff.hpp"
-#include "Visual/NoFire.hpp"
 #include "Visual/NoHurtcam.hpp"
+#include "Visual/NoRender.hpp"
 #include "Visual/Notifications.hpp"
 #include "Visual/RobloxCamera.hpp"
 #include "Visual/SessionInfo.hpp"
@@ -203,7 +203,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<FastEat>());
 
     // Misc
-    mModules.emplace_back(std::make_shared<TestModule>());
     mModules.emplace_back(std::make_shared<ToggleSounds>());
     mModules.emplace_back(std::make_shared<PacketLogger>());
     mModules.emplace_back(std::make_shared<DeviceSpoof>());
@@ -261,11 +260,12 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<ChinaHat>());
     mModules.emplace_back(std::make_shared<NameProtect>());
     mModules.emplace_back(std::make_shared<Zoom>());
-    mModules.emplace_back(std::make_shared<NoFire>());
     mModules.emplace_back(std::make_shared<Glint>());
     mModules.emplace_back(std::make_shared<NoDebuff>());
     mModules.emplace_back(std::make_shared<JumpCircles>());
     mModules.emplace_back(std::make_shared<Freelook>());
+    mModules.emplace_back(std::make_shared<NoRender>());
+
 
 #ifdef __PRIVATE_BUILD__
     // mModules.emplace_back(std::make_shared<HiveFly>()); // Flareon V2 boombox fly
@@ -287,6 +287,8 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
+    mModules.emplace_back(std::make_shared<TestModule>());
+
 #endif
 
     // Determine if we should add UpdateForm

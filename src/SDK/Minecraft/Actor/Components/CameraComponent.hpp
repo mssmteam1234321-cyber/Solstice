@@ -51,7 +51,12 @@ static_assert(sizeof(CameraComponent) == 0x120);
 
 class StationaryCameraComponent
 {
-    PAD(0x44);
+public:
+    glm::vec3 mPosition;
+    glm::vec3 mRots; // In degrees, not sure if the z is used
+
+    StationaryCameraComponent() = default;
+    StationaryCameraComponent(glm::vec3 pos, glm::vec3 rots, float idk) : mPosition(pos), mRots(rots) {}
 };
 
 class CameraDirectLookComponent {
@@ -67,6 +72,17 @@ public:
     }
 };
 
+struct CameraWorldSpaceRotationComponent
+{
+public:
+    PAD(0x10);
+};
+
+class CameraFlyMoveComponent
+{
+public:
+    PAD(0x8);
+};
 
 class CameraOrbitComponent
 {
@@ -81,6 +97,25 @@ class DebugCameraComponent
 {
 public:
     PAD(0x128);
+
+    CLASS_FIELD(glm::vec3, mRotRads, 0x30); // i don't think this is correct :/
+    CLASS_FIELD(glm::vec3, mOrigin, 0x40);
+    CLASS_FIELD(glm::vec2, mFov, 0x4C);
+    CLASS_FIELD(float, mNearClippingPlane, 0x54);
+    CLASS_FIELD(float, mFarClippingPlane, 0x58);
+};
+
+struct CameraLookAtPositionComponent
+{
+public:
+    PAD(0x12);
+};
+
+struct CameraOffsetComponent
+{
+public:
+    glm::vec3 mPosOffset;
+    glm::vec2 mRotOffset;
 };
 
 class UpdatePlayerFromCameraComponent
@@ -95,11 +130,6 @@ public:
 struct CameraAvoidanceComponent
 {
     PAD(0x8);
-};
-
-struct CameraBobComponent
-{
-    PAD(0x4);
 };
 
 struct ShadowOffsetComponent
