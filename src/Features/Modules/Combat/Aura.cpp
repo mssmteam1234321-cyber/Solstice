@@ -381,6 +381,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor; // Local player
     if (!player) return;
+    if(player->getHealth() <= 0) return; // kai plz add actor->isAlive() thankz
     auto supplies = player->getSupplies();
 
     auto actors = ActorUtils::getActorList(false, true);
