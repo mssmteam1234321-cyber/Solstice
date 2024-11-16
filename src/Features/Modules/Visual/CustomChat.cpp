@@ -160,73 +160,88 @@ void CustomChat::onRenderEvent(RenderEvent& event)
     ImRect rect = ImVec4(windowPos.x, windowPos.y - 10.f, windowPos.x + windowSize.x, windowPos.y - 10 - easedHeight);
     ImRect flipped = ImVec4(rect.Min.x, rect.Max.y, rect.Max.x, rect.Min.y);
 
-    ImRenderUtils::addBlur(rect.ToVec4(), 3, rounding);
-    drawList->AddRectFilled(flipped.Min, flipped.Max, IM_COL32(0, 0, 0, 200), rounding);
-    drawList->PushClipRect({rect.Min.x, rect.Max.y}, {rect.Max.x, rect.Min.y});
+    if (rect.Min.y - rect.Max.y >= 1)
+    {
+        ImRenderUtils::addBlur(rect.ToVec4(), 3, rounding);
+        drawList->AddRectFilled(flipped.Min, flipped.Max, IM_COL32(0, 0, 0, 200), rounding);
+        drawList->PushClipRect({rect.Min.x, rect.Max.y}, {rect.Max.x, rect.Min.y});
 
-    auto fontHeight = ImGui::GetFont()->CalcTextSizeA(
-                fontSize,
-                FLT_MAX,
-                0,
-                ""
-            ).y;
+        auto fontHeight = ImGui::GetFont()->CalcTextSizeA(
+                    fontSize,
+                    FLT_MAX,
+                    0,
+                    ""
+                ).y;
 
-    ImVec2 cursorPos = {windowPos.x + 10, windowPos.y - 10.f};
-    auto now = std::chrono::system_clock::now();
-    auto isInGyat = ClientInstance::get()->getScreenName() == "chat_screen";
+        ImVec2 cursorPos = {windowPos.x + 10, windowPos.y - 10.f};
+        auto now = std::chrono::system_clock::now();
+        auto isInGyat = ClientInstance::get()->getScreenName() == "chat_screen";
 
-    for (auto it = mMessages.rbegin(); it != mMessages.rend(); ) {
-        float elapsed = std::chrono::duration<float>(now - it->mTime).count();
-        bool hasElapsed = elapsed >= it->mLifeTime;
+        for (auto it = mMessages.rbegin(); it != mMessages.rend(); ) {
+            float elapsed = std::chrono::duration<float>(now - it->mTime).count();
+            bool hasElapsed = elapsed >= it->mLifeTime;
 
-        if (hasElapsed) {
-            it->mPercent -= delta * 2.5f;
-            if (easedHeight > cursorPos.y) {
-                it = std::reverse_iterator(mMessages.erase((++it).base()));
-                continue;
+            if (hasElapsed) {
+                it->mPercent -= delta * 2.5f;
+                if (easedHeight > cursorPos.y) {
+                    it = std::reverse_iterator(mMessages.erase((++it).base()));
+                    continue;
+                }
+            }else {
+                it->mPercent = MathUtils::lerp(it->mPercent, 1.f, delta * 8.f);
             }
-        }else {
-            it->mPercent = MathUtils::lerp(it->mPercent, 1.f, delta * 8.f);
-        }
-        it->mPercent = std::clamp(it->mPercent, 0.f, 1.f);
+            it->mPercent = std::clamp(it->mPercent, 0.f, 1.f);
 
-        if (it->mPercent > 0.0f) {
-            cursorPos.y = MathUtils::lerp(cursorPos.y, cursorPos.y - fontHeight - 5.0f, hasElapsed ? 1.f : it->mPercent);
-            int alpha = static_cast<int>(255 * (!hasElapsed ? it->mPercent : 1.f)); // fade in no fae out :twerk:
+            if (it->mPercent > 0.0f) {
+                cursorPos.y = MathUtils::lerp(cursorPos.y, cursorPos.y - fontHeight - 5.0f, hasElapsed ? 1.f : it->mPercent);
+                int alpha = static_cast<int>(255 * (!hasElapsed ? it->mPercent : 1.f)); // fade in no fae out :twerk:
 
-            drawList->AddText(
-                ImGui::GetFont(),
-                fontSize,
-                cursorPos,
-                IM_COL32(255, 255, 255, alpha),
-                it->mText.c_str()
-            );
-
-            // visualize repeated messages
-            if (it->mCount > 1) {
-                std::string countText = " x" + std::to_string(it->mCount);
                 drawList->AddText(
                     ImGui::GetFont(),
                     fontSize,
-                    {cursorPos.x + ImGui::CalcTextSize(it->mText.c_str()).x + 5.0f, cursorPos.y},
-                    IM_COL32(170, 170, 170, alpha),
-                    countText.c_str()
+                    cursorPos,
+                    IM_COL32(255, 255, 255, alpha),
+                    it->mText.c_str()
                 );
+
+                // visualize repeated messages
+                if (it->mCount > 1) {
+                    std::string countText = " x" + std::to_string(it->mCount);
+                    drawList->AddText(
+                        ImGui::GetFont(),
+                        fontSize,
+                        {cursorPos.x + ImGui::CalcTextSize(it->mText.c_str()).x + 5.0f, cursorPos.y},
+                        IM_COL32(170, 170, 170, alpha),
+                        countText.c_str()
+                    );
+                }
             }
-        }
-        if(!hasElapsed) {
-            if (mMessages.size() < 12) {
-                totalHeight += (fontHeight + 5.0f);
-                maxHeight = totalHeight;
-            } else {
-                totalHeight = maxHeight;
+            if(!hasElapsed) {
+                if (mMessages.size() < 12) {
+                    totalHeight += (fontHeight + 5.0f);
+                    maxHeight = totalHeight;
+                } else {
+                    totalHeight = maxHeight;
+                }
             }
+            ++it;
         }
-        ++it;
+
+        easedHeight = MathUtils::lerp(easedHeight, isInGyat ?  (fontHeight + 5.0f) * 12 : totalHeight, delta * 8.f);
+        drawList->PopClipRect();
+        FontHelper::popPrefFont();
+    } else {
+        bool isInGyat = ClientInstance::get()->getScreenName() == "chat_screen";
+        auto fontHeight = ImGui::GetFont()->CalcTextSizeA(
+                    fontSize,
+                    FLT_MAX,
+                    0,
+                    ""
+                ).y;
+
+        easedHeight = MathUtils::lerp(easedHeight, isInGyat ?  (fontHeight + 5.0f) * 12 : totalHeight, delta * 8.f);
+        FontHelper::popPrefFont();
     }
-    easedHeight = MathUtils::lerp(easedHeight, isInGyat ?  (fontHeight + 5.0f) * 12 : totalHeight, delta * 8.f);
-    drawList->PopClipRect();
-    FontHelper::popPrefFont();
 }
 
 
@@ -241,7 +256,8 @@ void CustomChat::onPacketInEvent(PacketInEvent& event)
     std::string message = textPacket->mMessage;
 
     if (textPacket->mType == TextPacketType::Chat) {
-        message = "<" + textPacket->mAuthor + "> " + message;
+        //message = "<" + textPacket->mAuthor + "> " + message;
+        message = textPacket->mAuthor.empty() ? message : "<" + textPacket->mAuthor + "> " + message;
     }
 
     if (!mMessages.empty() && mMessages.back().mText == message) {
