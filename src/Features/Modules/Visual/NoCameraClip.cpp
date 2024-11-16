@@ -17,7 +17,7 @@ void NoCameraClip::onEnable()
         auto type = cameraComponent.getMode();
         if (type != CameraMode::ThirdPerson && type != CameraMode::ThirdPersonFront) continue;
 
-        auto storage = player->mContext.assure<CameraAvoidanceComponent>();
+        auto storage = player->mContext.mRegistry->assure_t<CameraAvoidanceComponent>();
         storage->remove(id);
     }
 }

@@ -97,13 +97,13 @@ void Actor::setGameType(int type)
 bool Actor::isDebugCameraActive()
 {
     // use da flag component
-    auto storage = mContext.assure<DebugCameraIsActiveComponent>();
+    auto storage = mContext.mRegistry->assure_t<DebugCameraIsActiveComponent>();
     return storage->contains(this->mContext.mEntityId);
 }
 
 void Actor::setDebugCameraActive(bool active)
 {
-    auto storage = mContext.assure<DebugCameraIsActiveComponent>();
+    auto storage = mContext.mRegistry->assure_t<DebugCameraIsActiveComponent>();
     bool wasActive = isDebugCameraActive();
     if (active && !wasActive)
     {

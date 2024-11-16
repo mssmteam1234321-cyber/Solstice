@@ -55,6 +55,7 @@ void setTitle(std::string title)
 std::vector<unsigned char> gBpBytes = {0x1c}; // Defines the new offset for mInHandSlot
 DEFINE_PATCH_FUNC(patchInHandSlot, SigManager::ItemInHandRenderer_renderItem_bytepatch2+2, gBpBytes);
 
+// called using winrt::Windows::ApplicationModel::Core::CoreApplication::MainView().CoreWindow().Dispatcher().RunAsync(winrt::Windows::UI::Core::CoreDispatcherPriority::Normal, [&]()
 void Solstice::init(HMODULE hModule)
 {
     // Not doing this could cause crashes if you inject too soon
@@ -191,11 +192,6 @@ void Solstice::init(HMODULE hModule)
 
     console->info("initialized signatures in {}ms", send - sstart);
 
-    if (!ClientInstance::get())
-    {
-        while (!ClientInstance::get()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-
     console->info("clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()));
     console->info("mcgame from clientinstance addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getMinecraftGame()));
     console->info("localplayer addr @ 0x{:X}", reinterpret_cast<uintptr_t>(ClientInstance::get()->getLocalPlayer()));
@@ -217,8 +213,6 @@ void Solstice::init(HMODULE hModule)
 
     console->info("initialized in {}ms", NOW - start);
 
-    while (!ImGui::GetCurrentContext()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
     if (!InternetCheckConnectionA(xorstr_("https://dllserver.solstice.works"), FLAG_ICC_FORCE_CONNECTION, 0)) {
         __fastfail(0);
     }
@@ -226,12 +220,15 @@ void Solstice::init(HMODULE hModule)
     ClientInstance::get()->getMinecraftGame()->playUi("beacon.activate", 1, 1.0f);
     ChatUtils::displayClientMessage("Initialized!");
 
-    // Create a thead to wait for all futures in hooks then load a default config if any
     console->info("Press END to eject dll.");
-
-    // Create a thread to monitor the mLastTick variable
     mLastTick = NOW;
 
+    mThread = std::thread(&Solstice::shutdownThread);
+    mThread.detach();
+}
+
+void Solstice::shutdownThread()
+{
     // Wait for the user to press END
     bool firstCall = true;
     bool isLpValid = false;
@@ -325,12 +322,5 @@ void Solstice::init(HMODULE hModule)
     Sleep(1000); // Give the user time to read the message
 
     Logger::deinitialize();
-    FreeLibraryAndExitThread(mModule, 0);
-}
-
-void Solstice::shutdownThread()
-{
-    while (mInitialized) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-
+    FreeLibrary(mModule); // i don't understand this
 }

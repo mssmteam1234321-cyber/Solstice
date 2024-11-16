@@ -69,7 +69,7 @@ void Freecam::onEnable()
         player->mContext.mRegistry->set_flag<CameraAlignWithTargetForwardComponent>(id, false);
         player->mContext.mRegistry->set_flag<ExtendPlayerRenderingComponent>(id, true);
 
-        auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
+        auto storage = player->mContext.mRegistry->assure_t<UpdatePlayerFromCameraComponent>();
         if (mMode.mValue == Mode::Detached && storage->contains(id))
         {
             mCameras[id] = storage->get(id).mUpdateMode;
@@ -274,7 +274,7 @@ void Freecam::onLookInputEvent(LookInputEvent& event)
         for (auto&& [id, cameraComponent] : player->mContext.mRegistry->view<CameraComponent>().each())
         {
             player->mContext.mRegistry->set_flag<CameraAlignWithTargetForwardComponent>(id, true);
-            auto storage = player->mContext.assure<UpdatePlayerFromCameraComponent>();
+            auto storage = player->mContext.mRegistry->assure_t<UpdatePlayerFromCameraComponent>();
             if (!storage->contains(id))
             {
                 storage->emplace(id, UpdatePlayerFromCameraComponent(mCameras[id]));
