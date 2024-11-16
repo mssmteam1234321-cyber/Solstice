@@ -10,6 +10,9 @@
 #include <SDK/SigManager.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/KeyboardMouseSettings.hpp>
+#include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/Network/Packets/ContainerClosePacket.hpp>
 
 std::vector<unsigned char> gClrBytes = { 0x90, 0x90 };
 DEFINE_PATCH_FUNC(InventoryMove::patchFunc1, SigManager::PlayerMovement_clearInputStateInlined, gClrBytes);
@@ -21,6 +24,8 @@ void InventoryMove::onEnable()
 {
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &InventoryMove::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &InventoryMove::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &InventoryMove::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &InventoryMove::onPacketOutEvent>(this);
     patchFunc(true);
     auto player = ClientInstance::get()->getLocalPlayer();
 }
@@ -29,6 +34,8 @@ void InventoryMove::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &InventoryMove::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<RenderEvent, &InventoryMove::onRenderEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &InventoryMove::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &InventoryMove::onPacketOutEvent>(this);
     patchFunc(false);
     auto player = ClientInstance::get()->getLocalPlayer();
     if (player) player->getMoveInputComponent()->mIsMoveLocked = false;
@@ -87,7 +94,10 @@ void InventoryMove::onBaseTickEvent(BaseTickEvent& event)
         input->mIsJumping = space;
         input->mIsJumping2 = space;
     }
-    input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
+    if(mHasOpenContainer)
+    {
+        input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
+    }
     input->mMoveVector = MathUtils::getMovement();
 }
 
@@ -144,6 +154,35 @@ void InventoryMove::onRenderEvent(RenderEvent& event)
         input->mIsJumping = space;
         input->mIsJumping2 = space;
     }
-    input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
+    if(mHasOpenContainer)
+    {
+        input->mIsSneakDown = mDisallowShift.mValue ? false : shift;
+    }
     input->mMoveVector = MathUtils::getMovement();
+}
+
+void InventoryMove::onPacketInEvent(PacketInEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::ContainerOpen)
+    {
+        auto packet = event.getPacket<ContainerOpenPacket>();
+        mHasOpenContainer = true;
+    }
+    if (event.mPacket->getId() == PacketID::ContainerClose)
+    {
+        mHasOpenContainer = false;
+    }
+}
+
+void InventoryMove::onPacketOutEvent(PacketOutEvent& event)
+{
+    if (event.mPacket->getId() == PacketID::ContainerClose)
+    {
+        mHasOpenContainer = false;
+    }
+    else if (event.mPacket->getId() == PacketID::ContainerOpen)
+    {
+        auto packet = event.getPacket<ContainerOpenPacket>();
+        mHasOpenContainer = true;
+    }
 }

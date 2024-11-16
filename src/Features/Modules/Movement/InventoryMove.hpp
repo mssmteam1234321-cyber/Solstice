@@ -20,6 +20,8 @@ public:
         };
     }
 
+    bool mHasOpenContainer = false;
+
     static void patchFunc1(bool);
     static void patchFunc2(bool);
     static void patchFunc(bool b)
@@ -31,4 +33,6 @@ public:
     void onDisable() override;
     void onBaseTickEvent(class BaseTickEvent& event);
     void onRenderEvent(class RenderEvent& event);
+    void onPacketInEvent(class PacketInEvent& event);
+    void onPacketOutEvent(class PacketOutEvent& event);
 };
