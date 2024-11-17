@@ -231,6 +231,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<AutoSnipe>());
     mModules.emplace_back(std::make_shared<AutoVote>());
     mModules.emplace_back(std::make_shared<CostumeSpammer>());
+    mModules.emplace_back(std::make_shared<TestModule>());
 
 
     // Visual
@@ -287,7 +288,6 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
-    mModules.emplace_back(std::make_shared<TestModule>());
 
 #endif
 

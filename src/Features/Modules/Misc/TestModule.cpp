@@ -110,6 +110,7 @@ AABB lastBlockAABB = AABB();
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
+
     auto player = ClientInstance::get()->getLocalPlayer();
     if (!player) return;
     if (mMode.mValue == Mode::DebugCameraTest)
@@ -118,6 +119,80 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     }
 
     gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(*player->getPos());
+
+    if (mMode.mValue != Mode::PathTest) return;
+
+    if (NOW - mLastLagback < 3000)
+    {
+        return;
+    }
+
+    float blocksPerTeleport = 5.f;
+
+    auto actors = ActorUtils::getActorList(false, true);
+    static std::unordered_map<Actor*, int64_t> lastAttacks = {};
+
+    std::ranges::sort(actors, [&](Actor* a, Actor* b) -> bool
+    {
+        return a->distanceTo(player) < b->distanceTo(player);
+    });
+
+    Actor* target = nullptr;
+    for (auto actor : actors)
+    {
+        if (actor == player) continue;
+        if (!actor) continue;
+        if (!actor->isValid()) continue;
+        if (!actor->isPlayer()) continue;
+
+        target = actor;
+        break;
+    }
+
+    if (!target) return;
+
+    float distance = player->distanceTo(target);
+
+
+
+    /*glm::vec3 currentPos = from;
+
+    std::vector<std::shared_ptr<MovePlayerPacket>> packetsToSend;
+
+    for (int i = 0; i < packets; i++)
+    {
+        glm::vec3 step = to - from;
+        step = glm::normalize(step) * blocksPerPacket;
+        currentPos += step;
+
+        auto packet = MinecraftPackets::createPacket<MovePlayerPacket>();
+        packet->mPos = currentPos;
+        packet->mPlayerID = player->getRuntimeID();
+        packet->mRot = { mRots.x, mRots.y };
+        packet->mYHeadRot = mRots.z;
+        packet->mResetPosition = PositionMode::Teleport;
+        packet->mOnGround = true;
+        packet->mRidingID = -1;
+        packet->mCause = TeleportationCause::Unknown;
+        packet->mSourceEntityType = ActorType::Player;
+        packet->mTick = 0;
+
+        packetsToSend.push_back(packet);
+    }*/
+
+    // get the next step and setPosition to it
+    glm::vec3 from = *player->getPos();
+    glm::vec3 to = *target->getPos();
+    glm::vec2 targetRots = { target->getActorRotationComponent()->mPitch, target->getActorRotationComponent()->mYaw };
+    glm::vec3 offset = { 0.f, 0.f, -3.f }; // X blocks behind the target's head
+
+    float blocksPerPacket = 5.f;
+
+    glm::vec3 step = to - from;
+    step = glm::normalize(step) * blocksPerPacket;
+    from += step;
+
+    player->setPosition(from);
 }
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
@@ -127,7 +202,18 @@ void TestModule::onPacketOutEvent(PacketOutEvent& event)
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
 {
+    if (mMode.mValue == Mode::PathTest && event.mPacket->getId() == PacketID::MovePlayer)
+    {
+        auto player = ClientInstance::get()->getLocalPlayer();
+        if (!player) return;
 
+        auto mpp = event.getPacket<MovePlayerPacket>();
+        if (mpp->mPlayerID == player->getRuntimeID())
+        {
+            mLastLagback = NOW;
+            ChatUtils::displayClientMessage("waiting for 3s for lagback");
+        }
+    }
 }
 
 void displayCopyableAddress(const std::string& name, void* address)

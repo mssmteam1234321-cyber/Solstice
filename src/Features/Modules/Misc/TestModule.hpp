@@ -10,16 +10,21 @@ class TestModule : public ModuleBase<TestModule> {
 public:
     enum class Mode {
         DebugCameraTest,
+        PathTest,
         None,
     };
 
-    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::None, "Debug Camera Test", "None");
+    EnumSettingT<Mode> mMode = EnumSettingT<Mode>("Mode", "The mode to run the module in", Mode::None, "Debug Camera Test", "Path Test", "None");
+#ifdef __DEBUG__
     BoolSetting mShowDebugUi = BoolSetting("Show Debug UI", "Whether to show the debug UI", false);
+#endif
 
     TestModule() : ModuleBase("TestModule", "A module for testin purposes", ModuleCategory::Misc, 0, false) {
         addSettings(
             &mMode,
+#ifdef __DEBUG__
             &mShowDebugUi
+#endif
         );
 
         mNames = {
@@ -29,6 +34,8 @@ public:
             {NormalSpaced, "Test Module"}
         };
     }
+
+    int64_t mLastLagback = 0;
 
     void onEnable() override;
     void onDisable() override;
