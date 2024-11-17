@@ -154,6 +154,7 @@ public:
     bool mRotating = false;
     static inline bool sHasTarget = false;
     static inline Actor* sTarget = nullptr;
+    static inline int64_t sTargetRuntimeID = 0;
     int64_t mLastSwing = 0;
     int64_t mLastTransaction = 0;
     int mLastSlot = 0;

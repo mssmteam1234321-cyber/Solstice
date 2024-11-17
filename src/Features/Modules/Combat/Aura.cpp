@@ -439,6 +439,7 @@ void Aura::onBaseTickEvent(BaseTickEvent& event)
             rotate(actor);
         foundAttackable = true;
         sTarget = actor;
+        sTargetRuntimeID = actor->getRuntimeID();
 
         throwProjectiles(actor);
         shootBow(actor);
@@ -611,7 +612,7 @@ void Aura::onPacketInEvent(PacketInEvent& event)
     if (event.mPacket->getId() == PacketID::RemoveActor)
     {
         auto packet = event.getPacket<RemoveActorPacket>();
-        if (sTarget && sTarget->getRuntimeID() == packet->mRuntimeID)
+        if (sTarget && sTargetRuntimeID == packet->mRuntimeID)
         {
             spdlog::critical("Active target was removed from world!! This may lead to a crash!");
             sHasTarget = false;
