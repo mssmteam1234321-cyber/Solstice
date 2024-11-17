@@ -21,9 +21,9 @@ public:
 
     TestModule() : ModuleBase("TestModule", "A module for testin purposes", ModuleCategory::Misc, 0, false) {
         addSettings(
-            &mMode,
+            &mMode
 #ifdef __DEBUG__
-            &mShowDebugUi
+            , &mShowDebugUi
 #endif
         );
 
