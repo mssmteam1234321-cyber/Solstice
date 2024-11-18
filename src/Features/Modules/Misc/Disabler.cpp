@@ -64,10 +64,13 @@ void Disabler::onPacketInEvent(class PacketInEvent& event)
             if (mReverseQueue.mValue) mPacketQueue.erase(--first);
             else mPacketQueue.erase(first);
 
-            auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
-            newLatency->mCreateTime = first->second;
-            newLatency->mFromServer = false;
-            PacketReceiveHook::handlePacket(newLatency);
+            for (int i = 0; i < 60; i++)
+            {
+                auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
+                newLatency->mCreateTime = first->second;
+                newLatency->mFromServer = false;
+                PacketReceiveHook::handlePacket(newLatency);
+            }
 
             //spdlog::info("synching packet from stack latency [queueTime: {}] [mCreateTime: {}] [new size: {}]", queueTime, first->second, mPacketQueue.size());
         }
