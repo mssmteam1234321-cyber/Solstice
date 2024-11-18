@@ -36,6 +36,8 @@ void Disabler::onDisable()
     gFeatureManager->mDispatcher->deafen<SendImmediateEvent, &Disabler::onSendImmediateEvent>(this);
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &Disabler::onPingUpdateEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &Disabler::onPacketInEvent>(this);
+
+    mPacketQueue.clear();
 }
 
 void Disabler::onPacketInEvent(class PacketInEvent& event)
@@ -53,22 +55,35 @@ void Disabler::onPacketInEvent(class PacketInEvent& event)
 
         if (mPacketQueue.size() >= static_cast<int>(mQueuedPackets.mValue))
         {
-            // Reverse the queue
-            std::ranges::reverse(mPacketQueue);
-            for (const auto& time : mPacketQueue)
-            {
-                auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
-                newLatency->mCreateTime = time;
-                newLatency->mFromServer = false;
-                PacketReceiveHook::handlePacket(newLatency);
-            }
+            // Get the first packet
+            auto first = mPacketQueue.begin();
+            if (mReverseQueue.mValue) first = mPacketQueue.end();
+            auto queueTime = NOW - first->first;
 
-            //spdlog::info("Handled {} packets", mPacketQueue.size());
+            // erase/pop depending on the setting
+            if (mReverseQueue.mValue) mPacketQueue.erase(--first);
+            else mPacketQueue.erase(first);
 
-            mPacketQueue.clear();
+            auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
+            newLatency->mCreateTime = first->second;
+            newLatency->mFromServer = false;
+            PacketReceiveHook::handlePacket(newLatency);
+
+            //spdlog::info("synching packet from stack latency [queueTime: {}] [mCreateTime: {}] [new size: {}]", queueTime, first->second, mPacketQueue.size());
         }
 
-        mPacketQueue.push_back(latency->mCreateTime);
+        float dropChance = mDropChance.mValue;
+        if (dropChance > 0)
+        {
+            if (MathUtils::random(0, 100) < dropChance)
+            {
+                //spdlog::info("Dropping packet from stack latency [dropChance: {}] [new size: {}]", dropChance, mPacketQueue.size());
+                event.cancel();
+                return;
+            }
+        }
+
+        mPacketQueue[NOW] = latency->mCreateTime;
         //spdlog::info("Received latency packet [time: {}] [fromServer: {}] [new size: {}]", latency->mCreateTime, latency->mFromServer, mPacketQueue.size());
         event.cancel();
     }
@@ -163,6 +178,12 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
     }
 
 #ifdef __PRIVATE_BUILD__
+    if (mMode.mValue == Mode::SentinelNew && event.mPacket->getId() == PacketID::PlayerAuthInput)
+    {
+        auto paip = event.getPacket<PlayerAuthInputPacket>();
+        paip->mClientTick -= mQueuedPackets.mValue;
+    }
+
     if (mMode.mValue == Mode::Flareon) {
         if (mDisablerType.mValue == DisablerType::MoveFix) {
             if (event.mPacket->getId() != PacketID::PlayerAuthInput) return;

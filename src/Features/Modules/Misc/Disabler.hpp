@@ -35,6 +35,8 @@ public:
         );
 #ifdef __PRIVATE_BUILD__
     NumberSetting mQueuedPackets = NumberSetting("Queued Packets", "The amount of packets to queue", 120, 0, 300, 1);
+    BoolSetting mReverseQueue = BoolSetting("Reverse Queue", "Whether or not to reverse the queue", false);
+    NumberSetting mDropChance = NumberSetting("Drop Chance", "The chance to drop the packet", 0, 0, 100, 1);
 #endif
     BoolSetting mRandomizeDelay = BoolSetting("Randomize Delay", "Whether or not to randomize the delay", true);
     NumberSetting mDelay = NumberSetting("Delay", "The delay to use for the disabler", 10000, 0, 100000, 1);
@@ -52,6 +54,8 @@ public:
         addSetting(&mDisablerType);
 #ifdef __DEBUG__
         addSetting(&mQueuedPackets);
+        addSetting(&mReverseQueue);
+        addSetting(&mDropChance);
 #endif
         addSetting(&mRandomizeDelay);
         addSetting(&mDelay);
@@ -62,6 +66,8 @@ public:
         VISIBILITY_CONDITION(mDisablerType, mMode.mValue == Mode::Flareon);
 #ifdef __DEBUG__
         VISIBILITY_CONDITION(mQueuedPackets, mMode.mValue == Mode::SentinelNew);
+        VISIBILITY_CONDITION(mReverseQueue, mMode.mValue == Mode::SentinelNew);
+        VISIBILITY_CONDITION(mDropChance, mMode.mValue == Mode::SentinelNew);
 #endif
         VISIBILITY_CONDITION(mRandomizeDelay, mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::PingSpoof);
 
@@ -89,7 +95,12 @@ public:
     glm::vec3 mLastPosition = { 0, 0, 0 };
     Actor* mFirstAttackedActor = nullptr;
 
-    std::vector<int64_t> mPacketQueue;
+    std::map<int64_t, uint64_t> mPacketQueue;
+    void sortQueueByTime()
+    {
+        // Sort by lowest .first value
+        mPacketQueue = std::map<int64_t, uint64_t>(mPacketQueue.begin(), mPacketQueue.end());
+    }
 
     void onEnable() override;
     void onDisable() override;
