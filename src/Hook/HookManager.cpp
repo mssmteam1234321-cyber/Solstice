@@ -20,6 +20,7 @@
 #include "Hooks/NetworkHooks/RakPeerHooks.hpp"
 #include "Hooks/RenderHooks/ActorRenderDispatcherHook.hpp"
 #include "Hooks/RenderHooks/D3DHook.hpp"
+#include "Hooks/RenderHooks/HoverTextRendererHook.hpp"
 #include "Hooks/RenderHooks/ItemRendererHook.hpp"
 #include "Hooks/RenderHooks/LookInputHook.hpp"
 #include "Hooks/RenderHooks/RenderItemInHandHook.hpp"
