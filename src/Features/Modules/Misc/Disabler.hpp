@@ -33,6 +33,9 @@ public:
         ,"Move Fix", "Move Fix V2"
 #endif
         );
+#ifdef __PRIVATE_BUILD__
+    NumberSetting mQueuedPackets = NumberSetting("Queued Packets", "The amount of packets to queue", 120, 0, 300, 1);
+#endif
     BoolSetting mRandomizeDelay = BoolSetting("Randomize Delay", "Whether or not to randomize the delay", true);
     NumberSetting mDelay = NumberSetting("Delay", "The delay to use for the disabler", 10000, 0, 100000, 1);
     NumberSetting mMinDelay = NumberSetting("Min Delay", "The minimum delay to randomize", 6000, 0, 100000, 1);
@@ -47,6 +50,9 @@ public:
     Disabler() : ModuleBase<Disabler>("Disabler", "Attempts to disable Anti-Cheat checks by exploiting them.", ModuleCategory::Misc, 0, false){
         addSetting(&mMode);
         addSetting(&mDisablerType);
+#ifdef __DEBUG__
+        addSetting(&mQueuedPackets);
+#endif
         addSetting(&mRandomizeDelay);
         addSetting(&mDelay);
         addSetting(&mMinDelay);
@@ -54,6 +60,9 @@ public:
         addSettings(&mInteract, &mCancel, &mGlide, &mOnGroundSpoof, &mInputSpoof, &mClickPosFix);
 
         VISIBILITY_CONDITION(mDisablerType, mMode.mValue == Mode::Flareon);
+#ifdef __DEBUG__
+        VISIBILITY_CONDITION(mQueuedPackets, mMode.mValue == Mode::SentinelNew);
+#endif
         VISIBILITY_CONDITION(mRandomizeDelay, mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::PingSpoof);
 
         VISIBILITY_CONDITION(mDelay, mMode.mValue == Mode::Flareon && mDisablerType.mValue == DisablerType::PingSpoof && !mRandomizeDelay.mValue);
@@ -80,10 +89,11 @@ public:
     glm::vec3 mLastPosition = { 0, 0, 0 };
     Actor* mFirstAttackedActor = nullptr;
 
-    std::vector<std::chrono::steady_clock::time_point> mPacketQueue;
+    std::vector<int64_t> mPacketQueue;
 
     void onEnable() override;
     void onDisable() override;
+    void onPacketInEvent(class PacketInEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void onRunUpdateCycleEvent(class RunUpdateCycleEvent& event);
     int64_t getDelay() const;

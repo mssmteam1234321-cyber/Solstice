@@ -36,7 +36,7 @@ std::vector<PacketID> ignored = {
     PacketID::MoveActorDelta,
     PacketID::UpdateAttributes,
     PacketID::MobEquipment,
-    /*PacketID::PlayerAuthInput,*/
+    PacketID::PlayerAuthInput,
     PacketID::AddActor,
     PacketID::RemoveActor,
     PacketID::PlaySound,

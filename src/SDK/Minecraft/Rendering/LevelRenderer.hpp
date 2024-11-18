@@ -9,6 +9,8 @@
 class LevelRendererPlayer {
 public:
     glm::vec3* getCameraPos();
+    float* getFovX();
+    float* getFovY();
 };
 
 class LevelRenderer {

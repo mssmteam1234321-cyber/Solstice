@@ -32,6 +32,7 @@
 #include <SDK/Minecraft/World/Chunk/LevelChunk.hpp>
 #include <SDK/Minecraft/World/Chunk/SubChunkBlockStorage.hpp>
 #include <SDK/Minecraft/Actor/Components/ComponentHashes.hpp>
+#include <SDK/Minecraft/Rendering/LevelRenderer.hpp>
 #include <Utils/FileUtils.hpp>
 #include <Utils/FontHelper.hpp>
 #include <Utils/GameUtils/ItemUtils.hpp>
@@ -299,7 +300,12 @@ void TestModule::onRenderEvent(RenderEvent& event)
                 displayCopyableAddress("Options", options);
                 displayCopyableAddress("GfxGamma", options->mGfxGamma);
             }
-            displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
+            if (ci->getLevelRenderer() && ImGui::CollapsingHeader("LevelRenderer"))
+            {
+                displayCopyableAddress("LevelRenderer", ci->getLevelRenderer());
+                displayCopyableAddress("LevelRendererPlayer", ci->getLevelRenderer()->getRendererPlayer());
+            }
+
             displayCopyableAddress("MinecraftGame", ci->getMinecraftGame());
             displayCopyableAddress("MinecraftSimulation", ci->getMinecraftSim());
             displayCopyableAddress("PacketSender", ci->getPacketSender());

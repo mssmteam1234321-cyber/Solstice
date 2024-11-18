@@ -4,10 +4,12 @@
 
 #include "Disabler.hpp"
 
+#include <Features/Events/PacketInEvent.hpp>
 #include <Features/Events/PacketOutEvent.hpp>
 #include <Features/Events/RunUpdateCycleEvent.hpp>
 #include <Features/Events/PingUpdateEvent.hpp>
 #include <Features/Events/SendImmediateEvent.hpp>
+#include <Hook/Hooks/NetworkHooks/PacketReceiveHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Actor/GameMode.hpp>
@@ -22,6 +24,7 @@ void Disabler::onEnable()
     gFeatureManager->mDispatcher->listen<RunUpdateCycleEvent, &Disabler::onRunUpdateCycleEvent, nes::event_priority::VERY_FIRST>(this);
     gFeatureManager->mDispatcher->listen<SendImmediateEvent, &Disabler::onSendImmediateEvent>(this);
     gFeatureManager->mDispatcher->listen<PingUpdateEvent, &Disabler::onPingUpdateEvent, nes::event_priority::FIRST>(this);
+    gFeatureManager->mDispatcher->listen<PacketInEvent, &Disabler::onPacketInEvent>(this);
 
     mShouldUpdateClientTicks = true;
 }
@@ -32,6 +35,44 @@ void Disabler::onDisable()
     gFeatureManager->mDispatcher->deafen<RunUpdateCycleEvent, &Disabler::onRunUpdateCycleEvent>(this);
     gFeatureManager->mDispatcher->deafen<SendImmediateEvent, &Disabler::onSendImmediateEvent>(this);
     gFeatureManager->mDispatcher->deafen<PingUpdateEvent, &Disabler::onPingUpdateEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketInEvent, &Disabler::onPacketInEvent>(this);
+}
+
+void Disabler::onPacketInEvent(class PacketInEvent& event)
+{
+#ifdef __PRIVATE_BUILD__
+    // don't release this im not allowed to
+    if (mMode.mValue == Mode::SentinelNew && event.mPacket->getId() == PacketID::NetworkStackLatency)
+    {
+        auto latency = event.getPacket<NetworkStackLatencyPacket>();
+        if (!latency->mFromServer)
+        {
+            latency->mFromServer = true;
+            return;
+        }
+
+        if (mPacketQueue.size() >= static_cast<int>(mQueuedPackets.mValue))
+        {
+            // Reverse the queue
+            std::ranges::reverse(mPacketQueue);
+            for (const auto& time : mPacketQueue)
+            {
+                auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
+                newLatency->mCreateTime = time;
+                newLatency->mFromServer = false;
+                PacketReceiveHook::handlePacket(newLatency);
+            }
+
+            //spdlog::info("Handled {} packets", mPacketQueue.size());
+
+            mPacketQueue.clear();
+        }
+
+        mPacketQueue.push_back(latency->mCreateTime);
+        //spdlog::info("Received latency packet [time: {}] [fromServer: {}] [new size: {}]", latency->mCreateTime, latency->mFromServer, mPacketQueue.size());
+        event.cancel();
+    }
+#endif
 }
 
 /*glm::vec2 MathUtils::getMovement() {
@@ -120,32 +161,6 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
         float newY = MathUtils::lerp(packet->mPos.y, targetY, tickPerc);
         packet->mPos.y = newY;
     }
-
-#ifdef __PRIVATE_BUILD__
-    // don't release this im not allowed to
-    if (mMode.mValue == Mode::SentinelNew)
-    {
-        auto latency = event.getPacket<NetworkStackLatencyPacket>();
-        if (mPacketQueue.size() >= 120)
-        {
-            for (auto& time : mPacketQueue)
-            {
-                auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
-                newLatency->mCreateTime = time;
-                newLatency->mFromServer = false;
-
-                ClientInstance::get()->getPacketSender()->sendToServer(newLatency.get());
-            }
-
-            spdlog::info("Sent {} packets", mPacketQueue.size());
-
-            mPacketQueue.clear();
-            mPacketQueue.push_back(latency->mCreateTime);
-        } else {
-            mPacketQueue.push_back(latency->mCreateTime);
-        }
-    }
-#endif
 
 #ifdef __PRIVATE_BUILD__
     if (mMode.mValue == Mode::Flareon) {
@@ -346,7 +361,7 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
             mClientTicks++;
         }
         else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
-            event.mCancelled = true;
+            spdlog::info("NetworkStackLatency packet cancelled");
         }
         else if (event.mPacket->getId() == PacketID::InventoryTransaction)
         {
@@ -381,7 +396,11 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
             }
         }
         else if (event.mPacket->getId() == PacketID::NetworkStackLatency) {
-            if (mCancel.mValue) event.mCancelled = true;
+            if (mCancel.mValue)
+            {
+                spdlog::info("NetworkStackLatency packet cancelled");
+                event.mCancelled = true;
+            }
         }
         else if (event.mPacket->getId() == PacketID::InventoryTransaction)
         {
