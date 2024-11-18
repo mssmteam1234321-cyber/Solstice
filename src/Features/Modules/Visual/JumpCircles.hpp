@@ -17,10 +17,10 @@ public:
         uint64_t startTime;
     };
 
-    NumberSetting mSize = NumberSetting("Size", "How circle the hat should be", 0.7f, 0.05f, 1.f, 0.01f);
+    NumberSetting mSize = NumberSetting("Speed", "How fast should the animations be", 0.02f, 0.01f, 0.20f, 0.01f);
     NumberSetting mGlowAmount = NumberSetting("GlowAmount", "How much the circle should glow", 24, 0, 100, 1);
     NumberSetting mOpacity = NumberSetting("Opacity", "The opacity of circle", 0.6f, 0.f, 1.f, 0.01f);
-    NumberSetting mTime = NumberSetting("Life time (ms)", "Time to render circle", 3000, 0, 5000, 1);
+    NumberSetting mTime = NumberSetting("Life time (ms)", "Time to render circle", 9000, 0, 5000, 1);
 
     JumpCircles() : ModuleBase("JumpCircles", "Render circle when u jumping", ModuleCategory::Visual, 0, false) {
 
@@ -40,6 +40,7 @@ public:
     std::vector<Circle> circles;
     int mTicks = 0;
     uint64_t lastAddTime = 0;
+    float ringSpacing = 0.08; // todo make this a number setting
 
     float toRadians(float deg);
     void addCircle(const glm::vec3& pos, float radius, const ImVec4& color, float opacity, float glowAmount);

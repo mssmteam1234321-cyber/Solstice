@@ -61,14 +61,16 @@ void JumpCircles::onDisable()
     }
 
     for (auto it = circles.begin(); it != circles.end(); ) {
-        float elapsed = currentTime - it->startTime;
-
-        if (elapsed > mTime.mValue) {
+        if ((currentTime - it->startTime) > mTime.mValue) {
             it = circles.erase(it);
             continue;
         }
 
-        float animatedRadius = glm::mix(0.4f, mSize.mValue, elapsed / 800);
+        // Increase radius gradually by the speed factor instead of based on elapsed time
+        it->radius += mSize.mValue;
+
+        // Opacity animation independent of elapsed time
+        it->color.z = mOpacity.mValue;
 
         int pointCount = 100;
         glm::vec2 screenPosPrev, screenPosCurr;
@@ -76,32 +78,43 @@ void JumpCircles::onDisable()
 
         bool firstPoint = true;
 
-        for (int i = 0; i <= pointCount; i++) {
-            float angle = (i / (float)pointCount) * 360.f;
-            float rad = toRadians(angle);
+        for (int i = 0; i < 16; i++) {
+            ImVec4 mUIColor = it->color;
 
-            glm::vec3 currentPos = {
-                it->position.x + animatedRadius * cosf(rad),
-                it->position.y,
-                it->position.z + animatedRadius * sinf(rad)
-            };
+            mUIColor.z = it->opacity * (1.f - i / 16.f);
 
-            if (corrected.OWorldToScreen(RenderUtils::transform.mOrigin, currentPos, screenPosCurr, MathUtils::fov,
-                                         ClientInstance::get()->getGuiData()->mResolution)) {
+            float ringRadius = it->radius - i * ringSpacing;  // Shrinking radius per ring
 
-                if (!firstPoint) {
-                    ImGui::GetBackgroundDrawList()->AddLine(
-                        ImVec2(screenPosPrev.x, screenPosPrev.y),
-                        ImVec2(screenPosCurr.x, screenPosCurr.y),
-                        convertToImU32(it->color),
-                        2.0f
-                    );
+            for (int j = 0; j <= pointCount; j++)
+            {
+                // Circle points
+
+                float angle = (j / (float)pointCount) * 360.f;
+                float rad = toRadians(angle);
+
+                glm::vec3 currentPos = {
+                    it->position.x + ringRadius * cosf(rad),
+                    it->position.y,
+                    it->position.z + ringRadius * sinf(rad)
+                };
+
+                if (corrected.OWorldToScreen(RenderUtils::transform.mOrigin, currentPos, screenPosCurr, MathUtils::fov,
+                                         ClientInstance::get()->getGuiData()->mResolution))
+                {
+                    if (!firstPoint) {
+                        ImGui::GetBackgroundDrawList()->AddLine(
+                            ImVec2(screenPosPrev.x, screenPosPrev.y),
+                            ImVec2(screenPosCurr.x, screenPosCurr.y),
+                            convertToImU32(mUIColor),
+                            2.0f
+                        );
+                    }
+
+                    screenPosPrev = screenPosCurr;
+                    firstPoint = false;
                 }
-                screenPosPrev = screenPosCurr;
-                firstPoint = false;
             }
         }
-
         ++it;
     }
 }

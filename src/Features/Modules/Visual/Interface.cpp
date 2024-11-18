@@ -14,6 +14,7 @@
 
 #include <Features/Modules/Visual/Interface.hpp>
 #include <Hook/Hooks/RenderHooks/ActorRenderDispatcherHook.hpp>
+#include <Hook/Hooks/RenderHooks/HoverTextRendererHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/mce.hpp>
 #include <SDK/Minecraft/Options.hpp>
@@ -28,6 +29,44 @@
 std::vector<unsigned char> gFsBytes2 = { 0x0f, 0x85 };
 DEFINE_PATCH_FUNC(patchFullStack, SigManager::ResourcePackManager_composeFullStackBp, gFsBytes2);
 #endif
+
+// please someone make this in a class or struct cuz it gives me aids
+// Define a mapping from Minecraft color codes to RGBA colors
+std::unordered_map<char, ImColor> mColorMap = {
+    {'0', ImColor(0, 0, 0)},        // Black
+    {'1', ImColor(0, 0, 170)},      // Dark Blue
+    {'2', ImColor(0, 170, 0)},      // Dark Green
+    {'3', ImColor(0, 170, 170)},    // Dark Aqua
+    {'4', ImColor(170, 0, 0)},      // Dark Red
+    {'5', ImColor(170, 0, 170)},    // Dark Purple
+    {'6', ImColor(255, 170, 0)},    // Gold
+    {'7', ImColor(170, 170, 170)},  // Gray
+    {'8', ImColor(85, 85, 85)},     // Dark Gray
+    {'9', ImColor(85, 85, 255)},    // Blue
+    {'a', ImColor(85, 255, 85)},    // Green
+    {'b', ImColor(85, 255, 255)},   // Aqua
+    {'c', ImColor(255, 85, 85)},    // Red
+    {'d', ImColor(255, 85, 255)},   // Light Purple
+    {'e', ImColor(255, 255, 85)},   // Yellow
+    {'f', ImColor(255, 255, 255)},  // White
+    {'r', ImColor(255, 255, 255)}   // Reset
+};
+
+template <typename T>
+std::string combine(T t)
+{
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+}
+
+template <typename T, typename... Args>
+std::string combine(T t, Args... args)
+{
+    std::stringstream ss;
+    ss << t << combine(args...);
+    return ss.str();
+}
 
 float pYaw;
 float pOldYaw;
@@ -60,6 +99,73 @@ void Interface::onDisable()
 #endif
 }
 
+void Interface::renderHoverText()
+{
+    static EasingUtil inEase;
+
+    (HoverTextRender::mTimeDisplayed != 0 && gFeatureManager->mModuleManager->getModule<ClickGui>()->mEnabled != true) ?
+            inEase.incrementPercentage(ImRenderUtils::getDeltaTime() * 2)
+            : inEase.decrementPercentage(ImRenderUtils::getDeltaTime() * 4);
+
+    float inScale = HoverTextRender::mTimeDisplayed != 0 && gFeatureManager->mModuleManager->getModule<ClickGui>()->mEnabled != true ? inEase.easeOutExpo() : inEase.easeOutBack();
+
+    if (inEase.isPercentageMax())
+        inScale = 1;
+
+    if (inScale < 0.01)
+        return;
+
+    glm::vec2 mPos = HoverTextRender::mInfo.mPos;
+    glm::vec2 mTextPos = glm::vec2(mPos.x + 6, mPos.y + 6); // It looks better this way than getting it from HoverTextRenderer class
+
+    float mTextSize = 1.25 * inScale;
+
+    std::string mMessage = HoverTextRender::mInfo.mText;
+    std::string mNoneColoredText = ColorUtils::removeColorCodes(HoverTextRender::mInfo.mText);
+
+    ImColor mCurrentColor = ImColor(255, 255, 255);
+
+    float mMeasurementX = ImGui::GetFont()->CalcTextSizeA(mTextSize * 18, FLT_MAX, -1, mNoneColoredText.c_str()).x;
+    float mMeasurementY = ImGui::GetFont()->CalcTextSizeA(mTextSize * 18, FLT_MAX, -1, mNoneColoredText.c_str()).y;
+
+    ImVec4 mRect = ImVec4(mPos.x, mPos.y, mPos.x + mMeasurementX + 12, mPos.y + mMeasurementY + 12);
+
+    ImRenderUtils::addBlur(mRect, 3 * inScale, 10);
+
+    ImRenderUtils::fillRectangle(mRect, ImColor(0, 0, 0), 0.78f * inScale, 10);
+
+    for (size_t j = 0; j < mMessage.length(); ++j) {
+        char c = mMessage[j];
+
+        if (c == '§' && j + 1 < mMessage.length()) {
+            char colorCode = mMessage[j + 1];
+            if (mColorMap.find(colorCode) != mColorMap.end()) {
+                mCurrentColor = mColorMap[colorCode];
+                j++;
+            }
+            continue;
+        }
+
+        if (c == '\n') {
+            mTextPos.x = mPos.x + 6;
+            mTextPos.y += ImGui::GetFont()->CalcTextSizeA(mTextSize * 18, FLT_MAX, 0, "\n").y;
+        }
+
+        if (!std::isprint(c)) {
+            continue;
+        }
+
+        std::string mString = combine(c, "");
+
+        ImRenderUtils::drawText(mTextPos, mString, mCurrentColor, mTextSize, inScale, false);
+
+        mTextPos.x += ImGui::GetFont()->CalcTextSizeA(mTextSize * 18, FLT_MAX, -1, mString.c_str()).x;
+    }
+
+    HoverTextRender::mTimeDisplayed = 0;
+}
+
+
 void Interface::onModuleStateChange(ModuleStateChangeEvent& event)
 {
     if (event.mModule == this)
@@ -87,6 +193,8 @@ void Interface::onRenderEvent(RenderEvent& event)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
     static bool lastPlayerState = false;
+
+    //renderHoverText();
 
 #ifdef __DEBUG__
     if (player && mForcePackSwitching.mValue)

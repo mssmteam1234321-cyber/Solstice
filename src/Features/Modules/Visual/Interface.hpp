@@ -46,6 +46,7 @@ public:
     ColorSetting mColor6 = ColorSetting("Color 6", "The sixth color of the interface.", 0xFF8B00FF);
     NumberSetting mColorSpeed = NumberSetting("Color Speed", "The speed of the color change.", 3.f, 0.01f, 20.f, 0.01);
     NumberSetting mSaturation = NumberSetting("Saturation", "The saturation of the interface.", 1.f, 0.f, 1.f, 0.01);
+    BoolSetting mHoveredItem = BoolSetting("Custom Hover", "Customizes the hovered item gui.", false);
     BoolSetting mSlotEasing = BoolSetting("Slot Easing", "Eases the selection of slots", true);
     NumberSetting mSlotEasingSpeed = NumberSetting("Easing Speed", "The speed of the slot easing", 20.f, 0.1f, 20.f, 0.01f);
 #ifdef __DEBUG__
@@ -76,6 +77,7 @@ public:
             &mColor6,
             &mColorSpeed,
             &mSaturation,
+            //&mHoveredItem,
             &mSlotEasing,
             &mSlotEasingSpeed
 #ifdef __DEBUG__
@@ -155,6 +157,7 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void renderHoverText();
     void onModuleStateChange(ModuleStateChangeEvent& event);
     void onPregameCheckEvent(class PreGameCheckEvent& event);
     void onRenderEvent(class RenderEvent& event);
