@@ -175,6 +175,7 @@ public:
     bool isOnGround();
     void setOnGround(bool);
     bool isCollidingHorizontal();
+    bool isDead();
     void jumpFromGround();
     float getFallDistance();
     void setFallDistance(float distance);

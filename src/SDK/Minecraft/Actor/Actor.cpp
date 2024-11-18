@@ -296,6 +296,11 @@ bool Actor::isCollidingHorizontal()
     return getFlag<HorizontalCollisionFlagComponent>();
 }
 
+bool Actor::isDead()
+{
+    return getFlag<IsDeadFlagComponent>();
+}
+
 void Actor::jumpFromGround()
 {
     auto jumpComponent = getJumpControlComponent();
