@@ -316,6 +316,7 @@ void TestModule::onRenderEvent(RenderEvent& event)
             {
                 ImGui::Text("isOnGround: %d", player->getFlag<OnGroundFlagComponent>());
                 ImGui::Text("wasOnGround: %d", player->getFlag<WasOnGroundFlagComponent>());
+                ImGui::Text("isDead: %d", player->getFlag<IsDeadFlagComponent>());
                 ImGui::Text("renderCameraFlag: %d", player->getFlag<RenderCameraComponent>());
                 ImGui::Text("gameCameraFlag: %d", player->getFlag<GameCameraComponent>());
                 ImGui::Text("cameraRenderPlayerModel: %d", player->getFlag<CameraRenderPlayerModelComponent>());

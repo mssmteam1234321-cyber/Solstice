@@ -113,6 +113,7 @@
 #include "Visual/Freelook.hpp"
 #include "Visual/FullBright.hpp"
 #include "Visual/Glint.hpp"
+#include "Visual/Goofy.hpp"
 #include "Visual/HudEditor.hpp"
 #include "Visual/Interface.hpp"
 #include "Visual/ItemESP.hpp"
@@ -288,6 +289,7 @@ void ModuleManager::init()
     mModules.emplace_back(std::make_shared<VoiceChat>());
     mModules.emplace_back(std::make_shared<BoneEsp>());
     mModules.emplace_back(std::make_shared<CustomChat>());
+    mModules.emplace_back(std::make_shared<Goofy>()); // Experimental Shit DO NOT TOUCH :PPP
 
 #endif
 
