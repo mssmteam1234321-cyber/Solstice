@@ -56,6 +56,7 @@ void HookManager::init(bool initLp)
         ADD_HOOK(RakPeerHooks);
         ADD_HOOK(ActorRenderDispatcherHook);
         ADD_HOOK(AnimationHooks);
+        ADD_HOOK(HoverTextRendererHook);
         ADD_HOOK(LookInputHook);
         ADD_HOOK(ActorModelHook);
         ADD_HOOK(ItemRendererHook);

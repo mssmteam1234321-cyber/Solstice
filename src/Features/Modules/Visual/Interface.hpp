@@ -77,6 +77,7 @@ public:
             &mColor6,
             &mColorSpeed,
             &mSaturation,
+            &mHoveredItem,
             &mSlotEasing,
             &mSlotEasingSpeed
 #ifdef __DEBUG__
@@ -156,6 +157,7 @@ public:
 
     void onEnable() override;
     void onDisable() override;
+    void renderHoverText();
     void onModuleStateChange(ModuleStateChangeEvent& event);
     void onPregameCheckEvent(class PreGameCheckEvent& event);
     void onRenderEvent(class RenderEvent& event);

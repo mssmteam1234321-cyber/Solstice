@@ -14,6 +14,7 @@
 
 #include <Features/Modules/Visual/Interface.hpp>
 #include <Hook/Hooks/RenderHooks/ActorRenderDispatcherHook.hpp>
+#include <Hook/Hooks/RenderHooks/HoverTextRendererHook.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
 #include <SDK/Minecraft/mce.hpp>
 #include <SDK/Minecraft/Options.hpp>
@@ -59,6 +60,34 @@ void Interface::onDisable()
     patchFullStack(false);
 #endif
 }
+
+void Interface::renderHoverText()
+{
+    static EasingUtil inEase;
+
+    (HoverTextRender::mTimeDisplayed != 0 && gFeatureManager->mModuleManager->getModule<ClickGui>()->mEnabled != true) ?
+            inEase.incrementPercentage(ImRenderUtils::getDeltaTime() * 2)
+            : inEase.decrementPercentage(ImRenderUtils::getDeltaTime() * 4);
+
+    float inScale = HoverTextRender::mTimeDisplayed != 0 && gFeatureManager->mModuleManager->getModule<ClickGui>()->mEnabled != true ? inEase.easeOutExpo() : inEase.easeOutBack();
+
+    if (inEase.isPercentageMax())
+        inScale = 1;
+
+    if (inScale < 0.01)
+        return;
+
+    glm::vec2 mPos = HoverTextRender::mInfo.mPos;
+    glm::vec2 mTextPos = glm::vec2(mPos.x + 6, mPos.y + 6); // It looks better this way than getting it from HoverTextRenderer class
+
+    float mTextSize = 1.25 * inScale;
+
+    std::string mMessage = HoverTextRender::mInfo.mText;
+    std::string mNoneColoredText = ColorUtils::removeColorCodes(HoverTextRender::mInfo.mText);
+
+
+}
+
 
 void Interface::onModuleStateChange(ModuleStateChangeEvent& event)
 {
