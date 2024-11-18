@@ -40,7 +40,7 @@ public:
     std::vector<Circle> circles;
     int mTicks = 0;
     uint64_t lastAddTime = 0;
-    float ringSpacing = 0.08;
+    float ringSpacing = 0.08; // todo make this a number setting
 
     float toRadians(float deg);
     void addCircle(const glm::vec3& pos, float radius, const ImVec4& color, float opacity, float glowAmount);
