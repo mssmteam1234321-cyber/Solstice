@@ -145,7 +145,6 @@ void Solstice::init(HMODULE hModule)
     isTimeSyncedCheck();
     killSwitchIfNeeded();
 
-    system("pause");
     console->info("initializing signatures...");
     int64_t sstart = NOW;
     OffsetProvider::initialize();
