@@ -6,6 +6,7 @@
 #include <Hook/Hook.hpp>
 #include <Hook/HookManager.hpp>
 #include <SDK/Minecraft/mce.hpp>
+#include <SDK/Minecraft/ClientInstance.hpp>
 
 class HoverTextRender
 {

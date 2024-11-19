@@ -6,6 +6,8 @@
 
 #include <Hook/Hooks/NetworkHooks/PacketSendHook.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
+#include <Features/Events/PacketOutEvent.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 
 #ifdef __PRIVATE_BUILD__
 #define ddebug(...) if (mDebug.mValue) ChatUtils::displayClientMessage(__VA_ARGS__)

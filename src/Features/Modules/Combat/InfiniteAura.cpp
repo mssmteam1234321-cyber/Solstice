@@ -6,12 +6,14 @@
 
 #include <Features/Modules/Movement/AutoPath.hpp>
 #include <SDK/Minecraft/Actor/Actor.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
-#include <SDK/Minecraft/Actor/Actor.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/MovePlayerPacket.hpp>
-
+#include <SDK/Minecraft/ClientInstance.hpp>
+#include <Hook/Hooks/NetworkHooks/PacketSendHook.hpp>
+#include <SDK/Minecraft/World/HitResult.hpp>
+#include <SDK/Minecraft/Network/MinecraftPackets.hpp>
+#include <SDK/Minecraft/Inventory/PlayerInventory.hpp>
+#include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 
 void InfiniteAura::onEnable()
 {

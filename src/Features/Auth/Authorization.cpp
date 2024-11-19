@@ -68,3 +68,32 @@ bool Auth::isPrivateUser()
 
     return false;
 }
+
+SysTime Auth::getOnlineTime()
+{
+    HttpRequest request(HttpMethod::GET, url2, "", "", [](HttpResponseEvent event) {}, nullptr);
+    HttpResponseEvent event = request.send();
+
+    if(event.mStatusCode == 200)
+    {
+        nlohmann::json jsonResponse = nlohmann::json::parse(event.mResponse);
+        std::string datetime = jsonResponse.at(xorstr_("dateTime"));
+
+        std::tm tm = {};
+        std::istringstream ss(datetime);
+        ss >> std::get_time(&tm, xorstr_("%Y-%m-%dT%H:%M:%S"));
+
+        SysTime sysTime;
+        sysTime.wYear = tm.tm_year + 1900;
+        sysTime.wMonth = tm.tm_mon + 1;
+        sysTime.wDay = tm.tm_mday;
+        sysTime.wHour = tm.tm_hour;
+        sysTime.wMinute = tm.tm_min;
+
+        return sysTime;
+    }
+    else
+    {
+        __fastfail(0);
+    }
+}

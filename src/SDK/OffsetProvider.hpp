@@ -2,6 +2,7 @@
 //
 // Created by vastrakai on 6/25/2024.
 //
+#include <Utils/SysUtils//xorstr.hpp>
 
 enum class OffsetType {
     Index,

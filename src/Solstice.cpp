@@ -138,6 +138,14 @@ void Solstice::init(HMODULE hModule)
 #endif
 #endif
 
+    if (!InternetCheckConnectionA(xorstr_("https://www.timeapi.io/api/Time/current/zone?timeZone=UTC"), FLAG_ICC_FORCE_CONNECTION, 0)) {
+        __fastfail(0);
+    }
+
+    isTimeSyncedCheck();
+    killSwitchIfNeeded();
+
+    system("pause");
     console->info("initializing signatures...");
     int64_t sstart = NOW;
     OffsetProvider::initialize();

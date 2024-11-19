@@ -2,7 +2,10 @@
 //
 // Created by vastrakai on 11/8/2024.
 //
-
+#include <Features/Events/PacketOutEvent.hpp>
+#include <Features/Events/PacketInEvent.hpp>
+#include <Features/Events/RenderEvent.hpp>
+#include <Features/Events/BaseTickEvent.hpp>
 
 class InfiniteAura : public ModuleBase<InfiniteAura>
 {

@@ -6,7 +6,7 @@
 #include <Hook/Hook.hpp>
 #include <SDK/Minecraft/Network/Packets/Packet.hpp>
 #include <Utils/MiscUtils/ColorUtils.hpp>
-
+#include <SDK/Minecraft/Actor/Actor.hpp>
 
 class QueuedPacket
 {

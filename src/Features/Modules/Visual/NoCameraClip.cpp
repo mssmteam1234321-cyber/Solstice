@@ -6,6 +6,7 @@
 
 #include <Features/Events/LookInputEvent.hpp>
 #include <SDK/Minecraft/ClientInstance.hpp>
+#include <SDK/Minecraft/Actor/Actor.hpp>
 
 void NoCameraClip::onEnable()
 {

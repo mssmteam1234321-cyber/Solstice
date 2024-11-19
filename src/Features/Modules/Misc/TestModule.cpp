@@ -44,7 +44,7 @@ void TestModule::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
     gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -198,7 +198,14 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-
+    if(mMode.mValue == Mode::None)
+    {
+        if (event.mPacket->getId() == PacketID::PlayerAuthInput)
+        {
+            auto pkt = event.getPacket<PlayerAuthInputPacket>();
+            ChatUtils::displayClientMessage("Rots: (x: " + std::to_string(pkt->mRot.x) + ", y: " + std::to_string(pkt->mRot.y) + ")");
+        }
+    }
 }
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
