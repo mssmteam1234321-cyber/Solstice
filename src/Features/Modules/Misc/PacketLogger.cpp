@@ -13,6 +13,7 @@
 #include <SDK/Minecraft/Network/Packets/ModalFormResponsePacket.hpp>
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/ActorDataPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/ItemStackRequestPacket.hpp>
 
 
 class PlayerAuthInputPacket;
@@ -76,7 +77,11 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
             {
                 spdlog::info("Packet: InventoryTransaction, ClickPos: {}/{}/{}", iut->mClickPos.x, iut->mClickPos.y, iut->mClickPos.z);
             }
+        } else if (cit->type == ComplexInventoryTransaction::Type::NormalTransaction)
+        {
+            spdlog::info("Packet: InventoryTransaction, NormalTransaction");
         }
+
     }
 
     if (event.mPacket->getId() == PacketID::ModalFormResponse)

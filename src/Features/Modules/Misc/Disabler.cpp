@@ -44,6 +44,7 @@ void Disabler::onPacketInEvent(class PacketInEvent& event)
 {
 #ifdef __PRIVATE_BUILD__
     // don't release this im not allowed to
+
     if (mMode.mValue == Mode::SentinelNew && event.mPacket->getId() == PacketID::NetworkStackLatency)
     {
         auto latency = event.getPacket<NetworkStackLatencyPacket>();
@@ -55,39 +56,18 @@ void Disabler::onPacketInEvent(class PacketInEvent& event)
 
         if (mPacketQueue.size() >= static_cast<int>(mQueuedPackets.mValue))
         {
-            // Get the first packet
-            auto first = mPacketQueue.begin();
-            if (mReverseQueue.mValue) first = mPacketQueue.end();
-            auto queueTime = NOW - first->first;
-
-            // erase/pop depending on the setting
-            if (mReverseQueue.mValue) mPacketQueue.erase(--first);
-            else mPacketQueue.erase(first);
-
-            for (int i = 0; i < 60; i++)
+            for (auto& [first, second]: mPacketQueue)
             {
                 auto newLatency = MinecraftPackets::createPacket<NetworkStackLatencyPacket>();
-                newLatency->mCreateTime = first->second;
-                newLatency->mFromServer = false;
-                PacketReceiveHook::handlePacket(newLatency);
+                newLatency->mCreateTime = second;
+                newLatency->mFromServer = false; // To prevent infinite loop lol
+                ClientInstance::get()->getPacketSender()->sendToServer(newLatency.get());;
             }
 
-            //spdlog::info("synching packet from stack latency [queueTime: {}] [mCreateTime: {}] [new size: {}]", queueTime, first->second, mPacketQueue.size());
-        }
-
-        float dropChance = mDropChance.mValue;
-        if (dropChance > 0)
-        {
-            if (MathUtils::random(0, 100) < dropChance)
-            {
-                //spdlog::info("Dropping packet from stack latency [dropChance: {}] [new size: {}]", dropChance, mPacketQueue.size());
-                event.cancel();
-                return;
-            }
+            mPacketQueue.clear();
         }
 
         mPacketQueue[NOW] = latency->mCreateTime;
-        //spdlog::info("Received latency packet [time: {}] [fromServer: {}] [new size: {}]", latency->mCreateTime, latency->mFromServer, mPacketQueue.size());
         event.cancel();
     }
 #endif
