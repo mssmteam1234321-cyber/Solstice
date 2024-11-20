@@ -14,9 +14,12 @@ class InventoryContentPacket : public Packet
 public:
     static const PacketID ID = PacketID::InventoryContent;
 
-    ContainerID                             mInventoryId; // this+0x30
-    std::vector<NetworkItemStackDescriptor> mSlots;       // this+0x38
+    ContainerID                             mInventoryId;
+    PAD(0x68);
+    std::vector<NetworkItemStackDescriptor> mSlots;
 };
+
+static_assert(offsetof(InventoryContentPacket, mSlots) == 0xA0);
 
 class ContainerClosePacket : public ::Packet
 {

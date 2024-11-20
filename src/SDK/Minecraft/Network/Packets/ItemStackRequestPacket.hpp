@@ -4,38 +4,10 @@
 
 #pragma once
 
+#include "InventoryTransactionPacket.hpp"
 #include "Packet.hpp"
+#include <SDK/Minecraft/Inventory/ItemStackNetIdVariant.hpp>
 
-
-class ItemStackNetIdVariantIg {
-public:
-    int id1;
-    PAD(4)
-    int id2;
-    PAD(4)
-    uint8_t type;
-    PAD(7)
-
-    ItemStackNetIdVariantIg() {
-        memset(this, 0, sizeof(ItemStackNetIdVariantIg));
-    }
-
-    __forceinline int getID() {
-        if (type == 0) return id1;
-        else if (type <= 2) return id2;
-        else return 0;
-    }
-
-    __forceinline void setID(int id) {
-        if (type == 0) id1 = id;
-        else if (type <= 2) id2 = id;
-    }
-
-    ItemStackNetIdVariantIg(int id) {
-        memset(this, 0, sizeof(ItemStackNetIdVariant));
-        setID(id);
-    }
-};
 
 class ItemStackRequestSlotInfo {
 public:
@@ -43,13 +15,13 @@ public:
     uint8_t slot;
     PAD(6)
 
-    ItemStackNetIdVariantIg networkStackID;
+    ItemStackNetIdVariant networkStackID;
 
     ItemStackRequestSlotInfo() {
         memset(this, 0, sizeof(ItemStackRequestSlotInfo));
     }
 
-    ItemStackRequestSlotInfo(ContainerEnumName containerEnumName, uint8_t slot, ItemStackNetIdVariantIg networkStackID) {
+    ItemStackRequestSlotInfo(ContainerEnumName containerEnumName, uint8_t slot, ItemStackNetIdVariant networkStackID) {
         memset(this, 0, sizeof(ItemStackRequestSlotInfo));
         this->containerEnumName = containerEnumName;
         this->slot = slot;

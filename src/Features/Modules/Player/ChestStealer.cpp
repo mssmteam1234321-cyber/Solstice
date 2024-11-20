@@ -4,6 +4,7 @@
 
 #include "ChestStealer.hpp"
 
+#include <random>
 #include <Features/FeatureManager.hpp>
 #include <Features/Events/BaseTickEvent.hpp>
 #include <Features/Events/ContainerScreenTickEvent.hpp>
@@ -111,14 +112,14 @@ int getFirstEmptySlot()
 
 // TODO: This will cause issues with high ping because the items aren't updated with setSlot.
 
-void ChestStealer::takeItem(int slot, NetworkItemStackDescriptor item)
+void ChestStealer::takeItem(int slot, ItemStack& item)
 {
     auto player = ClientInstance::get()->getLocalPlayer();
 
     int from = slot;
     int to = getFirstEmptySlot();
     ItemStack* item2 = player->getSupplies()->getContainer()->getItem(to);
-    auto item1 = *item2; // TODO: Replace this with the proper item stack constructed from the item descriptor
+    auto item1 = item;
 
     InventoryAction action1 = InventoryAction(from, &item1, item2);
     InventoryAction action2 = InventoryAction(to, item2, &item1);
@@ -140,9 +141,14 @@ void ChestStealer::takeItem(int slot, NetworkItemStackDescriptor item)
     ClientInstance::get()->getPacketSender()->sendToServer(pkt.get());
 }
 
+
+std::map<int, uint64_t> itemDelays;
+
+
 void ChestStealer::onBaseTickEvent(BaseTickEvent& event)
 {
     auto player = event.mActor;
+#ifdef __PRIVATE_BUILD__
 
     if (!mIsChestOpen)
     {
@@ -153,38 +159,53 @@ void ChestStealer::onBaseTickEvent(BaseTickEvent& event)
     mIsStealing = true;
 
     int itemIndex = 0;
-    std::map<int, NetworkItemStackDescriptor> items = {};
+    std::map<int, ItemStack> items = {};
 
-    for (NetworkItemStackDescriptor& item : mItemsToTake) {
-        if (item.mStackSize != 0)
+    spdlog::debug("Items to take: {}", mItemsToTake.size());
+    for (ItemStack& item : mItemsToTake) {
+        if (!item.mItem)
         {
-            items[itemIndex] = item;
+            itemIndex++;
+            continue;
         }
 
+        if (mIgnoreUseless.mValue && InvManager::isItemUseless(&item, -1))
+        {
+            itemIndex++;
+            continue;
+        }
+        items[itemIndex] = item;
+        spdlog::debug("slot {} has an item", itemIndex);
         itemIndex++;
     }
 
-    uint64_t predictedStealTime = (static_cast<uint64_t>(getDelay()) * items.size()) + 500 + mLastOpen;
+    uint64_t predictedStealTime = (static_cast<uint64_t>(getDelay()) * items.size()) + 2000 + mLastOpen;
 
     if (predictedStealTime < NOW)
     {
-        ChatUtils::displayClientMessage("Timed out");
+        //ChatUtils::displayClientMessage("Timed out");
         reset();
         return;
     }
+
     if (mLastItemTaken + static_cast<uint64_t>(getDelay()) > NOW) return;
 
-    ChatUtils::displayClientMessage("Item count: " + std::to_string(items.size()));
+    //ChatUtils::displayClientMessage("Item count: " + std::to_string(items.size()));
+    if (items.size() == 0)
+    {
+        reset();
+        return;
+    }
 
     for (auto& [slot, item] : items)
     {
-        if (item.mStackSize == 0) continue;
+        if (!item.mItem) continue;
         takeItem(slot, item);
-        ChatUtils::displayClientMessage("Took item from slot " + std::to_string(slot));
-        item.mStackSize = 0;
+        //ChatUtils::displayClientMessage("Took item from slot " + std::to_string(slot));
+        items.erase(slot);
         if (doDelay()) return;
     }
-
+#endif
 }
 
 bool ChestStealer::doDelay()
@@ -200,12 +221,13 @@ bool ChestStealer::doDelay()
 
 void ChestStealer::onPacketInEvent(PacketInEvent& event)
 {
+#ifdef __PRIVATE_BUILD__
     if (mMode.mValue != Mode::Silent) return;
 
     if (event.mPacket->getId() == PacketID::ContainerOpen)
     {
         auto cop = event.getPacket<ContainerOpenPacket>();
-        // if (cop->mContainerId != ContainerID::Chest) return;
+        if (cop->mContainerId != ContainerID::Chest) return;
 
         spdlog::debug("Opened chest with id {}", magic_enum::enum_name(cop->mContainerId));
 
@@ -217,7 +239,7 @@ void ChestStealer::onPacketInEvent(PacketInEvent& event)
     if (event.mPacket->getId() == PacketID::ContainerClose)
     {
         auto cop = event.getPacket<ContainerClosePacket>();
-        // if (cop->mContainerId != ContainerID::Chest) return;
+        if (cop->mContainerId != ContainerID::Chest) return;
 
         spdlog::debug("Closed chest with id {}", magic_enum::enum_name(cop->mContainerId));
 
@@ -230,13 +252,18 @@ void ChestStealer::onPacketInEvent(PacketInEvent& event)
         auto icp = event.getPacket<InventoryContentPacket>();
         if (icp->mInventoryId == mCurrentContainerId)
         {
-            mItemsToTake = icp->mSlots;
+            mItemsToTake.clear();
+            for (auto& item : icp->mSlots)
+            {
+                mItemsToTake.push_back(ItemStack::fromDescriptor(item));
+            }
+
             event.cancel();
         }
 
-        spdlog::debug("InventoryContentPacket for container {}", magic_enum::enum_name(icp->mInventoryId));
-
+        spdlog::debug("InventoryContentPacket for container {} has {} item stacks", magic_enum::enum_name(icp->mInventoryId), icp->mSlots.size());
     }
+#endif
 
 }
 

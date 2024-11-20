@@ -45,7 +45,7 @@ void TestModule::onEnable()
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &TestModule::onBaseTickEvent>(this);
     gFeatureManager->mDispatcher->listen<RenderEvent, &TestModule::onRenderEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &TestModule::onPacketInEvent>(this);
-    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent, nes::event_priority::VERY_LAST>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &TestModule::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<LookInputEvent, &TestModule::onLookInputEvent>(this);
 
     auto player = ClientInstance::get()->getLocalPlayer();
@@ -109,6 +109,8 @@ Block* gDaBlock = nullptr;
 int lastFormId = 0;
 bool formOpen = false;
 AABB lastBlockAABB = AABB();
+ItemStack conStack = ItemStack();
+
 
 void TestModule::onBaseTickEvent(BaseTickEvent& event)
 {
@@ -119,6 +121,12 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
     {
         player->setFlag<MobIsJumpingFlagComponent>(false);
     }
+
+    ItemStack* stack = player->getSupplies()->getContainer()->getItem(0);
+    auto networkDescriptor = NetworkItemStackDescriptor(*stack);
+    spdlog::info("constructed NetworkItemStackDescriptor");
+    conStack = ItemStack::fromDescriptor(networkDescriptor);
+    spdlog::info("constructed ItemStack from NetworkItemStackDescriptor");
 
     gDaBlock = ClientInstance::get()->getBlockSource()->getBlock(*player->getPos());
 
@@ -199,14 +207,7 @@ void TestModule::onBaseTickEvent(BaseTickEvent& event)
 
 void TestModule::onPacketOutEvent(PacketOutEvent& event)
 {
-    if(mMode.mValue == Mode::None)
-    {
-        if (event.mPacket->getId() == PacketID::PlayerAuthInput)
-        {
-            auto pkt = event.getPacket<PlayerAuthInputPacket>();
-            ChatUtils::displayClientMessage("Rots: (x: " + std::to_string(pkt->mRot.x) + ", y: " + std::to_string(pkt->mRot.y) + ")");
-        }
-    }
+
 }
 
 void TestModule::onPacketInEvent(PacketInEvent& event)
@@ -554,6 +555,16 @@ void TestModule::onRenderEvent(RenderEvent& event)
 
                 if (stack && stack->mItem)
                 {
+                    if (!TRY_CALL([&]()
+                    {
+                        if (!conStack.mItem) ImGui::Text("Item: NULL");
+                        else ImGui::Text("Item: %s", conStack.getItem()->mName.c_str());
+                    }))
+                    {
+                        ImGui::Text("Failed to call ItemStack::fromDescriptor");
+                    }
+
+
                     ImGui::Text("Item: %s", stack->getItem()->mName.c_str());
                     ImGui::Text("Item Value: %d", ItemUtils::getItemValue(stack));
                     ImGui::Text("Item Type: %s", magic_enum::enum_name(stack->getItem()->getItemType()).data());

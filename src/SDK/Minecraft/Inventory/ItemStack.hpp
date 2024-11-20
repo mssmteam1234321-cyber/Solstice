@@ -122,6 +122,7 @@ public:
 
     ItemStack()
     {
+        memset(this, 0, sizeof(ItemStack));
         mVfTable = reinterpret_cast<uintptr_t**>(SigManager::ItemStack_vTable);
     }
 
@@ -136,6 +137,8 @@ public:
         name = StringUtils::replaceAll(name, "_", " ");
         return name;
     }
+
+    static ItemStack fromDescriptor(class NetworkItemStackDescriptor const& desc);
 };
 
 static_assert(sizeof(ItemStack) == 0x98, "ItemStack size invalid");

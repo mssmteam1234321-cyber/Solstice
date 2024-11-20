@@ -34,6 +34,7 @@ public:
 class Level {
 public:
     CLASS_FIELD(uintptr_t**, mVfTable, 0x0);
+    //CLASS_FIELD(class BlockPalette*, mBlockPalette, 0x1C8);
     ///CLASS_FIELD(std::unordered_map<mce::UUID, PlayerListEntry>, pl, 0x1BC8); // class_field doesn't support std::unordered_map lol
 
     std::unordered_map<mce::UUID, PlayerListEntry>* getPlayerList();
@@ -41,4 +42,5 @@ public:
     class SyncedPlayerMovementSettings* getPlayerMovementSettings();
     std::vector<Actor*> getRuntimeActorList();
     LevelData* getLevelData();
+    class BlockPalette* getBlockPalette();
 };

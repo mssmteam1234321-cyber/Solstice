@@ -7,6 +7,7 @@
 #include <string>
 #include <variant>
 #include <SDK/SigManager.hpp>
+#include <SDK/Minecraft/JSON.hpp>
 #include <Utils/MemUtils.hpp>
 
 
@@ -22,42 +23,62 @@ struct ItemStackRequestIdTag {
 public:
 };
 
-using ItemStackLegacyRequestId = unsigned int;
-using ItemStackNetId = unsigned int;
-using ItemStackRequestId = unsigned int;
+struct ItemTag : public HashedString {};
 
-struct ItemStackNetIdVariant
-{
+class ItemDescriptor {
 public:
-    std::variant<ItemStackNetId, ItemStackRequestId, ItemStackLegacyRequestId> id;
+    enum class InternalType : signed char {
+        Invalid      = 0x0,
+        Default      = 0x1,
+        Molang       = 0x2,
+        ItemTag      = 0x3,
+        Deferred     = 0x4,
+        ComplexAlias = 0x5,
+    };
+
+    struct ItemEntry {
+    public:
+        const class Item* mItem;     // this+0x0
+        short             mAuxValue; // this+0x8
+    };
+
+    struct BaseDescriptor {
+    public:
+        Item* mItem; // this+0x0
+        //ItemTag mItemTag;
+
+        BaseDescriptor() = default;
+        BaseDescriptor(BaseDescriptor& self)
+        {
+            *reinterpret_cast<uintptr_t**>(this) = *reinterpret_cast<uintptr_t**>(&self);
+            mItem = self.mItem;
+        }
+
+
+    public:
+        virtual std::unique_ptr<struct ItemDescriptor::BaseDescriptor> clone() const { return nullptr; }
+        virtual bool sameItems(struct ItemDescriptor::BaseDescriptor const& otherDescriptor, bool compareAux) const { return false; }
+        virtual bool sameItem(struct ItemDescriptor::ItemEntry const& otherItem, bool) const { return false; }
+        virtual std::string const& getFullName() const { return std::string(); }
+        virtual struct ItemDescriptor::ItemEntry getItem() const { return ItemEntry(); }
+        virtual bool forEachItemUntil(std::function<bool(class Item const&, short)> func) const { return false; }
+        virtual std::map<std::string, std::string> toMap() const { return std::map<std::string, std::string>(); }
+        virtual void /*std::optional<class CompoundTag>*/ save() const { return; }
+        virtual void serialize(class MinecraftJson::Value& val) const { return; }
+        virtual void serialize(class BinaryStream& stream) const {}
+        virtual ::ItemDescriptor::InternalType getType() const { return ::ItemDescriptor::InternalType::Invalid; }
+        virtual bool isValid() const { return false; }
+        virtual uint64_t getHash() const { return 0; }
+        virtual bool shouldResolve() const { return false; }
+        virtual std::unique_ptr<struct ItemDescriptor::BaseDescriptor> resolve() const { return nullptr; }
+        virtual ~BaseDescriptor() = default;
+
+
+    };
+
+    uintptr_t** vtable;
+    ItemDescriptor::BaseDescriptor* mImpl;
 };
-
-class InternalItemDescriptor
-{
-public:
-    uintptr_t** vTable; // this+0x0
-
-    // Recreate the getItem function using pseudo code above
-    class Item* getItem() {
-        if (this == nullptr) return nullptr;
-        auto item = reinterpret_cast<Item**>(reinterpret_cast<uintptr_t>(this) + 0x8);
-        if (!item || !*item) return nullptr;
-        return *item;
-    }
-
-    Item** getRawItem() {
-        return reinterpret_cast<Item**>(reinterpret_cast<uintptr_t>(this) + 0x8);
-    }
-
-
-}; //Size: 0x0010
-
-class ItemDescriptor
-{
-public:
-    uintptr_t** vTable; // this+0x0
-    InternalItemDescriptor* baseItem; // this+0x8
-}; //Size: 0x0010
 static_assert(sizeof(ItemDescriptor) == 0x10);
 
 class ItemDescriptorCount : public ItemDescriptor
@@ -86,3 +107,5 @@ public:
         MemUtils::callFastcall<void>(func, this, &itemStack);
     }
 };
+
+static_assert(sizeof(NetworkItemStackDescriptor) == 0x60);

@@ -39,3 +39,9 @@ LevelData* Level::getLevelData()
     static auto vIndex = OffsetProvider::Level_getLevelData;
     return MemUtils::callVirtualFunc<LevelData*>(vIndex, this);
 }
+
+class BlockPalette* Level::getBlockPalette()
+{
+    static auto vIndex = OffsetProvider::Level_getBlockPalette;
+    return MemUtils::callVirtualFunc<class BlockPalette*>(vIndex, this);
+}

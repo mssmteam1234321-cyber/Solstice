@@ -6,7 +6,6 @@
 #include <Features/Modules/Module.hpp>
 #include <SDK/Minecraft/Inventory/ContainerManagerModel.hpp>
 
-
 class ChestStealer : public ModuleBase<ChestStealer> {
 public:
     enum class Mode
@@ -25,7 +24,16 @@ public:
 
     ChestStealer() : ModuleBase<ChestStealer>("ChestStealer", "Steals items from chests", ModuleCategory::Player, 0, false)
     {
-        addSettings(&mMode, &mRandomizeDelay, &mDelay, &mRandomizeMin, &mRandomizeMax, &mIgnoreUseless);
+        addSettings(
+#ifdef __PRIVATE_BUILD__
+            &mMode,
+#endif
+            &mRandomizeDelay,
+            &mDelay,
+            &mRandomizeMin,
+            &mRandomizeMax,
+            &mIgnoreUseless
+        );
 
         VISIBILITY_CONDITION(mRandomizeMin, mRandomizeDelay.mValue == true);
         VISIBILITY_CONDITION(mRandomizeMax, mRandomizeDelay.mValue == true);
@@ -42,7 +50,7 @@ public:
     bool mIsStealing = false;
     uint64_t mLastItemTaken = 0;
     bool mIsChestOpen = false;
-    std::vector<NetworkItemStackDescriptor> mItemsToTake = {};
+    std::vector<ItemStack> mItemsToTake = {};
     ContainerID mCurrentContainerId = ContainerID::None;
     uint64_t mLastOpen = 0;
 
@@ -50,7 +58,7 @@ public:
     void reset();
     void onEnable() override;
     void onDisable() override;
-    void takeItem(int slot, NetworkItemStackDescriptor item);
+    void takeItem(int slot, ItemStack& item);
     void onBaseTickEvent(class BaseTickEvent& event);
     bool doDelay();
     void onPacketInEvent(class PacketInEvent& event);
