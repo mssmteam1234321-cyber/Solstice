@@ -18,6 +18,7 @@
 #include <SDK/Minecraft/Network/LoopbackPacketSender.hpp>
 #include <SDK/Minecraft/Network/MinecraftPackets.hpp>
 #include <SDK/Minecraft/Network/Packets/ContainerClosePacket.hpp>
+#include <SDK/Minecraft/Network/Packets/InteractPacket.hpp>
 
 #include "InvManager.hpp"
 
@@ -89,6 +90,7 @@ void ChestStealer::onEnable()
 {
     gFeatureManager->mDispatcher->listen<ContainerScreenTickEvent, &ChestStealer::onContainerScreenTickEvent>(this);
     gFeatureManager->mDispatcher->listen<PacketInEvent, &ChestStealer::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->listen<PacketOutEvent, &ChestStealer::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &ChestStealer::onBaseTickEvent>(this);
 }
 
@@ -96,6 +98,7 @@ void ChestStealer::onDisable()
 {
     gFeatureManager->mDispatcher->deafen<ContainerScreenTickEvent, &ChestStealer::onContainerScreenTickEvent>(this);
     gFeatureManager->mDispatcher->deafen<PacketInEvent, &ChestStealer::onPacketInEvent>(this);
+    gFeatureManager->mDispatcher->deafen<PacketOutEvent, &ChestStealer::onPacketOutEvent>(this);
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &ChestStealer::onBaseTickEvent>(this);
 }
 
@@ -217,6 +220,21 @@ bool ChestStealer::doDelay()
     }
 
     return false;
+}
+
+void ChestStealer::onPacketOutEvent(class PacketOutEvent& event)
+{
+#ifdef __PRIVATE_BUILD__
+    if (event.mPacket->getId() == PacketID::Interact && mIsStealing && mMode.mValue == Mode::Silent)
+    {
+        auto packet = event.getPacket<InteractPacket>();
+        if (packet->mAction == InteractPacket::Action::OpenInventory)
+        {
+            spdlog::warn("Cancelled InteractPacket::Action::OpenInventory because we are silently stealing!");
+            event.cancel();
+        }
+    }
+#endif
 }
 
 void ChestStealer::onPacketInEvent(PacketInEvent& event)
