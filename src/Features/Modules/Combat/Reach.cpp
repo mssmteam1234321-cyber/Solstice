@@ -4,12 +4,13 @@
 
 #include "Reach.hpp"
 #include <SDK/SigManager.hpp>
+#include <Utils/Buffer.hpp>
+#include <Utils/MemUtils.hpp>
+
+static uintptr_t func = 0x0;
 
 void Reach::onInit() {
-    uintptr_t addr = SigManager::Reach;
-    addr += 4;
-    int offset = *reinterpret_cast<int*>(addr);
-    mReachPtr = reinterpret_cast<float*>(addr + offset + 4);
+    func = SigManager::Reach;
 
     uintptr_t addr2 = SigManager::BlockReach;
     addr2 += 4;
@@ -18,16 +19,35 @@ void Reach::onInit() {
 }
 
 void Reach::onEnable() {
+    MemUtils::ReadBytes((void*)func, mOriginalData, sizeof(mOriginalData));
+
+    mDetour = AllocateBuffer((void*)func);
+    MemUtils::writeBytes((uintptr_t)mDetour, mDetourBytes, sizeof(mDetourBytes));
+
+    auto toOriginalAddrRip1 = MemUtils::GetRelativeAddress((uintptr_t)mDetour + sizeof(mDetourBytes) + 1, func + 11);
+
+    MemUtils::writeBytes((uintptr_t)mDetour + sizeof(mDetourBytes), "\xE9", 1);
+    MemUtils::writeBytes((uintptr_t)mDetour + sizeof(mDetourBytes) + 1, &toOriginalAddrRip1, sizeof(int32_t));
+
+    auto newRelRip1 = MemUtils::GetRelativeAddress(func + 1, (uintptr_t)mDetour + 4);
+
+    MemUtils::writeBytes(func, "\xE9", 1);
+    MemUtils::writeBytes(func + 1, &newRelRip1, sizeof(int32_t));
+    MemUtils::NopBytes(func + 5, 6);
+
     gFeatureManager->mDispatcher->listen<BaseTickEvent, &Reach::onBaseTickEvent>(this);
 }
 
 void Reach::onDisable() {
     gFeatureManager->mDispatcher->deafen<BaseTickEvent, &Reach::onBaseTickEvent>(this);
-    MemUtils::Write((uintptr_t) mReachPtr, 3.f);
+    
+    MemUtils::writeBytes(func, mOriginalData, sizeof(mOriginalData));
+    FreeBuffer(mDetour);
+
     MemUtils::Write((uintptr_t) mBlockReachPtr, 5.7f);
 }
 
 void Reach::onBaseTickEvent(class BaseTickEvent &event) {
-    MemUtils::Write((uintptr_t) mReachPtr, mCombatReach.mValue);
+    MemUtils::Write((uintptr_t) mDetour, mCombatReach.mValue);
     MemUtils::Write((uintptr_t) mBlockReachPtr, mBlockReach.mValue);
 }
