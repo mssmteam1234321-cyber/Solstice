@@ -61,6 +61,7 @@ public:
     void takeItem(int slot, ItemStack& item);
     void onBaseTickEvent(class BaseTickEvent& event);
     bool doDelay();
+    void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     uint64_t getDelay() const;
 
