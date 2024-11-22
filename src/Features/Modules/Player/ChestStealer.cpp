@@ -198,7 +198,7 @@ void ChestStealer::onBaseTickEvent(BaseTickEvent& event)
 
     if (predictedStealTime < NOW)
     {
-        //ChatUtils::displayClientMessage("Timed out");
+        ChatUtils::displayClientMessage("§cStealing timed out...");
         reset();
         return;
     }
