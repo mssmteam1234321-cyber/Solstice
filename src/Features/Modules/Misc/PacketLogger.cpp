@@ -14,6 +14,7 @@
 #include <SDK/Minecraft/Network/Packets/PlayerAuthInputPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/ActorDataPacket.hpp>
 #include <SDK/Minecraft/Network/Packets/ItemStackRequestPacket.hpp>
+#include <SDK/Minecraft/Network/Packets/PlayerActionPacket.hpp>
 
 
 class PlayerAuthInputPacket;
@@ -58,6 +59,13 @@ void PacketLogger::onPacketOutEvent(PacketOutEvent& event)
         auto packet = event.getPacket<Packet>();
         spdlog::info("Packet: {}", "Login");
     };
+
+    if (event.mPacket->getId() == PacketID::PlayerAction)
+    {
+        auto packet = event.getPacket<PlayerActionPacket>();
+        spdlog::info("Packet: PlayerAction, action: {}", magic_enum::enum_name(packet->mAction));
+    };
+
 
     if (event.mPacket->getId() == PacketID::PlayerAuthInput) {
         auto packet = event.getPacket<PlayerAuthInputPacket>();

@@ -51,6 +51,11 @@ public:
     uint64_t mLastItemTaken = 0;
     bool mIsChestOpen = false;
     std::vector<ItemStack> mItemsToTake = {};
+    bool mTotalDirty = false;
+    int mTotalItems = 0;
+    int mRemainingItems = 0;
+    glm::vec3 mLastPos = glm::vec3(0);
+    glm::vec3 mHighlightedPos = glm::vec3(0);
     ContainerID mCurrentContainerId = ContainerID::None;
     uint64_t mLastOpen = 0;
 
@@ -59,8 +64,10 @@ public:
     void onEnable() override;
     void onDisable() override;
     void takeItem(int slot, ItemStack& item);
+    void takeItems(std::map<int, ItemStack>& items);
     void onBaseTickEvent(class BaseTickEvent& event);
     bool doDelay();
+    void onRenderEvent(class RenderEvent& event);
     void onPacketOutEvent(class PacketOutEvent& event);
     void onPacketInEvent(class PacketInEvent& event);
     uint64_t getDelay() const;
