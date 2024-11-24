@@ -340,11 +340,18 @@ void TestModule::onRenderEvent(RenderEvent& event)
                 ImGui::Text("gameType: %d", player->getGameType());
                 displayCopyableAddress("LocalPlayer", player);
 
+
                 if (auto supplies = player->getSupplies())
                 {
                     displayCopyableAddress("PlayerInventory", supplies);
                     displayCopyableAddress("GameMode", player->getGameMode());
                     displayCopyableAddress("Level", player->getLevel());
+                    if (player->getLevel())
+                    {
+                        displayCopyableAddress("BlockPalette", player->getLevel()->getBlockPalette());
+                        displayCopyableAddress("BlockPalette_mLevel", player->getLevel()->getBlockPalette()->mLevel);
+                        ImGui::Text("mLevel correct: %s", player->getLevel()->getBlockPalette()->mLevel == player->getLevel() ? "true" : "false");
+                    }
                 }
 
                 auto lpid = player->mContext.mEntityId;

@@ -140,6 +140,7 @@ public:
     DEFINE_FIELD(Block_mLegacy, 0x30);
     DEFINE_FIELD(ClientInstance_getScreenName, 266); // i will make sig for it later (maybe)
     DEFINE_FIELD(ClientInstance_mGuiData, 0x590); // i will make sig for it later (maybe)
+    DEFINE_FIELD(BlockPalette_mLevel, 0x80);
 
 
 

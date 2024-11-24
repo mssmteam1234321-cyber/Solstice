@@ -30,6 +30,22 @@ public:
     CLASS_FIELD(uint64_t, mTick, OffsetProvider::LevelData_mTick);
 };
 
+class BlockPalette {
+public:
+    virtual ~BlockPalette();
+    virtual void getPaletteType();
+    virtual void appendBlock(Block const&);
+    virtual void getBlock(unsigned int const&);
+    virtual void assignBlockNetworkId(Block const&, unsigned long);
+
+    // TODO: Correct these fields lol
+    /*std::mutex mLegacyBlockStatesWarningMutex;
+    std::set<std::pair<int, int>> mLegacyBlockStatesWarningSet;
+    std::map<std::string, const BlockLegacy*> mNameLookup;
+    std::vector<const Block*> mBlockFromRuntimeId;
+    Level* mLevel;*/
+    CLASS_FIELD(Level*, mLevel, OffsetProvider::BlockPalette_mLevel);
+};
 
 class Level {
 public:
