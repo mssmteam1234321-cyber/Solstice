@@ -12,7 +12,8 @@ public:
 #ifdef __PRIVATE_BUILD__ // we're not allowed to release SentinelNew, do NOT include this in the final build
         SentinelNew,
 #endif
-        Custom
+        Custom,
+        BDSPrediction
     };
     enum class DisablerType {
         PingSpoof,
@@ -27,7 +28,7 @@ public:
 #ifdef __PRIVATE_BUILD__
         "SentinelNew",
 #endif
-        "Custom");
+        "Custom", "BDS Prediction");
     EnumSettingT<DisablerType> mDisablerType = EnumSettingT<DisablerType>("Disabler Type", "The type of disabler to use.", DisablerType::PingSpoof, "Ping Spoof", "Ping Holder"
 #ifdef __PRIVATE_BUILD__
         ,"Move Fix", "Move Fix V2"
