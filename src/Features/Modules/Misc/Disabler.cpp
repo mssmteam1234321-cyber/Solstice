@@ -442,7 +442,6 @@ void Disabler::onPacketOutEvent(PacketOutEvent& event)
             auto packet = event.getPacket<PlayerAuthInputPacket>();
             packet->mInputData |= AuthInputAction::START_SNEAKING;
             if (!packet->hasInputData(AuthInputAction::SNEAKING)) packet->mInputData |= AuthInputAction::STOP_SNEAKING;
-
             //packet->mInputData |= AuthInputAction::START_GLIDING;
         }
     }
