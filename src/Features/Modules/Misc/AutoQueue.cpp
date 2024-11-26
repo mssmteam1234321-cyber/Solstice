@@ -93,15 +93,17 @@ void AutoQueue::onPacketInEvent(PacketInEvent& event)
         }
 
         std::string playerName = player->getNameTag();
-        if (playerName.find("§r") != std::string::npos) playerName.erase(playerName.find("§r"), 2);
-        if (playerName.find("§l") != std::string::npos) playerName.erase(playerName.find("§l"), 2);
+        if (playerName != "") {
+            if (playerName.find("§r") != std::string::npos) playerName.erase(playerName.find("§r"), 2);
+            if (playerName.find("§l") != std::string::npos) playerName.erase(playerName.find("§l"), 2);
 
-        std::string playerTeam = "§" + playerName.substr(playerName.find("§") + 2, 1);
+            std::string playerTeam = "§" + playerName.substr(playerName.find("§") + 2, 1);
 
-        if (StringUtils::containsIgnoreCase(tp->mMessage, "§7has been §cELIMINATED§7!") && StringUtils::startsWith(tp->mMessage, playerTeam + "§l»") && mQueueOnDeath) {
-            mQueueForGame = true;
-            mLastQueueTime = NOW;
-            NotifyUtils::notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
+            if (StringUtils::containsIgnoreCase(tp->mMessage, "§7has been §cELIMINATED§7!") && StringUtils::startsWith(tp->mMessage, playerTeam + "§l»") && mQueueOnDeath) {
+                mQueueForGame = true;
+                mLastQueueTime = NOW;
+                NotifyUtils::notify("Queuing for " + mLastGame + "!", 1.f + (mQueueDelay.mValue), Notification::Type::Info);
+            }
         }
 
         static std::vector<std::string> ignored = {
