@@ -43,13 +43,18 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
     glm::vec3 playerPos = *player->getPos();
     auto moveInputComponent = player->getMoveInputComponent();
     static auto speed = gFeatureManager->mModuleManager->getModule<Speed>();
-    auto& keyboard = *ClientInstance::get()->getKeyboardSettings();
-    bool isJumping = Keyboard::mPressedKeys[keyboard["key.jump"]];
+    auto& binds = *ClientInstance::get()->getKeyboardSettings();
+    bool isJumping = Keyboard::mPressedKeys[binds["key.jump"]];
 
-
-    if (!Aura::sHasTarget || !Aura::sTarget || !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !isJumping) || (mSpeedOnly.mValue && (speed == nullptr || !speed->mEnabled)))
+    if (!Aura::sHasTarget || !Aura::sTarget || Aura::sTarget && !Aura::sTarget->getActorTypeComponent() || (mJumpOnly.mValue && !isJumping) || (mSpeedOnly.mValue && (speed == nullptr || !speed->mEnabled)))
     {
+        mWasStrafing = mShouldStrafe;
         mShouldStrafe = false;
+
+        // restore original movement keys
+        if (mWasStrafing)  handleKeyInput(Keyboard::mPressedKeys[binds["key.forward"]], Keyboard::mPressedKeys[binds["key.left"]],
+            Keyboard::mPressedKeys[binds["key.back"]], Keyboard::mPressedKeys[binds["key.right"]]);
+
         return;
     }
 
@@ -70,6 +75,8 @@ void TargetStrafe::onBaseTickEvent(BaseTickEvent& event)
     }
 
     handleKeyInput(mForward, !mMoveRight, mBackward, mMoveRight);
+
+    mWasStrafing = mShouldStrafe;
     mShouldStrafe = true;
 }
 
