@@ -1,7 +1,6 @@
 # solstice
-## Building
-To build Solstice, you will need some **important** dependencies.
-### Installing the dependency
+## this is NOT maintained anymore. don't ask me for help with it.
+### msys2 
 First, you need to head to https://www.msys2.org/ and install MSYS2.
 
 ![image](https://github.com/VastraKai/Prax/assets/95504366/13f641b4-c4fd-4361-adb8-4dfc95a7420e)
