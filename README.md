@@ -9,16 +9,16 @@ First, you need to head to https://www.msys2.org/ and install MSYS2.
 
 When selecting your installation folder, make sure you have this path there.
 
-![image](https://github.com/VastraKai/Prax/assets/95504366/18540dab-a728-410e-abab-d4f6c8ad7705)
+newlite)
 
 Then simply proceed with the install.<br>
 Once it's done installing, you need to find and open **MSYS2 MSYS**.
 
-![image](https://github.com/VastraKai/Prax/assets/95504366/63606fce-3bc3-4e54-8d95-b0208aca0f9a)
+newlight- 
 
 Once it's open you should see a window like this:
 
-![image](https://github.com/VastraKai/Prax/assets/95504366/b66fe427-eebc-4f88-8e89-456883716c17)
+newlight- 
 
 Go in that window, and paste this command:
 ```pacman -S mingw-w64-x86_64-binutils``` <br>
