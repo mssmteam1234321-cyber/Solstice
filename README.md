@@ -1,4 +1,4 @@
-# solstice
+# newlight- 
 ## this is NOT maintained anymore. don't ask me for help with it.
 ### msys2 
 First, you need to head to https://www.msys2.org/ and install MSYS2.
