@@ -1,5 +1,5 @@
 # newlight- 
-## this is NOT maintained anymore. don't ask me for help with it.
+## this is NOT maintained anymore. don't ask me for help with it. вы дауны которые пытаетесь обновить ньюлайт
 ### msys2 
 First, you need to head to https://www.msys2.org/ and install MSYS2.
 
